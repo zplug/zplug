@@ -1,0 +1,121 @@
+#!/bin/zsh
+# **DESIGN**
+# zplug install
+# zplug "username/reponame"
+# zplug "username/reponame" as:bin
+# zplug "username/reponame" for:'*.zsh'
+# zplug "username/reponame" to:~/dir
+#
+# zplug "b4b4r07/gomi" -> plugs=(b4b4r07-SLASH-gomi), b4b4r07-SLASH-gomi[as]="bin", b4b4r07-SLASH-gomi[load]='*.sh'
+
+plugs=()
+
+bg_rotation_bar() {
+    local current_count simbol
+    for ((current_count=0; ; current_count++))
+    do
+        let simbol=current_count%4
+        case "$simbol" in
+            0) echo -ne " |\r";;
+            1) echo -ne " /\r";;
+            2) echo -ne " -\r";;
+            3) echo -ne " \\\\\r";;
+        esac
+        sleep 0.005s
+    done
+}
+
+progress_bar() {
+    local _progress _done _left _fill _empty
+    _progress=$((${1}*100/${2}*100/100))
+    _done=$((${_progress}*4/10))
+    _left=$((40-$_done))
+    _fill=$(printf "%${_done}s")
+    _empty=$(printf "%${_left}s")
+    printf "\rInstalling...  $3\033[K\n\r[${_fill// /#}${_empty// /-}] ${_progress}%% ($1/$2)"
+}
+
+# plug::install() {
+# local cnt
+# [[ -d ~/plug ]] || mkdir -p ~/plug
+#
+# export c=0
+# cnt=0
+# echo ${(F)plugs} | while read line; do
+# progress_bar ${c} ${#plugs} "$line"
+# builtin cd ~/plug
+# git clone \
+#     --depth=1 \
+#     --recursive \
+#     --quiet \
+#     https://github.com/"$line" >/dev/null 2>&1
+# ((c++))
+# builtin cd -
+# printf "\e[A\r\e[32mInstalled!\e[m    \n"
+# done
+# }
+
+plug::install_p() {
+    local cnt line
+    cnt=0
+    [[ -d ~/plug ]] || mkdir -p ~/plug
+
+    if [[ -p /dev/stdin ]]; then
+        cat <&0
+    else
+        echo ${(F)plugs}
+    fi \
+        | while read line
+        do
+            {
+                START="$(date +%s)"
+                printf "Installing... $line\e[B\r"
+                bg_rotation_bar &
+                cd ~/plug
+                git clone \
+                    --depth=1 \
+                    --recursive \
+                    --quiet \
+                    https://github.com/"$line" >/dev/null 2>&1
+                END="$(date +%s)"
+                printf "\e[32mInstalled!\e[m    $line \t ($((${END} - ${START})) sec.)\n"
+                kill $!
+            } &
+            (( (cnt += 1) % 16 == 0 )) && wait
+        done
+    wait
+    printf "\e[;1m ==> Install to ~/hogehoge, successfully\e[m\n"
+}
+
+plug() {
+    case "$1" in
+        install)
+            echo "${(F)plugs}" \
+                | if [[ $PLUG_PARALLEL ]]; then
+                plug::install_p
+            else
+                plug::install
+            fi
+            return $?
+            ;;
+        *)
+            if [[ $1 =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
+                plugs+=($1)
+            fi
+            ;;
+    esac
+}
+
+PLUG_PARALLEL=1
+
+# plug "b4b4r07/vim-shellutils"
+# plug "b4b4r07/vim-autocdls"
+# plug "b4b4r07/vim-ezoe"
+# plug "b4b4r07/ezoe"
+# plug "b4b4r07/vim-hcl"
+plug "b4b4r07/gotcha"
+plug "b4b4r07/gomi"
+plug "b4b4r07/gch"
+plug "b4b4r07/releases"
+plug "b4b4r07/misc"
+plug install
