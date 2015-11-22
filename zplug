@@ -1,17 +1,12 @@
 #!/bin/zsh
-# **DESIGN**
-# zplug install
-# zplug "username/reponame"
-# zplug "username/reponame" as:bin
-# zplug "username/reponame" of:'*.zsh'
-# zplug "username/reponame" to:~/dir
-#
-# zplug "b4b4r07/gomi" -> plugs=(b4b4r07-SLASH-gomi), b4b4r07-SLASH-gomi[as]="bin", b4b4r07-SLASH-gomi[load]='*.sh'
 
+# Disable job control
+set +m
 
-ZPLUG_HOME=~/plug
-
-typeset -g -A plugs
+ZPLUG_NAME=zplug
+ZPLUG_VERSION=0.0.1
+ZPLUG_HOME=~/zplug
+typeset -g -A zplugs
 
 bg_rotation_bar() {
     local current_count simbol
@@ -24,39 +19,40 @@ bg_rotation_bar() {
             2) echo -ne " -\r";;
             3) echo -ne " \\\\\r";;
         esac
-        sleep 0.005s
+        sleep 0.05s
     done
 }
 
-plug::install() {
+zplug::install() {
     # prepare
     local cnt line fail job
     cnt=0
-    fail=0
     [[ -d $ZPLUG_HOME ]] || mkdir -p $ZPLUG_HOME
 
     for line in "$@"; do
         {
-            printf "Installing... $line\n"
+            SECONDS=0
+            printf "Installing...  $line\n"
             bg_rotation_bar & bg_pid=$!
             cd $ZPLUG_HOME
             git clone \
                 --depth=1 \
                 --recursive \
                 --quiet \
-                https://github.com/"$line" >/dev/null 2>&1
+                git@github.com:"$line" >/dev/null 2>&1
             ret=$status
             kill -9 $bg_pid
             if [ $ret -eq 0 ]; then
-                printf "\e[32mInstalled!\e[m    $line \t ($SECONDS sec.)\n"
+                printf "\e[32mInstalled!\e[m     $line \t ($SECONDS sec.)\n"
             else
-                printf "\e[31mInstalled!\e[m    $line\n"
+                printf "\e[31mNot Installed\e[m  $line\n"
                 false
             fi
         } &
         (( (cnt += 1) % 16 == 0 )) && wait
     done
 
+    fail=0
     typeset -F SECONDS=0
 
     # wait
@@ -66,54 +62,117 @@ plug::install() {
     done
     wait
 
-    if [[ "$fail" == "0" ]]; then
-        printf "\e[;1m ==> Installed all plugins to ~/hogehoge, successfully\e[m\n"
+    if [[ "$fail" -eq 0 ]]; then
+        printf "\e[;1m ==> Installed all plugins to $ZPLUG_HOME, successfully\e[m!\n"
     else
-        printf "\e[31;1m ==> Install to ~/hogehoge, baaad!\e[m\n"
+        printf "\e[31;1m ==> Installed to $ZPLUG_HOME but failed.\e[m\n"
     fi
-    printf "zplug install: total time %.2f sec\n" $SECONDS
+    printf "$ZPLUG_NAME: total time %.2f sec\n" $SECONDS
 }
 
-plug() {
-    local plug
-    plug="$1"
-    case "$plug" in
-        install)
-            plug::install ${(k)plugs}
+zplug::parse()
+{
+    local zplug
+    for zplug in ${(k)zplugs}
+    do
+        echo "$zplug,$zplugs[$zplug]" | sed -e 's/  / /g'
+    done
+}
+
+zplug::load()
+{
+    local arr tmp
+    local as of to _if dir from name
+
+    arr=( ${(@f)"$(zplug::parse)"} )
+
+    local zplug
+    for zplug in $arr
+    do
+        # "username/reponame" "as:bin,to:~/mydir"
+        # username/reponame as:bin to:~/mydir
+        tmp=(${(s:,:)${zplug}})
+        # username/reponame
+        name="${tmp[1]}"
+
+        as=${${(M)tmp:#as*}#*:}
+        of=${${(M)tmp:#of*}#*:}
+        to=${${(M)tmp:#dir*}#*:}
+        _if=${${(M)tmp:#if*}#*:}
+        dir=${${(M)tmp:#dir*}#*:}
+        from=${${(M)tmp:#from*}#*:}
+
+        if [[ $from ]]; then
+            eval 'L=$name bash -c "$(curl -L git.io/releases)"'
+            continue
+        fi
+
+        if [[ $_if ]]; then
+            if ! eval "$_if >/dev/null 2>&1"; then
+                echo "$name: not load"
+                continue
+            fi
+        fi
+
+        case $as in
+            bin|cmd)
+                local load_path
+                load_path="$dir"
+                if [[ $of ]]; then
+                    if [[ -d $dir/$of ]]; then
+                        load_path="$dir/$of"
+                    else
+                        load_path="$dir/${of%/*}"
+                    fi
+                fi
+                export PATH="$load_path:$PATH"
+                ;;
+            src|"")
+                local f files
+                files=($dir/*.zsh(N))
+                for f in $files
+                do
+                    source "$f"
+                done
+                ;;
+        esac
+    done
+}
+
+zplug() {
+    local zplug
+    zplug="$1"
+    case "$zplug" in
+        i|install)
+            zplug::install ${(k)zplugs}
             return $?
+            ;;
+        l|load)
+            zplug::load
+            return $?
+            ;;
+        "")
+            return 1
             ;;
         *)
             shift
-            if [[ $plug =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
-                plugs+=($plug "${@:-}")
+            if [[ $zplug =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
+                local i specifier
+                for i in "$@"
+                do
+                    specifier="${specifier}${i}"
+                done
+                zplugs+=($zplug "${specifier:-}")
+                zplugs[$zplug]+=",dir:$ZPLUG_HOME/${zplug#*/}"
             fi
             ;;
     esac
 }
 
-plug "b4b4r07/vim-shellutils"
-plug "b4b4r07/vim-autocdls"
-plug "b4b4r07/vim-ezoe"
-plug "b4b4r07/ezoe"
-plug "b4b4r07/vim-hcl"
-plug "b4b4r07/gotcha" "as:bin load:*.sh"
-plug "b4b4r07/gomi"
-plug "b4b4r07/gch"
-plug "b4b4r07/solarized.vim" "as:src"
-plug "b4b4r07/releases"
-plug "b4b4r07/misc"
-plug install
-exit
+zplug "b4b4r07/http_code" \
+    as:bin, \
+    of:bin/http_code,
+zplug "junegunn/fzf-bin" as:bin, from:releases
 
-typeset -p plugs
-
-plug_parse() {
-    local attr i
-    attr=(${(s: :)1})
-
-    for i in $attr
-    do
-        echo ${(s/:/)i}
-    done
-}
-plug_parse $plugs[b4b4r07/gotcha]
+zplug install
+zplug load
