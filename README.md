@@ -1,6 +1,5 @@
-![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png)
-
-[![](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
+<img src="https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png" height="100" alt="vim-plug">
+===
 
 `zplug` is next-generation zsh plugin manager.
 
@@ -32,6 +31,7 @@ Add a zplug section to your `.zshrc`:
 ```bash
 source ~/.zplug/zplug
 
+# Make sure you use double quotes
 zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-substring-search"
 
@@ -48,10 +48,17 @@ zplug "junegunn/fzf-bin", \
     as:cmd, \
     from:gh-r, \
     file:fzf
+    
+# branch/tag
+zplug "b4b4r07/enhancd", at:v1
+
+# execute command if true
+zplug "hchbaw/opp.zsh", if:"[ ${ZSH_VERSION%%.*} -lt 5 ]"
 
 # Group dependencies, emoji-cli depends on jq
 zplug "stedolan/jq" \
     as:bin, \
+    file:jq, \
     from:gh-r \
     | zplug "b4b4r07/emoji-cli"
 
@@ -75,6 +82,10 @@ Then `zplug install` to install plugins and reload `.zshrc`.
 | `as`       | Regards that as plugins or commands | `src`,`cmd` (`src`) | `as:cmd` |
 | `of`       | Specify the pattern to source (for `src`) or relative path to export (for `cmd`) | - (-) | `of:bin`,`of:*.zsh` |
 | `from`     | Specify external binaries e.g., GitHub Releases | `gh-r` (-) | `from:gh-r` |
+| `at`       | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
+| `file`     | Specify filename you want to rename | filename (-) | `file:fzf` |
+| `dir`      | Installation directory | **READ-ONLY** | - 
+| `if`       | Execution of shell commands if true | true/false (-) | `if:"[ -d ~/.zsh ]"` |
 
 ### Environment variables
 
