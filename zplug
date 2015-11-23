@@ -1,5 +1,9 @@
 #!/bin/zsh
 
+die() {
+    echo "$@" >&2
+}
+
 # Disable job control
 set +m
 
@@ -23,11 +27,13 @@ bg_rotation_bar() {
     done
 }
 
-zplug::install() {
+zplug::install()
+{
     # prepare
     local cnt line fail job
     cnt=0
     [[ -d $ZPLUG_HOME ]] || mkdir -p $ZPLUG_HOME
+    [[ $1 ]] || return
 
     for line in "$@"; do
         {
@@ -35,12 +41,20 @@ zplug::install() {
             printf "Installing...  $line\n"
             bg_rotation_bar & bg_pid=$!
             cd $ZPLUG_HOME
-            git clone \
-                --depth=1 \
-                --recursive \
-                --quiet \
-                git@github.com:"$line" >/dev/null 2>&1
-            ret=$status
+
+            local -A zspec
+            zspec=( $(zplug::parser $line) )
+            if [[ $zspec[from] == "gh-r" ]]; then
+                eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases)" -s os' >/dev/null 2>&1
+                ret=$status
+            else
+                git clone \
+                    --depth=1 \
+                    --recursive \
+                    --quiet \
+                    git@github.com:"$line" >/dev/null 2>&1
+                ret=$status
+            fi
             kill -9 $bg_pid
             if [ $ret -eq 0 ]; then
                 printf "\e[32mInstalled!\e[m     $line \t ($SECONDS sec.)\n"
@@ -63,73 +77,68 @@ zplug::install() {
     wait
 
     if [[ "$fail" -eq 0 ]]; then
-        printf "\e[;1m ==> Installed all plugins to $ZPLUG_HOME, successfully\e[m!\n"
+        printf "\e[;1m ==> Installed all plugins to $ZPLUG_HOME, successfully!\e[m\n"
     else
         printf "\e[31;1m ==> Installed to $ZPLUG_HOME but failed.\e[m\n"
     fi
     printf "$ZPLUG_NAME: total time %.2f sec\n" $SECONDS
 }
 
-zplug::parse()
+zplug::parser()
 {
-    local zplug
-    for zplug in ${(k)zplugs}
-    do
-        echo "$zplug,$zplugs[$zplug]" | sed -e 's/  / /g'
-    done
+    local zplug split_array
+    zplug="$1"
+    zplug="${zplug},${zplugs[$zplug]%,}"
+
+    split_array=(${(s:,:)zplug})
+
+    local name as of to from _if dir
+    name="${split_array[1]}"
+    as=${${${(M)split_array:#as*}#*:}:--EMP-}
+    of=${${${(M)split_array:#of*}#*:}:--EMP-}
+    to=${${${(M)split_array:#to*}#*:}:--EMP-}
+    from=${${${(M)split_array:#from*}#*:}:--EMP-}
+    _if=${${${(M)split_array:#if*}#*:}:--EMP-}
+    dir=${${${(M)split_array:#dir*}#*:}:--EMP-}
+
+    local -A zplugs_parsed
+    zplugs_parsed=(name "$name" as "$as" of "$of" to "$to" from "$from" if "$_if" dir "$dir")
+
+    echo "${(kv)zplugs_parsed}"
 }
 
 zplug::load()
 {
-    local arr tmp
-    local as of to _if dir from name
+    local load_path
 
-    arr=( ${(@f)"$(zplug::parse)"} )
-
+    local -A zspec
     local zplug
-    for zplug in $arr
+    for zplug in ${(k)zplugs}
     do
-        # "username/reponame" "as:bin,to:~/mydir"
-        # username/reponame as:bin to:~/mydir
-        tmp=(${(s:,:)${zplug}})
-        # username/reponame
-        name="${tmp[1]}"
+        zspec=( $(zplug::parser $zplug) )
 
-        as=${${(M)tmp:#as*}#*:}
-        of=${${(M)tmp:#of*}#*:}
-        to=${${(M)tmp:#dir*}#*:}
-        _if=${${(M)tmp:#if*}#*:}
-        dir=${${(M)tmp:#dir*}#*:}
-        from=${${(M)tmp:#from*}#*:}
-
-        if [[ $from ]]; then
-            eval 'L=$name bash -c "$(curl -L git.io/releases)"'
-            continue
-        fi
-
-        if [[ $_if ]]; then
-            if ! eval "$_if >/dev/null 2>&1"; then
-                echo "$name: not load"
+        if [[ $zspec[if] != "-EMP-" ]]; then
+            if ! eval "$zspec[if] >/dev/null 2>&1"; then
+                echo "$zspec[name]: not load"
                 continue
             fi
         fi
 
-        case $as in
+        case $zspec[as] in
             bin|cmd)
-                local load_path
-                load_path="$dir"
-                if [[ $of ]]; then
-                    if [[ -d $dir/$of ]]; then
-                        load_path="$dir/$of"
+                load_path="$zspec[dir]"
+                if [[ $zspec[of] ]]; then
+                    if [[ -d $zspec[dir]/$zspec[of] ]]; then
+                        load_path="$zspec[dir]/$zspec[of]"
                     else
-                        load_path="$dir/${of%/*}"
+                        load_path="$zspec[dir]/${${zspec[of]}%/*}"
                     fi
                 fi
                 export PATH="$load_path:$PATH"
                 ;;
             src|"")
                 local f files
-                files=($dir/*.zsh(N))
+                files=($zspec[dir]/*.zsh(N))
                 for f in $files
                 do
                     source "$f"
@@ -145,34 +154,51 @@ zplug() {
     case "$zplug" in
         i|install)
             zplug::install ${(k)zplugs}
-            return $?
+            return $status
             ;;
         l|load)
             zplug::load
-            return $?
+            return $status
             ;;
         "")
             return 1
             ;;
         *)
             shift
-            if [[ $zplug =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
+            if [[ $zplug =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+,?$ ]]; then
                 local i specifier
                 for i in "$@"
                 do
-                    specifier="${specifier}${i}"
+                    case "${i%:*}" in
+                        as|of|from|to|if|dir)
+                            specifier="${specifier}${i}"
+                            ;;
+                        *)
+                            die "$i: invalid specifier"
+                            return 1
+                            ;;
+                    esac
                 done
+                # trim last comma
+                zplug=${zplug%,}
+                specifier=${specifier%,}
+
                 zplugs+=($zplug "${specifier:-}")
-                zplugs[$zplug]+=",dir:$ZPLUG_HOME/${zplug#*/}"
+                zplugs[$zplug]+="${zplugs[$zplug]:+,}dir:$ZPLUG_HOME/${zplug#*/}"
             fi
             ;;
     esac
 }
 
-zplug "b4b4r07/http_code" \
-    as:bin, \
-    of:bin/http_code,
-zplug "junegunn/fzf-bin" as:bin, from:releases
+zplug "b4b4r07/http_code", \
+    as:cmd, \
+    of:bin/http_code
+zplug "b4b4r07/gotcha"
+zplug "junegunn/fzf-bin" as:bin, from:gh-r
+# zplug "stedolan/jq" \
+#     as:bin, \
+#     from:gh-r \
+#     | zplug "b4b4r07/enhancd"
 
 zplug install
 zplug load
