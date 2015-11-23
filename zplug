@@ -7,9 +7,15 @@ die() {
 # Disable job control
 set +m
 
-ZPLUG_NAME=zplug
-ZPLUG_VERSION=0.0.1
-ZPLUG_HOME=~/zplug
+# environment variable (read-only)
+typeset -gx ZPLUG_NAME=zplug
+typeset -gx ZPLUG_VERSION=0.0.1
+
+# set default value if not present
+typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/zplug}
+typeset -gx ZPLUG_THREAD=${ZPLUG_THREAD:-16}
+
+# global variable
 typeset -g -A zplugs
 
 bg_rotation_bar() {
@@ -27,6 +33,16 @@ bg_rotation_bar() {
     done
 }
 
+zplug::list()
+{
+    local v
+    local -A B
+    for v in "${(@nO)zplugs}"; do
+        B+=("${(@kv)zplugs[(eR)$v]}")
+    done
+    printf '%-20s => %s\n' "${(@kv)B}"
+}
+
 zplug::install()
 {
     # prepare
@@ -37,6 +53,15 @@ zplug::install()
 
     for line in "$@"; do
         {
+            local -A zspec
+            zspec=( $(zplug::parser $line) )
+            for k in ${(k)zspec}
+            do
+                if [[ $zspec[$k] == "-EMP-" ]]; then
+                    zspec[$k]=""
+                fi
+            done
+
             SECONDS=0
             printf "Installing...  $line\n"
             bg_rotation_bar & bg_pid=$!
@@ -52,6 +77,7 @@ zplug::install()
                     --depth=1 \
                     --recursive \
                     --quiet \
+                    -b $zspec[at] \
                     git@github.com:"$line" >/dev/null 2>&1
                 ret=$status
             fi
@@ -92,7 +118,7 @@ zplug::parser()
 
     split_array=(${(s:,:)zplug})
 
-    local name as of to from _if dir
+    local name as of to from _if dir file at
     name="${split_array[1]}"
     as=${${${(M)split_array:#as*}#*:}:--EMP-}
     of=${${${(M)split_array:#of*}#*:}:--EMP-}
@@ -100,49 +126,77 @@ zplug::parser()
     from=${${${(M)split_array:#from*}#*:}:--EMP-}
     _if=${${${(M)split_array:#if*}#*:}:--EMP-}
     dir=${${${(M)split_array:#dir*}#*:}:--EMP-}
+    file=${${${(M)split_array:#file*}#*:}:--EMP-}
+    at=${${${(M)split_array:#at*}#*:}:-master}
 
     local -A zplugs_parsed
-    zplugs_parsed=(name "$name" as "$as" of "$of" to "$to" from "$from" if "$_if" dir "$dir")
+    zplugs_parsed=(
+      name "$name"
+      as   "$as"
+      of   "$of"
+      to   "$to"
+      from "$from"
+      if   "$_if"
+      dir  "$dir"
+      file "$file"
+      at   "$at"
+    )
 
     echo "${(kv)zplugs_parsed}"
 }
 
 zplug::load()
 {
-    local load_path
+    local load_path f files
 
     local -A zspec
     local zplug
     for zplug in ${(k)zplugs}
     do
         zspec=( $(zplug::parser $zplug) )
+        for k in ${(k)zspec}
+        do
+            if [[ $zspec[$k] == "-EMP-" ]]; then
+                zspec[$k]=""
+            fi
+        done
 
-        if [[ $zspec[if] != "-EMP-" ]]; then
+        if [[ $zspec[if] ]]; then
             if ! eval "$zspec[if] >/dev/null 2>&1"; then
-                echo "$zspec[name]: not load"
+                die "$zspec[name]: (not load)"
                 continue
             fi
         fi
 
         case $zspec[as] in
             bin|cmd)
-                load_path="$zspec[dir]"
-                if [[ $zspec[of] ]]; then
-                    if [[ -d $zspec[dir]/$zspec[of] ]]; then
-                        load_path="$zspec[dir]/$zspec[of]"
-                    else
-                        load_path="$zspec[dir]/${${zspec[of]}%/*}"
-                    fi
-                fi
-                export PATH="$load_path:$PATH"
+                mkdir -p $ZPLUG_HOME/{repos,bin} 2>/dev/null
+                for f in {$ZPLUG_HOME/,$zspec[dir]/${zspec[of]:+"$zspec[of]/"}${zspec[name]#*/}}*(.f755N)
+                do
+                    {
+                        # Support commit sha
+                        # local pat
+                        # pat="^($(git branch | cut -c3- | paste -s -d"|" -))$"
+                        # if [[ ! $zspec[at] =~ $pat ]]; then
+                        #     cd $zspec[dir]
+                        #     git checkout $zspec[at]
+                        # fi
+                        cd $ZPLUG_HOME/bin
+                        ln -snf "$f" ${zspec[file]:-.}
+                    } &
+                done
+                wait
+                path=($ZPLUG_HOME/bin $path)
+                typeset -gx -U path
                 ;;
             src|"")
-                local f files
-                files=($zspec[dir]/*.zsh(N))
+                files=($(zsh -c "echo $zspec[dir]/${zspec[of]:-*.sh(N)}" 2>/dev/null))
                 for f in $files
                 do
                     source "$f"
                 done
+                ;;
+            debug)
                 ;;
         esac
     done
@@ -152,6 +206,10 @@ zplug() {
     local zplug
     zplug="$1"
     case "$zplug" in
+        list)
+            zplug::list
+            return $status
+            ;;
         i|install)
             zplug::install ${(k)zplugs}
             return $status
@@ -161,6 +219,7 @@ zplug() {
             return $status
             ;;
         "")
+            die
             return 1
             ;;
         *)
@@ -170,7 +229,7 @@ zplug() {
                 for i in "$@"
                 do
                     case "${i%:*}" in
-                        as|of|from|to|if|dir)
+                        as|of|from|to|if|dir|file|at)
                             specifier="${specifier}${i}"
                             ;;
                         *)
@@ -190,15 +249,25 @@ zplug() {
     esac
 }
 
+zplug "k4rthik/git-cal", as:cmd
+zplug "b4b4r07/enhancd", of:"zsh/*.zsh"
+zplug "hchbaw/opp.zsh", if:"[ ${ZSH_VERSION%%.*} -lt 5 ]"
 zplug "b4b4r07/http_code", \
     as:cmd, \
-    of:bin/http_code
-zplug "b4b4r07/gotcha"
-zplug "junegunn/fzf-bin" as:bin, from:gh-r
+    of:bin
+zplug "holman/spark", as:cmd
+zplug "b4b4r07/emoji-cli", of:"*.zsh"
+zplug "junegunn/fzf-bin", \
+    as:bin, \
+    from:gh-r, \
+    file:fzf
+
 # zplug "stedolan/jq" \
 #     as:bin, \
 #     from:gh-r \
-#     | zplug "b4b4r07/enhancd"
+#     | zplug "b4b4r07/emoji-cli"
+
+# zplug list
 
 zplug install
 zplug load
