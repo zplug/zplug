@@ -40,23 +40,33 @@ zplug::list()
     for v in "${(@nO)zplugs}"; do
         B+=("${(@kv)zplugs[(eR)$v]}")
     done
-    printf '%-20s  =>  %s\n' "${(@kv)B}"
+    command printf '%-20s  =>  %s\n' "${(@kv)B}"
 }
 
 zplug::install()
 {
     local cnt line fail job
+    local start end
     cnt=0
     [[ -d $ZPLUG_HOME ]] || mkdir -p $ZPLUG_HOME
     [[ $1 ]] || return
 
+    start="$(date +%s)"
     for line in "$@"; do
+        # Skip installed items
+        [[ -e $ZPLUG_HOME/$line ]] &&
+            {
+                command printf "\033[31m-\033[m \033[32m${line}\033[m: already installed\n"
+                continue
+            }
+
         # Run installation in subprocess
         {
             # All variables are treated as local variable
             # because of background job (subprocess)
             local -A zspec
-            zspec=( $(zplug::parser "$line") )
+            # zspec=( $(zplug::parser "$line") )
+            zspec=( ${(@f)"$(zplug::parser "$line")"} )
             for k in ${(k)zspec}
             do
                 if [[ $zspec[$k] == "-EMP-" ]]; then
@@ -65,9 +75,9 @@ zplug::install()
             done
 
             # Reset timer
-            SECONDS=0
+            typeset -F SECONDS=0
 
-            printf "Installing...  $line\n"
+            command printf "Installing...  $line\n"
             bg_rotation_bar & bg_pid=$!
             cd $ZPLUG_HOME
 
@@ -91,26 +101,32 @@ zplug::install()
                 ret=$status
             fi
 
+            # If not empty
+            if [[ $zspec[do] ]]; then
+                if [[ $ret -eq 0 ]]; then
+                    # Run command
+                    eval "$zspec[do]"
+                fi
+            fi
+
             # Kill bg_rotation_bar animation
             kill -9 $bg_pid
 
             # Whether to success or not
             if [ $ret -eq 0 ]; then
-                printf "\e[32mInstalled!\e[m     $line \t ($SECONDS sec.)\n"
+                command printf "\033[32mInstalled!\033[m     %-20s\t(%.2fs)\n" "$line" $SECONDS
             else
-                printf "\e[31mNot Installed\e[m  $line\n"
+                command printf "\033[31mNot Installed\033[m  %-20s\n" "$line"
                 false
             fi
         } &
 
         # Prevent having too many subprocesses
-        (( (cnt += 1) % 16 == 0 )) && wait
+        (( (cnt += 1) % ZPLUG_THREAD == 0 )) && wait
     done
 
     # Count if fail
     fail=0
-    # Timer in detail
-    typeset -F SECONDS=0
 
     # Pauses until execution of a background process has ended
     for job in ${${(v)jobstates##*:*:}%=*}
@@ -120,13 +136,20 @@ zplug::install()
     # Wait until all jobs known to the invoking shell have terminated
     wait
 
-    # Footer prints
-    if [[ "$fail" -eq 0 ]]; then
-        printf "\e[;1m ==> Installed all plugins to $ZPLUG_HOME, successfully!\e[m\n"
-    else
-        printf "\e[31;1m ==> Installed to $ZPLUG_HOME but failed.\e[m\n"
+    # Skip footer prints if noting to do
+    if [[ $cnt -eq 0 ]]; then
+        return
     fi
-    printf "$ZPLUG_NAME: total time %.2f sec\n" $SECONDS
+
+    # Footer prints
+    if [[ $fail -eq 0 ]]; then
+        command printf "\033[;1m ==> Installed all plugins to $ZPLUG_HOME, successfully!\033[m\n"
+    else
+        command printf "\033[31;1m ==> Installed to $ZPLUG_HOME but failed.\033[m\n"
+    fi
+
+    end="$(date +%s)"
+    command printf "$ZPLUG_NAME: total time %d sec\n" $(($end - $start))
 }
 
 zplug::parser()
@@ -140,16 +163,17 @@ zplug::parser()
 
     # Add spec variable
     # If value is empty, set -EMP- value to it
-    local name as of to from _if dir file at
+    local name as of to from if dir file at do
     name="${split_array[1]}"
     as=${${${(M)split_array:#as*}#*:}:--EMP-}
     of=${${${(M)split_array:#of*}#*:}:--EMP-}
     to=${${${(M)split_array:#to*}#*:}:--EMP-}
     from=${${${(M)split_array:#from*}#*:}:--EMP-}
-    _if=${${${(M)split_array:#if*}#*:}:--EMP-}
+    if=${${${(M)split_array:#if*}#*:}:--EMP-}
     dir=${${${(M)split_array:#dir*}#*:}:--EMP-}
     file=${${${(M)split_array:#file*}#*:}:--EMP-}
     at=${${${(M)split_array:#at*}#*:}:-master}
+    do=${${${(M)split_array:#do*}#*:}:--EMP-}
 
     local -A zplugs_parsed
     zplugs_parsed=(
@@ -158,13 +182,20 @@ zplug::parser()
       of    "$of"
       to    "$to"
       from  "$from"
-      if    "$_if"
+      if    "$if"
       dir   "$dir"
       file  "$file"
       at    "$at"
+      do    "$do"
     )
 
-    echo "${(kv)zplugs_parsed}"
+    #echo "${(kv)zplugs_parsed}"
+    local k
+    for k in ${(k)zplugs_parsed}
+    do
+        echo "$k"
+        echo "$zplugs_parsed[$k]"
+    done
 }
 
 zplug::load()
@@ -176,7 +207,7 @@ zplug::load()
     for zplug in ${(k)zplugs}
     do
         # Set zspec
-        zspec=( $(zplug::parser "$zplug") )
+        zspec=( ${(@f)"$(zplug::parser "$zplug")"} )
         # Replace -EMP- with ""(empty)
         for k in ${(k)zspec}
         do
@@ -284,7 +315,7 @@ zplug() {
                 for i in "$@"
                 do
                     case "${i%:*}" in
-                        as|of|from|to|if|dir|file|at)
+                        as|of|from|to|if|dir|file|at|do)
                             specifier="${specifier}${i}"
                             ;;
                         *)
@@ -309,9 +340,9 @@ zplug() {
 #
 # *************** DEBUG ***************
 #
-zplug "k4rthik/git-cal", as:cmd
-zplug "b4b4r07/zsh-gomi", as:cmd, of:bin/gomi
-zplug "b4b4r07/ssh-keyreg", as:cmd, of:bin
+# zplug "k4rthik/git-cal", as:cmd, do:"echo installed"
+# zplug "b4b4r07/zsh-gomi", as:cmd, of:bin/gomi
+# zplug "b4b4r07/ssh-keyreg", as:cmd, of:bin
 zplug "b4b4r07/cli-finder", as:cmd, of:bin
 zplug "b4b4r07/tmuxlogger"
 # zplug "b4b4r07/enhancd", at:v1
@@ -321,10 +352,10 @@ zplug "b4b4r07/http_code", \
     of:bin
 zplug "holman/spark", as:cmd
 # zplug "b4b4r07/emoji-cli", of:"*.zsh"
-zplug "junegunn/fzf-bin", \
-    as:bin, \
-    from:gh-r, \
-    file:fzf
+# zplug "junegunn/fzf-bin", \
+#     as:bin, \
+#     from:gh-r, \
+#     file:fzf
 
 # zplug "stedolan/jq" \
 #     as:bin, \
@@ -332,7 +363,7 @@ zplug "junegunn/fzf-bin", \
 #     | zplug "b4b4r07/emoji-cli"
 
 # zplug list
-# zplug install || echo install
+zplug install
 zplug load
 
 # export PATH=/bin:/usr/bin:/usr/local/bin
