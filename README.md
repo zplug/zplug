@@ -49,11 +49,7 @@ zplug "junegunn/fzf-bin", \
     file:fzf
     
 # run command after installed
-zplug "peco/peco", \
-    as:cmd, \
-    from:gh-r, \
-    of:peco*/peco, \
-    do:"echo Peco"
+zplug "tj/n", do:"make install"
     
 # branch/tag
 zplug "b4b4r07/enhancd", at:v1
@@ -63,7 +59,7 @@ zplug "hchbaw/opp.zsh", if:"[ ${ZSH_VERSION%%.*} -lt 5 ]"
 
 # Group dependencies, emoji-cli depends on jq
 zplug "stedolan/jq", \
-    as:bin, \
+    as:cmd, \
     file:jq, \
     from:gh-r \
     | zplug "b4b4r07/emoji-cli"
@@ -94,7 +90,7 @@ Then `zplug install` to install plugins and reload `.zshrc`.
 | `file`     | Specify filename you want to rename | filename (-) | `file:fzf` |
 | `dir`      | Installation directory | **READ-ONLY** | - 
 | `if`       | Whether to install or not | true/false (-) | `if:"[ -d ~/.zsh ]"` |
-| `do`       | Run commands after installation | shell commands (-) | `do:"echo Done!"` |
+| `do`       | Run commands after installation | shell commands (-) | `do:"make"` |
 | `frozen`   | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
 
 ### `zplug` configurations
@@ -109,7 +105,7 @@ It defaults to 16.
 
 ## Note
 
-:warning: **v0.0.1** there are still some bugs. This plugin isn't ready to use yet.
+:warning: **v0.1.0** there are still some bugs. This plugin isn't ready to use yet.
 
 ## License
 
