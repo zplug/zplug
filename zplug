@@ -16,40 +16,44 @@
 #
 # Edit your .zshrc
 #
-#   source ~/.zplug/zplug
-#
-#   # Make sure you use double quotes
-#   zplug "zsh-users/zsh-syntax-highlighting"
-#   zplug "zsh-users/zsh-substring-search"
-#
-#   # shell commands
-#   zplug "holman/spark", as:cmd
-#   # shell commands (specify export directory path using `of` specifier)
-#   zplug "b4b4r07/http_code", as:cmd, of:bin
-#   # shell commands (whatever language is OK; e.g., perl script)
-#   zplug "k4rthik/git-cal", as:cmd
-#
-#   # binaries (from GitHub Releases)
-#   zplug "junegunn/fzf-bin", \
-#       as:cmd, \
-#       from:gh-r, \
-#       file:fzf
-#
-#   # branch/tag
-#   zplug "b4b4r07/enhancd", at:v1
-#
-#   # true or false
-#   zplug "hchbaw/opp.zsh", if:"[ ${ZSH_VERSION%%.*} -lt 5 ]"
-#
-#   # Group dependencies, emoji-cli depends on jq
-#   zplug "stedolan/jq", \
-#       as:bin, \
-#       file:jq, \
-#       from:gh-r \
-#       | zplug "b4b4r07/emoji-cli"
-#
-#   # source plugins and add commands to $PATH
-#   zplug load
+
+: <<'EXAMPLE'
+source ~/.zplug/zplug
+
+# Make sure you use double quotes
+zplug "zsh-users/zsh-syntax-highlighting"
+zplug "zsh-users/zsh-substring-search"
+
+# shell commands
+zplug "holman/spark", as:cmd
+# shell commands (specify export directory path using `of` specifier)
+zplug "b4b4r07/http_code", as:cmd, of:bin
+# shell commands (whatever language is OK; e.g., perl script)
+zplug "k4rthik/git-cal", as:cmd
+
+# binaries (from GitHub Releases)
+zplug "junegunn/fzf-bin", \
+    as:cmd, \
+    from:gh-r, \
+    file:fzf
+
+# branch/tag
+zplug "b4b4r07/enhancd", at:v1
+
+# true or false
+zplug "hchbaw/opp.zsh", if:"[ ${ZSH_VERSION%%.*} -lt 5 ]"
+
+# Group dependencies, emoji-cli depends on jq
+zplug "stedolan/jq", \
+    as:bin, \
+    file:jq, \
+    from:gh-r \
+    | zplug "b4b4r07/emoji-cli"
+
+# source plugins and add commands to $PATH
+zplug load
+
+EXAMPLE
 #
 # Then reload .zshrc and `zplug install; zplug load` to install plugins.
 # Visit https://github.com/b4b4r07/zplug for more information.
@@ -77,7 +81,7 @@
 
 # environment variable (read-only)
 typeset -gx ZPLUG_NAME=zplug
-typeset -gx ZPLUG_VERSION=0.0.1
+typeset -gx ZPLUG_VERSION=0.1.0
 typeset -gx ZPLUG_RAWURL="https://raw.githubusercontent.com/b4b4r07/zplug/master/zplug"
 typeset -gx ZPLUG_URL="https://github.com/b4b4r07/zplug"
 
@@ -87,6 +91,36 @@ typeset -gx ZPLUG_THREAD=${ZPLUG_THREAD:-16}
 
 # global variable
 typeset -g -A zplugs
+
+usage="$(cat <<HELP
+usage: $ZPLUG_NAME [command] [specifier:value]...
+  $ZPLUG_NAME is next-generation zsh plugin manager
+
+commands:
+  help       show this help message
+  version    show version
+  install    install described plugins
+  update     update plugins
+  list       show installed plugins
+  load       load plugins
+
+specifiers:
+  name    Consist of username/reponame [RO]
+  as      Regard that as plugins or commands
+  of      Specify the pattern to source (for src)
+          or relative path to export (for cmd)
+  to      - not yet supported -
+  from    Grab external binaries from e.g., GitHub Releases
+  if      Whether to install or not
+  dir     Installation directory [RO]
+  file    Specify filename you want to rename
+  at      Support branch/tag installation
+  do      Run commands after installation
+  frozen  Do not update unless explicitly specified
+
+For more information, see also $ZPLUG_URL
+HELP
+)"
 
 # Disable job control
 set +m
@@ -112,6 +146,10 @@ bg_rotation_bar() {
 
 __zplug::list()
 {
+    if (($#zplugs < 1)); then
+        die "$ZPLUG_NAME: there is no available plugins"
+        return 1
+    fi
     local v
     local -A B
     for v in "${(@nO)zplugs}"; do
@@ -208,7 +246,7 @@ __zplug::install()
     local start end
     cnt=0
     [[ -d $ZPLUG_HOME ]] || mkdir -p $ZPLUG_HOME
-    [[ $1 ]] || return
+    [[ -n $1 ]] || return
 
     start="$(date +%s)"
     for line in "$@"; do
@@ -260,7 +298,7 @@ __zplug::install()
             fi
 
             # If not empty
-            if [[ $zspec[do] ]]; then
+            if [[ -n $zspec[do] ]]; then
                 if [[ $ret -eq 0 ]]; then
                     # Run command
                     eval "$zspec[do]"
@@ -376,7 +414,7 @@ __zplug::load()
         done
 
         # If not empty
-        if [[ $zspec[if] ]]; then
+        if [[ -n $zspec[if] ]]; then
             # Check if $spec[if] is true
             if ! eval '$zspec[if]' >/dev/null 2>&1; then
                 die "$zspec[name]: (not load)"
@@ -436,11 +474,19 @@ __zplug::load()
 }
 
 zplug() {
-    local zplug
-    zplug="$1"
+    local arg
+    arg="$1"
 
-    # $zplug consists of "username/reponame", specifier:value, ...
-    case "$zplug" in
+    case "$arg" in
+        help)
+            echo "$usage"
+            return
+            ;;
+
+        version)
+            echo "$ZPLUG_VERSION"
+            return
+            ;;
 
         update)
             shift
@@ -453,12 +499,12 @@ zplug() {
             return $status
             ;;
 
-        i|install)
+        install)
             __zplug::install ${(k)zplugs}
             return $status
             ;;
 
-        l|load)
+        load)
             __zplug::load
             return $status
             ;;
@@ -469,7 +515,8 @@ zplug() {
 
         *)
             shift # Shift "username/reponame",
-            if [[ $zplug =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+,?$ ]]; then
+            # $arg consists of "username/reponame", specifier:value, ...
+            if [[ $arg =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+,?$ ]]; then
                 local i specifier
                 for i in "$@"
                 do
@@ -485,14 +532,15 @@ zplug() {
                 done
 
                 # Trim last comma
-                zplug=${zplug%,}
+                arg=${arg%,}
                 specifier=${specifier%,}
                 # Add to $zplugs(AA; key:"user/repo" => value:"specifier:value")
-                zplugs+=($zplug "${specifier:-}")
+                zplugs+=($arg "${specifier:-}")
                 # Add dir specifier to $zplugs
-                zplugs[$zplug]+="${zplugs[$zplug]:+,}dir:$ZPLUG_HOME/$zplug"
+                zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/$arg"
 
                 # Initialize all specifiers
+                local zplug
                 for zplug in ${(k)zplugs}
                 do
                     zplugs[$zplug]="$(
