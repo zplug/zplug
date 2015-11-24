@@ -37,26 +37,32 @@ zplug "zsh-users/zsh-substring-search"
 
 # shell commands
 zplug "holman/spark", as:cmd
-# shell commands (specify export director)
+# shell commands (specify export directory path using `of` specifier)
 zplug "b4b4r07/http_code", as:cmd, of:bin
-# shell commands (whatever language is OK)
+# shell commands (whatever language is OK; e.g., perl script)
 zplug "k4rthik/git-cal", as:cmd
 
 # binaries (from GitHub Releases)
-zplug "peco/peco", as:cmd, from:gh-r
 zplug "junegunn/fzf-bin", \
     as:cmd, \
     from:gh-r, \
     file:fzf
     
+# run command after installed
+zplug "peco/peco", \
+    as:cmd, \
+    from:gh-r, \
+    of:peco*/peco, \
+    do:"echo Peco"
+    
 # branch/tag
 zplug "b4b4r07/enhancd", at:v1
 
-# execute command if true
+# true or false
 zplug "hchbaw/opp.zsh", if:"[ ${ZSH_VERSION%%.*} -lt 5 ]"
 
 # Group dependencies, emoji-cli depends on jq
-zplug "stedolan/jq" \
+zplug "stedolan/jq", \
     as:bin, \
     file:jq, \
     from:gh-r \
@@ -74,18 +80,21 @@ Then `zplug install` to install plugins and reload `.zshrc`.
 |----------|-------------|
 | `install`  | Install plugins/commands |
 | `load`     | Load installed plugins/commands |
+| `list`     |  |
+| `update`   |  |
 
 ### `zplug` specifiers
 
 | Specifiers | Description | Value (default) | Example |
 |------------|-------------|-----------------|---------|
-| `as`       | Regards that as plugins or commands | `src`,`cmd` (`src`) | `as:cmd` |
+| `as`       | Regard that as plugins or commands | `src`,`cmd` (`src`) | `as:cmd` |
 | `of`       | Specify the pattern to source (for `src`) or relative path to export (for `cmd`) | - (-) | `of:bin`,`of:*.zsh` |
-| `from`     | Specify external binaries e.g., GitHub Releases | `gh-r` (-) | `from:gh-r` |
+| `from`     | Grab external binaries from e.g., GitHub Releases | `gh-r` (-) | `from:gh-r` |
 | `at`       | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
 | `file`     | Specify filename you want to rename | filename (-) | `file:fzf` |
 | `dir`      | Installation directory | **READ-ONLY** | - 
-| `if`       | Execution of shell commands if true | true/false (-) | `if:"[ -d ~/.zsh ]"` |
+| `if`       | Whether to install or not | true/false (-) | `if:"[ -d ~/.zsh ]"` |
+| `do`       | Run commands after installation | shell commands (-) | `do:"echo Done!"` |
 
 ### Environment variables
 
