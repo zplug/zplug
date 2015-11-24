@@ -78,10 +78,10 @@ Then `zplug install` to install plugins and reload `.zshrc`.
 
 | Commands | Description |
 |----------|-------------|
-| `install`  | Install plugins/commands |
-| `load`     | Load installed plugins/commands |
-| `list`     |  |
-| `update`   |  |
+| `install`  | Install described items (plugins/commands) in parallel |
+| `load`     | Load installed items |
+| `list`     | List installed items |
+| `update`   | Update items in parallel |
 
 ### `zplug` specifiers
 
@@ -95,8 +95,9 @@ Then `zplug install` to install plugins and reload `.zshrc`.
 | `dir`      | Installation directory | **READ-ONLY** | - 
 | `if`       | Whether to install or not | true/false (-) | `if:"[ -d ~/.zsh ]"` |
 | `do`       | Run commands after installation | shell commands (-) | `do:"echo Done!"` |
+| `frozen`   | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
 
-### Environment variables
+### `zplug` configurations
 
 #### `ZPLUG_HOME`
 
