@@ -89,13 +89,17 @@ typeset -gr ZPLUG_URL="https://github.com/b4b4r07/zplug"
 typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/zplug/repos}
 typeset -gx ZPLUG_THREADS=${ZPLUG_THREADS:-16}
 typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-true}
+typeset -gx ZPLUG_PROTOCOL= #${ZPLUG_PROTOCOL:-HTTPS}
 
 # global variable
 typeset -g -A zplugs
 
+__die() {
+    printf "$@\n" >&2
+}
 
-die() {
-    echo "$@" >&2
+git_version() {
+    echo ${${(A)"$(git --version)"}[3]//./}
 }
 
 bg_rotation_bar() {
@@ -116,7 +120,7 @@ bg_rotation_bar() {
 __zplug::list()
 {
     if (($#zplugs < 1)); then
-        die "$ZPLUG_NAME: there is no available plugins"
+        __die "$ZPLUG_NAME: there is no available plugins"
         return 1
     fi
     local v
@@ -259,17 +263,32 @@ __zplug::install()
                 [[ -d ${zspec[name]%/*} ]] || mkdir -p "${zspec[name]%/*}"
                 builtin cd "${zspec[name]%/*}"
                 eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases)" -s os' >/dev/null 2>&1
-                ret=$status
+                ret=${ret:-$status}
 
             else
+                local url_format
+                if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
+                    url_format="https://git::@github.com/${line}.git"
+                    if (( $(git_version) > 230 )); then
+                        GIT_TERMINAL_PROMPT=0
+                        url_format="https://github.com/${line}.git"
+                    fi
+                elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
+                    url_format="git@github.com:${line}.git"
+                else
+                    __die "\033[31m x Failed      $line\033[m (use SSH/HTTPS for cloning protocol)"
+                    ret=${ret:-2}
+                fi
+
                 # from GitHub
+                [[ $ret -eq 0 ]] &&
                 git clone \
                     --depth=1 \
                     --recursive \
                     --quiet \
                     --branch $zspec[at] \
-                    git@github.com:"$line" "$line" >/dev/null 2>&1
-                ret=$status
+                    "$url_format" "$line" >/dev/null 2>&1
+                ret=${ret:-$status}
             fi
 
             # If not empty
@@ -286,8 +305,10 @@ __zplug::install()
             # Whether to success or not
             if [ $ret -eq 0 ]; then
                 command printf "\033[32mInstalled!\033[m     %-20s\t(%.2fs)\n" "$line" $SECONDS
-            else
+            elif [ $ret -eq 1 ]; then
                 command printf "\033[31mNot Installed\033[m  %-20s\t(%.2fs)\n" "$line" $SECONDS
+                false
+            else
                 false
             fi
         } &
@@ -322,6 +343,8 @@ __zplug::install()
 
     end="$(date +%s)"
     command printf "$ZPLUG_NAME: total time %d sec\n" $(($end - $start))
+
+    return $fail
 }
 
 __zplug::parser()
@@ -393,7 +416,7 @@ __zplug::load()
         if [[ -n $zspec[if] ]]; then
             # Check if $spec[if] is true
             if ! eval '$zspec[if]' >/dev/null 2>&1; then
-                die "$zspec[name]: (not load)"
+                __die "$zspec[name]: (not load)"
                 continue
             fi
         fi
@@ -500,7 +523,7 @@ zplug() {
                             specifier="${specifier}${i}"
                             ;;
                         *)
-                            die "$i: invalid specifier"
+                            __die "$i: invalid specifier"
                             return 1
                             ;;
                     esac
