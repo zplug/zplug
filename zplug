@@ -87,7 +87,8 @@ typeset -gr ZPLUG_URL="https://github.com/b4b4r07/zplug"
 
 # set default value if not present
 typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/zplug/repos}
-typeset -gx ZPLUG_THREAD=${ZPLUG_THREAD:-16}
+typeset -gx ZPLUG_THREADS=${ZPLUG_THREADS:-16}
+typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-true}
 
 # global variable
 typeset -g -A zplugs
@@ -235,7 +236,7 @@ __zplug::update()
             esac
         } &
         # Prevent having too many subprocesses
-        (( (cnt += 1) % ZPLUG_THREAD == 0 )) && wait
+        (( (cnt += 1) % ZPLUG_THREADS == 0 )) && wait
     done
     wait
     set -m
@@ -321,7 +322,7 @@ __zplug::install()
         } &
 
         # Prevent having too many subprocesses
-        (( (cnt += 1) % ZPLUG_THREAD == 0 )) && wait
+        (( (cnt += 1) % ZPLUG_THREADS == 0 )) && wait
     done
 
     # Count if fail
