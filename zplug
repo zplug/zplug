@@ -565,5 +565,20 @@ zplug() {
     esac
 }
 
+if (( ! $+functions[compdef] )); then
+    autoload -Uz compinit
+    compinit
+fi
+_zplug () {
+    compadd         \
+        install     \
+        update      \
+        list        \
+        load        \
+        version     \
+        help
+}
+compdef _zplug zplug
+
 # __END__ {{{1
 # vim:fdm=marker fdc=3 ft=zsh ts=4 sw=4 sts=4:
