@@ -471,6 +471,49 @@ __zplug::load()
     done
 }
 
+__zplug::check()
+{
+    local line is_verbose=false is_install=false
+    local -A zspec
+    local -a fail args
+
+    while (( $# > 0 ))
+    do
+        case "$1" in
+            --verbose)
+                is_verbose=true
+                ;;
+            --install)
+                is_install=true
+                ;;
+            *)
+                args+=("$1")
+        esac
+        shift
+    done
+
+    for line in "$args[@]"
+    do
+        zspec=( ${(@f)"$(__zplug::parser "$line")"} )
+        if [[ ! -e $zspec[dir] ]]; then
+            fail+=("$zspec[name]")
+        fi
+    done
+
+    if (( $#fail > 0 )); then
+        if $is_verbose; then
+            printf "- \033[31m%s\033[m: not installed\n" "${(@nO)fail}"
+        fi
+        if $is_install; then
+            __zplug::install "${fail[@]}"
+            return $status
+        fi
+        return 1
+    else
+        return 0
+    fi
+}
+
 zplug() {
     local arg
     arg="$1"
@@ -483,6 +526,12 @@ zplug() {
         version)
             echo "$ZPLUG_VERSION"
             return 0
+            ;;
+
+        check)
+            shift
+            __zplug::check "$@" ${(k)zplugs}
+            return $status
             ;;
 
         update)
@@ -568,6 +617,7 @@ _zplug () {
         update      \
         list        \
         load        \
+        check       \
         version     \
         help
 }
