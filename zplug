@@ -130,7 +130,7 @@ __zplug::list()
     command printf '%-20s  =>  %s\n' "${(@kv)B}" \
         | sed -e 's/-EMP-/""/g' \
         | perl -pe 's/^(.*)( *=>.*)$/\033[32m$1\033[m$2/g' \
-        | perl -pe 's/(as|of|from|to|if|dir|file|at|do|frozen|on)(:)/\033[34m$1\033[m$2/g'
+        | perl -pe 's/(as|of|from|to|if|dir|file|at|do|frozen|on|commit)(:)/\033[34m$1\033[m$2/g'
 }
 
 __zplug::selfupdate()
@@ -279,15 +279,21 @@ __zplug::install()
                     ret=${ret:-2}
                 fi
 
+                local shallow_clone
+                if $ZPLUG_SHALLOW && [[ -z $zspec[commit] ]]; then
+                    shallow_clone="--depth=1"
+                fi
                 # from GitHub
                 [[ $ret -eq 0 ]] &&
-                git clone \
-                    --depth=1 \
+                git clone $shallow_clone \
                     --recursive \
                     --quiet \
                     --branch $zspec[at] \
                     "$url_format" "$line" >/dev/null 2>&1
                 ret=${ret:-$status}
+                if [[ -n $zspec[commit] ]]; then
+                    builtin cd "$line" && git checkout $zspec[commit] >/dev/null 2>&1
+                fi
             fi
 
             # If not empty
@@ -357,7 +363,7 @@ __zplug::parser()
 
     # Add spec variable
     # If value is empty, set -EMP- value to it
-    local name as of to from if dir file at do frozen on
+    local name as of to from if dir file at do frozen on commit
     name="${split_array[1]}"
     as=${${${(M)split_array:#as*}#*:}:-src}
     of=${${${(M)split_array:#of*}#*:}:--EMP-}
@@ -370,6 +376,7 @@ __zplug::parser()
     do=${${${(M)split_array:#do*}#*:}:--EMP-}
     frozen=${${${(M)split_array:#frozen*}#*:}:-0}
     on=${${${(M)split_array:#on*}#*:}:--EMP-}
+    commit=${${${(M)split_array:#commit*}#*:}:--EMP-}
 
     local -A zplugs_parsed
     zplugs_parsed=(
@@ -385,6 +392,7 @@ __zplug::parser()
       do      "$do"
       frozen  "$frozen"
       on      "$on"
+      commit  "$commit"
     )
 
     local k
@@ -608,7 +616,7 @@ zplug() {
                     for i in $args
                     do
                         case "${i%%:*}" in
-                            as|of|from|to|if|dir|file|at|do|frozen|on)
+                            as|of|from|to|if|dir|file|at|do|frozen|on|commit)
                                 specifier="${specifier}${i%,},"
                                 ;;
                             *)
