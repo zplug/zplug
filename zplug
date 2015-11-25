@@ -80,10 +80,10 @@ EXAMPLE
 # THE SOFTWARE.
 
 # environment variable (read-only)
-typeset -gx ZPLUG_NAME=zplug
-typeset -gx ZPLUG_VERSION=0.1.0
-typeset -gx ZPLUG_RAWURL="https://raw.githubusercontent.com/b4b4r07/zplug/master/zplug"
-typeset -gx ZPLUG_URL="https://github.com/b4b4r07/zplug"
+typeset -gr ZPLUG_NAME=zplug
+typeset -gr ZPLUG_VERSION=0.1.0
+typeset -gr ZPLUG_RAWURL="https://raw.githubusercontent.com/b4b4r07/zplug/master/zplug"
+typeset -gr ZPLUG_URL="https://github.com/b4b4r07/zplug"
 
 # set default value if not present
 typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/zplug/repos}
@@ -209,7 +209,7 @@ __zplug::update()
             command printf "Updating...  $line\n"
             bg_rotation_bar & bg_pid=$!
             () {
-                cd $zspec[dir] || cd ${zspec[dir]%/*} || return 2
+                builtin cd $zspec[dir] || builtin cd ${zspec[dir]%/*} || return 2
                 if [[ $zspec[from] == "gh-r" ]]; then
                     eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases)" -s os'
                 else
@@ -279,14 +279,13 @@ __zplug::install()
 
             command printf "Installing...  $line\n"
             bg_rotation_bar & bg_pid=$!
-            cd $ZPLUG_HOME
+            builtin cd $ZPLUG_HOME >/dev/null 2>&1
 
             # Download
             if [[ $zspec[from] == "gh-r" ]]; then
-
                 # from GitHub Releases
                 [[ -d ${zspec[name]%/*} ]] || mkdir -p "${zspec[name]%/*}"
-                cd "${zspec[name]%/*}"
+                builtin cd "${zspec[name]%/*}"
                 eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases)" -s os' >/dev/null 2>&1
                 ret=$status
 
@@ -452,10 +451,10 @@ __zplug::load()
                         # local pat
                         # pat="^($(git branch | cut -c3- | paste -s -d"|" -))$"
                         # if [[ ! $zspec[at] =~ $pat ]]; then
-                        #     cd $zspec[dir]
+                        #     builtin cd $zspec[dir]
                         #     git checkout $zspec[at]
                         # fi
-                        cd ${ZPLUG_HOME%/*}/bin
+                        builtin cd ${ZPLUG_HOME%/*}/bin
                         ln -snf "$f" ${zspec[file]:-.}
                     } &
                 done
