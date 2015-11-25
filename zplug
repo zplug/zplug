@@ -93,35 +93,6 @@ typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-true}
 # global variable
 typeset -g -A zplugs
 
-usage="$(cat <<HELP
-usage: $ZPLUG_NAME [command] [specifier:value]...
-  $ZPLUG_NAME is next-generation zsh plugin manager
-
-commands:
-  help       show this help message
-  version    show version
-  install    install described plugins
-  update     update plugins
-  list       show installed plugins
-  load       load plugins
-
-specifiers:
-  name    Consist of username/reponame [RO]
-  as      Regard that as plugins or commands
-  of      Specify the pattern to source (for src)
-          or relative path to export (for cmd)
-  to      - not yet supported -
-  from    Grab external binaries from e.g., GitHub Releases
-  if      Whether to install or not
-  dir     Installation directory [RO]
-  file    Specify filename you want to rename
-  at      Support branch/tag installation
-  do      Run commands after installation
-  frozen  Do not update unless explicitly specified
-
-For more information, see also $ZPLUG_URL
-HELP
-)"
 
 die() {
     echo "$@" >&2
@@ -484,7 +455,6 @@ zplug() {
 
     case "$arg" in
         help)
-            echo "$usage"
             return
             ;;
 
