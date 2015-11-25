@@ -44,7 +44,7 @@ zplug "hchbaw/opp.zsh", if:"[ ${ZSH_VERSION%%.*} -lt 5 ]"
 
 # Group dependencies, emoji-cli depends on jq
 zplug "stedolan/jq", \
-    as:bin, \
+    as:cmd, \
     file:jq, \
     from:gh-r \
     | zplug "b4b4r07/emoji-cli"
@@ -130,7 +130,7 @@ __zplug::list()
     command printf '%-20s  =>  %s\n' "${(@kv)B}" \
         | sed -e 's/-EMP-/""/g' \
         | perl -pe 's/^(.*)( *=>.*)$/\033[32m$1\033[m$2/g' \
-        | perl -pe 's/(as|of|from|to|if|dir|file|at|do|frozen)(:)/\033[34m$1\033[m$2/g'
+        | perl -pe 's/(as|of|from|to|if|dir|file|at|do|frozen|on)(:)/\033[34m$1\033[m$2/g'
 }
 
 __zplug::selfupdate()
@@ -218,14 +218,14 @@ __zplug::update()
 
 __zplug::install()
 {
-    # Disable job control
-    set +m
-
     local cnt line fail job
     local start end
     cnt=0
-    [[ -d $ZPLUG_HOME ]] || mkdir -p $ZPLUG_HOME
+    [[ -d $ZPLUG_HOME ]] || mkdir -p "$ZPLUG_HOME"
     [[ -n $1 ]] || return 0
+
+    # Disable job control
+    set +m
 
     start="$(date +%s)"
     for line in "$@"; do
@@ -323,7 +323,7 @@ __zplug::install()
     for job in ${${(v)jobstates##*:*:}%=*}
     do
         wait $job || let "fail+=1"
-    done
+    done >/dev/null 2>&1
     # Wait until all jobs known to the invoking shell have terminated
     wait
     set -m
@@ -357,7 +357,7 @@ __zplug::parser()
 
     # Add spec variable
     # If value is empty, set -EMP- value to it
-    local name as of to from if dir file at do frozen
+    local name as of to from if dir file at do frozen on
     name="${split_array[1]}"
     as=${${${(M)split_array:#as*}#*:}:-src}
     of=${${${(M)split_array:#of*}#*:}:--EMP-}
@@ -369,6 +369,7 @@ __zplug::parser()
     at=${${${(M)split_array:#at*}#*:}:-master}
     do=${${${(M)split_array:#do*}#*:}:--EMP-}
     frozen=${${${(M)split_array:#frozen*}#*:}:-0}
+    on=${${${(M)split_array:#on*}#*:}:--EMP-}
 
     local -A zplugs_parsed
     zplugs_parsed=(
@@ -383,6 +384,7 @@ __zplug::parser()
       at      "$at"
       do      "$do"
       frozen  "$frozen"
+      on      "$on"
     )
 
     local k
@@ -413,8 +415,14 @@ __zplug::load()
 
         # If not empty
         if [[ -n $zspec[if] ]]; then
-            # Check if $spec[if] is true
             if ! eval '$zspec[if]' >/dev/null 2>&1; then
+                __die "$zspec[name]: (not load)"
+                continue
+            fi
+        fi
+
+        if [[ -n $zspec[on] ]]; then
+            if ! [[ -e $ZPLUG_HOME/$zspec[on] ]]; then
                 __die "$zspec[name]: (not load)"
                 continue
             fi
@@ -437,6 +445,9 @@ __zplug::load()
                     files+=("$zspec[dir]")
                 fi
 
+                # Disable job control
+                set +m
+
                 # Make symlink to $ZPLUG_HOME/bin exported in parallel
                 for f in "$files[@]"
                 do
@@ -450,12 +461,13 @@ __zplug::load()
                         # fi
                         builtin cd ${ZPLUG_HOME%/*}/bin
                         ln -snf "$f" ${zspec[file]:-.}
-                    } &
+                    } >/dev/null 2>&1 &
                 done
                 wait
+                set -m
 
                 # Export
-                path=(${ZPLUG_HOME%/*}/bin $path)
+                path=("${ZPLUG_HOME%/*}/bin" $path)
                 typeset -gx -U path
                 ;;
 
@@ -477,6 +489,7 @@ __zplug::check()
     local -A zspec
     local -a fail args
 
+    fail=()
     while (( $# > 0 ))
     do
         case "$1" in
@@ -560,30 +573,61 @@ zplug() {
             ;;
 
         *)
-            shift # Shift "username/reponame",
-            # $arg consists of "username/reponame", specifier:value, ...
-            if [[ $arg =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+,?$ ]]; then
-                local i specifier
-                for i in "$@"
-                do
-                    case "${i%:*}" in
-                        as|of|from|to|if|dir|file|at|do|frozen)
-                            specifier="${specifier}${i}"
-                            ;;
-                        *)
-                            __die "$i: invalid specifier"
-                            return 1
-                            ;;
-                    esac
-                done
+            shift
+            arg="${arg%,}"
+            if [[ $arg =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
+                local cnt=0 dep stdin
+                local -a task args dep_args
+                task=("$arg")
 
-                # Trim last comma
-                arg=${arg%,}
-                specifier=${specifier%,}
-                # Add to $zplugs(AA; key:"user/repo" => value:"specifier:value")
-                zplugs+=($arg "${specifier:-}")
-                # Add dir specifier to $zplugs
-                zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/$arg"
+                if [[ -p /dev/stdin ]]; then
+                    stdin="$(cat <&0)"
+                    dep="${stdin%%:*}"
+                    task=("$dep" "$arg")
+                    dep_args=("${stdin#*:}")
+                    let "cnt++"
+                fi
+                if [[ -p /dev/stdout ]]; then
+                    echo "$arg:$@"
+                    let "cnt++"
+                fi
+                if (( cnt >= 2 )); then
+                    __die "$dep: not install (zplug 3 pipeline)"
+                    return 1
+                fi
+
+                local i specifier
+                for arg in "${task[@]}"
+                do
+                    if [[ $arg == $dep ]]; then
+                        args=("${(s:, :)dep_args}")
+                    else
+                        args=("$@")
+                    fi
+
+                    for i in $args
+                    do
+                        case "${i%%:*}" in
+                            as|of|from|to|if|dir|file|at|do|frozen|on)
+                                specifier="${specifier}${i%,},"
+                                ;;
+                            *)
+                                echo "$i: invalid specifier"
+                                return 1
+                                ;;
+                        esac
+                    done
+
+                    specifier="${specifier%,}"
+                    # Add to $zplugs(AA; key:"user/repo" => value:"specifier:value")
+                    zplugs+=("$arg" "${specifier:-}")
+                    # Add dir specifier to $zplugs
+                    zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/$arg"
+                    if [[ $arg != $dep ]]; then
+                        zplugs[$arg]+="${zplugs[$arg]:+,}on:$dep"
+                    fi
+                    specifier=""
+                done
 
                 # Initialize all specifiers
                 # local zplug
@@ -602,6 +646,9 @@ zplug() {
                 #     } | sed -e 's/,$//'
                 #     )"
                 # done
+            else
+                __die "$arg: no such command"
+                return 1
             fi
             ;;
     esac
