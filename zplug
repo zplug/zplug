@@ -16,7 +16,6 @@
 #
 # Edit your .zshrc
 #
-
 : <<'EXAMPLE'
 source ~/.zplug/zplug
 
@@ -89,7 +88,7 @@ typeset -gr ZPLUG_URL="https://github.com/b4b4r07/zplug"
 typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/zplug/repos}
 typeset -gx ZPLUG_THREADS=${ZPLUG_THREADS:-16}
 typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-true}
-typeset -gx ZPLUG_PROTOCOL= #${ZPLUG_PROTOCOL:-HTTPS}
+typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
 
 # global variable
 typeset -g -A zplugs
@@ -226,7 +225,7 @@ __zplug::install()
     local start end
     cnt=0
     [[ -d $ZPLUG_HOME ]] || mkdir -p $ZPLUG_HOME
-    [[ -n $1 ]] || return
+    [[ -n $1 ]] || return 0
 
     start="$(date +%s)"
     for line in "$@"; do
@@ -331,7 +330,7 @@ __zplug::install()
 
     # Skip footer prints if noting to do
     if [[ $cnt -eq 0 ]]; then
-        return
+        return 0
     fi
 
     # Footer prints
@@ -478,12 +477,12 @@ zplug() {
 
     case "$arg" in
         help)
-            return
+            return 0
             ;;
 
         version)
             echo "$ZPLUG_VERSION"
-            return
+            return 0
             ;;
 
         update)
@@ -538,22 +537,22 @@ zplug() {
                 zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/$arg"
 
                 # Initialize all specifiers
-                local zplug
-                for zplug in ${(k)zplugs}
-                do
-                    zplugs[$zplug]="$(
-                    () {
-                        local -A zspec
-                        local k cnt=0
-                        zspec=( ${(@f)"$(__zplug::parser "$zplug")"} )
-                        for k in ${(k)zspec}
-                        do
-                            printf "$k:$zspec[$k],"
-                        done
-                        echo
-                    } | sed -e 's/,$//'
-                    )"
-                done
+                # local zplug
+                # for zplug in ${(k)zplugs}
+                # do
+                #     zplugs[$zplug]="$(
+                #     () {
+                #         local -A zspec
+                #         local k cnt=0
+                #         zspec=( ${(@f)"$(__zplug::parser "$zplug")"} )
+                #         for k in ${(k)zspec}
+                #         do
+                #             printf "$k:$zspec[$k],"
+                #         done
+                #         echo
+                #     } | sed -e 's/,$//'
+                #     )"
+                # done
             fi
             ;;
     esac
