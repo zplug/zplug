@@ -122,9 +122,6 @@ For more information, see also $ZPLUG_URL
 HELP
 )"
 
-# Disable job control
-set +m
-
 die() {
     echo "$@" >&2
 }
@@ -174,6 +171,9 @@ __zplug::selfupdate()
 
 __zplug::update()
 {
+    # Disable job control
+    set +m
+
     # Process argments
     case "$1" in
         --self)
@@ -238,10 +238,14 @@ __zplug::update()
         (( (cnt += 1) % ZPLUG_THREAD == 0 )) && wait
     done
     wait
+    set -m
 }
 
 __zplug::install()
 {
+    # Disable job control
+    set +m
+
     local cnt line fail job
     local start end
     cnt=0
@@ -331,6 +335,7 @@ __zplug::install()
     done
     # Wait until all jobs known to the invoking shell have terminated
     wait
+    set -m
 
     # Skip footer prints if noting to do
     if [[ $cnt -eq 0 ]]; then
