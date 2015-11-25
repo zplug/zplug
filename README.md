@@ -19,7 +19,7 @@
 ## Installation
 
 ```console
-$ curl -fLo ~/.zplug/zplug --create-dirs https://raw.githubusercontent.com/b4b4r07/zplug/master/zplug
+$ curl -fLo ~/.zplug/zplug --create-dirs git.io/zplug
 ```
 
 ## Usage
@@ -31,33 +31,34 @@ Add a zplug section to your `.zshrc`:
 
 ### Example
 
-```bash
+```zsh
 source ~/.zplug/zplug
 
 # Make sure you use double quotes
 zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-substring-search"
 
-# shell commands
-zplug "holman/spark", as:cmd
-# shell commands (specify export directory path using `of` specifier)
-zplug "b4b4r07/http_code", as:cmd, of:bin
-# shell commands (whatever language is OK; e.g., perl script)
-zplug "k4rthik/git-cal", as:cmd
+# Can manage plugin as command
+zplug "junegunn/dotfiles", as:cmd, of:bin/vimcat
+# Manage everything e.g. zshrc (alias)
+zplug "tcnksm/docker-alias", of:zshrc
+# Prohibit updating by using frozen
+zplug "k4rthik/git-cal", as:cmd, frozen:1
 
-# binaries (from GitHub Releases)
+# Grab binaries (from GitHub Releases)
 zplug "junegunn/fzf-bin", \
     as:cmd, \
     from:gh-r, \
     file:fzf
     
-# run command after installed
+# Run command after installed
 zplug "tj/n", do:"make install"
-    
-# branch/tag
-zplug "b4b4r07/enhancd", at:v1
 
-# true or false
+# Support branch/tag/commit
+zplug "b4b4r07/enhancd", at:v1
+zplug "b4b4r07/emoji-cli", commit:1d5bf3b0
+
+# Install if `if` specifier returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
 # Group dependencies, emoji-cli depends on jq
@@ -67,10 +68,10 @@ zplug "stedolan/jq", \
     from:gh-r \
     | zplug "b4b4r07/emoji-cli"
 
-# install plugins if there are plugins that have not been installed 
+# Install plugins if there are plugins that have not been installed 
 zplug check --install
 
-# source plugins and add commands to $PATH
+# Then, source plugins and add commands to $PATH
 zplug load
 ```
 
@@ -78,27 +79,42 @@ Then `zplug install` to install plugins and reload `.zshrc`.
 
 ### `zplug` commands
 
-|  Commands  | Description | Option |
-|------------|-------------|--------|
-| `install`  | Install described items (plugins/commands) in parallel | N/A |
-| `load`     | Load installed items | N/A |
-| `list`     | List installed items | N/A |
-| `update`   | Update items in parallel | N/A |
-| `check`    | Check whether an update or installation is available | `--verbose`,`--install` |
+|  Command  | Description | Option |
+|-----------|-------------|--------|
+| `install` | Install described items (plugins/commands) in parallel | N/A |
+| `load`    | Load installed items | N/A |
+| `list`    | List installed items | N/A |
+| `update`  | Update items in parallel | `--self` |
+| `check`   | Check whether an update or installation is available | `--verbose`,`--install` |
+
+In detail:
+
+```zsh
+# zplug check return true if all plugins are installed
+# Therefore, when it returns not true (thus false),
+# run zplug install
+if ! zplug check; then
+  zplug install
+fi
+# This is equivalent to
+#   zplug check --install
+zplug load
+```
 
 ### `zplug` specifiers
 
-| Specifiers | Description | Value (default) | Example |
-|------------|-------------|-----------------|---------|
-| `as`       | Regard that as plugins or commands | `src`,`cmd` (`src`) | `as:cmd` |
-| `of`       | Specify the pattern to source (for `src`) or relative path to export (for `cmd`) | - (-) | `of:bin`,`of:*.zsh` |
-| `from`     | Grab external binaries from e.g., GitHub Releases | `gh-r` (-) | `from:gh-r` |
-| `at`       | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
-| `file`     | Specify filename you want to rename | filename (-) | `file:fzf` |
-| `dir`      | Installation directory | **READ ONLY** | - 
-| `if`       | Whether to install or not | true/false (-) | `if:"[ -d ~/.zsh ]"` |
-| `do`       | Run commands after installation | shell commands (-) | `do:"make"` |
-| `frozen`   | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
+| Specifier | Description | Value (default) | Example |
+|-----------|-------------|-----------------|---------|
+| `as`      | Regard that as plugins or commands | `src`,`cmd` (`src`) | `as:cmd` |
+| `of`      | Specify the pattern to source (for `src`) or relative path to export (for `cmd`) | - (-) | `of:bin`,`of:*.zsh` |
+| `from`    | Grab external binaries from e.g., GitHub Releases | `gh-r` (-) | `from:gh-r` |
+| `at`      | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
+| `file`    | Specify filename you want to rename | filename (-) | `file:fzf` |
+| `dir`     | Installation directory | **READ ONLY** | - 
+| `if`      | Whether to install or not | true/false (-) | `if:"[ -d ~/.zsh ]"` |
+| `do`      | Run commands after installation | shell commands (-) | `do:"make"` |
+| `frozen`  | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
+| `commit`  | Support commit installation | commit hash (-) | `commit:4428d48` |
 
 ### `zplug` configurations
 
@@ -136,9 +152,14 @@ It defaults to HTTPS. You set HTTPS or SSH to `$ZPLUG_PROTOCOL`. Unless otherwis
 
 For more information, see also [**Which remote URL should I use?** - GitHub Help](https://help.github.com/articles/which-remote-url-should-i-use/)
 
+#### `ZPLUG_SHALLOW`
+
+It defaults to `true`. Use shallow clone. It creates a shallow clone with a history truncated to the specified number of revisions (depth 1).
+
 ## Note
 
-:warning: there are still some bugs. This plugin isn't ready to use yet.
+- :warning: There are still some bugs. This plugin isn't ready to use yet.
+- :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug) and the likes.
 
 ## License
 
