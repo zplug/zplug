@@ -908,7 +908,7 @@ zplug() {
 
         install)
             shift
-            __zplug::install ${@:-${(k)zplugs}}
+            __zplug::install $@ ${(k)zplugs}
             return $status
             ;;
 
