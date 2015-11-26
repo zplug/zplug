@@ -567,7 +567,8 @@ zplug() {
             ;;
 
         install)
-            __zplug::install ${(k)zplugs}
+            shift
+            __zplug::install ${@:-${(k)zplugs}}
             return $status
             ;;
 
@@ -631,7 +632,7 @@ zplug() {
                     zplugs+=("$arg" "${specifier:-}")
                     # Add dir specifier to $zplugs
                     zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/$arg"
-                    if [[ $arg != $dep ]]; then
+                    if [[ $arg != $dep && -n $dep ]]; then
                         zplugs[$arg]+="${zplugs[$arg]:+,}on:$dep"
                     fi
                     specifier=""
