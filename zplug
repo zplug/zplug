@@ -273,6 +273,7 @@ __zplug::install()
 {
     local cnt line fail job
     local start end
+    local is_verbose=false
     cnt=0
 
     # Create direcotry
@@ -280,18 +281,29 @@ __zplug::install()
     # Return with exit code 0 if no argument is given
     [[ -n $1 ]] || return 0
 
+    # Process arguments
+    case "$1" in
+        --verbose)
+            is_verbose=true
+            shift
+            ;;
+    esac
+
     # Disable job control
     set +m
 
     # Recode start-up time
     start="$(date +%s)"
+
     for line in "$@"; do
         # Skip installed items
         [[ -e $ZPLUG_HOME/repos/$line ]] &&
             {
-                # Output in red
-                __put "\033[31m-\033[m \033[32m${line}\033[m: already installed\n"
-                continue
+                if $is_verbose; then
+                    # Output in red
+                    __put "\033[31m-\033[m \033[32m${line}\033[m: already installed\n"
+                    continue
+                fi
             }
 
         # Run installation in subprocess
@@ -1016,7 +1028,9 @@ _zplug()
                     ret=0
                     ;;
                 install)
-                    compadd -x "%F{green}Accept%f %Busername/reponame%b arguments"
+                    _arguments \
+                        '(--verbose)--verbose[show non-installed items in output]' \
+                        '*:: :compadd -x "%F{green}Accept%f %Busername/reponame%b arguments"'
                     ret=0
                     ;;
                 list|status|load|version|help)
