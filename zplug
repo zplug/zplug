@@ -96,7 +96,7 @@ typeset -gr ZPLUG_RAWURL="https://git.io/zplug"
 typeset -gr ZPLUG_URL="https://github.com/b4b4r07/zplug"
 
 # Set default value if not present
-typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/zplug/repos}
+typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
 typeset -gx ZPLUG_THREADS=${ZPLUG_THREADS:-16}
 typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-true}
 typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
@@ -276,7 +276,7 @@ __zplug::install()
     cnt=0
 
     # Create direcotry
-    [[ -d $ZPLUG_HOME ]] || mkdir -p "$ZPLUG_HOME"
+    [[ -d $ZPLUG_HOME/repos ]] || mkdir -p "$ZPLUG_HOME/repos"
     # Return with exit code 0 if no argument is given
     [[ -n $1 ]] || return 0
 
@@ -287,7 +287,7 @@ __zplug::install()
     start="$(date +%s)"
     for line in "$@"; do
         # Skip installed items
-        [[ -e $ZPLUG_HOME/$line ]] &&
+        [[ -e $ZPLUG_HOME/repos/$line ]] &&
             {
                 # Output in red
                 __put "\033[31m-\033[m \033[32m${line}\033[m: already installed\n"
@@ -317,7 +317,7 @@ __zplug::install()
             # Start the spin of drawing
             # and save process id
             bg_rotation_bar & bg_pid=$!
-            builtin cd $ZPLUG_HOME >/dev/null 2>&1
+            builtin cd $ZPLUG_HOME/repos >/dev/null 2>&1
 
             # If zspec from is gh-r (GitHub Releases),
             # send a http request to git.io/releases with os argument
@@ -442,10 +442,10 @@ __zplug::install()
     # Footer prints
     if [[ $fail -eq 0 ]]; then
         # Output in green
-        __put "\033[;1m ==> Installed all plugins to $ZPLUG_HOME, successfully!\033[m\n"
+        __put "\033[;1m ==> Installed all plugins to $ZPLUG_HOME/repos, successfully!\033[m\n"
     else
         # Output in red
-        __die "\033[31;1m ==> Installed to $ZPLUG_HOME but failed.\033[m\n"
+        __die "\033[31;1m ==> Installed to $ZPLUG_HOME/repos but failed.\033[m\n"
     fi
 
     # Recode finish time
@@ -538,7 +538,7 @@ __zplug::load()
 
         # on specifier
         if [[ -n $zspec[on] ]]; then
-            if ! [[ -e $ZPLUG_HOME/$zspec[on] ]]; then
+            if ! [[ -e $ZPLUG_HOME/repos/$zspec[on] ]]; then
                 __die "$zspec[name]: (not load)\n"
                 continue
             fi
@@ -551,7 +551,7 @@ __zplug::load()
                 # Hold files to be read in files variable
                 files=()
                 # Create bin directory to export
-                [[ -d ${ZPLUG_HOME%/*}/bin ]] || mkdir -p ${ZPLUG_HOME%/*}/bin
+                [[ -d $ZPLUG_HOME/bin ]] || mkdir -p $ZPLUG_HOME/bin
 
                 # Taking every imaginable locations into accounts,
                 # to find the command file or binary file
@@ -586,7 +586,7 @@ __zplug::load()
                         #     builtin cd $zspec[dir]
                         #     git checkout $zspec[at]
                         # fi
-                        builtin cd ${ZPLUG_HOME%/*}/bin
+                        builtin cd $ZPLUG_HOME/bin
 
                         # Rename by using file specifier
                         ln -snf "$f" ${zspec[file]:-.}
@@ -600,7 +600,7 @@ __zplug::load()
                 set -m
 
                 # Export ZPLUG_HOME/bin
-                path=("${ZPLUG_HOME%/*}/bin" $path)
+                path=("$ZPLUG_HOME/bin" $path)
                 # Unique path
                 typeset -gx -U path
                 ;;
@@ -945,7 +945,7 @@ zplug() {
                     # Add to $zplugs(AA; key:"user/repo" => value:"specifier:value")
                     zplugs+=("$arg" "${specifier:-}")
                     # Add dir specifier to $zplugs
-                    zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/$arg"
+                    zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/repos/$arg"
                     if [[ $arg != $dep && -n $dep ]]; then
                         zplugs[$arg]+="${zplugs[$arg]:+,}on:$dep"
                     fi
@@ -1006,13 +1006,13 @@ _zplug()
                     _arguments \
                         '(--verbose)--verbose[show non-installed items in output]' \
                         '(--install)--install[install items if there are items that are not installed yet]' \
-                        '*:: :_files -W $ZPLUG_HOME'
+                        '*:: :_files -W $ZPLUG_HOME/repos'
                     ret=0
                     ;;
                 update)
                     _arguments \
                         '(- 1 *)--self[update zplug by itself]' \
-                        '*:: :_files -W $ZPLUG_HOME'
+                        '*:: :_files -W $ZPLUG_HOME/repos'
                     ret=0
                     ;;
                 install)
