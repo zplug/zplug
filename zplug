@@ -491,6 +491,44 @@ __zplug::load()
     done
 }
 
+# WIP
+__zplug::validator()
+{
+    local line k fail=0
+    local -A zspec
+    for line in ${(k)zplugs}
+    do
+        zspec=( ${(@f)"$(__zplug::parser "$line")"} )
+        for k in ${(k)zspec}
+        do
+            if [[ $zspec[$k] == "-EMP-" ]]; then
+                zspec[$k]=""
+            fi
+        done
+
+        # as: must (default: src)
+        if [[ ! $zspec[as] =~ ^(cmd|src)$ ]]; then
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'as:' takes cmd/src (zplug \"$zspec[name]\")\033[m"
+            unset "zplugs[$zspec[name]]"
+            let "fail++"
+        fi
+        # from: opt
+        if [[ -n $zspec[from] && ! $zspec[from] =~ ^(gh-r)$ ]]; then
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'from:' takes gh-r (zplug \"$zspec[name]\")\033[m"
+            unset "zplugs[$zspec[name]]"
+            let "fail++"
+        fi
+        # frozen: must (default: 1)
+        if [[ ! $zspec[frozen] =~ ^(0|1)$ ]]; then
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'frozen:' takes 0/1 (zplug \"$zspec[name]\")\033[m"
+            unset "zplugs[$zspec[name]]"
+            let "fail++"
+        fi
+    done
+
+    return $fail
+}
+
 __zplug::check()
 {
     local line is_verbose=false is_install=false
@@ -661,6 +699,8 @@ zplug() {
             fi
             ;;
     esac
+
+    __zplug::validator || return $status
 }
 
 if (( ! $+functions[compdef] )); then
