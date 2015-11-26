@@ -59,7 +59,7 @@ zplug "tj/n", do:"make install"
 
 # Support branch/tag/commit
 zplug "b4b4r07/enhancd", at:v1
-zplug "b4b4r07/emoji-cli", commit:1d5bf3b0
+zplug "mollifier/anyframe", commit:4c23cb60
 
 # Install if `if` specifier returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
@@ -89,7 +89,7 @@ Then `zplug install` to install plugins and reload `.zshrc`.
 
 |  Command  | Description | Option |
 |-----------|-------------|--------|
-| `install` | Install described items (plugins/commands) in parallel | N/A |
+| `install` | Install described items (plugins/commands) in parallel | `--verbose` |
 | `load`    | Load installed items | N/A |
 | `list`    | List installed items | N/A |
 | `update`  | Update items in parallel | `--self` |
@@ -170,7 +170,7 @@ It defaults to `true`. Use shallow clone. It creates a shallow clone with a hist
 
 ## Note
 
-- :warning: There are still some bugs. This plugin isn't ready to use yet.
+- :tada: Released Beta version!!
 - :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug) and the likes.
 
 ## License
