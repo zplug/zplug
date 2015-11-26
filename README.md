@@ -3,7 +3,7 @@
 
 [repo]: https://github.com/b4b4r07/zplug
 
-`zplug` is next-generation zsh plugin manager.
+`zplug` is next-generation zsh plugin manager
 
 [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)][repo]
 
@@ -105,12 +105,18 @@ In detail:
 if ! zplug check; then
     zplug install
 fi
-# This is equivalent to
-#   zplug check --install
 
 # source and export
 zplug load
+
+# zplug check returns true if argument repository exists
+if zplug check b4b4r07/enhancd; then
+    # setting if enhancd is available
+    export ENHANCD_FILTER=fzf-tmux
+fi
 ```
+
+[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo]
 
 ### `zplug` specifiers
 
@@ -171,6 +177,7 @@ It defaults to `true`. Use shallow clone. It creates a shallow clone with a hist
 ## Note
 
 - :tada: Released Beta version!!
+- :construction: Until version 1.0.0 is released, zplug may be destructive changed.
 - :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug) and the likes.
 
 ## License
