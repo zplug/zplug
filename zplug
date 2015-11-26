@@ -53,10 +53,10 @@ zplug "stedolan/jq", \
     | zplug "b4b4r07/emoji-cli"
 
 # Install plugins if there are plugins that have not been installed 
-if zplug check --verbose; then
+if ! zplug check --verbose; then
     printf "Install? [y/N]: "
     if read -q; then
-        zplug install
+        echo; zplug install
     fi
 fi
 
@@ -105,7 +105,11 @@ typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
 typeset -g -A zplugs
 
 __die() {
-    printf "$@\n" >&2
+    command printf -- "$@" >&2
+}
+
+__put() {
+    command printf -- "$@"
 }
 
 git_version() {
@@ -130,7 +134,7 @@ bg_rotation_bar() {
 __zplug::list()
 {
     if (($#zplugs < 1)); then
-        __die "$ZPLUG_NAME: there is no available plugins"
+        __die "$ZPLUG_NAME: there is no available plugins\n"
         return 1
     fi
     local v
@@ -138,7 +142,7 @@ __zplug::list()
     for v in "${(@nO)zplugs}"; do
         B+=("${(@kv)zplugs[(eR)$v]}")
     done
-    command printf '%-20s  =>  %s\n' "${(@kv)B}" \
+    __put '%-20s  =>  %s\n' "${(@kv)B}" \
         | sed -e 's/-EMP-/""/g' \
         | perl -pe 's/^(.*)( *=>.*)$/\033[32m$1\033[m$2/g' \
         | perl -pe 's/(as|of|from|to|if|dir|file|at|do|frozen|on|commit)(:)/\033[34m$1\033[m$2/g'
@@ -148,9 +152,9 @@ __zplug::selfupdate()
 {
     curl -fLo $ZPLUG_HOME/zplug --create-dirs $ZPLUG_RAWURL >/dev/null 2>&1
     if [[ $status -eq 0 ]]; then
-        printf "\033[32mUpdated $ZPLUG_NAME ($ZPLUG_HOME/zplug)\033[m\n"
+        __put "\033[32mUpdated $ZPLUG_NAME ($ZPLUG_HOME/zplug)\033[m\n"
     else
-        printf "\033[31mError occured (see $ZPLUG_URL)\033[m\n"
+        __put "\033[31mError occured (see $ZPLUG_URL)\033[m\n"
         return 1
     fi
 }
@@ -188,11 +192,11 @@ __zplug::update()
             typeset -F SECONDS=0
 
             if [[ $zspec[frozen] -eq 1 ]]; then
-                command printf " \033[34m* Frozen\033[m    $line\n"
+                __put " \033[34m* Frozen\033[m    $line\n"
                 continue
             fi
 
-            command printf "Updating...  $line\n"
+            __put "Updating...  $line\n"
             bg_rotation_bar & bg_pid=$!
             () {
                 builtin cd $zspec[dir] || builtin cd ${zspec[dir]%/*} || return 2
@@ -209,14 +213,14 @@ __zplug::update()
 
             case $ret in
                 0)
-                    command printf "\033[32mUpdated!\033[m     %-20s\t(%.2fs)\n" "$line" $SECONDS
+                    __put "\033[32mUpdated!\033[m     %-20s\t(%.2fs)\n" "$line" $SECONDS
                     ;;
                 1)
-                    command printf "\033[31mNot Updated\033[m  %-20s\t(%.2fs)\n" "$line" $SECONDS
+                    __put "\033[31mNot Updated\033[m  %-20s\t(%.2fs)\n" "$line" $SECONDS
                     ;;
                 2)
                     sleep 1
-                    command printf "\033[35mNot Found\033[m    %-20s\t(%.2fs)\n" "$line" $((SECONDS-1))
+                    __put "\033[35mNot Found\033[m    %-20s\t(%.2fs)\n" "$line" $((SECONDS-1))
                     ;;
             esac
         } &
@@ -243,7 +247,7 @@ __zplug::install()
         # Skip installed items
         [[ -e $ZPLUG_HOME/$line ]] &&
             {
-                command printf "\033[31m-\033[m \033[32m${line}\033[m: already installed\n"
+                __put "\033[31m-\033[m \033[32m${line}\033[m: already installed\n"
                 continue
             }
 
@@ -263,7 +267,7 @@ __zplug::install()
             # Reset timer
             typeset -F SECONDS=0
 
-            command printf "Installing...  $line\n"
+            __put "Installing...  $line\n"
             bg_rotation_bar & bg_pid=$!
             builtin cd $ZPLUG_HOME >/dev/null 2>&1
 
@@ -286,7 +290,7 @@ __zplug::install()
                 elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
                     url_format="git@github.com:${line}.git"
                 else
-                    __die "\033[31m x Failed      $line\033[m (use SSH/HTTPS for cloning protocol)"
+                    __die "\033[31m x Failed      $line\033[m (use SSH/HTTPS for cloning protocol)\n"
                     ret=${ret:-2}
                 fi
 
@@ -320,9 +324,9 @@ __zplug::install()
 
             # Whether to success or not
             if [ $ret -eq 0 ]; then
-                command printf "\033[32mInstalled!\033[m     %-20s\t(%.2fs)\n" "$line" $SECONDS
+                __put "\033[32mInstalled!\033[m     %-20s\t(%.2fs)\n" "$line" $SECONDS
             elif [ $ret -eq 1 ]; then
-                command printf "\033[31mNot Installed\033[m  %-20s\t(%.2fs)\n" "$line" $SECONDS
+                __put "\033[31mNot Installed\033[m  %-20s\t(%.2fs)\n" "$line" $SECONDS
                 false
             else
                 false
@@ -352,13 +356,13 @@ __zplug::install()
 
     # Footer prints
     if [[ $fail -eq 0 ]]; then
-        command printf "\033[;1m ==> Installed all plugins to $ZPLUG_HOME, successfully!\033[m\n"
+        __put "\033[;1m ==> Installed all plugins to $ZPLUG_HOME, successfully!\033[m\n"
     else
-        command printf "\033[31;1m ==> Installed to $ZPLUG_HOME but failed.\033[m\n"
+        __die "\033[31;1m ==> Installed to $ZPLUG_HOME but failed.\033[m\n"
     fi
 
     end="$(date +%s)"
-    command printf "$ZPLUG_NAME: total time %d sec\n" $(($end - $start))
+    __put "$ZPLUG_NAME: total time %d sec\n" $(($end - $start))
 
     return $fail
 }
@@ -435,14 +439,14 @@ __zplug::load()
         # If not empty
         if [[ -n $zspec[if] ]]; then
             if ! eval '$zspec[if]' >/dev/null 2>&1; then
-                __die "$zspec[name]: (not load)"
+                __die "$zspec[name]: (not load)\n"
                 continue
             fi
         fi
 
         if [[ -n $zspec[on] ]]; then
             if ! [[ -e $ZPLUG_HOME/$zspec[on] ]]; then
-                __die "$zspec[name]: (not load)"
+                __die "$zspec[name]: (not load)\n"
                 continue
             fi
         fi
@@ -519,19 +523,19 @@ __zplug::validator()
 
         # as: must (default: src)
         if [[ ! $zspec[as] =~ ^(cmd|src)$ ]]; then
-            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'as:' takes cmd/src (zplug \"$zspec[name]\")\033[m"
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'as:' takes cmd/src (zplug \"$zspec[name]\")\033[m\n"
             unset "zplugs[$zspec[name]]"
             let "fail++"
         fi
         # from: opt
         if [[ -n $zspec[from] && ! $zspec[from] =~ ^(gh-r)$ ]]; then
-            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'from:' takes gh-r (zplug \"$zspec[name]\")\033[m"
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'from:' takes gh-r (zplug \"$zspec[name]\")\033[m\n"
             unset "zplugs[$zspec[name]]"
             let "fail++"
         fi
         # frozen: must (default: 1)
         if [[ ! $zspec[frozen] =~ ^(0|1)$ ]]; then
-            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'frozen:' takes 0/1 (zplug \"$zspec[name]\")\033[m"
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'frozen:' takes 0/1 (zplug \"$zspec[name]\")\033[m\n"
             unset "zplugs[$zspec[name]]"
             let "fail++"
         fi
@@ -572,7 +576,7 @@ __zplug::check()
 
     if (( $#fail > 0 )); then
         if $is_verbose; then
-            printf "- \033[31m%s\033[m: not installed\n" "${(@nO)fail}"
+            __put "- \033[31m%s\033[m: not installed\n" "${(@nO)fail}"
         fi
         if $is_install; then
             __zplug::install "${fail[@]}"
@@ -600,7 +604,7 @@ __zplug::status()
         # The remote name of this branch (e.g. origin).
         local remote_name=$(git config branch."${branch}".remote)
         if [[ -z $remote_name ]]; then
-            __die "no remote repository"
+            __die "no remote repository\n"
             return 1
         fi
         echo "$remote_name"
@@ -678,7 +682,7 @@ __zplug::status()
             zspec=( ${(@f)"$(__zplug::parser "$line")"} )
             builtin cd $zspec[dir] >/dev/null 2>&1
             if [[ $status -ne 0 ]]; then
-                command printf "(not managed) [\033[34m$zspec[name]\033[m] (grabbing form $zspec[from]) URL: https://github.com/${zspec[name]}.git\n"
+                __put "(not managed) [\033[34m$zspec[name]\033[m] (grabbing form $zspec[from]) URL: https://github.com/${zspec[name]}.git\n"
                 continue
             fi
             check_remote $zspec[name]
@@ -762,7 +766,7 @@ zplug() {
                     let "cnt++"
                 fi
                 if (( cnt >= 2 )); then
-                    __die "$dep: not install (zplug 3 pipeline)"
+                    __die "$dep: not install (zplug 3 pipeline)\n"
                     return 1
                 fi
 
@@ -817,7 +821,7 @@ zplug() {
                 #     )"
                 # done
             else
-                __die "$arg: no such command"
+                __die "$arg: no such command\n"
                 return 1
             fi
             ;;
