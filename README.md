@@ -1,9 +1,11 @@
 <img src="https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png" height="100" alt="vim-plug">
 ===
 
+[repo]: https://github.com/b4b4r07/zplug
+
 `zplug` is next-generation zsh plugin manager.
 
-![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)
+[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)][repo]
 
 ## Pros.
 
@@ -15,6 +17,7 @@
 - Support for externally managed plugins (oh-my-zsh?)
 - Can manage binaries (e.g., GitHub Releases)
 - Creates shallow clones to minimize disk space usage and download time
+- Understand dependencies between plugins
 
 ## Installation
 
@@ -69,7 +72,12 @@ zplug "stedolan/jq", \
     | zplug "b4b4r07/emoji-cli"
 
 # Install plugins if there are plugins that have not been installed 
-zplug check --install
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
+fi
 
 # Then, source plugins and add commands to $PATH
 zplug load
@@ -85,7 +93,8 @@ Then `zplug install` to install plugins and reload `.zshrc`.
 | `load`    | Load installed items | N/A |
 | `list`    | List installed items | N/A |
 | `update`  | Update items in parallel | `--self` |
-| `check`   | Check whether an update or installation is available | `--verbose`,`--install` |
+| `check`   | Check whether an installation is available | `--verbose`,`--install` |
+| `status`  | Check if remote is up-to-date | N/A |
 
 In detail:
 
@@ -94,10 +103,12 @@ In detail:
 # Therefore, when it returns not true (thus false),
 # run zplug install
 if ! zplug check; then
-  zplug install
+    zplug install
 fi
 # This is equivalent to
 #   zplug check --install
+
+# source and export
 zplug load
 ```
 
@@ -115,6 +126,7 @@ zplug load
 | `do`      | Run commands after installation | shell commands (-) | `do:"make"` |
 | `frozen`  | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
 | `commit`  | Support commit installation | commit hash (-) | `commit:4428d48` |
+| `on`      | Dependencies | **READ ONLY** | - |
 
 ### `zplug` configurations
 
