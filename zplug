@@ -40,7 +40,7 @@ zplug "tj/n", do:"make install"
 
 # Support branch/tag/commit
 zplug "b4b4r07/enhancd", at:v1
-zplug "b4b4r07/emoji-cli", commit:1d5bf3b0
+zplug "mollifier/anyframe", commit:4c23cb60
 
 # Install if `if` specifier returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
@@ -633,7 +633,12 @@ __zplug::load()
 
                 for f in "${files[@]}"
                 do
-                    source "$f"
+                    if [[ -f $f ]]; then
+                        source "$f"
+                    else
+                        # case of removing project repository
+                        :
+                    fi
                 done
                 ;;
         esac
