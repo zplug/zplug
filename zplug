@@ -205,8 +205,17 @@ __zplug::update()
 
             # Not update
             if [[ $zspec[frozen] -eq 1 ]]; then
-                __put " \033[34m* Frozen\033[m    $line\n"
-                continue
+                if [[ ${#@} -eq 1 && ${@[1]} == $zspec[name] ]]; then
+                    __put "$zspec[name]: \033[34mfrozen repo\033[m. Update? [y/N]: "
+                    if ! read -q; then
+                        continue
+                    fi
+                    echo
+                else
+                    # Frozen!!
+                    __put " \033[34m* Frozen\033[m    $line\n"
+                    continue
+                fi
             fi
 
             __put "Updating...  $line\n"
@@ -883,7 +892,7 @@ zplug() {
 
         update)
             shift
-            __zplug::update "$@" ${(k)zplugs}
+            __zplug::update ${@:-${(k)zplugs}}
             return $status
             ;;
 
