@@ -11,8 +11,7 @@
 #
 # Download zplug and put it in ~/.zplug
 #
-#   curl -fLo ~/.zplug/zplug --create-dirs \
-#     https://raw.githubusercontent.com/b4b4r07/zplug/master/zplug
+#   curl -fLo ~/.zplug/zplug --create-dirs git.io/zplug
 #
 # Edit your .zshrc
 #
@@ -23,24 +22,28 @@ source ~/.zplug/zplug
 zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-substring-search"
 
-# shell commands
-zplug "holman/spark", as:cmd
-# shell commands (specify export directory path using `of` specifier)
-zplug "b4b4r07/http_code", as:cmd, of:bin
-# shell commands (whatever language is OK; e.g., perl script)
-zplug "k4rthik/git-cal", as:cmd
+# Can manage plugin as command
+zplug "junegunn/dotfiles", as:cmd, of:bin/vimcat
+# Manage everything e.g. zshrc (alias)
+zplug "tcnksm/docker-alias", of:zshrc
+# Prohibit updating by using frozen
+zplug "k4rthik/git-cal", as:cmd, frozen:1
 
-# binaries (from GitHub Releases)
+# Grab binaries (from GitHub Releases)
 zplug "junegunn/fzf-bin", \
     as:cmd, \
     from:gh-r, \
     file:fzf
 
-# branch/tag
-zplug "b4b4r07/enhancd", at:v1
+# Run command after installed
+zplug "tj/n", do:"make install"
 
-# true or false
-zplug "hchbaw/opp.zsh", if:"[ ${ZSH_VERSION%%.*} -lt 5 ]"
+# Support branch/tag/commit
+zplug "b4b4r07/enhancd", at:v1
+zplug "b4b4r07/emoji-cli", commit:1d5bf3b0
+
+# Install if `if` specifier returns true
+zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
 # Group dependencies, emoji-cli depends on jq
 zplug "stedolan/jq", \
@@ -49,7 +52,15 @@ zplug "stedolan/jq", \
     from:gh-r \
     | zplug "b4b4r07/emoji-cli"
 
-# source plugins and add commands to $PATH
+# Install plugins if there are plugins that have not been installed 
+if zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        zplug install
+    fi
+fi
+
+# Then, source plugins and add commands to $PATH
 zplug load
 
 EXAMPLE
@@ -81,7 +92,7 @@ EXAMPLE
 # environment variable (read-only)
 typeset -gr ZPLUG_NAME=zplug
 typeset -gr ZPLUG_VERSION=0.1.0
-typeset -gr ZPLUG_RAWURL="https://raw.githubusercontent.com/b4b4r07/zplug/master/zplug"
+typeset -gr ZPLUG_RAWURL="https://git.io/zplug"
 typeset -gr ZPLUG_URL="https://github.com/b4b4r07/zplug"
 
 # set default value if not present
