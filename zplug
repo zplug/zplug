@@ -830,21 +830,75 @@ zplug() {
     __zplug::validator || return $status
 }
 
+_zplug()
+{
+    local curcontext="$curcontext" state line ret=1
+
+    _arguments -C \
+        '1: :->cmds' \
+        '*:: :->args' && ret=0
+
+    case $state in
+        cmds)
+            _values "zplug commands" \
+                "install[Install described items (plugins/commands) in parallel]" \
+                "load[Load installed items]" \
+                "update[Update items in parallel]" \
+                "check[Check whether an update or installation is available]" \
+                "list[Show all of the zplugs in the current shell]" \
+                "status[Check if remote branch is up-to-date]" \
+                "version[Show version information]" \
+                "help[Show help message and usage]"
+            ret=0
+            ;;
+        args)
+            case $line[1] in
+                check)
+                    _arguments \
+                        '(--verbose)--verbose[show non-installed items in output]' \
+                        '(--install)--install[install items if there are items that are not installed yet]' \
+                        '*:: :_files -W $ZPLUG_HOME'
+                    ret=0
+                    ;;
+                update)
+                    _arguments \
+                        '(- 1 *)--self[update zplug by itself]' \
+                        '*:: :_files -W $ZPLUG_HOME'
+                    ret=0
+                    ;;
+                install)
+                    compadd -x "%F{green}Accept%f %Busername/reponame%b arguments"
+                    ret=0
+                    ;;
+                list|status|load|version|help)
+                    compadd -x "%F{yellow}Completing%f %Bno arguments%b"
+                    ret=0
+                    ;;
+                */*)
+                    _values -S : -s , "zplug specifiers" \
+                        "as[Regard that as plugins or commands]:as:(src cmd)" \
+                        "of[Specify the pattern to source (for src) or relative path to export (for cmd)]:of:" \
+                        "at[Support branch/tag installation]:at:" \
+                        "file[Specify filename you want to rename]:file:" \
+                        "dir[Installation directory (RO)]:dir:" \
+                        "if[Whether to install or not]:if:" \
+                        "do[Run commands after installation]:do:" \
+                        "frozen[Do not update unless explicitly specified]:frozen:(0 1)" \
+                        "commit[Support commit installation]:commit:" \
+                        "on[Dependencies (RO)]:on:"
+                    ret=0
+                    ;;
+            esac
+            ;;
+    esac
+
+    return ret
+}
+
 if (( ! $+functions[compdef] )); then
     autoload -Uz compinit
     compinit
 fi
-_zplug () {
-    compadd         \
-        install     \
-        update      \
-        list        \
-        load        \
-        check       \
-        status      \
-        version     \
-        help
-}
 compdef _zplug zplug
 
 # __END__ {{{1
