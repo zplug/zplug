@@ -193,19 +193,21 @@ __zplug::list()
 
 __zplug::self_update()
 {
-    trap 'kill -9 $bg_pid &>/dev/null; set -m; trap - EXIT' EXIT
+    trap 'kill -9 $bg_pid &>/dev/null; set -m; trap - EXIT INT' EXIT INT
+    local zplug
+    zplug="b4b4r07/zplug"
 
     __put "\033[;1m * zplug self manegement\033[m\n"
-    zplug check "b4b4r07/zplug" || zplug "b4b4r07/zplug"
+    zplug check "$zplug" || zplug "$zplug"
     if [[ -d $ZPLUG_HOME/repos/b4b4r07/zplug ]]; then
-        __zplug::update "b4b4r07/zplug"
+        __zplug::update "$zplug"
     else
-        ZPLUG_SHALLOW=false __zplug::install "b4b4r07/zplug"
+        ZPLUG_SHALLOW=false __zplug::install "$zplug"
     fi
 
-    ln -snf $ZPLUG_HOME/repos/b4b4r07/zplug/zplug $ZPLUG_HOME/zplug
+    ln -snf "$ZPLUG_HOME/repos/$zplug/zplug" "$ZPLUG_HOME/zplug"
     if [[ $status -eq 0 ]]; then
-        __put "\033[32mUpdated $ZPLUG_NAME ($ZPLUG_HOME/zplug)\033[m\n"
+        __put "\033[32mUpdated $ZPLUG_NAME \033[;1m($ZPLUG_HOME/zplug)\033[m\n"
     else
         __die "\033[31mError occured (see $ZPLUG_URL)\033[m\n"
         return 1
