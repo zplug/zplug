@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png" height="100" alt="vim-plug">
+<img src="https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png" height="150" alt="vim-plug">
 ===
 
 [repo]: https://github.com/b4b4r07/zplug
@@ -20,6 +20,8 @@
 - Understand dependencies between plugins
 
 ## Installation
+
+Download [zplug](https://git.io/zplug) and put it in `~/.zplug`
 
 ```console
 $ curl -fLo ~/.zplug/zplug --create-dirs git.io/zplug
@@ -106,7 +108,7 @@ if ! zplug check; then
     zplug install
 fi
 
-# source and export
+# source and add to the PATH
 zplug load
 
 # zplug check returns true if argument repository exists
@@ -122,16 +124,16 @@ fi
 
 | Specifier | Description | Value (default) | Example |
 |-----------|-------------|-----------------|---------|
-| `as`      | Regard that as plugins or commands | `src`,`cmd` (`src`) | `as:cmd` |
-| `of`      | Specify the pattern to source (for `src`) or relative path to export (for `cmd`) | - (-) | `of:bin`,`of:*.zsh` |
+| `as`      | Specify whether to register as commands or to register as plugins | `src`,`cmd` (`src`) | `as:cmd` |
+| `of`      | Specify the pattern to source files (for `src`) or specify relative path to add to the `$PATH` (for `cmd`) | - (-) | `of:bin`,`of:*.zsh` |
 | `from`    | Grab external binaries from e.g., GitHub Releases | `gh-r` (-) | `from:gh-r` |
 | `at`      | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
 | `file`    | Specify filename you want to rename | filename (-) | `file:fzf` |
 | `dir`     | Installation directory | **READ ONLY** | - 
-| `if`      | Whether to install or not | true/false (-) | `if:"[ -d ~/.zsh ]"` |
-| `do`      | Run commands after installation | shell commands (-) | `do:"make"` |
+| `if`      | Specify the conditions under which to perform (`source`, add `$PATH`) | true/false (-) | `if:"[ -d ~/.zsh ]"` |
+| `do`      | Run commands after installation | commands (-) | `do:make` |
 | `frozen`  | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
-| `commit`  | Support commit installation | commit hash (-) | `commit:4428d48` |
+| `commit`  | Support commit installation (regardless of whether the `$ZPLUG_SHALLOW` is true or not) | commit hash (-) | `commit:4428d48` |
 | `on`      | Dependencies | **READ ONLY** | - |
 
 ### `zplug` configurations
