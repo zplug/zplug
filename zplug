@@ -186,6 +186,8 @@ __zplug::update()
     for line in "$@"; do
         # Run installation in subprocess
         {
+            trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; trap - INT' INT
+
             local k bg_pid ret=1
 
             # All variables are treated as local variable
@@ -233,7 +235,7 @@ __zplug::update()
                 # send a http request to git.io/releases with os argument
                 # or, git pull (case of normal plugin)
                 if [[ $zspec[from] == "gh-r" ]]; then
-                    eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases)" -s os'
+                    eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases) || false" -s os' >/dev/null 2>&1
                 else
                     git pull --quiet
                 fi || return 1
@@ -244,7 +246,7 @@ __zplug::update()
             ret=$status
 
             # Force-quit background process (bg_rotation_bar)
-            kill -9 $bg_pid
+            kill -9 $bg_pid &>/dev/null
 
             # It will be conditional branching with exit code
             # 0: success, 1: failure, 2: not found repository
@@ -317,6 +319,8 @@ __zplug::install()
 
         # Run installation in subprocess
         {
+            trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; trap - INT' INT
+
             local bg_pid ret
 
             # All variables are treated as local variable
@@ -348,7 +352,7 @@ __zplug::install()
                 [[ -d ${zspec[name]%/*} ]] || mkdir -p "${zspec[name]%/*}"
                 # Change directory to it
                 builtin cd "${zspec[name]%/*}" >/dev/null 2>&1
-                eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases)" -s os' >/dev/null 2>&1
+                eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases) || false" -s os' >/dev/null 2>&1
                 ret=${ret:-$status}
 
             else
@@ -419,7 +423,7 @@ __zplug::install()
             fi
 
             # Force-quit background process (bg_rotation_bar)
-            kill -9 $bg_pid
+            kill -9 $bg_pid &>/dev/null
 
             # Whether to success or not
             if [[ $ret -eq 0 ]]; then
@@ -844,6 +848,8 @@ __zplug::status()
     for line in ${(k)zplugs}; do
         # Run installation in subprocess
         {
+            trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; trap - INT' INT
+
             # All variables are treated as local variable
             # because of background job (subprocess)
             local -A zspec
