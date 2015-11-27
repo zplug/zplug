@@ -193,30 +193,23 @@ __zplug::list()
 
 __zplug::self_update()
 {
-    trap 'kill -9 $bg_pid &>/dev/null; set -m; trap - INT' INT
-    local bg_pid
+    trap 'kill -9 $bg_pid &>/dev/null; set -m; trap - EXIT' EXIT
 
-    # Disable job control
-    set +m
+    __put "\033[;1m * zplug self manegement\033[m\n"
+    zplug check "b4b4r07/zplug" || zplug "b4b4r07/zplug"
+    if [[ -d $ZPLUG_HOME/repos/b4b4r07/zplug ]]; then
+        __zplug::update "b4b4r07/zplug"
+    else
+        ZPLUG_SHALLOW=false __zplug::install "b4b4r07/zplug"
+    fi
 
-    # Start the spin of drawing
-    # and save process id
-    bg_rotation_bar & bg_pid=$!
-    # Get zplugs from raw.github.com
-    curl -fLo $ZPLUG_HOME/zplug --create-dirs $ZPLUG_RAWURL >/dev/null 2>&1
-
+    ln -snf $ZPLUG_HOME/repos/b4b4r07/zplug/zplug $ZPLUG_HOME/zplug
     if [[ $status -eq 0 ]]; then
         __put "\033[32mUpdated $ZPLUG_NAME ($ZPLUG_HOME/zplug)\033[m\n"
     else
         __die "\033[31mError occured (see $ZPLUG_URL)\033[m\n"
         return 1
     fi
-
-    # Force-quit background process (bg_rotation_bar)
-    kill -9 $bg_pid &>/dev/null
-
-    # Disable job control
-    set -m
 }
 
 __zplug::update()
