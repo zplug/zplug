@@ -36,7 +36,7 @@ source ~/.zplug/zplug
 
 # Make sure you use double quotes
 zplug "zsh-users/zsh-syntax-highlighting"
-zplug "zsh-users/zsh-substring-search"
+zplug "zsh-users/zsh-history-substring-search"
 
 # Can manage plugin as command
 zplug "junegunn/dotfiles", as:cmd, of:bin/vimcat
