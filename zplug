@@ -980,11 +980,14 @@ zplug() {
             ;;
 
         *)
-            shift
-            arg="${arg%,}"
+            local -a args
+            args=("${(s:,:)$(sed -e 's/, */,/g' <<<"$@")}")
+            arg="${args[1]}"
+            args[1]=()
+
             if [[ $arg =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
                 local cnt=0 dep stdin
-                local -a task args dep_args
+                local -a task dep_args
                 task=("$arg")
 
                 if [[ -p /dev/stdin ]]; then
@@ -1006,11 +1009,11 @@ zplug() {
                 local i specifier
                 for arg in "${task[@]}"
                 do
-                    if [[ $arg == $dep ]]; then
-                        args=("${(s:, :)dep_args}")
-                    else
-                        args=("$@")
-                    fi
+                    # if [[ $arg == $dep ]]; then
+                    #     args=("${(s:, :)dep_args}")
+                    # else
+                    #     args=("$@")
+                    # fi
 
                     for i in $args
                     do
