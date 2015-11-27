@@ -9,6 +9,22 @@
 #  zplug: zsh plugin manager
 # ===========================
 #
+# zplug is next-generation zsh plugin manager.
+# zplug can manage everything and can do not only plugins
+# but also commands and binaries.
+#
+# Pros.
+#
+# - Manage everything
+# - Super-fast parallel installation/update
+# - Branch/tag/commit support
+# - Can manage UNIX commands (what language is okay)
+# - Post-update hooks
+# - Support for externally managed plugins (oh-my-zsh?)
+# - Can manage binaries (e.g., GitHub Releases)
+# - Creates shallow clones to minimize disk space usage and download time
+# - Understand dependencies between plugins
+#
 # Download zplug and put it in ~/.zplug
 #
 #   curl -fLo ~/.zplug/zplug --create-dirs git.io/zplug
@@ -88,10 +104,11 @@ EXAMPLE
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+#
 
 # Environment variable (Read-Only)
-typeset -gr ZPLUG_NAME=zplug
-typeset -gr ZPLUG_VERSION=0.1.0
+typeset -gr ZPLUG_NAME="zplug"
+typeset -gr ZPLUG_VERSION="0.1.9"
 typeset -gr ZPLUG_RAWURL="https://git.io/zplug"
 typeset -gr ZPLUG_URL="https://github.com/b4b4r07/zplug"
 
@@ -118,6 +135,10 @@ COMMANDS:
   status    Check if remote branch is up-to-date
 
 For more information, see also $ZPLUG_URL."
+
+#
+# zplug utilities
+#
 
 __die() {
     command printf -- "$@" >&2
@@ -170,9 +191,10 @@ __zplug::list()
         | perl -pe 's/(as|of|from|to|if|dir|file|at|do|frozen|on|commit)(:)/\033[34m$1\033[m$2/g'
 }
 
-__zplug::selfupdate()
+__zplug::self_update()
 {
-    trap 'kill -9 $bg_pid &>/dev/null; trap - INT' INT
+    trap 'kill -9 $bg_pid &>/dev/null; set -m; trap - INT' INT
+    local bg_pid
 
     # Disable job control
     set +m
@@ -186,7 +208,7 @@ __zplug::selfupdate()
     if [[ $status -eq 0 ]]; then
         __put "\033[32mUpdated $ZPLUG_NAME ($ZPLUG_HOME/zplug)\033[m\n"
     else
-        __put "\033[31mError occured (see $ZPLUG_URL)\033[m\n"
+        __die "\033[31mError occured (see $ZPLUG_URL)\033[m\n"
         return 1
     fi
 
@@ -202,7 +224,7 @@ __zplug::update()
     # Process arguments
     case "$1" in
         --self)
-            __zplug::selfupdate
+            __zplug::self_update
             return $status
             ;;
     esac
@@ -215,7 +237,7 @@ __zplug::update()
     for line in "$@"; do
         # Run installation in subprocess
         {
-            trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; trap - INT' INT
+            trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; set -m; trap - INT' INT
 
             local k bg_pid ret=1
 
@@ -254,6 +276,7 @@ __zplug::update()
             # Start the spin of drawing
             # and save process id
             bg_rotation_bar & bg_pid=$!
+
             () {
                 # Change directory to fullpath of zspec dir
                 # or parent directory of zspec dir
@@ -333,7 +356,8 @@ __zplug::install()
     set +m
 
     # Recode start-up time
-    start="$(date +%s)"
+    typeset -F SECONDS=0
+    start=$SECONDS
 
     for line in "$@"; do
         # Skip installed items
@@ -342,13 +366,13 @@ __zplug::install()
                 if $is_verbose; then
                     # Output in red
                     __put "\033[31m-\033[m \033[32m${line}\033[m: already installed\n"
-                    continue
                 fi
+                continue
             }
 
         # Run installation in subprocess
         {
-            trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; trap - INT' INT
+            trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; set -m; trap - INT' INT
 
             local bg_pid ret
 
@@ -504,9 +528,10 @@ __zplug::install()
     fi
 
     # Recode finish time
-    end="$(date +%s)"
+    end=$SECONDS
+
     # Output time it took to process
-    __put "$ZPLUG_NAME: total time %d sec\n" $(($end - $start))
+    __put "$ZPLUG_NAME: total wall-time %f sec.\n" $(($end - $start))
 
     return $fail
 }
@@ -718,7 +743,7 @@ __zplug::validator()
             let fail++
         fi
 
-        # frozen: must (default: 1)
+        # frozen: must (default: 0)
         if [[ ! $zspec[frozen] =~ ^(0|1)$ ]]; then
             __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'frozen:' takes 0/1 (zplug \"$zspec[name]\")\033[m\n"
 
@@ -872,7 +897,7 @@ __zplug::status()
     }
 
     # Kill all background jobs
-    trap 'kill -9 ${${(v)jobstates##*:*:}%=*} &>/dev/null; trap - INT' INT
+    trap 'kill -9 ${${(v)jobstates##*:*:}%=*} &>/dev/null; set -m; trap - INT' INT
 
     # Disable job control
     set +m
@@ -1015,24 +1040,6 @@ zplug() {
                     fi
                     specifier=""
                 done
-
-                # Initialize all specifiers
-                # local zplug
-                # for zplug in ${(k)zplugs}
-                # do
-                #     zplugs[$zplug]="$(
-                #     () {
-                #         local -A zspec
-                #         local k cnt=0
-                #         zspec=( ${(@f)"$(__zplug::parser "$zplug")"} )
-                #         for k in ${(k)zspec}
-                #         do
-                #             printf "$k:$zspec[$k],"
-                #         done
-                #         echo
-                #     } | sed -e 's/,$//'
-                #     )"
-                # done
             else
                 __die "$arg: no such command\n"
                 return 1
@@ -1040,6 +1047,7 @@ zplug() {
             ;;
     esac
 
+    # Check syntax error
     __zplug::validator || return $status
 }
 
@@ -1109,6 +1117,28 @@ _zplug()
 
     return ret
 }
+
+if (( ! $+commands[git] )); then
+    unfunction \
+        __die \
+        __put \
+        git_version \
+        bg_rotation_bar \
+        __zplug::list \
+        __zplug::self_update \
+        __zplug::update \
+        __zplug::install \
+        __zplug::parser \
+        __zplug::load \
+        __zplug::validator \
+        __zplug::check \
+        __zplug::status \
+        get_head_branch \
+        get_remote_name \
+        check_remote \
+        zplug \
+        _zplug
+fi
 
 if (( ! $+functions[compdef] )); then
     autoload -Uz compinit
