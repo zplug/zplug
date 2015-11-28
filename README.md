@@ -182,6 +182,10 @@ It defaults to `true`. Use shallow clone. It creates a shallow clone with a hist
 - :construction: Until version 1.0.0 is released, zplug may be destructive changed.
 - :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug) and the likes.
 
+## Other resources
+
+[awesome-zsh-plugins](https://github.com/unixorn/awesome-zsh-plugins) is a list of ZSH plugins, themes and completions that you can use with zplug.
+
 ## License
 
 [MIT][license] © BABAROT
