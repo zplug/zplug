@@ -18,6 +18,7 @@
 - Can manage binaries (e.g., GitHub Releases)
 - Creates shallow clones to minimize disk space usage and download time
 - Understand dependencies between plugins
+- Unlike [antigen](https://github.com/zsh-users/antigen), there is no need to take account of plugin manager
 
 ## Installation
 
@@ -98,7 +99,7 @@ Then `zplug install` to install plugins and reload `.zshrc`.
 | `check`   | Check whether an installation is available | `--verbose`,`--install` |
 | `status`  | Check if remote is up-to-date | N/A |
 
-In detail:
+#### Take a closer look
 
 ```zsh
 # zplug check return true if all plugins are installed
@@ -118,6 +119,24 @@ if zplug check b4b4r07/enhancd; then
 fi
 ```
 
+#### Let zplug manage zplug
+
+If you want to manage zplug by itself, to run this command (after installing zplug, of course):
+
+```console
+$ zplug update --self
+```
+
+By using `--self` option, zplug will be cloned to `$ZPLUG_HOME/repos` and be created symlink to `$ZPLUG_HOME/zplug`.
+
+Then to start to manage zplug in the same way as any other plugins, please write the following in your `.zshrc`.
+
+```zsh
+zplug "b4b4r07/zplug"
+```
+
+All that's left is to run `zplug update`.
+
 [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo]
 
 ### `zplug` specifiers
@@ -135,6 +154,8 @@ fi
 | `frozen`  | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
 | `commit`  | Support commit installation (regardless of whether the `$ZPLUG_SHALLOW` is true or not) | commit hash (-) | `commit:4428d48` |
 | `on`      | Dependencies | **READ ONLY** | - |
+
+[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo]
 
 ### `zplug` configurations
 
