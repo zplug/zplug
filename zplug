@@ -443,7 +443,7 @@ __zplug::install()
                 # It's the repository consists of only 1 recent commit
                 # If zspec[commit] is not empty, do normal clone automatically
                 local shallow_clone
-                if $ZPLUG_SHALLOW && [[ -z $zspec[commit] ]]; then
+                if $ZPLUG_SHALLOW && (( $#zspec[commit] >= 8 )); then
                     shallow_clone="--depth=1"
                 fi
 
@@ -458,7 +458,7 @@ __zplug::install()
                 ret=${ret:-$status}
 
                 # Not shallow clone
-                if [[ -n $zspec[commit] ]]; then
+                if (( $#zspec[commit] >= 8 )); then
                     builtin cd "$line" && git checkout $zspec[commit] >/dev/null 2>&1
                 fi
             fi
@@ -747,6 +747,16 @@ __zplug::validator()
             # Increments if it fails
             let fail++
         fi
+
+        # commit: opt
+        if [[ -n $zspec[commit] ]] && (( $#zspec[commit] < 8 )); then
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# the length of specifier 'commit:' must be eight characters or more (zplug \"$zspec[name]\")\033[m\n"
+
+            # Remove that key and value
+            unset "zplugs[$zspec[name]]"
+            # Increments if it fails
+            let fail++
+        fi
     done
 
     return $fail
@@ -1022,7 +1032,7 @@ zplug() {
                                 specifier="${specifier}${i%,},"
                                 ;;
                             *)
-                                echo "$i: invalid specifier"
+                                __die "$i: invalid specifier\n"
                                 return 1
                                 ;;
                         esac
@@ -1099,6 +1109,7 @@ _zplug()
                     _values -S : -s , "zplug specifiers" \
                         "as[Regard that as plugins or commands]:as:(src cmd)" \
                         "of[Specify the pattern to source (for src) or relative path to export (for cmd)]:of:" \
+                        "from[Grab external binaries from e.g., GitHub Releases]:from:(gh-r)" \
                         "at[Support branch/tag installation]:at:" \
                         "file[Specify filename you want to rename]:file:" \
                         "dir[Installation directory (RO)]:dir:" \
