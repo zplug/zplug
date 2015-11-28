@@ -39,15 +39,15 @@ zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-history-substring-search"
 
 # Can manage plugin as command
-zplug "junegunn/dotfiles", as:cmd, of:bin/vimcat
+zplug "junegunn/dotfiles", as:command, of:bin/vimcat
 # Manage everything e.g. zshrc (alias)
 zplug "tcnksm/docker-alias", of:zshrc
 # Prohibit updating by using frozen
-zplug "k4rthik/git-cal", as:cmd, frozen:1
+zplug "k4rthik/git-cal", as:command, frozen:1
 
 # Grab binaries (from GitHub Releases)
 zplug "junegunn/fzf-bin", \
-    as:cmd, \
+    as:command, \
     from:gh-r, \
     file:fzf
 
@@ -63,12 +63,12 @@ zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
 # Gist can be used (only full URL)
 zplug "https://gist.github.com/b4b4r07/79ee61f7c140c63d2786", \
-    as:cmd, \
+    as:command, \
     of:get_last_pane_path.sh
 
 # Group dependencies, emoji-cli depends on jq
 zplug "stedolan/jq", \
-    as:cmd, \
+    as:command, \
     file:jq, \
     from:gh-r \
     | zplug "b4b4r07/emoji-cli"
@@ -553,7 +553,7 @@ __zplug::parser()
     # If value is empty, set -EMP- value to it
     local name as of to from if dir file at do frozen on commit
     name="${parsed_zplugs[1]}"
-    as=${${${(M)parsed_zplugs:#as*}#*:}:-src}
+    as=${${${(M)parsed_zplugs:#as*}#*:}:-plugin}
     of=${${${(M)parsed_zplugs:#of*}#*:}:--EMP-}
     to=${${${(M)parsed_zplugs:#to*}#*:}:--EMP-}
     from=${${${(M)parsed_zplugs:#from*}#*:}:--EMP-}
@@ -637,7 +637,7 @@ __zplug::load()
         # as specifier
         # Conditional branching by as
         case $zspec[as] in
-            cmd)
+            command)
                 # Hold files to be read in files variable
                 files=()
                 # Create bin directory to export
@@ -695,7 +695,7 @@ __zplug::load()
                 typeset -gx -U path
                 ;;
 
-            src)
+            plugin)
                 # To find files to be sourced and
                 # expand file glob (using zsh -c "foo*bar")
                 files=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-*.zsh(N)}" 2>/dev/null) )
@@ -737,9 +737,9 @@ __zplug::validator()
             fi
         done
 
-        # as: must (default: src)
-        if [[ ! $zspec[as] =~ ^(cmd|src)$ ]]; then
-            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'as:' takes cmd/src (zplug \"$zspec[name]\")\033[m\n"
+        # as: must (default: plugin)
+        if [[ ! $zspec[as] =~ ^(command|plugin)$ ]]; then
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'as:' takes command/plugin (zplug \"$zspec[name]\")\033[m\n"
 
             # Remove that key and value
             unset "zplugs[$zspec[name]]"
@@ -1165,8 +1165,8 @@ _zplug()
                     ;;
                 */*)
                     _values -S : -s , "zplug specifiers" \
-                        "as[Regard that as plugins or commands]:as:(src cmd)" \
-                        "of[Specify the pattern to source (for src) or relative path to export (for cmd)]:of:->of" \
+                        "as[Regard that as plugins or commands]:as:(plugin command)" \
+                        "of[Specify the pattern to source (for plugin) or relative path to export (for command)]:of:->of" \
                         "from[Grab external binaries from e.g., GitHub Releases]:from:(gh-r)" \
                         "at[Support branch/tag installation]:at:" \
                         "file[Specify filename you want to rename]:file:" \
@@ -1177,7 +1177,7 @@ _zplug()
                         "commit[Support commit installation]:commit:" \
                         "on[Dependencies (RO)]:on:" && ret=0
                     if [[ $state == "of" ]]; then
-                        compadd -J 'cmd/src' -x "%F{yellow}Completing%f %BExample patterns%b" \
+                        compadd -J 'command/plugin' -x "%F{yellow}Completing%f %BExample patterns%b" \
                             '*.zsh' \
                             '*.sh' \
                             'zsh/*.zsh' \
