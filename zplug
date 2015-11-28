@@ -180,7 +180,7 @@ __zplug::list()
         return 1
     fi
 
-    local v
+    local v arg
     local -A out
 
     # Reset zplugs elements
@@ -188,6 +188,15 @@ __zplug::list()
     do
         out+=("${(@kv)zplugs[(eR)$v]}")
     done
+
+    # Process arguments
+    if (( $# > 0 )); then
+        out=()
+        for arg in "$@"
+        do
+            [[ -n "${zplugs[$arg]}" ]] && out+=("$arg" "${zplugs[$arg]}")
+        done
+    fi
 
     # Output and colorize
     __put '%s  =>  %s\n' "${(@kv)out}" \
@@ -1022,7 +1031,8 @@ zplug() {
             ;;
 
         list)
-            __zplug::list
+            shift
+            __zplug::list "$@"
             return $status
             ;;
 
@@ -1160,7 +1170,12 @@ _zplug()
                         '(--verbose)--verbose[display loading files]'
                     ret=0
                     ;;
-                list|status|version|help)
+                list)
+                    _arguments \
+                        '*:: :_files -W $ZPLUG_HOME/repos'
+                    ret=0
+                    ;;
+                status|version|help)
                     compadd -x "%F{yellow}Completing%f %Bno arguments%b"
                     ret=0
                     ;;
