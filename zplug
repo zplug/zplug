@@ -998,6 +998,76 @@ __zplug::gist_clone()
     git clone --quiet "$url_format" "$head$line" >/dev/null 2>&1
 }
 
+__zplug::clean()
+{
+    local is_force=false
+
+    # Process arguments
+    # Options
+    case "$1" in
+        --force)
+            is_force=true
+            shift
+            ;;
+    esac
+
+    # Note:
+    # How to remove elements from normal array or associative array
+    # normal array:      array[num]=()      <= overwrite empty element
+    # associative array: unset "array[key]" <= unset array with double quotes
+    #
+    local k v arg
+    local -a repos
+
+    # Process arguments
+    if (( $# > 0 )); then
+        for arg in "$@"
+        do
+            candidates="${${${zplugs[$arg]}##*dir:}%%,*}"
+            [[ -z "$candidates" ]] && continue
+            # Check whether to remove one by one
+            __put "- \033[31m%s\033[m\n" "$candidates"
+            __put "Remove really? [y/N]: "
+            if $is_force || read -q; then
+                command rm -rf "$candidates"
+                unset "zplugs[$arg]"
+                __put "\nRemoved\n"
+            else
+                __put "\nCanceled\n"
+            fi
+        done
+    else
+        # directory structure level 2
+        repos=("${(@f)$(find "$ZPLUG_HOME/repos" -depth 2 | grep -v "gist\.github\.com")}")
+        # directory structure level 3
+        repos+=("${(@f)$(find "$ZPLUG_HOME/repos/gist.github.com" -depth 2)}")
+
+        # Remove the repository which is used from the candidates
+        for v in "${(@v)zplugs}"
+        do
+            k="${${v##*dir:}%%,*}"
+            num="${repos[(i)$k]}"
+            if [[ -n "$num" ]]; then
+                repos[$num]=()
+            fi
+        done
+
+        # Skip
+        [[ -z ${repos[1]} ]] && return
+
+        # Check whether to remove
+        __put "These repositories are no longer managed by zplug.\n"
+        __put "- \033[31m%s\033[m\n" "${repos[@]}"
+        __put "Remove? [y/N]: "
+        if $is_force || read -q; then
+            command rm -rf "${repos[@]}"
+            __put "\nRemoved\n"
+        else
+            __put "\nCanceled\n"
+        fi
+    fi
+}
+
 zplug() {
     local arg
     arg="$1"
@@ -1044,6 +1114,12 @@ zplug() {
 
         load)
             __zplug::load "$@"
+            return $status
+            ;;
+
+        clean)
+            shift
+            __zplug::clean "$@"
             return $status
             ;;
 
@@ -1139,6 +1215,7 @@ _zplug()
                 "update[Update items in parallel]" \
                 "check[Check whether an update or installation is available]" \
                 "list[Show all of the zplugs in the current shell]" \
+                "clean[Remove deprecated repositories]" \
                 "status[Check if remote branch is up-to-date]" \
                 "version[Show version information]" \
                 "help[Show help message and usage]"
@@ -1172,6 +1249,12 @@ _zplug()
                     ;;
                 list)
                     _arguments \
+                        '*:: :_files -W $ZPLUG_HOME/repos'
+                    ret=0
+                    ;;
+                clean)
+                    _arguments \
+                        '(--force)--force[force the removing activity]' \
                         '*:: :_files -W $ZPLUG_HOME/repos'
                     ret=0
                     ;;
@@ -1236,6 +1319,7 @@ if (( ! $+commands[git] )); then
         get_remote_name \
         check_remote \
         __zplug::gist_clone \
+        __zplug::clean \
         zplug \
         _zplug
 fi
