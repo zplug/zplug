@@ -55,7 +55,7 @@ zplug "junegunn/fzf-bin", \
     as:cmd, \
     from:gh-r, \
     file:fzf
-    
+
 # Run command after installed
 zplug "tj/n", do:"make install"
 
@@ -73,7 +73,7 @@ zplug "stedolan/jq", \
     from:gh-r \
     | zplug "b4b4r07/emoji-cli"
 
-# Install plugins if there are plugins that have not been installed 
+# Install plugins if there are plugins that have not been installed
 if ! zplug check --verbose; then
     printf "Install? [y/N]: "
     if read -q; then
@@ -129,7 +129,7 @@ fi
 | `from`    | Grab external binaries from e.g., GitHub Releases | `gh-r` (-) | `from:gh-r` |
 | `at`      | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
 | `file`    | Specify filename you want to rename | filename (-) | `file:fzf` |
-| `dir`     | Installation directory | **READ ONLY** | - 
+| `dir`     | Installation directory | **READ ONLY** | -
 | `if`      | Specify the conditions under which to perform (`source`, add `$PATH`) | true/false (-) | `if:"[ -d ~/.zsh ]"` |
 | `do`      | Run commands after installation | commands (-) | `do:make` |
 | `frozen`  | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
@@ -164,7 +164,7 @@ If you specify `as:cmd` in `zplug` command, zplug will recognize its plugin as c
 
 #### `ZPLUG_THREADS`
 
-It defaults to 16. It is default number of threads to use. 
+It defaults to 16. It is default number of threads to use.
 
 #### `ZPLUG_PROTOCOL`
 
