@@ -1107,8 +1107,8 @@ zplug() {
                     zplugs+=("$arg" "${specifier:-}")
                     # Add dir specifier to $zplugs
                     zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/repos/$arg"
-                    if [[ $arg != $dep && -n $dep ]]; then
-                        zplugs[$arg]+="${zplugs[$arg]:+,}on:$dep"
+                    if [[ $arg != $on_name && -n $on_name ]]; then
+                        zplugs[$arg]+="${zplugs[$arg]:+,}on:$on_name"
                     fi
                     specifier=""
                 done
