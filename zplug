@@ -597,8 +597,14 @@ __zplug::parser()
 __zplug::load()
 {
     local f files k
-    local key
+    local key is_verbose=false
     local -A zspec
+
+    # Process arguments
+    if [[ $1 == "--verbose" ]]; then
+        is_verbose=true
+        shift
+    fi
 
     for key in ${(k)zplugs}
     do
@@ -691,13 +697,17 @@ __zplug::load()
 
             src)
                 # To find files to be sourced and
-                # expand the wildcard (using zsh -c "foo*bar")
+                # expand file glob (using zsh -c "foo*bar")
                 files=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-*.zsh(N)}" 2>/dev/null) )
 
                 for f in "${files[@]}"
                 do
                     if [[ -f $f ]]; then
                         source "$f"
+                        [[ $status -eq 0 ]] &&
+                            if $is_verbose; then
+                                __put "\033[32m  Loaded\033[m ${f/$ZPLUG_HOME\/repos\//}\n"
+                            fi
                     else
                         # case of removing project repository
                         :
@@ -1023,7 +1033,7 @@ zplug() {
             ;;
 
         load)
-            __zplug::load
+            __zplug::load "$@"
             return $status
             ;;
 
@@ -1144,7 +1154,12 @@ _zplug()
                         '*:: :compadd -x "%F{green}Accept%f %Busername/reponame%b arguments"'
                     ret=0
                     ;;
-                list|status|load|version|help)
+                load)
+                    _arguments \
+                        '(--verbose)--verbose[display loading files]'
+                    ret=0
+                    ;;
+                list|status|version|help)
                     compadd -x "%F{yellow}Completing%f %Bno arguments%b"
                     ret=0
                     ;;
