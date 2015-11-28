@@ -61,6 +61,11 @@ zplug "mollifier/anyframe", commit:4c23cb60
 # Install if `if` specifier returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
+# Gist can be used (only full URL)
+zplug "https://gist.github.com/b4b4r07/79ee61f7c140c63d2786", \
+    as:cmd, \
+    of:get_last_pane_path.sh
+
 # Group dependencies, emoji-cli depends on jq
 zplug "stedolan/jq", \
     as:cmd, \
@@ -406,6 +411,9 @@ __zplug::install()
 
             else
                 # Run git clone
+                if [[ $line =~ ^gist\.github\.com ]]; then
+                    __zplug::gist_clone "$line"
+                else
 
                 local url_format
                 # Create the format of URL used to git clone
@@ -460,6 +468,7 @@ __zplug::install()
                 # Not shallow clone
                 if (( $#zspec[commit] >= 8 )); then
                     builtin cd "$line" && git checkout $zspec[commit] >/dev/null 2>&1
+                fi
                 fi
             fi
 
@@ -937,6 +946,39 @@ __zplug::status()
     unfunction get_remote_name get_head_branch check_remote
 }
 
+__zplug::gist_clone()
+{
+    local head line url_format
+    # line="$(sed -e 's|^https://gist\.github\.com/||' <<<"$1")"
+    head="gist.github.com/"
+    line="$(sed -e 's|^gist\.github\.com/||' <<<"$1")"
+
+    if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
+        # HTTPS: "https://git::@github.com/%s.git"
+        url_format="https://git::@gist.github.com/${line}.git"
+
+        # However, Git 2.3.0 introduced $GIT_TERMINAL_PROMPT
+        # which can be used to suppress user prompt
+        if (( $(git_version) > 230 )); then
+            # HTTPS (git 2.3+): "https://github.com/%s.git"
+            GIT_TERMINAL_PROMPT=0
+            url_format="https://gist.github.com/${line}.git"
+        fi
+
+    elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
+        # SSH: "git@github.com:%s.git"
+        url_format="git@gist.github.com:${line}.git"
+
+    else
+        # OTHER: not supported
+        __die "\033[31m x Failed      $line\033[m (use SSH/HTTPS for cloning protocol)\n"
+        # Save exit code 2 to ret
+        ret=${ret:-2}
+    fi
+
+    git clone --quiet "$url_format" "$head$line" >/dev/null 2>&1
+}
+
 zplug() {
     local arg
     arg="$1"
@@ -994,8 +1036,9 @@ zplug() {
             args=("${(s:,:)$(sed -e 's/, */,/g' <<<"$@")}")
             arg="${args[1]}"
             args[1]=()
+            arg="$(sed -e 's|^https://||' <<<"$arg")"
 
-            if [[ $arg =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
+            if [[ $arg =~ ^(gist\.github\.com/)?[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
                 local cnt=0 dep stdin
                 local -a task dep_args
                 task=("$arg")
@@ -1145,6 +1188,7 @@ if (( ! $+commands[git] )); then
         get_head_branch \
         get_remote_name \
         check_remote \
+        __zplug::gist_clone \
         zplug \
         _zplug
 fi
