@@ -1074,16 +1074,19 @@ zplug() {
 
     case "$arg" in
         help)
+            shift
             echo "$ZPLUG_HELP"
             return 0
             ;;
 
         version)
+            shift
             echo "$ZPLUG_NAME $ZPLUG_VERSION"
             return 0
             ;;
 
         status)
+            shift
             __zplug::status
             return $status
             ;;
@@ -1113,6 +1116,7 @@ zplug() {
             ;;
 
         load)
+            shift
             __zplug::load "$@"
             return $status
             ;;
@@ -1124,6 +1128,7 @@ zplug() {
             ;;
 
         "")
+            echo "$ZPLUG_HELP"
             return 1
             ;;
 
