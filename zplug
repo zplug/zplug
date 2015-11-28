@@ -190,7 +190,7 @@ __zplug::list()
     done
 
     # Output and colorize
-    __put '%-20s  =>  %s\n' "${(@kv)out}" \
+    __put '%s  =>  %s\n' "${(@kv)out}" \
         | sed -e 's/-EMP-/""/g' \
         | perl -pe 's/^(.*)( *=>.*)$/\033[32m$1\033[m$2/g' \
         | perl -pe 's/(as|of|from|to|if|dir|file|at|do|frozen|on|commit)(:)/\033[34m$1\033[m$2/g'
@@ -1166,7 +1166,7 @@ _zplug()
                 */*)
                     _values -S : -s , "zplug specifiers" \
                         "as[Regard that as plugins or commands]:as:(src cmd)" \
-                        "of[Specify the pattern to source (for src) or relative path to export (for cmd)]:of:" \
+                        "of[Specify the pattern to source (for src) or relative path to export (for cmd)]:of:->of" \
                         "from[Grab external binaries from e.g., GitHub Releases]:from:(gh-r)" \
                         "at[Support branch/tag installation]:at:" \
                         "file[Specify filename you want to rename]:file:" \
@@ -1175,8 +1175,24 @@ _zplug()
                         "do[Run commands after installation]:do:" \
                         "frozen[Do not update unless explicitly specified]:frozen:(0 1)" \
                         "commit[Support commit installation]:commit:" \
-                        "on[Dependencies (RO)]:on:"
-                    ret=0
+                        "on[Dependencies (RO)]:on:" && ret=0
+                    if [[ $state == "of" ]]; then
+                        compadd -J 'cmd/src' -x "%F{yellow}Completing%f %BExample patterns%b" \
+                            '*.zsh' \
+                            '*.sh' \
+                            'zsh/*.zsh' \
+                            '*.plugin.zsh' \
+                            'init.zsh'
+                        compadd -J 'gh-r' -x "%F{yellow}Completing%f %BGitHub Releases%b" \
+                            'amd64' \
+                            'darwin*amd64' \
+                            'linux*amd64' \
+                            '386' \
+                            'darwin*386' \
+                            'linux*386' \
+                            'darwin' \
+                            'linux'
+                    fi
                     ;;
             esac
             ;;
