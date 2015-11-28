@@ -9,16 +9,16 @@
 
 ## Pros.
 
-- Manage everything
+- Manage everything (plugin, command, and gist file)
 - Super-fast parallel installation/update
 - Branch/tag/commit support
-- Can manage UNIX commands (what language is okay)
+- Can manage UNIX commands
 - Post-update hooks
-- Support for externally managed plugins (oh-my-zsh?)
+- Support for externally managed plugins
 - Can manage binaries (e.g., GitHub Releases)
 - Creates shallow clones to minimize disk space usage and download time
 - Understand dependencies between plugins
-- Unlike [antigen](https://github.com/zsh-users/antigen), there is no need to take account of plugin manager
+- Unlike [antigen](https://github.com/zsh-users/antigen), no ZSH plugin support file (`*.plugin.zsh`) is needed
 
 ## Installation
 
@@ -45,15 +45,16 @@ zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-history-substring-search"
 
 # Can manage plugin as command
-zplug "junegunn/dotfiles", as:cmd, of:bin/vimcat
+zplug "junegunn/dotfiles", as:command, of:bin/vimcat
 # Manage everything e.g. zshrc (alias)
 zplug "tcnksm/docker-alias", of:zshrc
 # Prohibit updating by using frozen
-zplug "k4rthik/git-cal", as:cmd, frozen:1
+zplug "k4rthik/git-cal", as:command, frozen:1
 
 # Grab binaries (from GitHub Releases)
+# and rename to use "file:" specifier
 zplug "junegunn/fzf-bin", \
-    as:cmd, \
+    as:command, \
     from:gh-r, \
     file:fzf
 
@@ -67,9 +68,14 @@ zplug "mollifier/anyframe", commit:4c23cb60
 # Install if `if` specifier returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
+# Gist can be used (only full URL)
+zplug "https://gist.github.com/b4b4r07/79ee61f7c140c63d2786", \
+    as:command, \
+    of:get_last_pane_path.sh
+
 # Group dependencies, emoji-cli depends on jq
 zplug "stedolan/jq", \
-    as:cmd, \
+    as:command, \
     file:jq, \
     from:gh-r \
     | zplug "b4b4r07/emoji-cli"
@@ -83,7 +89,7 @@ if ! zplug check --verbose; then
 fi
 
 # Then, source plugins and add commands to $PATH
-zplug load
+zplug load --verbose
 ```
 
 Then `zplug install` to install plugins and reload `.zshrc`.
@@ -93,11 +99,12 @@ Then `zplug install` to install plugins and reload `.zshrc`.
 |  Command  | Description | Option |
 |-----------|-------------|--------|
 | `install` | Install described items (plugins/commands) in parallel | `--verbose` |
-| `load`    | Load installed items | N/A |
+| `load`    | Load installed items | `--verbose` |
 | `list`    | List installed items | N/A |
 | `update`  | Update items in parallel | `--self` |
 | `check`   | Check whether an installation is available | `--verbose`,`--install` |
 | `status`  | Check if remote is up-to-date | N/A |
+| `clean`   | Remove repositories which are no longer used | `--force` |
 
 #### Take a closer look
 
@@ -143,8 +150,8 @@ All that's left is to run `zplug update`.
 
 | Specifier | Description | Value (default) | Example |
 |-----------|-------------|-----------------|---------|
-| `as`      | Specify whether to register as commands or to register as plugins | `src`,`cmd` (`src`) | `as:cmd` |
-| `of`      | Specify the pattern to source files (for `src`) or specify relative path to add to the `$PATH` (for `cmd`) | - (-) | `of:bin`,`of:*.zsh` |
+| `as`      | Specify whether to register as commands or to register as plugins | `plugin`,`command` (`plugin`) | `as:command` |
+| `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) | - (-) | `of:bin`,`of:*.zsh` |
 | `from`    | Grab external binaries from e.g., GitHub Releases | `gh-r` (-) | `from:gh-r` |
 | `at`      | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
 | `file`    | Specify filename you want to rename | filename (-) | `file:fzf` |
@@ -154,6 +161,8 @@ All that's left is to run `zplug update`.
 | `frozen`  | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
 | `commit`  | Support commit installation (regardless of whether the `$ZPLUG_SHALLOW` is true or not) | commit hash (-) | `commit:4428d48` |
 | `on`      | Dependencies | **READ ONLY** | - |
+
+#### Available on CLI
 
 [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo]
 
@@ -181,7 +190,7 @@ $ZPLUG_HOME
         `-- reponame1
 ```
 
-If you specify `as:cmd` in `zplug` command, zplug will recognize its plugin as command and create a symbolic link of the same name (if you want to rename, set `file:` specifier) within `$ZPLUG_HOME/bin`. Because zplug add `$ZPLUG_HOME/bin` to the `$PATH`, you can run that command from any directories.
+If you specify `as:command` in `zplug` command, zplug will recognize its plugin as command and create a symbolic link of the same name (if you want to rename, set `file:` specifier) within `$ZPLUG_HOME/bin`. Because zplug add `$ZPLUG_HOME/bin` to the `$PATH`, you can run that command from any directories.
 
 #### `ZPLUG_THREADS`
 
@@ -201,6 +210,7 @@ It defaults to `true`. Use shallow clone. It creates a shallow clone with a hist
 
 - :tada: Released Beta version!!
 - :construction: Until version 1.0.0 is released, zplug may be destructive changed.
+- Not antigen :syringe: but **zplug** :hibiscus: will be here to stay from now on.
 - :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug) and the likes.
 
 ## Other resources
