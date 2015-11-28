@@ -1049,36 +1049,37 @@ zplug() {
             arg="$(sed -e 's|^https://||' <<<"$arg")"
 
             if [[ $arg =~ ^(gist\.github\.com/)?[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
-                local cnt=0 dep stdin
-                local -a task dep_args
+                local cnt=0 stdin on on_name
+                local -a task on_args specs
                 task=("$arg")
 
                 if [[ -p /dev/stdin ]]; then
-                    stdin="$(cat <&0)"
-                    dep="${stdin%%:*}"
-                    task=("$dep" "$arg")
-                    dep_args=("${stdin#*:}")
+                    stdin="$(cat <&0)"; on="$(sed -e 's/, */,/g' <<<"${stdin[@]}")"
+                    on_name="${${(s:,:)on}[1]}"
+                    on_args=("${(s:,:)on}")
+                    on_args[1]=()
+                    task=("$on_name" "$arg")
                     let cnt++
                 fi
                 if [[ -p /dev/stdout ]]; then
-                    echo "$arg:$@"
+                    echo "$@"
                     let cnt++
                 fi
                 if (( cnt >= 2 )); then
-                    __die "$dep: not install (zplug 3 pipeline)\n"
+                    __die "$on_name: cannot install (2 or less pipelines)\n"
                     return 1
                 fi
 
                 local i specifier
                 for arg in "${task[@]}"
                 do
-                    # if [[ $arg == $dep ]]; then
-                    #     args=("${(s:, :)dep_args}")
-                    # else
-                    #     args=("$@")
-                    # fi
+                    if [[ $arg == $on_name ]]; then
+                        specs=("${on_args[@]}")
+                    else
+                        specs=("${args[@]}")
+                    fi
 
-                    for i in $args
+                    for i in ${specs[@]}
                     do
                         case "${i%%:*}" in
                             as|of|from|to|if|dir|file|at|do|frozen|on|commit)
