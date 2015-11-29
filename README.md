@@ -14,7 +14,7 @@
 - Branch/tag/commit support
 - Can manage UNIX commands
 - Post-update hooks
-- Support for externally managed plugins
+- Support for externally managed plugins (e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh))
 - Can manage binaries (e.g., GitHub Releases)
 - Creates shallow clones to minimize disk space usage and download time
 - Understand dependencies between plugins
@@ -50,7 +50,7 @@ zplug "junegunn/dotfiles", as:cmd, of:bin/vimcat
 # Manage everything e.g. zshrc (alias)
 zplug "tcnksm/docker-alias", of:zshrc
 
-# Prohibit updates to a plugin by using the frozen keyword
+# Prohibit updates to a plugin by using the "frozen:" specifier
 zplug "k4rthik/git-cal", as:cmd, frozen:1
 
 # Grab binaries (from GitHub Releases)
@@ -60,6 +60,9 @@ zplug "junegunn/fzf-bin", \
     from:gh-r, \
     file:fzf
 
+# Grab plugins/git from oh-my-zsh and source *.zsh files
+zplug "plugins/git", from:oh-my-zsh
+
 # Run a command after a plugin is installed
 zplug "tj/n", do:"make install"
 
@@ -67,7 +70,7 @@ zplug "tj/n", do:"make install"
 zplug "b4b4r07/enhancd", at:v1
 zplug "mollifier/anyframe", commit:4c23cb60
 
-# Install if `if` specifier returns true
+# Install if "if:" specifier returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
 # Gist can be used
@@ -108,11 +111,6 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 | `check`   | Check whether an installation is available | `--verbose`,`--install` |
 | `status`  | Check if the remote is up-to-date | N/A |
 | `clean`   | Remove repositories which are no longer used | `--force` |
-
-#### Combinations
-
-- `zplug check` and `zplug install`
-- `zplug status` and `zplug update`
 
 #### Take a closer look
 
@@ -160,7 +158,7 @@ All that's left is to run `zplug update`.
 |-----------|-------------|-----------------|---------|
 | `as`      | Specify whether to register as commands or to register as plugins | `plugin`,`command` (`plugin`) | `as:command` |
 | `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) | - (-) | `of:bin`,`of:*.zsh` |
-| `from`    | Grab external binaries from e.g., GitHub Releases | `gh-r` (-) | `from:gh-r` |
+| `from`    | Grab external binaries from e.g., GitHub Releases | `gh-r`,`gist`,`oh-my-zsh` (-) | `from:gh-r` |
 | `at`      | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
 | `file`    | Specify filename you want to rename | filename (-) | `file:fzf` |
 | `dir`     | Installation directory | **READ ONLY** | -
@@ -198,7 +196,7 @@ $ZPLUG_HOME
         `-- reponame1
 ```
 
-If you specify `as:cmd` in `zplug` command, zplug will recognize the plugin as a command and create a symbolic link of the same name (if you want to rename it, set `file:` specifier) within `$ZPLUG_HOME/bin`. Because zplug adds `$ZPLUG_HOME/bin` to the `$PATH`, you can run that command from any directories.
+If you specify `as:command` in `zplug` command, zplug will recognize the plugin as a command and create a symbolic link of the same name (if you want to rename it, set `file:` specifier) within `$ZPLUG_HOME/bin`. Because zplug adds `$ZPLUG_HOME/bin` to the `$PATH`, you can run that command from any directories.
 
 #### `ZPLUG_THREADS`
 
