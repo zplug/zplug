@@ -461,7 +461,7 @@ __zplug::install()
                     # which can be used to suppress user prompt
                     if git_version 2.3; then
                         # HTTPS (git 2.3+): "https://github.com/%s.git"
-                        GIT_TERMINAL_PROMPT=0
+                        export GIT_TERMINAL_PROMPT=0
                         url_format="https://github.com/${line}.git"
                     fi
 
@@ -1042,7 +1042,7 @@ __zplug::gist_clone()
         # which can be used to suppress user prompt
         if git_version 2.3; then
             # HTTPS (git 2.3+): "https://github.com/%s.git"
-            GIT_TERMINAL_PROMPT=0
+            export GIT_TERMINAL_PROMPT=0
             url_format="https://gist.github.com/${line}.git"
         fi
 
