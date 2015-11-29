@@ -195,7 +195,12 @@ __zplug::list()
         out=()
         for arg in "$@"
         do
-            [[ -n "${zplugs[$arg]}" ]] && out+=("$arg" "${zplugs[$arg]}")
+            if (( $+zplugs[$arg] )); then
+                out+=("$arg" "${zplugs[$arg]}")
+            else
+                __die "$arg: invalid plugin name\n"
+                return 1
+            fi
         done
     fi
 
@@ -1186,7 +1191,7 @@ zplug() {
             if [[ $arg =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
                 # Check duplicate plugins
                 # `s` option flags means `shinstdin`
-                if [[ $- =~ s ]] && (( $+zplugs[(i)$arg] )); then
+                if [[ $- =~ s ]] && (( $+zplugs[$arg] )); then
                     __die "$arg: already managed\n"
                     return 1
                 fi
