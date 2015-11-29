@@ -68,8 +68,9 @@ zplug "mollifier/anyframe", commit:4c23cb60
 # Install if `if` specifier returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
-# Gist can be used (only full URL)
-zplug "https://gist.github.com/b4b4r07/79ee61f7c140c63d2786", \
+# Gist can be used
+zplug "b4b4r07/79ee61f7c140c63d2786", \
+    from:gist, \
     as:command, \
     of:get_last_pane_path.sh
 
@@ -94,7 +95,7 @@ zplug load --verbose
 
 Then `zplug install` to install plugins and reload `.zshrc`.
 
-### `zplug` commands
+### 1. `zplug` commands
 
 |  Command  | Description | Option |
 |-----------|-------------|--------|
@@ -105,6 +106,11 @@ Then `zplug install` to install plugins and reload `.zshrc`.
 | `check`   | Check whether an installation is available | `--verbose`,`--install` |
 | `status`  | Check if remote is up-to-date | N/A |
 | `clean`   | Remove repositories which are no longer used | `--force` |
+
+#### Combinations
+
+- `zplug check` and `zplug install`
+- `zplug status` and `zplug update`
 
 #### Take a closer look
 
@@ -146,7 +152,7 @@ All that's left is to run `zplug update`.
 
 [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo]
 
-### `zplug` specifiers
+### 2. `zplug` specifiers
 
 | Specifier | Description | Value (default) | Example |
 |-----------|-------------|-----------------|---------|
@@ -166,7 +172,7 @@ All that's left is to run `zplug update`.
 
 [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo]
 
-### `zplug` configurations
+### 3. `zplug` configurations
 
 #### `ZPLUG_HOME`
 
