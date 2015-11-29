@@ -155,7 +155,17 @@ __put() {
 }
 
 git_version() {
-    echo ${${${(A)"$(git --version)"}[3]//./}[1,3]}
+    if (( $# != 1 )); then
+        __die "usage: git_version 1.7.10\n"
+        return 1
+    fi
+    local idx
+    local -a expect actual
+    expect=("${(s:.:)@}")
+    actual=("${(s:.:)${${(z)"$(git --version)"}[-1]}}")
+    for (( idx=1; idx <= $#actual; idx++ )); do
+        (( actual[$idx] >= ${expect[$idx]:-0} )) && continue || return 1
+    done
 }
 
 bg_rotation_bar() {
@@ -449,7 +459,7 @@ __zplug::install()
 
                     # However, Git 2.3.0 introduced $GIT_TERMINAL_PROMPT
                     # which can be used to suppress user prompt
-                    if (( $(git_version) > 230 )); then
+                    if git_version 2.3; then
                         # HTTPS (git 2.3+): "https://github.com/%s.git"
                         GIT_TERMINAL_PROMPT=0
                         url_format="https://github.com/${line}.git"
@@ -860,7 +870,7 @@ __zplug::status()
     # Local function
     get_head_branch() {
         local head_branch prehash
-        if (( $(git_version) > 180 )); then
+        if git_version 1.7.10; then
             head_branch="$(git symbolic-ref -q --short HEAD)"
         else
             head_branch="$(git symbolic-ref -q HEAD | sed -e 's/^refs\/heads\///')"
@@ -1030,7 +1040,7 @@ __zplug::gist_clone()
 
         # However, Git 2.3.0 introduced $GIT_TERMINAL_PROMPT
         # which can be used to suppress user prompt
-        if (( $(git_version) > 230 )); then
+        if git_version 2.3; then
             # HTTPS (git 2.3+): "https://github.com/%s.git"
             GIT_TERMINAL_PROMPT=0
             url_format="https://gist.github.com/${line}.git"
