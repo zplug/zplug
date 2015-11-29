@@ -1,9 +1,7 @@
-<img src="https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png" height="" alt="vim-plug">
+[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png)][repo]
 ===
 
-[repo]: https://github.com/b4b4r07/zplug
-
-`zplug` is a next-generation plugin manager for zsh
+###### `zplug` is a next-generation plugin manager for zsh
 
 ## Pros.
 
@@ -15,7 +13,7 @@
 - Support for externally managed plugins (e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh))
 - Can manage binaries (e.g., GitHub Releases)
 - Creates shallow clones to minimize disk space usage and download time
-- Understand dependencies between plugins
+- Understands dependencies between plugins
 - Unlike [antigen](https://github.com/zsh-users/antigen), no ZSH plugin support file (`*.plugin.zsh`) is needed
 
 ***DEMO:***
@@ -229,4 +227,5 @@ Defaults to `true`. Makes zplug use shallow clone with a history truncated to th
 
 [MIT][license] © BABAROT
 
+[repo]: https://github.com/b4b4r07/zplug
 [license]: http://b4b4r07.mit-license.org
