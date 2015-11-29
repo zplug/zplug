@@ -794,13 +794,15 @@ __zplug::validator()
         fi
 
         # from: opt
-        if [[ -n $zspec[from] && ! $zspec[from] =~ ^(gh-r|gist)$ ]]; then
-            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'from:' takes gh-r/gist (zplug \"$zspec[name]\")\033[m\n"
-
-            # Remove that key and value
-            unset "zplugs[$zspec[name]]"
-            # Increments if it fails
-            let fail++
+        if [[ -n $zspec[from] ]]; then
+            if [[ ! $zspec[from] =~ ^(gh-r|gist|oh-my-zsh)$ ]]; then
+                __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'from:' takes gh-r/gist (zplug \"$zspec[name]\")\033[m\n"
+                unset "zplugs[$zspec[name]]"; let fail++
+            fi
+            if [[ $zspec[from] == "oh-my-zsh" && ! $zspec[name] =~ ^plugins ]]; then
+                __die "\033[31m[$ZPLUG_NAME] #syntax error# 'plugin name' must be starting with plugins/* (zplug \"$zspec[name]\")\033[m\n"
+                unset "zplugs[$zspec[name]]"; let fail++
+            fi
         fi
 
         # frozen: must (default: 0)
