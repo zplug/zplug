@@ -1100,14 +1100,20 @@ __zplug::clean()
     if (( $# > 0 )); then
         for arg in "$@"
         do
-            candidates="${${${zplugs[$arg]}##*dir:}%%,*}"
-            [[ -z "$candidates" ]] && continue
-            # Check whether to remove one by one
-            __put "- \033[31m%s\033[m\n" "$candidates"
+            if [[ -e $ZPLUG_HOME/repos/$arg ]]; then
+                __put "- \033[31m%s\033[m\n" "$arg"
+            else
+                __die "%s: not managed by zplug\n" "$arg"
+                return 1
+            fi
+            # candidates="${${${zplugs[$arg]}##*dir:}%%,*}"
+            # [[ -z "$candidates" ]] && continue
+            # # Check whether to remove one by one
+            # __put "- \033[31m%s\033[m\n" "$candidates"
             __put "Remove really? [y/N]: "
             if $is_force || read -q; then
-                command rm -rf "$candidates"
-                unset "zplugs[$arg]"
+                command rm -rf "$ZPLUG_HOME/repos/$arg"
+                # unset "zplugs[$arg]"
                 __put "\nRemoved\n"
             else
                 __put "\nCanceled\n"
@@ -1131,7 +1137,7 @@ __zplug::clean()
         [[ -z ${repos[1]} ]] && return
 
         # Check whether to remove
-        __put "These repositories are no longer managed by zplug.\n"
+        __put "\033[;1mThese repositories are no longer managed by zplug.\033[m\n"
         __put "- \033[31m%s\033[m\n" "${repos[@]}"
         __put "Remove? [y/N]: "
         if $is_force || read -q; then
