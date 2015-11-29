@@ -61,8 +61,9 @@ zplug "mollifier/anyframe", commit:4c23cb60
 # Install if `if` specifier returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
-# Gist can be used (only full URL)
-zplug "https://gist.github.com/b4b4r07/79ee61f7c140c63d2786", \
+# Gist can be used
+zplug "b4b4r07/79ee61f7c140c63d2786", \
+    from:gist, \
     as:command, \
     of:get_last_pane_path.sh
 
@@ -418,11 +419,12 @@ __zplug::install()
                 eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases) || false" -s os' >/dev/null 2>&1
                 ret=${ret:-$status}
 
+            elif [[ $zspec[from] == "gist" ]]; then
+                __zplug::gist_clone "$line"
+                ret=${ret:-$status}
+
             else
                 # Run git clone
-                if [[ $line =~ ^gist\.github\.com ]]; then
-                    __zplug::gist_clone "$line"
-                else
 
                 local url_format
                 # Create the format of URL used to git clone
@@ -477,7 +479,6 @@ __zplug::install()
                 # Not shallow clone
                 if (( $#zspec[commit] >= 8 )); then
                     builtin cd "$line" && git checkout $zspec[commit] >/dev/null 2>&1
-                fi
                 fi
             fi
 
@@ -757,8 +758,8 @@ __zplug::validator()
         fi
 
         # from: opt
-        if [[ -n $zspec[from] && ! $zspec[from] =~ ^(gh-r)$ ]]; then
-            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'from:' takes gh-r (zplug \"$zspec[name]\")\033[m\n"
+        if [[ -n $zspec[from] && ! $zspec[from] =~ ^(gh-r|gist)$ ]]; then
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'from:' takes gh-r/gist (zplug \"$zspec[name]\")\033[m\n"
 
             # Remove that key and value
             unset "zplugs[$zspec[name]]"
@@ -967,10 +968,8 @@ __zplug::status()
 
 __zplug::gist_clone()
 {
-    local head line url_format
-    # line="$(sed -e 's|^https://gist\.github\.com/||' <<<"$1")"
-    head="gist.github.com/"
-    line="$(sed -e 's|^gist\.github\.com/||' <<<"$1")"
+    local line url_format
+    line="$1"
 
     if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
         # HTTPS: "https://git::@github.com/%s.git"
@@ -992,7 +991,7 @@ __zplug::gist_clone()
         # OTHER: not supported
         __die "\033[31m x Failed      $line\033[m (use SSH/HTTPS for cloning protocol)\n"
         # Save exit code 2 to ret
-        ret=${ret:-2}
+        return 2
     fi
 
     git clone --quiet "$url_format" "$head$line" >/dev/null 2>&1
@@ -1038,9 +1037,7 @@ __zplug::clean()
         done
     else
         # directory structure level 2
-        repos=("${(@f)$(find "$ZPLUG_HOME/repos" -depth 2 | grep -v "gist\.github\.com")}")
-        # directory structure level 3
-        repos+=("${(@f)$(find "$ZPLUG_HOME/repos/gist.github.com" -depth 2)}")
+        repos=("${(@f)$(find "$ZPLUG_HOME/repos" -depth 2)}")
 
         # Remove the repository which is used from the candidates
         for v in "${(@v)zplugs}"
@@ -1137,9 +1134,8 @@ zplug() {
             args=("${(s:,:)$(sed -e 's/, */,/g' <<<"$@")}")
             arg="${args[1]}"
             args[1]=()
-            arg="$(sed -e 's|^https://||' <<<"$arg")"
 
-            if [[ $arg =~ ^(gist\.github\.com/)?[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
+            if [[ $arg =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
                 local cnt=0 stdin on on_name
                 local -a task on_args specs
                 task=("$arg")
@@ -1271,7 +1267,7 @@ _zplug()
                     _values -S : -s , "zplug specifiers" \
                         "as[Regard that as plugins or commands]:as:(plugin command)" \
                         "of[Specify the pattern to source (for plugin) or relative path to export (for command)]:of:->of" \
-                        "from[Grab external binaries from e.g., GitHub Releases]:from:(gh-r)" \
+                        "from[Grab external binaries from e.g., GitHub Releases]:from:(gh-r gist)" \
                         "at[Support branch/tag installation]:at:" \
                         "file[Specify filename you want to rename]:file:" \
                         "dir[Installation directory (RO)]:dir:" \
