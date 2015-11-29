@@ -433,76 +433,76 @@ __zplug::install()
             # If zspec from is gh-r (GitHub Releases),
             # send a http request to git.io/releases with os argument
             # or, git clone (case of normal plugin)
-            if [[ $zspec[from] == "gh-r" ]]; then
-                # Create directory (reponame)
-                [[ -d ${zspec[name]%/*} ]] || mkdir -p "${zspec[name]%/*}"
-                # Change directory to it
-                builtin cd "${zspec[name]%/*}" >/dev/null 2>&1
-                eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases) || false" -s os' >/dev/null 2>&1
-                ret=${ret:-$status}
+            case $zspec[from] in
+                "gh-r")
+                    # Create directory (reponame)
+                    [[ -d ${zspec[name]%/*} ]] || mkdir -p "${zspec[name]%/*}"
+                    # Change directory to it
+                    builtin cd "${zspec[name]%/*}" >/dev/null 2>&1
+                    eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases) || false" -s os' >/dev/null 2>&1
+                    ret=${ret:-$status}
+                    ;;
+                "gist")
+                    __zplug::gist_clone "$line"
+                    ret=${ret:-$status}
+                    ;;
+                "")
+                    local url_format
+                    # Create the format of URL used to git clone
+                    # When vim-plug clones a repository, it injects git::@ into the URL
+                    # It's a little hack to avoid username/password prompt
+                    # from git when the repository doesn't exist.
+                    # Such thing can happen when there's a typo in the argument,
+                    # or when the repository is removed from GitHub
+                    # For more information, see also vim-plug wiki.
+                    if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
+                        # HTTPS: "https://git::@github.com/%s.git"
+                        url_format="https://git::@github.com/${line}.git"
 
-            elif [[ $zspec[from] == "gist" ]]; then
-                __zplug::gist_clone "$line"
-                ret=${ret:-$status}
+                        # However, Git 2.3.0 introduced $GIT_TERMINAL_PROMPT
+                        # which can be used to suppress user prompt
+                        if git_version 2.3; then
+                            # HTTPS (git 2.3+): "https://github.com/%s.git"
+                            export GIT_TERMINAL_PROMPT=0
+                            url_format="https://github.com/${line}.git"
+                        fi
 
-            else
-                # Run git clone
+                    elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
+                        # SSH: "git@github.com:%s.git"
+                        url_format="git@github.com:${line}.git"
 
-                local url_format
-                # Create the format of URL used to git clone
-                # When vim-plug clones a repository, it injects git::@ into the URL
-                # It's a little hack to avoid username/password prompt
-                # from git when the repository doesn't exist.
-                # Such thing can happen when there's a typo in the argument,
-                # or when the repository is removed from GitHub
-                # For more information, see also vim-plug wiki.
-                if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
-                    # HTTPS: "https://git::@github.com/%s.git"
-                    url_format="https://git::@github.com/${line}.git"
-
-                    # However, Git 2.3.0 introduced $GIT_TERMINAL_PROMPT
-                    # which can be used to suppress user prompt
-                    if git_version 2.3; then
-                        # HTTPS (git 2.3+): "https://github.com/%s.git"
-                        export GIT_TERMINAL_PROMPT=0
-                        url_format="https://github.com/${line}.git"
+                    else
+                        # OTHER: not supported
+                        __die "\033[31m x Failed      $line\033[m (use SSH/HTTPS for cloning protocol)\n"
+                        # Save exit code 2 to ret
+                        ret=${ret:-2}
                     fi
 
-                elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
-                    # SSH: "git@github.com:%s.git"
-                    url_format="git@github.com:${line}.git"
+                    # Shallow clone
+                    # What's shallow clone?
+                    # It's the repository consists of only 1 recent commit
+                    # If zspec[commit] is not empty, do normal clone automatically
+                    local shallow_clone
+                    if $ZPLUG_SHALLOW && (( $#zspec[commit] < 9 )); then
+                        shallow_clone="--depth=1"
+                    fi
 
-                else
-                    # OTHER: not supported
-                    __die "\033[31m x Failed      $line\033[m (use SSH/HTTPS for cloning protocol)\n"
-                    # Save exit code 2 to ret
-                    ret=${ret:-2}
-                fi
+                    # If exit code is true,
+                    # run git clone
+                    [[ $ret -eq 0 ]] &&
+                        git clone $shallow_clone \
+                        --recursive \
+                        --quiet \
+                        --branch $zspec[at] \
+                        "$url_format" "$line" >/dev/null 2>&1
+                    ret=${ret:-$status}
 
-                # Shallow clone
-                # What's shallow clone?
-                # It's the repository consists of only 1 recent commit
-                # If zspec[commit] is not empty, do normal clone automatically
-                local shallow_clone
-                if $ZPLUG_SHALLOW && (( $#zspec[commit] >= 8 )); then
-                    shallow_clone="--depth=1"
-                fi
-
-                # If exit code is true,
-                # run git clone
-                [[ $ret -eq 0 ]] &&
-                    git clone $shallow_clone \
-                    --recursive \
-                    --quiet \
-                    --branch $zspec[at] \
-                    "$url_format" "$line" >/dev/null 2>&1
-                ret=${ret:-$status}
-
-                # Not shallow clone
-                if (( $#zspec[commit] >= 8 )); then
-                    builtin cd "$line" && git checkout $zspec[commit] >/dev/null 2>&1
-                fi
-            fi
+                    # Not shallow clone
+                    if (( $#zspec[commit] >= 8 )); then
+                        builtin cd "$line" && git checkout $zspec[commit] >/dev/null 2>&1
+                    fi
+                    ;;
+            esac
 
             # If not empty
             if [[ -n $zspec[do] ]]; then
