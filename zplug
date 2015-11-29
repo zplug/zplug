@@ -38,23 +38,26 @@ source ~/.zplug/zplug
 zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-history-substring-search"
 
-# Can manage plugin as command
-zplug "junegunn/dotfiles", as:command, of:bin/vimcat
+# Can manage a plugin as a command
+zplug "junegunn/dotfiles", as:cmd, of:bin/vimcat
+
 # Manage everything e.g. zshrc (alias)
 zplug "tcnksm/docker-alias", of:zshrc
-# Prohibit updating by using frozen
-zplug "k4rthik/git-cal", as:command, frozen:1
+
+# Prohibit updates to a plugin by using the frozen keyword
+zplug "k4rthik/git-cal", as:cmd, frozen:1
 
 # Grab binaries (from GitHub Releases)
+# and rename to use "file:" specifier
 zplug "junegunn/fzf-bin", \
     as:command, \
     from:gh-r, \
     file:fzf
 
-# Run command after installed
+# Run a command after a plugin is installed
 zplug "tj/n", do:"make install"
 
-# Support branch/tag/commit
+# Support checking out a specific branch/tag/commit of a plugin
 zplug "b4b4r07/enhancd", at:v1
 zplug "mollifier/anyframe", commit:4c23cb60
 
@@ -67,7 +70,7 @@ zplug "b4b4r07/79ee61f7c140c63d2786", \
     as:command, \
     of:get_last_pane_path.sh
 
-# Group dependencies, emoji-cli depends on jq
+# Group dependencies, emoji-cli depends on jq in this example
 zplug "stedolan/jq", \
     as:command, \
     file:jq, \
@@ -83,7 +86,7 @@ if ! zplug check --verbose; then
 fi
 
 # Then, source plugins and add commands to $PATH
-zplug load
+zplug load --verbose
 
 EXAMPLE
 #
