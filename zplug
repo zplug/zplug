@@ -155,7 +155,7 @@ __put() {
 }
 
 git_version() {
-    echo ${${(A)"$(git --version)"}[3]//./}
+    echo ${${${(A)"$(git --version)"}[3]//./}[1,3]}
 }
 
 bg_rotation_bar() {
@@ -854,9 +854,14 @@ __zplug::status()
 {
     # Local function
     get_head_branch() {
-        local head_branch=$(git symbolic-ref -q --short HEAD)
+        local head_branch prehash
+        if (( $(git_version) > 180 )); then
+            head_branch="$(git symbolic-ref -q --short HEAD)"
+        else
+            head_branch="$(git symbolic-ref -q HEAD | sed -e 's/^refs\/heads\///')"
+        fi
         if [[ -z $head_branch ]]; then
-            local prehash=$(git rev-parse --short HEAD)
+            prehash="$(git rev-parse --short HEAD)"
             echo "$prehash"
             return 1
         fi
@@ -865,9 +870,10 @@ __zplug::status()
 
     # Local function
     get_remote_name() {
-        local branch="$1"
+        local branch remote_name
+        branch="$1"
         # The remote name of this branch (e.g. origin).
-        local remote_name=$(git config branch."${branch}".remote)
+        remote_name=$(git config branch."${branch}".remote)
         if [[ -z $remote_name ]]; then
             __die "no remote repository\n"
             return 1
@@ -889,25 +895,25 @@ __zplug::status()
         if [[ ! -e .git ]]; then
             state="not init"
         else
-            branch=$(get_head_branch)
+            branch="$(get_head_branch)"
             if [[ $status -eq 0 ]]; then
                 remote_name=$(get_remote_name "$branch")
                 if [[ $status -eq 0 ]]; then
-                    merge_branch=$(git config branch."${branch}".merge | sed 's%^refs/heads/%%')
+                    merge_branch="$(git config branch."${branch}".merge | sed 's%^refs/heads/%%')"
                     local remote_show
-                    remote_show=$(git remote show "$remote_name")
+                    remote_show="$(git remote show "$remote_name")"
                     state=$(echo "$remote_show" \
                         | grep "^ *$branch *pushes" | sed 's/.*(\(.*\)).*/\1/')
                     if [[ -z $state ]]; then
                         local behind_ahead
-                        behind_ahead=$(git rev-list --left-right --count "$remote_name/$merge_branch"...$branch)
-                        local behind=$(echo "$behind_ahead" | awk '{print $1}')
-                        local ahead=$(echo "$behind_ahead" | awk '{print $2}')
+                        behind_ahead="$(git rev-list --left-right --count "$remote_name/$merge_branch"...$branch)"
+                        local behind="$(echo "$behind_ahead" | awk '{print $1}')"
+                        local ahead="$(echo "$behind_ahead" | awk '{print $2}')"
                         if [[ $behind -gt 0 ]]; then
                             state="local out of date"
                         else
                             local origin_head
-                            origin_head=$(git ls-remote origin HEAD | cut -f 1)
+                            origin_head="$(git ls-remote origin HEAD | cut -f 1)"
                             if ! git rev-parse -q "$origin_head" >/dev/null 2>&1; then
                                 state="local out of date"
                             elif [[ $ahead -gt 0 ]]; then
@@ -917,7 +923,7 @@ __zplug::status()
                             fi
                         fi
                     fi
-                    url=$(echo "$remote_show" | grep '^ *Push' | sed 's/^.*URL: \(.*\)$/\1/')
+                    url="$(echo "$remote_show" | grep '^ *Push' | sed 's/^.*URL: \(.*\)$/\1/')"
                 else
                     state="$remote_name"
                     remote_name=
@@ -938,26 +944,60 @@ __zplug::status()
         __put "($state) [${dir:-?}] (${branch:-?} -> ${remote_name:-?}/${merge_branch:-?}) URL: ${url:-?}\n"
     }
 
-    # Kill all background jobs
-    trap 'kill -9 ${${(v)jobstates##*:*:}%=*} &>/dev/null; set -m; trap - INT' INT
-
     # Disable job control
     set +m
 
     local line cnt=0
-    for line in ${(k)zplugs}; do
+
+    for line in "$@"; do
         # Run installation in subprocess
         {
+            trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; set -m; trap - INT' INT
+
+            local k bg_pid ret=1
+
             # All variables are treated as local variable
             # because of background job (subprocess)
             local -A zspec
             zspec=( ${(@f)"$(__zplug::parser "$line")"} )
-            builtin cd $zspec[dir] >/dev/null 2>&1
-            if [[ $status -ne 0 ]]; then
-                __put "(not managed) [\033[34m$zspec[name]\033[m] (grabbing form $zspec[from]) URL: https://github.com/${zspec[name]}.git\n"
-                continue
-            fi
-            check_remote $zspec[name]
+            for k in ${(k)zspec}
+            do
+                # Skip non-existing repository
+                if [[ ! -e $zspec[dir] ]]; then
+                    continue
+                fi
+                # Replace -EMP- with "" empty
+                if [[ $zspec[$k] == "-EMP-" ]]; then
+                    zspec[$k]=""
+                fi
+            done
+
+            __put "Checking status...  $line\n"
+
+            # Start the spin of drawing
+            # and save process id
+            bg_rotation_bar & bg_pid=$!
+
+            () {
+                # check whether it is gh-r or not
+                builtin cd $zspec[dir] &>/dev/null || return 2
+                check_remote $zspec[name]
+            }
+            # Return code of above unnamed function
+            # Incidentally,
+            # nothing is output even if it success or fails
+            ret=$status
+
+            # Force-quit background process (bg_rotation_bar)
+            kill -9 $bg_pid &>/dev/null
+
+            # It will be conditional branching with exit code
+            # 0: success, 1: failure, 2: not found repository
+            case $ret in
+                2)
+                    __put "(not managed) [\033[34m$zspec[name]\033[m] (not having .git directory) URL: https://github.com/${zspec[name]}.git\n"
+                    ;;
+            esac
         } &
 
         # Prevent having too many subprocesses
@@ -1092,7 +1132,7 @@ zplug() {
 
         status)
             shift
-            __zplug::status
+            __zplug::status ${@:-${(k)zplugs}}
             return $status
             ;;
 
@@ -1116,7 +1156,7 @@ zplug() {
 
         install)
             shift
-            __zplug::install $@ ${(k)zplugs}
+            __zplug::install "$@" ${(k)zplugs}
             return $status
             ;;
 
@@ -1263,7 +1303,7 @@ _zplug()
                         '(--verbose)--verbose[display loading files]'
                     ret=0
                     ;;
-                list)
+                status|list)
                     _arguments \
                         '*:: :_files -W $ZPLUG_HOME/repos'
                     ret=0
@@ -1274,7 +1314,7 @@ _zplug()
                         '*:: :_files -W $ZPLUG_HOME/repos'
                     ret=0
                     ;;
-                status|version|help)
+                version|help)
                     compadd -x "%F{yellow}Completing%f %Bno arguments%b"
                     ret=0
                     ;;
