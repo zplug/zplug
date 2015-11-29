@@ -3,7 +3,7 @@
 
 [repo]: https://github.com/b4b4r07/zplug
 
-`zplug` is next-generation zsh plugin manager
+`zplug` is a next-generation plugin manager for zsh
 
 [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)][repo]
 
@@ -14,7 +14,7 @@
 - Branch/tag/commit support
 - Can manage UNIX commands (what language is okay)
 - Post-update hooks
-- Support for externally managed plugins (oh-my-zsh?)
+- Support for externally managed plugins like oh-my-zsh
 - Can manage binaries (e.g., GitHub Releases)
 - Creates shallow clones to minimize disk space usage and download time
 - Understand dependencies between plugins
@@ -32,7 +32,7 @@ $ curl -fLo ~/.zplug/zplug --create-dirs git.io/zplug
 Add a zplug section to your `.zshrc`:
 
 1. List the plugins/commands with `zplug` commands
-2. `zplug load` to source the plugins and add the commands to `$PATH`
+2. `zplug load` to source the plugins and add its commands to your `$PATH`
 
 ### Example
 
@@ -43,11 +43,13 @@ source ~/.zplug/zplug
 zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-history-substring-search"
 
-# Can manage plugin as command
+# Can manage a plugin as a command
 zplug "junegunn/dotfiles", as:cmd, of:bin/vimcat
+
 # Manage everything e.g. zshrc (alias)
 zplug "tcnksm/docker-alias", of:zshrc
-# Prohibit updating by using frozen
+
+# Prohibit updates to a plugin by using the frozen keyword
 zplug "k4rthik/git-cal", as:cmd, frozen:1
 
 # Grab binaries (from GitHub Releases)
@@ -56,17 +58,17 @@ zplug "junegunn/fzf-bin", \
     from:gh-r, \
     file:fzf
 
-# Run command after installed
+# Run a command after a plugin is installed
 zplug "tj/n", do:"make install"
 
-# Support branch/tag/commit
+# Support checking out a specific branch/tag/commit of a plugin
 zplug "b4b4r07/enhancd", at:v1
 zplug "mollifier/anyframe", commit:4c23cb60
 
 # Install if `if` specifier returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
-# Group dependencies, emoji-cli depends on jq
+# Group dependencies, emoji-cli depends on jq in this example
 zplug "stedolan/jq", \
     as:cmd, \
     file:jq, \
@@ -85,7 +87,7 @@ fi
 zplug load
 ```
 
-Then `zplug install` to install plugins and reload `.zshrc`.
+Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 
 ### `zplug` commands
 
@@ -96,7 +98,7 @@ Then `zplug install` to install plugins and reload `.zshrc`.
 | `list`    | List installed items | N/A |
 | `update`  | Update items in parallel | `--self` |
 | `check`   | Check whether an installation is available | `--verbose`,`--install` |
-| `status`  | Check if remote is up-to-date | N/A |
+| `status`  | Check if the remote is up-to-date | N/A |
 
 In detail:
 
@@ -140,9 +142,9 @@ fi
 
 #### `ZPLUG_HOME`
 
-It defaults to `~/.zplug`.
+Default value is `~/.zplug`.
 
-Directory to store/load plugins. The directory structure is below.
+`zplug` will store/load plugins in this directory. The directory structure is below.
 
 ```
 $ZPLUG_HOME
@@ -160,27 +162,27 @@ $ZPLUG_HOME
         `-- reponame1
 ```
 
-If you specify `as:cmd` in `zplug` command, zplug will recognize its plugin as command and create a symbolic link of the same name (if you want to rename, set `file:` specifier) within `$ZPLUG_HOME/bin`. Because zplug add `$ZPLUG_HOME/bin` to the `$PATH`, you can run that command from any directories.
+If you specify `as:cmd` in `zplug` command, zplug will recognize the plugin as a command and create a symbolic link of the same name (if you want to rename it, set `file:` specifier) within `$ZPLUG_HOME/bin`. Because zplug adds `$ZPLUG_HOME/bin` to the `$PATH`, you can run that command from any directories.
 
 #### `ZPLUG_THREADS`
 
-It defaults to 16. It is default number of threads to use.
+The number of threads zplug should use. The default value is 16.
 
 #### `ZPLUG_PROTOCOL`
 
-It defaults to HTTPS. You set HTTPS or SSH to `$ZPLUG_PROTOCOL`. Unless otherwise reason , you should use the HTTPS protocol.
+Defaults to HTTPS. Valid options for `$ZPLUG_PROTOCOL` are HTTPS or SSH. Unless you have a specific reason, you should use the HTTPS protocol.
 
 For more information, see also [**Which remote URL should I use?** - GitHub Help](https://help.github.com/articles/which-remote-url-should-i-use/)
 
 #### `ZPLUG_SHALLOW`
 
-It defaults to `true`. Use shallow clone. It creates a shallow clone with a history truncated to the specified number of revisions (depth 1).
+Defaults to `true`. Makes zplug use shallow clone with a history truncated to the specified number of revisions (depth 1).
 
 ## Note
 
 - :tada: Released Beta version!!
-- :construction: Until version 1.0.0 is released, zplug may be destructive changed.
-- :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug) and the likes.
+- :construction: Until version 1.0.0 is released, `zplug` may be changed in ways that are not backward compatible.
+- :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug) and the like.
 
 ## Other resources
 
