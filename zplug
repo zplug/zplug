@@ -213,13 +213,17 @@ __zplug::self_update()
     zplug="b4b4r07/zplug"
 
     __put "\033[;1m * zplug self manegement\033[m\n"
+
+    # Add zplugs if needed
     zplug check "$zplug" || zplug "$zplug"
     if [[ -d $ZPLUG_HOME/repos/b4b4r07/zplug ]]; then
         __zplug::update "$zplug"
     else
+        # Do not shallow clone to switch a paticular commit
         ZPLUG_SHALLOW=false __zplug::install "$zplug"
     fi
 
+    # Create symlink to $ZPLUG_HOME/zplugs
     ln -snf "$ZPLUG_HOME/repos/$zplug/zplug" "$ZPLUG_HOME/zplug"
     if [[ $status -eq 0 ]]; then
         __put "\033[32mUpdated $ZPLUG_NAME \033[;1m($ZPLUG_HOME/zplug)\033[m\n"
@@ -627,6 +631,10 @@ __zplug::load()
             fi
         done
 
+        # It is limited to loading of the repository that exists
+        if [[ ! -e $zspec[dir] ]]; then
+            continue
+        fi
 
         # if specifier
         if [[ -n $zspec[if] ]]; then
@@ -1011,9 +1019,9 @@ __zplug::clean()
     esac
 
     # Note:
-    # How to remove elements from normal array or associative array
-    # normal array:      array[num]=()      <= overwrite empty element
-    # associative array: unset "array[key]" <= unset array with double quotes
+    # How to remove elements from ordinary array or associative array
+    # ordinary array   : array[num]=() or shift 1 array <= overwrite empty element or shift command
+    # associative array: unset "array[key]"             <= unset array with double quotes
     #
     local k v arg
     local -a repos
@@ -1136,6 +1144,13 @@ zplug() {
             args[1]=()
 
             if [[ $arg =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
+                # Check duplicate plugins
+                # `s` option flags means `shinstdin`
+                if [[ $- =~ s ]] && (( $+zplugs[(i)$arg] )); then
+                    __die "$arg: already managed\n"
+                    return 1
+                fi
+
                 local cnt=0 stdin on on_name
                 local -a task on_args specs
                 task=("$arg")
