@@ -391,6 +391,7 @@ __zplug::install()
     typeset -F SECONDS=0
     start=$SECONDS
 
+    local oh_my_line oh_my_count=0
     for line in "$@"; do
         # Skip installed items
         [[ -e $ZPLUG_HOME/repos/$line ]] &&
@@ -400,6 +401,12 @@ __zplug::install()
                     __put "\033[31m-\033[m \033[32m${line}\033[m: already installed\n"
                 fi
                 continue
+            }
+        oh_my_line=""
+        [[ ${${zplugs[$line]##*from:}%%,*} == "oh-my-zsh" ]] &&
+            {
+                (( oh_my_count++ > 0 )) && continue
+                oh_my_line="\033[;1moh-my-zsh repository\033[m"
             }
 
         # Run installation in subprocess
@@ -423,7 +430,7 @@ __zplug::install()
             # Reset timer
             typeset -F SECONDS=0
 
-            __put "Installing...  $line\n"
+            __put "Installing...  ${oh_my_line:-$line}\n"
 
             # Start the spin of drawing
             # and save process id
@@ -446,6 +453,9 @@ __zplug::install()
                     __zplug::gist_clone "$line"
                     ret=${ret:-$status}
                     ;;
+                "oh-my-zsh")
+                    line="robbyrussell/oh-my-zsh"
+                    ;&
                 "")
                     local url_format
                     # Create the format of URL used to git clone
@@ -1231,6 +1241,7 @@ zplug() {
                 fi
 
                 local i specifier
+                local is_oh_my_zsh=false
                 for arg in "${task[@]}"
                 do
                     if [[ $arg == $on_name ]]; then
@@ -1244,6 +1255,11 @@ zplug() {
                         case "${i%%:*}" in
                             as|of|from|to|if|dir|file|at|do|frozen|on|commit)
                                 specifier="${specifier}${i%,},"
+                                if [[ "${i%,}" == "from:oh-my-zsh" ]]; then
+                                    is_oh_my_zsh=true
+                                else
+                                    is_oh_my_zsh=false
+                                fi
                                 ;;
                             *)
                                 __die "$i: invalid specifier\n"
@@ -1256,7 +1272,11 @@ zplug() {
                     # Add to $zplugs(AA; key:"user/repo" => value:"specifier:value")
                     zplugs+=("$arg" "${specifier:-}")
                     # Add dir specifier to $zplugs
-                    zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/repos/$arg"
+                    if $is_oh_my_zsh; then
+                        zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/repos/robbyrussell/oh-my-zsh/$arg"
+                    else
+                        zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/repos/$arg"
+                    fi
                     if [[ $arg != $on_name && -n $on_name ]]; then
                         zplugs[$arg]+="${zplugs[$arg]:+,}on:$on_name"
                     fi
@@ -1340,7 +1360,7 @@ _zplug()
                     _values -S : -s , "zplug specifiers" \
                         "as[Regard that as plugins or commands]:as:(plugin command)" \
                         "of[Specify the pattern to source (for plugin) or relative path to export (for command)]:of:->of" \
-                        "from[Grab external binaries from e.g., GitHub Releases]:from:(gh-r gist)" \
+                        "from[Grab external binaries from e.g., GitHub Releases]:from:(gh-r gist oh-my-zsh)" \
                         "at[Support branch/tag installation]:at:" \
                         "file[Specify filename you want to rename]:file:" \
                         "dir[Installation directory (RO)]:dir:" \
