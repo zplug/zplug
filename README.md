@@ -1,11 +1,9 @@
-<img src="https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png" height="150" alt="vim-plug">
+<img src="https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png" height="" alt="vim-plug">
 ===
 
 [repo]: https://github.com/b4b4r07/zplug
 
 `zplug` is a next-generation plugin manager for zsh
-
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)][repo]
 
 ## Pros.
 
@@ -19,6 +17,10 @@
 - Creates shallow clones to minimize disk space usage and download time
 - Understand dependencies between plugins
 - Unlike [antigen](https://github.com/zsh-users/antigen), no ZSH plugin support file (`*.plugin.zsh`) is needed
+
+***DEMO:***
+
+[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)][repo]
 
 ## Installation
 
