@@ -220,8 +220,8 @@ __zplug::list()
         return 1
     fi
 
-    local v arg
-    local -a args
+    local v arg is_select=false
+    local -a args awk_args
     local -A out
 
     # Reset zplugs elements
@@ -231,17 +231,32 @@ __zplug::list()
     done
 
     # Process arguments
-    if (( $# > 0 )); then
+    case "$1" in
+        --select)
+            is_select=true
+            shift
+            ;;
+    esac
+
+    filter="$(__get_filter "$ZPLUG_FILTER")"
+    if $is_select; then
+        args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
+    else
+        args=("$@")
+    fi
+
+    # Process arguments
+    if (( $#args > 0 )); then
         out=()
-        for arg in "$@"
+        for arg in "${args[@]}"
         do
             if (( $+zplugs[$arg] )); then
                 # This is compelte match
                 out+=("$arg" "${zplugs[$arg]}")
             else
                 # Fuzzy match with awk
-                args=($(awk -v arg=$arg '$1 ~ arg' <<<${(Fk)zplugs}))
-                for arg in ${args[@]}
+                awk_args=(${(@f)"$(awk -v arg=$arg '$1 ~ arg' <<<${(Fk)zplugs})"})
+                for arg in ${awk_args[@]}
                 do
                     if (( $+zplugs[$arg] )); then
                         out+=("$arg" "${zplugs[$arg]}")
@@ -833,7 +848,6 @@ __zplug::load()
     done
 }
 
-# WIP
 __zplug::validator()
 {
     local line k fail=0
@@ -939,6 +953,7 @@ __zplug::check()
     fi
 }
 
+# WIP
 __zplug::status()
 {
     # Local function
@@ -1033,12 +1048,27 @@ __zplug::status()
         __put "($state) [${dir:-?}] (${branch:-?} -> ${remote_name:-?}/${merge_branch:-?}) URL: ${url:-?}\n"
     }
 
+    local line cnt=0 is_select=false
+
     # Disable job control
     set +m
 
-    local line cnt=0
+    # Process arguments
+    case "$1" in
+        --select)
+            is_select=true
+            shift
+            ;;
+    esac
 
-    for line in "$@"; do
+    filter="$(__get_filter "$ZPLUG_FILTER")"
+    if $is_select; then
+        args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
+    else
+        args=("$@")
+    fi
+
+    for line in "${args[@]}"; do
         # Run installation in subprocess
         {
             trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; set -m; trap - INT' INT
@@ -1253,7 +1283,7 @@ zplug() {
 
         status)
             shift
-            __zplug::status ${@:-${(k)zplugs}}
+            __zplug::status "$@" ${(k)zplugs}
             return $status
             ;;
 
@@ -1437,6 +1467,7 @@ _zplug()
                     ;;
                 status|list)
                     _arguments \
+                        '(--select)--select[select items with interactive filters]' \
                         '*:: :_files -W $ZPLUG_HOME/repos'
                     ret=0
                     ;;
