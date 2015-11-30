@@ -196,6 +196,7 @@ __zplug::list()
     fi
 
     local v arg
+    local -a args
     local -A out
 
     # Reset zplugs elements
@@ -210,14 +211,25 @@ __zplug::list()
         for arg in "$@"
         do
             if (( $+zplugs[$arg] )); then
+                # This is compelte match
                 out+=("$arg" "${zplugs[$arg]}")
             else
-                __die "$arg: invalid plugin name\n"
-                return 1
+                # Fuzzy match with awk
+                args=($(awk -v arg=$arg '$1 ~ arg' <<<${(Fk)zplugs}))
+                for arg in ${args[@]}
+                do
+                    if (( $+zplugs[$arg] )); then
+                        out+=("$arg" "${zplugs[$arg]}")
+                    fi
+                done
             fi
         done
     fi
 
+    if (( $#out < 1 )); then
+        __die "$arg: not found in \$zplugs\n"
+        return 1
+    fi
     # Output and colorize
     __put '%s  =>  %s\n' "${(@kv)out}" \
         | sed -e 's/-EMP-/""/g' \
