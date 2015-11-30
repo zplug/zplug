@@ -129,6 +129,7 @@ typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
 
 # Global variable
 typeset -g -A zplugs
+typeset -gr oh_my_zsh_repo="robbyrussell/oh-my-zsh"
 
 typeset -gr ZPLUG_HELP="usage: zplug [COMMANDS] [OPTIONS]
   $ZPLUG_NAME is next-generation zsh plugin manager
@@ -399,6 +400,9 @@ __zplug::install()
                 if $is_verbose; then
                     # Output in red
                     __put "\033[31m-\033[m \033[32m${line}\033[m: already installed\n"
+                    if [[ -d $ZPLUG_HOME/repos/$oh_my_zsh_repo ]]; then
+                        __put "\033[31m-\033[m \033[32m${oh_my_zsh_repo}\033[m: already installed\n"
+                    fi
                 fi
                 continue
             }
@@ -406,7 +410,8 @@ __zplug::install()
         [[ ${${zplugs[$line]##*from:}%%,*} == "oh-my-zsh" ]] &&
             {
                 (( oh_my_count++ > 0 )) && continue
-                oh_my_line="\033[;1moh-my-zsh repository\033[m"
+                [[ -d $ZPLUG_HOME/repos/$oh_my_zsh_repo ]] && continue
+                oh_my_line="\033[;1m${oh_my_zsh_repo}\033[m"
             }
 
         # Run installation in subprocess
@@ -454,7 +459,7 @@ __zplug::install()
                     ret=${ret:-$status}
                     ;;
                 "oh-my-zsh")
-                    line="robbyrussell/oh-my-zsh"
+                    line="$oh_my_zsh_repo"
                     ;&
                 "")
                     local url_format
@@ -1271,7 +1276,7 @@ zplug() {
                     zplugs+=("$arg" "${specifier:-}")
                     # Add dir specifier to $zplugs
                     if $is_oh_my_zsh; then
-                        zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/repos/robbyrussell/oh-my-zsh/$arg"
+                        zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/repos/$oh_my_zsh_repo/$arg"
                     else
                         zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/repos/$arg"
                     fi
