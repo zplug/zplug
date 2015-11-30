@@ -108,7 +108,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 | `load`    | Load installed items | `--verbose` |
 | `list`    | List installed items | N/A |
 | `update`  | Update items in parallel | `--self` |
-| `check`   | Check whether an installation is available | `--verbose`,`--install` |
+| `check`   | Check whether an installation is available | `--verbose` |
 | `status`  | Check if the remote is up-to-date | N/A |
 | `clean`   | Remove repositories which are no longer used | `--force` |
 

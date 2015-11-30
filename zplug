@@ -831,7 +831,7 @@ __zplug::validator()
 
 __zplug::check()
 {
-    local line is_verbose=false is_install=false
+    local line is_verbose=false
     local -A zspec
     local -a fail args
 
@@ -843,9 +843,6 @@ __zplug::check()
         case "$1" in
             --verbose)
                 is_verbose=true
-                ;;
-            --install)
-                is_install=true
                 ;;
             *)
                 args+=("$1")
@@ -867,14 +864,7 @@ __zplug::check()
         if $is_verbose; then
             __put "- \033[31m%s\033[m: not installed\n" "${(@nO)fail}"
         fi
-
-        # Install option
-        if $is_install; then
-            __zplug::install "${fail[@]}"
-            return $status
-        fi
         return 1
-
     else
         return 0
     fi
@@ -1328,7 +1318,6 @@ _zplug()
                 check)
                     _arguments \
                         '(--verbose)--verbose[show non-installed items in output]' \
-                        '(--install)--install[install items if there are items that are not installed yet]' \
                         '*:: :_files -W $ZPLUG_HOME/repos'
                     ret=0
                     ;;
