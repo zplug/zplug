@@ -12,9 +12,9 @@
 - Post-update hooks
 - Support for externally managed plugins (e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh))
 - Can manage binaries (e.g., GitHub Releases)
-- Creates shallow clones to minimize disk space usage and download time
 - Understands dependencies between plugins
 - Unlike [antigen](https://github.com/zsh-users/antigen), no ZSH plugin support file (`*.plugin.zsh`) is needed
+- Interactive interface ([fzf](https://github.com/junegunn/fzf), [peco](https://github.com/peco/peco), [zaw](https://github.com/zsh-users/zaw), and so on)
 
 ***DEMO:***
 
@@ -45,13 +45,13 @@ zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-history-substring-search"
 
 # Can manage a plugin as a command
-zplug "junegunn/dotfiles", as:cmd, of:bin/vimcat
+zplug "junegunn/dotfiles", as:command, of:bin/vimcat
 
 # Manage everything e.g. zshrc (alias)
 zplug "tcnksm/docker-alias", of:zshrc
 
 # Prohibit updates to a plugin by using the "frozen:" specifier
-zplug "k4rthik/git-cal", as:cmd, frozen:1
+zplug "k4rthik/git-cal", as:command, frozen:1
 
 # Grab binaries (from GitHub Releases)
 # and rename to use "file:" specifier
@@ -104,13 +104,13 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 
 |  Command  | Description | Option |
 |-----------|-------------|--------|
-| `install` | Install described items (plugins/commands) in parallel | `--verbose` |
+| `install` | Install described items (plugins/commands) in parallel | `--verbose`,`--select` |
 | `load`    | Load installed items | `--verbose` |
-| `list`    | List installed items | N/A |
-| `update`  | Update items in parallel | `--self` |
-| `check`   | Check whether an installation is available | `--verbose` |
-| `status`  | Check if the remote is up-to-date | N/A |
-| `clean`   | Remove repositories which are no longer used | `--force` |
+| `list`    | List installed items | `--select` |
+| `update`  | Update items in parallel | `--self`,`--select` |
+| `check`   | Check whether an installation is available | `--verbose`,`--select` |
+| `status`  | Check if the remote is up-to-date | `--select` |
+| `clean`   | Remove repositories which are no longer used | `--force`,`--select` |
 
 #### Take a closer look
 
@@ -170,7 +170,11 @@ All that's left is to run `zplug update`.
 
 #### Available on CLI
 
+You can register plugins or commands to zplug on the command-line. If you use zplug on the command-line, it is possible to write more easily its settings by grace of the command-line completion.
+
 [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo]
+
+In this case, zplug spit out its settings to `$ZPLUG_EXTERNAL` instead of `.zshrc`. If you launch new zsh process, `zplug load` command automatically search this file and run `source` command.
 
 ### 3. `zplug` configurations
 
@@ -211,6 +215,10 @@ For more information, see also [**Which remote URL should I use?** - GitHub Help
 #### `ZPLUG_SHALLOW`
 
 Defaults to `true`. Makes zplug use shallow clone with a history truncated to the specified number of revisions (depth 1).
+
+#### `ZPLUG_FILTER`
+
+Defaults to `fzf-tmux:fzf:peco:percol:zaw`. When `--select` option is specified, colon-separated first element that exists in the `$PATH` will be used by zplug as the interactive filter. The `ZPLUG_FILTER` also accepts the following values: `fzf-tmux -d "10%":/path/to/peco:my peco`.
 
 ## Note
 
