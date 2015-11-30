@@ -126,6 +126,7 @@ typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
 typeset -gx ZPLUG_THREADS=${ZPLUG_THREADS:-16}
 typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-true}
 typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
+typeset -gx ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:zaw"}
 
 # Global variable
 typeset -g -A zplugs
@@ -156,6 +157,30 @@ __die() {
 
 __put() {
     command printf -- "$@"
+}
+
+__get_filter() {
+    local x candidates
+
+    # candidates should be list like "a:b:c" concatenated by a colon
+    candidates="$1:"
+
+    while [ -n "$candidates" ]; do
+        # the first remaining entry
+        x=${candidates%%:*}
+        # reset candidates
+        candidates=${candidates#*:}
+
+        # check if x is available
+        if (( $+commands[${x%% *}] )); then
+            echo "$x"
+            return 0
+        else
+            continue
+        fi
+    done
+
+    return 1
 }
 
 git_version() {
@@ -266,20 +291,33 @@ __zplug::self_update()
 
 __zplug::update()
 {
+    local line cnt=0 filter is_select=false
+    local -a args
+
     # Process arguments
     case "$1" in
         --self)
             __zplug::self_update
+            shift
             return $status
+            ;;
+        --select)
+            is_select=true
+            shift
             ;;
     esac
 
     # Disable job control
     set +m
 
-    local line cnt=0
+    filter="$(__get_filter "$ZPLUG_FILTER")"
+    if $is_select; then
+        args=(${(@f)"$(echo "${(F)@}" | eval "$filter")"})
+    else
+        args=("$@")
+    fi
 
-    for line in "$@"; do
+    for line in "${args[@]}"; do
         # Run installation in subprocess
         {
             trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; set -m; trap - INT' INT
@@ -379,15 +417,16 @@ __zplug::update()
 
 __zplug::install()
 {
-    local cnt line fail job
+    local cnt line fail job filter
     local start end
-    local is_verbose=false
+    local is_verbose=false is_select=false
+    local -a args
+    local oh_my_line oh_my_count=0
     cnt=0
 
     # Create direcotry
     [[ -d $ZPLUG_HOME/repos ]] || mkdir -p "$ZPLUG_HOME/repos"
     # Return with exit code 0 if no argument is given
-    [[ -n $1 ]] || return 0
 
     # Process arguments
     case "$1" in
@@ -395,17 +434,30 @@ __zplug::install()
             is_verbose=true
             shift
             ;;
+        --select)
+            is_select=true
+            shift
+            ;;
+        "")
+            return 1
+            ;;
     esac
 
     # Disable job control
     set +m
 
+    filter="$(__get_filter "$ZPLUG_FILTER")"
+    if $is_select; then
+        args=(${(@f)"$(echo "${(F)@}" | eval "$filter")"})
+    else
+        args=("$@")
+    fi
+
     # Recode start-up time
     typeset -F SECONDS=0
     start=$SECONDS
 
-    local oh_my_line oh_my_count=0
-    for line in "$@"; do
+    for line in "${args[@]}"; do
         # Skip installed items
         [[ -e $ZPLUG_HOME/repos/$line ]] &&
             {
@@ -1084,7 +1136,7 @@ __zplug::gist_clone()
 
 __zplug::clean()
 {
-    local is_force=false
+    local is_force=false is_select=false
 
     # Process arguments
     # Options
@@ -1093,39 +1145,65 @@ __zplug::clean()
             is_force=true
             shift
             ;;
+        --select)
+            is_select=true
+            shift
+            ;;
     esac
 
     # Note:
     # How to remove elements from ordinary array or associative array
     # ordinary array   : array[num]=() or shift 1 array <= overwrite empty element or shift command
     # associative array: unset "array[key]"             <= unset array with double quotes
-    #
-    local k v arg
-    local -a repos
+    local k v arg fail=0
+    local -a repos args remove_args
+    local -A zspec
+
+    filter="$(__get_filter "$ZPLUG_FILTER")"
+    if $is_select; then
+        args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
+    else
+        args=("$@")
+    fi
 
     # Process arguments
-    if (( $# > 0 )); then
-        for arg in "$@"
+    if (( $#args > 0 )); then
+        for arg in "${args[@]}"
         do
-            if [[ -e $ZPLUG_HOME/repos/$arg ]]; then
+            # Parse arg and its specifiers
+            zspec=( ${(@f)"$(__zplug::parser "$arg")"} )
+
+            # Check if arg repository exists
+            if [[ -e $zspec[dir] ]]; then
                 __put "- \033[31m%s\033[m\n" "$arg"
+                if [[ $zspec[from] == "oh-my-zsh" ]]; then
+                    # Adds oh-my-zsh path to remove_args
+                    remove_args+=("$ZPLUG_HOME/repos/$oh_my_zsh_repo")
+                else
+                    # Adds arg path to remove_args
+                    remove_args+=("$ZPLUG_HOME/repos/$arg")
+                fi
             else
+                # If repository not found
                 __die "%s: not managed by zplug\n" "$arg"
-                return 1
-            fi
-            # candidates="${${${zplugs[$arg]}##*dir:}%%,*}"
-            # [[ -z "$candidates" ]] && continue
-            # # Check whether to remove one by one
-            # __put "- \033[31m%s\033[m\n" "$candidates"
-            __put "Remove really? [y/N]: "
-            if $is_force || read -q; then
-                command rm -rf "$ZPLUG_HOME/repos/$arg"
-                # unset "zplugs[$arg]"
-                __put "\nRemoved\n"
-            else
-                __put "\nCanceled\n"
+                let fail++
             fi
         done
+
+        # Exit
+        if (( fail > 0 )); then
+            return 1
+        fi
+
+        # Ask
+        __put "Remove really? [y/N]: "
+        if $is_force || read -q; then
+            command rm -rf "${(u)remove_args[@]}"
+            __put "\nRemoved\n"
+        else
+            __put "\nCanceled\n"
+        fi
+
     else
         # directory structure level 2
         repos=("${(@f)$(find "$ZPLUG_HOME/repos" -depth 2)}")
@@ -1187,7 +1265,7 @@ zplug() {
 
         update)
             shift
-            __zplug::update ${@:-${(k)zplugs}}
+            __zplug::update "$@" ${(k)zplugs}
             return $status
             ;;
 
@@ -1341,12 +1419,14 @@ _zplug()
                 update)
                     _arguments \
                         '(- 1 *)--self[update zplug by itself]' \
+                        '(--select)--select[select items with interactive filters]' \
                         '*:: :_files -W $ZPLUG_HOME/repos'
                     ret=0
                     ;;
                 install)
                     _arguments \
                         '(--verbose)--verbose[show non-installed items in output]' \
+                        '(--select)--select[select items with interactive filters]' \
                         '*:: :compadd -x "%F{green}Accept%f %Busername/reponame%b arguments"'
                     ret=0
                     ;;
@@ -1362,7 +1442,8 @@ _zplug()
                     ;;
                 clean)
                     _arguments \
-                        '(--force)--force[force the removing activity]' \
+                        '(--force --select)--force[force the removing activity]' \
+                        '(--select --force)--select[select items with interactive filters]' \
                         '*:: :_files -W $ZPLUG_HOME/repos'
                     ret=0
                     ;;
