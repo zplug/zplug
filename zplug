@@ -292,7 +292,7 @@ __zplug::update()
             # Not update
             if [[ $zspec[frozen] -eq 1 ]]; then
                 if [[ ${#@} -eq 1 && ${@[1]} == $zspec[name] ]]; then
-                    __put "$zspec[name]: \033[34mfrozen repo\033[m. Update? [y/N]: "
+                    __put "\033[32m$zspec[name]\033[m: \033[34mfrozen repo\033[m. Update? [y/N]: "
                     if ! read -q; then
                         continue
                     fi
@@ -1365,29 +1365,34 @@ _zplug()
                         "from[Grab external binaries from e.g., GitHub Releases]:from:(gh-r gist oh-my-zsh)" \
                         "at[Support branch/tag installation]:at:" \
                         "file[Specify filename you want to rename]:file:" \
-                        "dir[Installation directory (RO)]:dir:" \
+                        "dir[Installation directory (RO)]:dir:->dir" \
                         "if[Whether to install or not]:if:" \
                         "do[Run commands after installation]:do:" \
                         "frozen[Do not update unless explicitly specified]:frozen:(0 1)" \
                         "commit[Support commit installation]:commit:" \
-                        "on[Dependencies (RO)]:on:" && ret=0
-                    if [[ $state == "of" ]]; then
-                        compadd -J 'command/plugin' -x "%F{yellow}Completing%f %BExample patterns%b" \
-                            '*.zsh' \
-                            '*.sh' \
-                            'zsh/*.zsh' \
-                            '*.plugin.zsh' \
-                            'init.zsh'
-                        compadd -J 'gh-r' -x "%F{yellow}Completing%f %BGitHub Releases%b" \
-                            'amd64' \
-                            'darwin*amd64' \
-                            'linux*amd64' \
-                            '386' \
-                            'darwin*386' \
-                            'linux*386' \
-                            'darwin' \
-                            'linux'
-                    fi
+                        "on[Dependencies (RO)]:on:->on" && ret=0
+                    case $state in
+                        on|dir)
+                            compadd -x "%F{green}READ ONLY%f %Bno arguments%b"
+                            ;;
+                        of)
+                            compadd -J 'command/plugin' -x "%F{yellow}Completing%f %BExample patterns%b" \
+                                '*.zsh' \
+                                '*.sh' \
+                                'zsh/*.zsh' \
+                                '*.plugin.zsh' \
+                                'init.zsh'
+                            compadd -J 'gh-r' -x "%F{yellow}Completing%f %BGitHub Releases%b" \
+                                'amd64' \
+                                'darwin*amd64' \
+                                'linux*amd64' \
+                                '386' \
+                                'darwin*386' \
+                                'linux*386' \
+                                'darwin' \
+                                'linux'
+                            ;;
+                    esac
                     ;;
             esac
             ;;
