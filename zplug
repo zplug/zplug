@@ -126,6 +126,7 @@ typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
 typeset -gx ZPLUG_THREADS=${ZPLUG_THREADS:-16}
 typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-true}
 typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
+typeset -gx ZPLUG_EXTERNAL=${ZPLUG_EXTERNAL:-$ZPLUG_HOME/init.zsh}
 typeset -gx ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:zaw"}
 
 # Global variable
@@ -1264,6 +1265,35 @@ __zplug::clean()
     fi
 }
 
+__zplug::generate_external()
+{
+    if [[ -f $ZPLUG_EXTERNAL ]]; then
+        return 0
+    fi
+
+    cat <<-TEMPLATE >$ZPLUG_EXTERNAL
+	#!/bin/zsh
+	# -*- mode: zsh -*-
+	# vim:ft=zsh
+	#
+	# *** ZPLUG EXTERNAL FILE ***
+	# You can register plugins or commands to zplug on the
+	# command-line. If you use zplug on the command-line,
+	# it is possible to write more easily its settings
+	# by grace of the command-line completion.
+	# In this case, zplug spit out its settings to
+	# $ZPLUG_EXTERNAL instead of .zshrc.
+	# If you launch new zsh process, zplug load command
+	# automatically search this file and run source command.
+	#
+	#
+	# Example:
+	# zplug "b4b4r07/enhancd", as:plugin, of:"*.zsh"
+	# zplug "rupa/z",          as:plugin, of:"*.sh"
+	#
+TEMPLATE
+}
+
 zplug() {
     local arg
     arg="$1"
@@ -1313,6 +1343,7 @@ zplug() {
 
         load)
             shift
+            [[ -f $ZPLUG_EXTERNAL ]] && source $ZPLUG_EXTERNAL
             __zplug::load "$@"
             return $status
             ;;
@@ -1403,6 +1434,14 @@ zplug() {
                     if [[ $arg != $on_name && -n $on_name ]]; then
                         zplugs[$arg]+="${zplugs[$arg]:+,}on:$on_name"
                     fi
+
+                    # Case of use on CLI
+                    if [[ $- =~ s ]]; then
+                        __zplug::generate_external
+                        echo "zplug ${arg},${(q)specifier}" >>|$ZPLUG_EXTERNAL
+                    fi
+
+                    # Reset specifier
                     specifier=""
                 done
             else
@@ -1545,6 +1584,7 @@ if (( ! $+commands[git] )); then
         check_remote \
         __zplug::gist_clone \
         __zplug::clean \
+        __zplug::generate_external \
         zplug \
         _zplug
 fi
