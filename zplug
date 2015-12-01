@@ -89,9 +89,13 @@ fi
 zplug load --verbose
 
 EXAMPLE
+
 #
 # Then reload .zshrc and `zplug install; zplug load` to install plugins.
 # Visit https://github.com/b4b4r07/zplug for more information.
+#
+# In order for this plugin to work properly,
+# you must be launching zsh 4.3.9 or more.
 #
 # The MIT License (MIT)
 # Copyright (c) 2015 Masaki Ishiyama <b4b4r07@gmail.com>
@@ -178,23 +182,30 @@ __get_filter() {
     return 1
 }
 
-__git_version() {
-    if (( $# != 1 )); then
-        __die "usage: __git_version 1.7.10\n"
-        return 1
-    fi
-
+__version_requirement() {
     local idx
     local -a expect actual
 
-    expect=("${(s:.:)@}")
-    actual=("${(s:.:)${${(z)"$(git --version)"}[-1]}}")
+    actual=("${(s:.:)1}")
+    expect=("${(s:.:)2}")
 
     # Check magnitude relation
     for (( idx=1; idx <= $#actual; idx++ ))
     do
         (( actual[$idx] >= ${expect[$idx]:-0} )) && continue || return 1
     done
+
+    return 0
+}
+
+__git_version() {
+    __version_requirement "${${(z)"$(git --version)"}[-1]}" "$@"
+    return $status
+}
+
+__zsh_version() {
+    __version_requirement "$ZSH_VERSION" "$@"
+    return $status
 }
 
 __bg_rotation_bar() {
@@ -1575,7 +1586,7 @@ _zplug()
     return ret
 }
 
-if (( ! $+commands[git] )); then
+if (( ! $+commands[git] )) || __zsh_version 4.3.9; then
     unfunction \
         __die \
         __put \
