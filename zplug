@@ -230,11 +230,11 @@ __zplug::releases()
 
     # Check if curl or wget exists
     if (( $+commands[curl] )); then
-        L="$1" bash -c "$(curl -fsSL git.io/releases)" -s os
+        L="$1" bash -c "$(curl -fsSL git.io/releases)" -s "${2:-os}"
         return $status
 
     elif (( $+commands[wget] )); then
-        L="$1" bash -c "$(wget -qO - git.io/releases)" -s os
+        L="$1" bash -c "$(wget -qO - git.io/releases)" -s "${2:-os}"
         return $status
 
     fi >/dev/null 2>&1
@@ -426,7 +426,7 @@ __zplug::update()
                 # send a http request to git.io/releases with os argument
                 # or, git pull (case of normal plugin)
                 if [[ $zspec[from] == "gh-r" ]]; then
-                    __zplug::releases $zspec[name]
+                    __zplug::releases $zspec[name] $zspec[of]
                 else
                     git pull --quiet
                 fi || return 1
@@ -575,7 +575,7 @@ __zplug::install()
                     [[ -d ${zspec[name]%/*} ]] || mkdir -p "${zspec[name]%/*}"
                     # Change directory to it
                     builtin cd "${zspec[name]%/*}" >/dev/null 2>&1
-                    __zplug::releases $zspec[name]
+                    __zplug::releases $zspec[name] $zspec[of]
                     ret=${ret:-$status}
                     ;;
                 "gist")
