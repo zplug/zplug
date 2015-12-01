@@ -223,6 +223,27 @@ __bg_rotation_bar() {
     done
 }
 
+__zplug::releases()
+{
+    # Work with git.io/releases
+    # For more information, see also https://github.com/b4b4r07/releases
+
+    # Check if curl or wget exists
+    if (( $+commands[curl] )); then
+        L="$1" bash -c "$(curl -fsSL git.io/releases)" -s os
+        return $status
+
+    elif (( $+commands[wget] )); then
+        L="$1" bash -c "$(wget -qO - git.io/releases)" -s os
+        return $status
+
+    fi >/dev/null 2>&1
+
+    # Requirement
+    __die "$ZPLUG_NAME: requires curl or wget for from:gh-r\n"
+    return 1
+}
+
 __zplug::list()
 {
     # Check if zplugs has one more elements
@@ -396,7 +417,7 @@ __zplug::update()
                 # send a http request to git.io/releases with os argument
                 # or, git pull (case of normal plugin)
                 if [[ $zspec[from] == "gh-r" ]]; then
-                    eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases) || false" -s os' >/dev/null 2>&1
+                    __zplug::releases $zspec[name]
                 else
                     git pull --quiet
                 fi || return 1
@@ -541,7 +562,7 @@ __zplug::install()
                     [[ -d ${zspec[name]%/*} ]] || mkdir -p "${zspec[name]%/*}"
                     # Change directory to it
                     builtin cd "${zspec[name]%/*}" >/dev/null 2>&1
-                    eval 'L=$zspec[name] bash -c "$(curl -L git.io/releases) || false" -s os' >/dev/null 2>&1
+                    __zplug::releases $zspec[name]
                     ret=${ret:-$status}
                     ;;
                 "gist")
@@ -1593,6 +1614,7 @@ if (( ! $+commands[git] )) || __zsh_version 4.3.9; then
         __get_filter \
         __git_version \
         __bg_rotation_bar \
+        __zplug::releases \
         __zplug::list \
         __zplug::self_update \
         __zplug::update \
