@@ -1314,6 +1314,9 @@ __zplug::clean()
         for v in "${(@v)zplugs}"
         do
             k="${${v##*dir:}%%,*}"
+            if [[ $k =~ $oh_my_zsh_repo ]]; then
+                k=$ZPLUG_HOME/repos/$oh_my_zsh_repo
+            fi
             num="${repos[(i)$k]}"
             if [[ -n "$num" ]]; then
                 repos[$num]=()
