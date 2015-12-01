@@ -276,6 +276,7 @@ __zplug::list()
     else
         args=("$@")
     fi
+    (( $#args == 0 )) && return 0
 
     # Process arguments
     if (( $#args > 0 )); then
@@ -359,7 +360,7 @@ __zplug::update()
 
     filter="$(__get_filter "$ZPLUG_FILTER")"
     if $is_select; then
-        args=(${(@f)"$(echo "${(F)@}" | eval "$filter")"})
+        args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
     else
         args=("$@")
     fi
@@ -1373,7 +1374,7 @@ zplug() {
 
         update)
             shift
-            __zplug::update "$@" ${(k)zplugs}
+            __zplug::update ${@:-${(k)zplugs}}
             return $status
             ;;
 
