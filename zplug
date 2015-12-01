@@ -115,24 +115,11 @@ EXAMPLE
 # THE SOFTWARE.
 #
 
-# Environment variable (Read-Only)
+# Global variables (Read-Only)
 typeset -gr ZPLUG_NAME="zplug"
 typeset -gr ZPLUG_VERSION="0.1.9"
 typeset -gr ZPLUG_RAWURL="https://git.io/zplug"
 typeset -gr ZPLUG_URL="https://github.com/b4b4r07/zplug"
-
-# Set default value if not present
-typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
-typeset -gx ZPLUG_THREADS=${ZPLUG_THREADS:-16}
-typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-true}
-typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
-typeset -gx ZPLUG_EXTERNAL=${ZPLUG_EXTERNAL:-$ZPLUG_HOME/init.zsh}
-typeset -gx ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:zaw"}
-
-# Global variable
-typeset -g -A zplugs
-typeset -gr oh_my_zsh_repo="robbyrussell/oh-my-zsh"
-
 typeset -gr ZPLUG_HELP="usage: zplug [COMMANDS] [OPTIONS]
   $ZPLUG_NAME is next-generation zsh plugin manager
 
@@ -145,8 +132,21 @@ COMMANDS:
   list      Show all of the zplugs in the current shell
   check     Check whether an update or installation is available
   status    Check if remote branch is up-to-date
+  clean     Remove repositories which is no longer managed
 
 For more information, see also $ZPLUG_URL."
+
+# Global variables
+typeset -g -A zplugs
+typeset -gr oh_my_zsh_repo="robbyrussell/oh-my-zsh"
+
+# Environment variables
+typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
+typeset -gx ZPLUG_THREADS=${ZPLUG_THREADS:-16}
+typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-true}
+typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
+typeset -gx ZPLUG_EXTERNAL=${ZPLUG_EXTERNAL:-$ZPLUG_HOME/init.zsh}
+typeset -gx ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:zaw"}
 
 #
 # zplug utilities
@@ -161,19 +161,13 @@ __put() {
 }
 
 __get_filter() {
-    local x candidates
+    local item x
 
-    # candidates should be list like "a:b:c" concatenated by a colon
-    candidates="$1:"
-
-    while [ -n "$candidates" ]; do
-        # the first remaining entry
-        x=${candidates%%:*}
-        # reset candidates
-        candidates=${candidates#*:}
-
-        # check if x is available
-        if (( $+commands[${x%% *}] )); then
+    for item in "${(s.:.)1}"
+    do
+        x="${item%% *}"
+        # Check if x is available
+        if (( $+commands[$x] )); then
             echo "$x"
             return 0
         else
@@ -184,21 +178,26 @@ __get_filter() {
     return 1
 }
 
-git_version() {
+__git_version() {
     if (( $# != 1 )); then
-        __die "usage: git_version 1.7.10\n"
+        __die "usage: __git_version 1.7.10\n"
         return 1
     fi
+
     local idx
     local -a expect actual
+
     expect=("${(s:.:)@}")
     actual=("${(s:.:)${${(z)"$(git --version)"}[-1]}}")
-    for (( idx=1; idx <= $#actual; idx++ )); do
+
+    # Check magnitude relation
+    for (( idx=1; idx <= $#actual; idx++ ))
+    do
         (( actual[$idx] >= ${expect[$idx]:-0} )) && continue || return 1
     done
 }
 
-bg_rotation_bar() {
+__bg_rotation_bar() {
     local current_count simbol
     for ((current_count=0; ; current_count++))
     do
@@ -336,7 +335,7 @@ __zplug::update()
     for line in "${args[@]}"; do
         # Run installation in subprocess
         {
-            trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; set -m; trap - INT' INT
+            trap 'kill -9 ${${(v)jobstates##*:*:}%"="*} $bg_pid &>/dev/null; set -m; trap - INT' INT
 
             local k bg_pid ret=1
 
@@ -374,7 +373,7 @@ __zplug::update()
 
             # Start the spin of drawing
             # and save process id
-            bg_rotation_bar & bg_pid=$!
+            __bg_rotation_bar & bg_pid=$!
 
             () {
                 # Change directory to fullpath of zspec dir
@@ -396,7 +395,7 @@ __zplug::update()
             # nothing is output even if it success or fails
             ret=$status
 
-            # Force-quit background process (bg_rotation_bar)
+            # Force-quit background process (__bg_rotation_bar)
             kill -9 $bg_pid &>/dev/null
 
             # It will be conditional branching with exit code
@@ -491,12 +490,12 @@ __zplug::install()
             {
                 (( oh_my_count++ > 0 )) && continue
                 [[ -d $ZPLUG_HOME/repos/$oh_my_zsh_repo ]] && continue
-                oh_my_line="\033[;1m${oh_my_zsh_repo}\033[m"
+                oh_my_line="$oh_my_zsh_repo"
             }
 
         # Run installation in subprocess
         {
-            trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; set -m; trap - INT' INT
+            trap 'kill -9 ${${(v)jobstates##*:*:}%"="*} $bg_pid &>/dev/null; set -m; trap - INT' INT
 
             local bg_pid ret
 
@@ -519,7 +518,7 @@ __zplug::install()
 
             # Start the spin of drawing
             # and save process id
-            bg_rotation_bar & bg_pid=$!
+            __bg_rotation_bar & bg_pid=$!
             builtin cd $ZPLUG_HOME/repos >/dev/null 2>&1
 
             # If zspec from is gh-r (GitHub Releases),
@@ -556,7 +555,7 @@ __zplug::install()
 
                         # However, Git 2.3.0 introduced $GIT_TERMINAL_PROMPT
                         # which can be used to suppress user prompt
-                        if git_version 2.3; then
+                        if __git_version 2.3; then
                             # HTTPS (git 2.3+): "https://github.com/%s.git"
                             export GIT_TERMINAL_PROMPT=0
                             url_format="https://github.com/${line}.git"
@@ -607,7 +606,7 @@ __zplug::install()
                 fi
             fi
 
-            # Force-quit background process (bg_rotation_bar)
+            # Force-quit background process (__bg_rotation_bar)
             kill -9 $bg_pid &>/dev/null
 
             # Whether to success or not
@@ -632,7 +631,7 @@ __zplug::install()
     fail=0
 
     # Pauses until execution of a background process has ended
-    for job in ${${(v)jobstates##*:*:}%=*}
+    for job in ${${(v)jobstates##*:*:}%"="*}
     do
         wait $job || let fail++
     done >/dev/null 2>&1
@@ -960,7 +959,7 @@ __zplug::status()
     # Local function
     get_head_branch() {
         local head_branch prehash
-        if git_version 1.7.10; then
+        if __git_version 1.7.10; then
             head_branch="$(git symbolic-ref -q --short HEAD)"
         else
             head_branch="$(git symbolic-ref -q HEAD | sed -e 's/^refs\/heads\///')"
@@ -1072,7 +1071,7 @@ __zplug::status()
     for line in "${args[@]}"; do
         # Run installation in subprocess
         {
-            trap 'kill -9 ${${(v)jobstates##*:*:}%=*} $bg_pid &>/dev/null; set -m; trap - INT' INT
+            trap 'kill -9 ${${(v)jobstates##*:*:}%"="*} $bg_pid &>/dev/null; set -m; trap - INT' INT
 
             local k bg_pid ret=1
 
@@ -1096,7 +1095,7 @@ __zplug::status()
 
             # Start the spin of drawing
             # and save process id
-            bg_rotation_bar & bg_pid=$!
+            __bg_rotation_bar & bg_pid=$!
 
             () {
                 # check whether it is gh-r or not
@@ -1108,7 +1107,7 @@ __zplug::status()
             # nothing is output even if it success or fails
             ret=$status
 
-            # Force-quit background process (bg_rotation_bar)
+            # Force-quit background process (__bg_rotation_bar)
             kill -9 $bg_pid &>/dev/null
 
             # It will be conditional branching with exit code
@@ -1145,7 +1144,7 @@ __zplug::gist_clone()
 
         # However, Git 2.3.0 introduced $GIT_TERMINAL_PROMPT
         # which can be used to suppress user prompt
-        if git_version 2.3; then
+        if __git_version 2.3; then
             # HTTPS (git 2.3+): "https://github.com/%s.git"
             export GIT_TERMINAL_PROMPT=0
             url_format="https://gist.github.com/${line}.git"
@@ -1193,6 +1192,7 @@ __zplug::clean()
     filter="$(__get_filter "$ZPLUG_FILTER")"
     if $is_select; then
         args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
+        (( $#args == 0 )) && return 0
     else
         args=("$@")
     fi
@@ -1263,6 +1263,14 @@ __zplug::clean()
             __put "\nCanceled\n"
         fi
     fi
+
+    local repo
+    for repo in ${(k)zplugs}
+    do
+        if [[ ! -e ${${zplugs[$repo]##*dir:}%%,*} ]]; then
+            unset "zplugs[$repo]"
+        fi
+    done
 }
 
 __zplug::generate_external()
@@ -1292,6 +1300,7 @@ __zplug::generate_external()
 	# zplug "rupa/z",          as:plugin, of:"*.sh"
 	#
 TEMPLATE
+    chmod a-w $ZPLUG_EXTERNAL
 }
 
 zplug() {
@@ -1438,7 +1447,9 @@ zplug() {
                     # Case of use on CLI
                     if [[ $- =~ s ]]; then
                         __zplug::generate_external
+                        chmod a+w $ZPLUG_EXTERNAL
                         echo "zplug ${arg},${(q)specifier}" >>|$ZPLUG_EXTERNAL
+                        chmod a-w $ZPLUG_EXTERNAL
                     fi
 
                     # Reset specifier
@@ -1568,8 +1579,9 @@ if (( ! $+commands[git] )); then
     unfunction \
         __die \
         __put \
-        git_version \
-        bg_rotation_bar \
+        __get_filter \
+        __git_version \
+        __bg_rotation_bar \
         __zplug::list \
         __zplug::self_update \
         __zplug::update \
