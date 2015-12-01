@@ -37,6 +37,8 @@ Add a zplug section to your `.zshrc`:
 
 ### Example
 
+[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/example.png)][repo]
+
 ```zsh
 source ~/.zplug/zplug
 
@@ -222,12 +224,12 @@ Defaults to `fzf-tmux:fzf:peco:percol:zaw`. When `--select` option is specified,
 
 #### `ZPLUG_EXTERNAL`
 
-Defaults to `$ZPLUG_HOME/init.zsh`. This file is used to add plugins from zplug on the command-line. Currently it's read-only ().
+Defaults to `$ZPLUG_HOME/init.zsh`. This file is used to add plugins from zplug on the command-line. Currently it's read-only.
 
 ## Note
 
 - :tada: Congrats! Released official version!!
-- ~~ :construction: Until version 1.0.0 is released, `zplug` may be changed in ways that are not backward compatible. ~~
+- ~~:construction: Until version 1.0.0 is released, `zplug` may be changed in ways that are not backward compatible.~~
 - Not antigen :syringe: but **zplug** :hibiscus: will be here to stay from now on.
 - :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug) and the like.
 
