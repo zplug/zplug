@@ -50,11 +50,11 @@ zplug "junegunn/dotfiles", as:command, of:bin/vimcat
 # Manage everything e.g. zshrc (alias)
 zplug "tcnksm/docker-alias", of:zshrc
 
-# Prohibit updates to a plugin by using the "frozen:" specifier
+# Prohibit updates to a plugin by using the "frozen:" tag
 zplug "k4rthik/git-cal", as:command, frozen:1
 
 # Grab binaries (from GitHub Releases)
-# and rename to use "file:" specifier
+# and rename to use "file:" tag
 zplug "junegunn/fzf-bin", \
     as:command, \
     from:gh-r, \
@@ -70,7 +70,7 @@ zplug "tj/n", do:"make install"
 zplug "b4b4r07/enhancd", at:v1
 zplug "mollifier/anyframe", commit:4c23cb60
 
-# Install if "if:" specifier returns true
+# Install if "if:" tag returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
 # Gist can be used
@@ -152,9 +152,9 @@ All that's left is to run `zplug update`.
 
 [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo]
 
-### 2. `zplug` specifiers
+### 2. `zplug` tags
 
-| Specifier | Description | Value (default) | Example |
+| Tag | Description | Value (default) | Example |
 |-----------|-------------|-----------------|---------|
 | `as`      | Specify whether to register as commands or to register as plugins | `plugin`,`command` (`plugin`) | `as:command` |
 | `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) | - (-) | `of:bin`,`of:*.zsh` |
@@ -200,7 +200,7 @@ $ZPLUG_HOME
         `-- reponame1
 ```
 
-If you specify `as:command` in `zplug` command, zplug will recognize the plugin as a command and create a symbolic link of the same name (if you want to rename it, set `file:` specifier) within `$ZPLUG_HOME/bin`. Because zplug adds `$ZPLUG_HOME/bin` to the `$PATH`, you can run that command from any directories.
+If you specify `as:command` in `zplug` command, zplug will recognize the plugin as a command and create a symbolic link of the same name (if you want to rename it, set `file:` tag) within `$ZPLUG_HOME/bin`. Because zplug adds `$ZPLUG_HOME/bin` to the `$PATH`, you can run that command from any directories.
 
 #### `ZPLUG_THREADS`
 
@@ -220,10 +220,14 @@ Defaults to `true`. Makes zplug use shallow clone with a history truncated to th
 
 Defaults to `fzf-tmux:fzf:peco:percol:zaw`. When `--select` option is specified, colon-separated first element that exists in the `$PATH` will be used by zplug as the interactive filter. The `ZPLUG_FILTER` also accepts the following values: `fzf-tmux -d "10%":/path/to/peco:my peco`.
 
+#### `ZPLUG_EXTERNAL`
+
+Defaults to `$ZPLUG_HOME/init.zsh`. This file is used to add plugins from zplug on the command-line. Currently it's read-only ().
+
 ## Note
 
-- :tada: Released Beta version!!
-- :construction: Until version 1.0.0 is released, `zplug` may be changed in ways that are not backward compatible.
+- :tada: Congrats! Released official version!!
+- ~~ :construction: Until version 1.0.0 is released, `zplug` may be changed in ways that are not backward compatible. ~~
 - Not antigen :syringe: but **zplug** :hibiscus: will be here to stay from now on.
 - :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug) and the like.
 
