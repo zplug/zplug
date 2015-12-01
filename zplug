@@ -1384,7 +1384,6 @@ zplug() {
 
         load)
             shift
-            [[ -f $ZPLUG_EXTERNAL ]] && source $ZPLUG_EXTERNAL
             __zplug::load "$@"
             return $status
             ;;
@@ -1480,7 +1479,7 @@ zplug() {
                     if [[ $- =~ s ]]; then
                         __zplug::generate_external
                         chmod a+w $ZPLUG_EXTERNAL
-                        echo "zplug ${arg},${(q)tag}" >>|$ZPLUG_EXTERNAL
+                        echo "zplug ${arg}${tag:+,${(q)tag}}" >>|$ZPLUG_EXTERNAL
                         chmod a-w $ZPLUG_EXTERNAL
                     fi
 
@@ -1634,11 +1633,16 @@ if (( ! $+commands[git] )) || __zsh_version 4.3.9; then
         _zplug
 fi
 
-if (( ! $+functions[compdef] )); then
-    autoload -Uz compinit
-    compinit
+typeset -i is_ready_zplug
+if (( is_ready_zplug++ == 0 )); then
+    [[ -f $ZPLUG_EXTERNAL ]] && source $ZPLUG_EXTERNAL
+
+    if (( ! $+functions[compdef] )); then
+        autoload -Uz compinit
+        compinit
+    fi
+    compdef _zplug zplug
 fi
-compdef _zplug zplug
 
 # __END__ {{{1
 # vim:fdm=marker fdc=3 ft=zsh ts=4 sw=4 sts=4:
