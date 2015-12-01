@@ -268,6 +268,10 @@ __zplug::list()
             is_select=true
             shift
             ;;
+        -*|--*)
+            __die "$1: Unknown option\n"
+            return 1
+            ;;
     esac
 
     filter="$(__get_filter "$ZPLUG_FILTER")"
@@ -352,6 +356,10 @@ __zplug::update()
         --select)
             is_select=true
             shift
+            ;;
+        -*|--*)
+            __die "$1: Unknown option\n"
+            return 1
             ;;
     esac
 
@@ -487,6 +495,10 @@ __zplug::install()
             shift
             ;;
         "")
+            return 1
+            ;;
+        -*|--*)
+            __die "$1: Unknown option\n"
             return 1
             ;;
     esac
@@ -760,10 +772,16 @@ __zplug::load()
     local -A zspec
 
     # Process arguments
-    if [[ $1 == "--verbose" ]]; then
-        is_verbose=true
-        shift
-    fi
+    case "$1" in
+        --verbose)
+            is_verbose=true
+            shift
+            ;;
+        -*|--*)
+            __die "$1: Unknown option\n"
+            return 1
+            ;;
+    esac
 
     for key in ${(k)zplugs}
     do
@@ -967,8 +985,13 @@ __zplug::check()
             --verbose)
                 is_verbose=true
                 ;;
+            -*|--*)
+                __die "$1: Unknown option\n"
+                return 1
+                ;;
             *)
                 args+=("$1")
+                ;;
         esac
         shift
     done
@@ -1099,6 +1122,10 @@ __zplug::status()
             is_select=true
             shift
             ;;
+        -*|--*)
+            __die "$1: Unknown option\n"
+            return 1
+            ;;
     esac
 
     filter="$(__get_filter "$ZPLUG_FILTER")"
@@ -1218,6 +1245,10 @@ __zplug::clean()
         --select)
             is_select=true
             shift
+            ;;
+        -*|--*)
+            __die "$1: Unknown option\n"
+            return 1
             ;;
     esac
 
