@@ -754,7 +754,7 @@ __zplug::parser()
 
 __zplug::load()
 {
-    local f files k
+    local f files k ret
     local key is_verbose=false
     local -A zspec
 
@@ -776,7 +776,7 @@ __zplug::load()
         done
 
         # It is limited to loading of the repository that exists
-        if [[ ! -e $zspec[dir] ]]; then
+        if [[ $zspec[from] != "oh-my-zsh" && ! -e $zspec[dir] ]] || [[ $zspec[from] == "oh-my-zsh" && ! -d ${zspec[dir]:h} ]]; then
             continue
         fi
 
@@ -832,12 +832,7 @@ __zplug::load()
                 for f in "${files[@]}"
                 do
                     {
-                        # local pat
-                        # pat="^($(git branch | cut -c3- | paste -s -d"|" -))$"
-                        # if [[ ! $zspec[at] =~ $pat ]]; then
-                        #     builtin cd $zspec[dir]
-                        #     git checkout $zspec[at]
-                        # fi
+                        # Base directory
                         builtin cd $ZPLUG_HOME/bin
 
                         # Rename by using file tag
@@ -858,15 +853,27 @@ __zplug::load()
                 ;;
 
             plugin)
+                files=()
                 # To find files to be sourced and
                 # expand file glob (using zsh -c "foo*bar")
-                files=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-*.zsh(N)}" 2>/dev/null) )
+                if [[ $zspec[from] == "oh-my-zsh" ]]; then
+                    # Themes
+                    files+=( $(zsh -c "echo ${zspec[dir]}.{zsh-theme,theme.zsh}" 2>/dev/null) )
+                    # Plugins
+                    files+=( $(zsh -c "echo ${zspec[dir]}/*.{zsh,plugin.zsh}" 2>/dev/null) )
+                else
+                    files+=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-*.zsh(N)}" 2>/dev/null) )
+                fi
 
-                for f in "${files[@]}"
+                for f in "${(u)files[@]}"
                 do
                     if [[ -f $f ]]; then
-                        source "$f"
-                        [[ $status -eq 0 ]] &&
+                        # source
+                        source "$f"; ret=$status
+                        # fpath
+                        [[ -d $f ]] && fpath=($f $fpath)
+
+                        [[ $ret -eq 0 ]] &&
                             if $is_verbose; then
                                 __put "\033[32m  Loaded\033[m ${f/$ZPLUG_HOME\/repos\//}\n"
                             fi
@@ -914,8 +921,8 @@ __zplug::validator()
                 __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'from:' takes gh-r/gist (zplug \"$zspec[name]\")\033[m\n"
                 unset "zplugs[$zspec[name]]"; let fail++
             fi
-            if [[ $zspec[from] == "oh-my-zsh" && ! $zspec[name] =~ ^plugins ]]; then
-                __die "\033[31m[$ZPLUG_NAME] #syntax error# 'plugin name' must be starting with plugins/* (zplug \"$zspec[name]\")\033[m\n"
+            if [[ $zspec[from] == "oh-my-zsh" && ! $zspec[name] =~ ^(plugins|themes) ]]; then
+                __die "\033[31m[$ZPLUG_NAME] #syntax error# 'plugin name' must be starting with plugins|themes (zplug \"$zspec[name]\")\033[m\n"
                 unset "zplugs[$zspec[name]]"; let fail++
             fi
         fi
@@ -968,7 +975,7 @@ __zplug::check()
     for line in "${args[@]}"
     do
         zspec=( ${(@f)"$(__zplug::parser "$line")"} )
-        if [[ ! -e $zspec[dir] ]]; then
+        if [[ $zspec[from] != "oh-my-zsh" && ! -e $zspec[dir] ]] || [[ $zspec[from] == "oh-my-zsh" && ! -d ${zspec[dir]:h} ]]; then
             fail+=("$zspec[name]")
         fi
     done
