@@ -436,6 +436,14 @@ __zplug::update()
             # nothing is output even if it success or fails
             ret=$status
 
+            # If not empty
+            if [[ -n $zspec[do] ]]; then
+                if [[ $ret -eq 0 ]]; then
+                    # Run command if git clone returns true
+                    eval "$zspec[do]"
+                fi
+            fi
+
             # Force-quit background process (__bg_rotation_bar)
             kill -9 $bg_pid &>/dev/null
 
