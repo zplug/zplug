@@ -48,7 +48,7 @@ zplug "tcnksm/docker-alias", of:zshrc
 zplug "k4rthik/git-cal", as:cmd, frozen:1
 
 # Grab binaries (from GitHub Releases)
-# and rename to use "file:" specifier
+# and rename to use "file:" tag
 zplug "junegunn/fzf-bin", \
     as:command, \
     from:gh-r, \
@@ -61,7 +61,7 @@ zplug "tj/n", do:"make install"
 zplug "b4b4r07/enhancd", at:v1
 zplug "mollifier/anyframe", commit:4c23cb60
 
-# Install if `if` specifier returns true
+# Install if `if` tag returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
 # Gist can be used
@@ -692,8 +692,8 @@ __zplug::parser()
     on=${${${(M)parsed_zplugs:#on*}#*:}:--EMP-}
     commit=${${${(M)parsed_zplugs:#commit*}#*:}:--EMP-}
 
-    local -A zplugs_specifiers
-    zplugs_specifiers=(
+    local -A zplugs_tags
+    zplugs_tags=(
       name    "$name"
       as      "$as"
       of      "$of"
@@ -709,14 +709,14 @@ __zplug::parser()
       commit  "$commit"
     )
 
-    # Output zplugs_specifiers
+    # Output zplugs_tags
     # Separated by newline
     # because it is used by parameter expansion flags (@f)
     local key
-    for key in ${(k)zplugs_specifiers}
+    for key in ${(k)zplugs_tags}
     do
         echo "$key"
-        echo "$zplugs_specifiers[$key]"
+        echo "$zplugs_tags[$key]"
     done
 }
 
@@ -748,7 +748,7 @@ __zplug::load()
             continue
         fi
 
-        # if specifier
+        # if tag
         if [[ -n $zspec[if] ]]; then
             if ! eval '$zspec[if]' >/dev/null 2>&1; then
                 __die "$zspec[name]: (not load)\n"
@@ -756,7 +756,7 @@ __zplug::load()
             fi
         fi
 
-        # on specifier
+        # on tag
         if [[ -n $zspec[on] ]]; then
             if ! [[ -e $ZPLUG_HOME/repos/$zspec[on] ]]; then
                 __die "$zspec[name]: (not load)\n"
@@ -764,7 +764,7 @@ __zplug::load()
             fi
         fi
 
-        # as specifier
+        # as tag
         # Conditional branching by as
         case $zspec[as] in
             command)
@@ -781,11 +781,11 @@ __zplug::load()
                     files=("$zspec[dir]/${zspec[name]#*/}")
 
                 elif [[ -f $zspec[dir]/$zspec[of] ]]; then
-                    # fullpath and of specifier
+                    # fullpath and of tag
                     files+=("$zspec[dir]/$zspec[of]")
 
                 elif [[ -f $zspec[dir]/$zspec[of]/${zspec[name]#*/} ]]; then
-                    # fullpath and of specifier and filename
+                    # fullpath and of tag and filename
                     files+=("$zspec[dir]/$zspec[of]/${zspec[name]#*/}")
 
                 elif [[ -f $zspec[dir] ]]; then
@@ -808,7 +808,7 @@ __zplug::load()
                         # fi
                         builtin cd $ZPLUG_HOME/bin
 
-                        # Rename by using file specifier
+                        # Rename by using file tag
                         ln -snf "$f" ${zspec[file]:-.}
                     } >/dev/null 2>&1 &
                 done
@@ -868,7 +868,7 @@ __zplug::validator()
 
         # as: must (default: plugin)
         if [[ ! $zspec[as] =~ ^(command|plugin)$ ]]; then
-            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'as:' takes command/plugin (zplug \"$zspec[name]\")\033[m\n"
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'as:' takes command/plugin (zplug \"$zspec[name]\")\033[m\n"
 
             # Remove that key and value
             unset "zplugs[$zspec[name]]"
@@ -879,7 +879,7 @@ __zplug::validator()
         # from: opt
         if [[ -n $zspec[from] ]]; then
             if [[ ! $zspec[from] =~ ^(gh-r|gist|oh-my-zsh)$ ]]; then
-                __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'from:' takes gh-r/gist (zplug \"$zspec[name]\")\033[m\n"
+                __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'from:' takes gh-r/gist (zplug \"$zspec[name]\")\033[m\n"
                 unset "zplugs[$zspec[name]]"; let fail++
             fi
             if [[ $zspec[from] == "oh-my-zsh" && ! $zspec[name] =~ ^plugins ]]; then
@@ -890,7 +890,7 @@ __zplug::validator()
 
         # frozen: must (default: 0)
         if [[ ! $zspec[frozen] =~ ^(0|1)$ ]]; then
-            __die "\033[31m[$ZPLUG_NAME] #syntax error# specifier 'frozen:' takes 0/1 (zplug \"$zspec[name]\")\033[m\n"
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'frozen:' takes 0/1 (zplug \"$zspec[name]\")\033[m\n"
 
             # Remove that key and value
             unset "zplugs[$zspec[name]]"
@@ -900,7 +900,7 @@ __zplug::validator()
 
         # commit: opt
         if [[ -n $zspec[commit] ]] && (( $#zspec[commit] < 8 )); then
-            __die "\033[31m[$ZPLUG_NAME] #syntax error# the length of specifier 'commit:' must be eight characters or more (zplug \"$zspec[name]\")\033[m\n"
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# the length of tag 'commit:' must be eight characters or more (zplug \"$zspec[name]\")\033[m\n"
 
             # Remove that key and value
             unset "zplugs[$zspec[name]]"
@@ -1201,7 +1201,7 @@ __zplug::clean()
     if (( $#args > 0 )); then
         for arg in "${args[@]}"
         do
-            # Parse arg and its specifiers
+            # Parse arg and its tags
             zspec=( ${(@f)"$(__zplug::parser "$arg")"} )
 
             # Check if arg repository exists
@@ -1403,7 +1403,7 @@ zplug() {
                     return 1
                 fi
 
-                local i specifier
+                local i tag
                 local is_oh_my_zsh=false
                 for arg in "${task[@]}"
                 do
@@ -1417,7 +1417,7 @@ zplug() {
                     do
                         case "${i%%:*}" in
                             as|of|from|to|if|dir|file|at|do|frozen|on|commit)
-                                specifier="${specifier}${i%,},"
+                                tag="${tag}${i%,},"
                                 if [[ "${i%,}" == "from:oh-my-zsh" ]]; then
                                     is_oh_my_zsh=true
                                 else
@@ -1425,16 +1425,16 @@ zplug() {
                                 fi
                                 ;;
                             *)
-                                __die "$i: invalid specifier\n"
+                                __die "$i: invalid tag\n"
                                 return 1
                                 ;;
                         esac
                     done
 
-                    specifier="${specifier%,}"
-                    # Add to $zplugs(AA; key:"user/repo" => value:"specifier:value")
-                    zplugs+=("$arg" "${specifier:-}")
-                    # Add dir specifier to $zplugs
+                    tag="${tag%,}"
+                    # Add to $zplugs(AA; key:"user/repo" => value:"tag:value")
+                    zplugs+=("$arg" "${tag:-}")
+                    # Add dir tag to $zplugs
                     if $is_oh_my_zsh; then
                         zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/repos/$oh_my_zsh_repo/$arg"
                     else
@@ -1448,12 +1448,12 @@ zplug() {
                     if [[ $- =~ s ]]; then
                         __zplug::generate_external
                         chmod a+w $ZPLUG_EXTERNAL
-                        echo "zplug ${arg},${(q)specifier}" >>|$ZPLUG_EXTERNAL
+                        echo "zplug ${arg},${(q)tag}" >>|$ZPLUG_EXTERNAL
                         chmod a-w $ZPLUG_EXTERNAL
                     fi
 
-                    # Reset specifier
-                    specifier=""
+                    # Reset tag
+                    tag=""
                 done
             else
                 __die "$arg: no such command\n"
@@ -1533,7 +1533,7 @@ _zplug()
                     ret=0
                     ;;
                 */*)
-                    _values -S : -s , "zplug specifiers" \
+                    _values -S : -s , "zplug tags" \
                         "as[Regard that as plugins or commands]:as:(plugin command)" \
                         "of[Specify the pattern to source (for plugin) or relative path to export (for command)]:of:->of" \
                         "from[Grab external binaries from e.g., GitHub Releases]:from:(gh-r gist oh-my-zsh)" \
