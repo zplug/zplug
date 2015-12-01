@@ -277,10 +277,10 @@ __zplug::list()
     filter="$(__get_filter "$ZPLUG_FILTER")"
     if $is_select; then
         args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
+        (( $#args == 0 )) && return 0
     else
         args=("$@")
     fi
-    (( $#args == 0 )) && return 0
 
     # Process arguments
     if (( $#args > 0 )); then
