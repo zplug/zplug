@@ -329,7 +329,7 @@ __zplug::self_update()
 
     # Create symlink to $ZPLUG_HOME/zplugs
     ln -snf "$ZPLUG_HOME/repos/$zplug/zplug" "$ZPLUG_HOME/zplug"
-    if [[ $status -eq 0 ]]; then
+    if [[ $status -eq 0 && -d $ZPLUG_HOME/repos/b4b4r07/zplug && -f $ZPLUG_HOME/zplug ]]; then
         __put "\033[32mUpdated $ZPLUG_NAME \033[;1m($ZPLUG_HOME/zplug)\033[m\n"
     else
         __die "\033[31mError occured (see $ZPLUG_URL)\033[m\n"
