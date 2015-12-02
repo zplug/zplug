@@ -1,7 +1,57 @@
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png)][repo] [![](https://travis-ci.org/b4b4r07/zplug_test.svg?branch=master)][travis]
-===
+> Zsh Plugin Manager
 
-###### `zplug` is a next-generation plugin manager for zsh
+<div align="center">
+  <a href="http://github.com/flyjs">
+    <img width=650px src="https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png">
+  </a>
+</div>
+<br>
+
+<p align="center">
+<big></big>
+</p>
+
+<p align="center">
+  <a href="http://zsh.sourceforge.net/releases.html">
+    <img src="https://img.shields.io/badge/zsh-v4.3.9-orange.svg?style=flat-square"
+         alt="Zsh version">
+  </a>
+
+  <a href="https://travis-ci.org/b4b4r07/zplug_test">
+    <img src="https://img.shields.io/travis/b4b4r07/zplug_test.svg?style=flat-square"
+         alt="Build Status">
+  </a>
+
+  <a href="https://github.com/b4b4r07/zplug/wiki">
+    <img src="https://img.shields.io/badge/documentation-wiki-00b0cc.svg?style=flat-square"
+         alt="Wiki pages">
+  </a>
+
+  <a href="http://b4b4r07.mit-license.org">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"
+         alt="License">
+  </a>
+
+  <a href="https://gitter.im/b4b4r07/zplug">
+    <img src="https://img.shields.io/badge/gitter-join-FF2B6E.svg?style=flat-square"
+         alt="Gitter">
+  </a>
+</p>
+
+<p align="center">
+  <b><a href="#proc">Proc.</a></b>
+  |
+  <b><a href="#installation">Installation</a></b>
+  |
+  <b><a href="#usage">Usage</a></b>
+  |
+  <b><a href="#example">Example</a></b>
+  |
+  <b><a href="#note">Note</a></b>
+
+</p>
+
+<br>
 
 ## Pros.
 
@@ -18,7 +68,7 @@
 
 ***DEMO:***
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)][repo]
+[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/install.gif)][repo]
 
 ## Installation
 
@@ -161,16 +211,16 @@ All that's left is to run `zplug update`.
 | Tag | Description | Value (default) | Example |
 |-----------|-------------|-----------------|---------|
 | `as`      | Specify whether to register as commands or to register as plugins | `plugin`,`command` (`plugin`) | `as:command` |
-| `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) | - (-) | `of:bin`,`of:*.zsh` |
-| `from`    | Grab external binaries from e.g., GitHub Releases | `gh-r`,`gist`,`oh-my-zsh` (-) | `from:gh-r` |
+| `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) / In case of `from:gh-r`, can specify `of:linux` and so on | - (`of:"*.zsh"`) | `of:bin`,`of:"*.sh"`, `of:amd64` |
+| `from`    | Specify the services you use to install | `gh-r`,`gist`,`oh-my-zsh` (-) | `from:gh-r` |
 | `at`      | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
-| `file`    | Specify filename you want to rename | filename (-) | `file:fzf` |
-| `dir`     | Installation directory | **READ ONLY** | -
-| `if`      | Specify the conditions under which to perform (`source`, add `$PATH`) | true/false (-) | `if:"[ -d ~/.zsh ]"` |
-| `do`      | Run commands after installation | commands (-) | `do:make` |
+| `file`    | Specify filename you want to rename (*only* `as:plugin`) | filename (-) | `file:fzf` |
+| `dir`     | Installation directory which is managed by zplug | **READ ONLY** | `dir:/path/to/user/repo` |
+| `if`      | Specify the conditions under which to run `source` or add to `$PATH` | true/false (-) | `if:"[ -d ~/.zsh ]"` |
+| `do`      | Run commands after installation/update | commands (-) | `do:make install` |
 | `frozen`  | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
 | `commit`  | Support commit installation (regardless of whether the `$ZPLUG_SHALLOW` is true or not) | commit hash (-) | `commit:4428d48` |
-| `on`      | Dependencies | **READ ONLY** | - |
+| `on`      | Dependencies | **READ ONLY** | `on:user/repo` |
 
 #### Available on CLI
 
