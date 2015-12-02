@@ -1,6 +1,8 @@
 [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png)][repo] [![](https://travis-ci.org/b4b4r07/zplug_test.svg?branch=master)][travis]
 ===
 
+[![Join the chat at https://gitter.im/b4b4r07/zplug](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/b4b4r07/zplug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ###### `zplug` is a next-generation plugin manager for zsh
 
 ## Pros.
