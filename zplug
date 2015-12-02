@@ -873,7 +873,7 @@ __zplug::load()
                         builtin cd $ZPLUG_HOME/bin
 
                         # Rename by using file tag
-                        ln -snf "$f" ${zspec[file]:-.}
+                        [[ -f $f ]] && ln -snf "$f" ${zspec[file]:-.}
                     } >/dev/null 2>&1 &
                 done
 
@@ -1685,9 +1685,6 @@ if (( ! $+commands[git] )) || __zsh_version 4.3.9; then
         __zplug::validator \
         __zplug::check \
         __zplug::status \
-        get_head_branch \
-        get_remote_name \
-        check_remote \
         __zplug::gist_clone \
         __zplug::clean \
         __zplug::generate_external \
