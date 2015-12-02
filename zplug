@@ -900,12 +900,21 @@ __zplug::load()
                         source $ZSH/oh-my-zsh.sh
                         loaded_omz=true
                     fi
-                    # Lib
-                    files+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".zsh"}" 2>/dev/null) )
-                    # Themes
-                    files+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".{zsh-theme,theme.zsh}"}" 2>/dev/null) )
-                    # Plugins
-                    files+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*.{zsh,plugin.zsh}"}" 2>/dev/null) )
+
+                    case $zspec[name] in
+                        plugins/*)
+                            # case of command file
+                            files+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*.{zsh,plugin.zsh}"}" 2>/dev/null) )
+                            # case of completion file
+                            fpath=($zspec[dir] $fpath)
+                            ;;
+                        themes/*)
+                            files+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".{zsh-theme,theme.zsh}"}" 2>/dev/null) )
+                            ;;
+                        lib/*)
+                            files+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".zsh"}" 2>/dev/null) )
+                            ;;
+                    esac
                 else
                     files+=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-*.zsh(N)}" 2>/dev/null) )
                 fi
@@ -927,6 +936,7 @@ __zplug::load()
                         :
                     fi
                 done
+                compinit -d "$ZPLUG_HOME/zcompdump"
                 ;;
         esac
     done
