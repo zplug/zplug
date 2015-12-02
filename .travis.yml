@@ -1,5 +1,7 @@
 language: bash
 
+sudo: required
+
 before_install:
     - apt-get install ncurses-dev
     - cd /tmp
