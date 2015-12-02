@@ -1,0 +1,8 @@
+language: bash
+
+before_script:
+    - sudo apt-get install zsh
+    - curl -fLo ~/.zplug/zplug --create-dirs git.io/zplug
+      
+script:
+    - zsh -c 'source ~/.zplug/zplug; zplug b4b4r07/http_code, as:command, of:bin; zplug install; zplug load; which http_code'
