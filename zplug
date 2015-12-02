@@ -903,8 +903,8 @@ __zplug::load()
 
                     case $zspec[name] in
                         plugins/*)
-                            # case of command file
-                            files+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*.{zsh,plugin.zsh}"}" 2>/dev/null) )
+                            # case of command file (read only file ending with "plugin.zsh")
+                            files+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*.plugin.zsh"}" 2>/dev/null) )
                             # case of completion file
                             fpath=($zspec[dir] $fpath)
                             ;;
