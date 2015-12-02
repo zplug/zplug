@@ -3,12 +3,12 @@ language: bash
 sudo: required
 
 before_install:
-    - apt-get install ncurses-dev
+    - sudo apt-get install ncurses-dev
     - cd /tmp
     - wget http://jaist.dl.sourceforge.net/sourceforge/zsh/zsh-5.0.7.tar.gz
     - tar zxvf zsh-5.0.7.tar.gz
     - cd zsh-5.0.7
-    - ./configure && make && make install
+    - ./configure && make && sudo make install
 
 before_script:
     - zsh --version
