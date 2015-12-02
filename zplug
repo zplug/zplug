@@ -373,6 +373,11 @@ __zplug::update()
         args=("$@")
     fi
 
+    local max=0
+    for line in "${args[@]}"; do
+        (( $#line > max )) && max=$#line
+    done
+
     for line in "${args[@]}"; do
         # Run installation in subprocess
         {
@@ -452,18 +457,18 @@ __zplug::update()
             case $ret in
                 0)
                     # Output in green
-                    __put "\033[32mUpdated!\033[m     %-20s\t(%.2fs)\n" "$line" $SECONDS
+                    __put "\033[32mUpdated!\033[m     %-${max}s\t(%.2fs)\n" "$line" $SECONDS
                     ;;
                 1)
                     # Output in red
-                    __put "\033[31mNot Updated\033[m  %-20s\t(%.2fs)\n" "$line" $SECONDS
+                    __put "\033[31mNot Updated\033[m  %-${max}s\t(%.2fs)\n" "$line" $SECONDS
                     ;;
                 2)
                     # Simple manual synchronous processing
                     sleep 1
                     # Output in magenta
                     # and SECONDS-1 (sleep 1)
-                    __put "\033[35mNot Found\033[m    %-20s\t(%.2fs)\n" "$line" $((SECONDS-1))
+                    __put "\033[35mNot Found\033[m    %-${max}s\t(%.2fs)\n" "$line" $((SECONDS-1))
                     ;;
             esac
         } &
@@ -524,6 +529,11 @@ __zplug::install()
     # Recode start-up time
     typeset -F SECONDS=0
     start=$SECONDS
+
+    local max=0
+    for line in "${args[@]}"; do
+        (( $#line > max )) && max=$#line
+    done
 
     for line in "${args[@]}"; do
         # Skip installed items
@@ -665,10 +675,10 @@ __zplug::install()
             # Whether to success or not
             if [[ $ret -eq 0 ]]; then
                 # Output in green
-                __put "\033[32mInstalled!\033[m     %-20s\t(%.2fs)\n" "$line" $SECONDS
+                __put "\033[32mInstalled!\033[m     %-${max}s\t(%.2fs)\n" "$line" $SECONDS
             elif [[ $ret -eq 1 ]]; then
                 # Output in red
-                __put "\033[31mNot Installed\033[m  %-20s\t(%.2fs)\n" "$line" $SECONDS
+                __put "\033[31mNot Installed\033[m  %-${max}s\t(%.2fs)\n" "$line" $SECONDS
                 # Return false (by false command) instead of return 1
                 false
             else
