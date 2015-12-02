@@ -1334,7 +1334,7 @@ __zplug::clean()
 
     else
         # directory structure level 2
-        repos=("${(@f)$(find "$ZPLUG_HOME/repos" -depth 2)}")
+        repos=("${(@f)$(find "$ZPLUG_HOME/repos" -maxdepth 2)}")
 
         # Remove the repository which is used from the candidates
         for v in "${(@v)zplugs}"
