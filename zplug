@@ -834,10 +834,9 @@ __zplug::load()
 
                 # Taking every imaginable locations into accounts,
                 # to find the command file or binary file
-                #
                 if [[ -f $zspec[dir]/${zspec[name]#*/} ]]; then
                     # fullpath and filename
-                    files=("$zspec[dir]/${zspec[name]#*/}")
+                    files+=("$zspec[dir]/${zspec[name]#*/}")
 
                 elif [[ -f $zspec[dir]/$zspec[of] ]]; then
                     # fullpath and of tag
@@ -851,12 +850,13 @@ __zplug::load()
                     # fullpath
                     files+=("$zspec[dir]")
                 fi
+                files+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*(*N.)"}" 2>/dev/null) )
 
                 # Disable job control
                 set +m
 
                 # Make symlink to $ZPLUG_HOME/bin in parallel
-                for f in "${files[@]}"
+                for f in "${(u)files[@]}"
                 do
                     {
                         # Base directory
@@ -884,10 +884,12 @@ __zplug::load()
                 # To find files to be sourced and
                 # expand file glob (using zsh -c "foo*bar")
                 if [[ $zspec[from] == "oh-my-zsh" ]]; then
+                    # Lib
+                    files+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".zsh"}" 2>/dev/null) )
                     # Themes
-                    files+=( $(zsh -c "echo ${zspec[dir]}.{zsh-theme,theme.zsh}" 2>/dev/null) )
+                    files+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".{zsh-theme,theme.zsh}"}" 2>/dev/null) )
                     # Plugins
-                    files+=( $(zsh -c "echo ${zspec[dir]}/*.{zsh,plugin.zsh}" 2>/dev/null) )
+                    files+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*.{zsh,plugin.zsh}"}" 2>/dev/null) )
                 else
                     files+=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-*.zsh(N)}" 2>/dev/null) )
                 fi
@@ -948,8 +950,8 @@ __zplug::validator()
                 __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'from:' takes gh-r/gist (zplug \"$zspec[name]\")\033[m\n"
                 unset "zplugs[$zspec[name]]"; let fail++
             fi
-            if [[ $zspec[from] == "oh-my-zsh" && ! $zspec[name] =~ ^(plugins|themes) ]]; then
-                __die "\033[31m[$ZPLUG_NAME] #syntax error# 'plugin name' must be starting with plugins|themes (zplug \"$zspec[name]\")\033[m\n"
+            if [[ $zspec[from] == "oh-my-zsh" && ! $zspec[name] =~ ^(plugins|themes|lib) ]]; then
+                __die "\033[31m[$ZPLUG_NAME] #syntax error# 'plugin name' must be starting with plugins|themes|lib (zplug \"$zspec[name]\")\033[m\n"
                 unset "zplugs[$zspec[name]]"; let fail++
             fi
         fi
