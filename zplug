@@ -788,6 +788,7 @@ __zplug::load()
     local f files k ret
     local key is_verbose=false
     local -A zspec
+    local loaded_omz=false
 
     # Process arguments
     case "$1" in
@@ -894,6 +895,11 @@ __zplug::load()
                 # To find files to be sourced and
                 # expand file glob (using zsh -c "foo*bar")
                 if [[ $zspec[from] == "oh-my-zsh" ]]; then
+                    if ! $loaded_omz; then
+                        export ZSH=$ZPLUG_HOME/repos/$oh_my_zsh_repo
+                        source $ZSH/oh-my-zsh.sh
+                        loaded_omz=true
+                    fi
                     # Lib
                     files+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".zsh"}" 2>/dev/null) )
                     # Themes
