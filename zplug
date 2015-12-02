@@ -906,9 +906,9 @@ __zplug::load()
 
                 for f in "${(u)files[@]}"
                 do
-                    if [[ -f $f ]]; then
+                    if [[ -e $f ]]; then
                         # source
-                        source "$f"; ret=$status
+                        [[ -f $f ]] && source "$f"; ret=$status
                         # fpath
                         [[ -d $f ]] && fpath=($f $fpath)
 
