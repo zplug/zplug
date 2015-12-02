@@ -1,4 +1,4 @@
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png)][repo]
+[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png)][repo] [![](https://travis-ci.org/b4b4r07/zplug_test.svg?branch=master)][travis]
 ===
 
 ###### `zplug` is a next-generation plugin manager for zsh
@@ -62,8 +62,10 @@ zplug "junegunn/fzf-bin", \
     from:gh-r, \
     file:fzf
 
-# Grab plugins/git from oh-my-zsh and source *.zsh files
-zplug "plugins/git", from:oh-my-zsh
+# Support oh-my-zsh
+zplug "plugins/git",   from:oh-my-zsh
+zplug "themes/duellj", from:oh-my-zsh
+zplug "lib/clipboard", from:oh-my-zsh
 
 # Run a command after a plugin is installed
 zplug "tj/n", do:"make install"
@@ -228,7 +230,7 @@ Defaults to `$ZPLUG_HOME/init.zsh`. This file is used to add plugins from zplug 
 
 ## Note
 
-- :tada: Congrats! Released official version!!
+- :tada: Congrats! Released v1.0.0 version!!
 - ~~:construction: Until version 1.0.0 is released, `zplug` may be changed in ways that are not backward compatible.~~
 - Not antigen :syringe: but **zplug** :hibiscus: will be here to stay from now on.
 - :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug) and the like.
@@ -242,4 +244,5 @@ Defaults to `$ZPLUG_HOME/init.zsh`. This file is used to add plugins from zplug 
 [MIT][license] © BABAROT
 
 [repo]: https://github.com/b4b4r07/zplug
+[travis]: https://travis-ci.org/b4b4r07/zplug_test
 [license]: http://b4b4r07.mit-license.org
