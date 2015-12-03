@@ -549,7 +549,7 @@ __zplug::install()
                 continue
             }
         oh_my_line=""
-        [[ ${${zplugs[$line]##*from:}%%,*} == "oh-my-zsh" ]] &&
+        [[ ${${zplugs[$line]##*from:}%%, *} == "oh-my-zsh" ]] &&
             {
                 (( oh_my_count++ > 0 )) && continue
                 [[ -d $ZPLUG_HOME/repos/$oh_my_zsh_repo ]] && continue
@@ -660,10 +660,10 @@ __zplug::parser()
 {
     local arg parsed_zplugs
     arg="$1"
-    arg="${arg},${zplugs[$arg]%,}"
+    arg="${arg}, ${zplugs[$arg]%, }"
 
     # Separated by commas
-    parsed_zplugs=(${(s:,:)arg})
+    parsed_zplugs=(${(s/, /)arg:gs/,  */, })
 
     # Add spec variable
     # If value is empty, set -EMP- value to it
@@ -1427,7 +1427,7 @@ __zplug::clean()
         # Remove the repository which is used from the candidates
         for v in "${(@v)zplugs}"
         do
-            k="${${v##*dir:}%%,*}"
+            k="${${v##*dir:}%%, *}"
             if [[ $k =~ $oh_my_zsh_repo ]]; then
                 k=$ZPLUG_HOME/repos/$oh_my_zsh_repo
             fi
@@ -1455,7 +1455,7 @@ __zplug::clean()
     local repo
     for repo in ${(k)zplugs}
     do
-        if [[ ! -e ${${zplugs[$repo]##*dir:}%%,*} ]]; then
+        if [[ ! -e ${${zplugs[$repo]##*dir:}%%, *} ]]; then
             unset "zplugs[$repo]"
         fi
     done
@@ -1557,7 +1557,7 @@ zplug() {
 
         *)
             local -a args
-            args=("${(s:,:)$(sed -e 's/, */,/g' <<<"$@")}")
+            args=(${(s/, /)@:gs/,  */, })
             arg="${args[1]}"
             args[1]=()
 
@@ -1574,9 +1574,9 @@ zplug() {
                 task=("$arg")
 
                 if [[ -p /dev/stdin ]]; then
-                    stdin="$(cat <&0)"; on="$(sed -e 's/, */,/g' <<<"${stdin[@]}")"
-                    on_name="${${(s:,:)on}[1]}"
-                    on_args=("${(s:,:)on}")
+                    stdin="$(cat <&0)"
+                    on_args=(${(s/, /)stdin:gs/,  */, })
+                    on_name="${on_args[1]}"
                     on_args[1]=()
                     task=("$on_name" "$arg")
                     let cnt++
@@ -1604,8 +1604,8 @@ zplug() {
                     do
                         case "${i%%:*}" in
                             as|of|from|to|if|dir|file|at|do|frozen|on|commit)
-                                tag="${tag}${i%,},"
-                                if [[ "${i%,}" == "from:oh-my-zsh" ]]; then
+                                tag="${tag}${i%,}, "
+                                if [[ $i == "from:oh-my-zsh" ]]; then
                                     is_oh_my_zsh=true
                                 else
                                     is_oh_my_zsh=false
@@ -1618,24 +1618,24 @@ zplug() {
                         esac
                     done
 
-                    tag="${tag%,}"
+                    tag="${tag%, }"
                     # Add to $zplugs(AA; key:"user/repo" => value:"tag:value")
                     zplugs+=("$arg" "${tag:-}")
                     # Add dir tag to $zplugs
                     if $is_oh_my_zsh; then
-                        zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/repos/$oh_my_zsh_repo/$arg"
+                        zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/repos/$oh_my_zsh_repo/$arg"
                     else
-                        zplugs[$arg]+="${zplugs[$arg]:+,}dir:$ZPLUG_HOME/repos/$arg"
+                        zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/repos/$arg"
                     fi
                     if [[ $arg != $on_name && -n $on_name ]]; then
-                        zplugs[$arg]+="${zplugs[$arg]:+,}on:$on_name"
+                        zplugs[$arg]+="${zplugs[$arg]:+, }on:$on_name"
                     fi
 
                     # Case of use on CLI
                     if [[ $- =~ s ]]; then
                         __zplug::generate_external
                         chmod a+w $ZPLUG_EXTERNAL
-                        echo "zplug ${arg}${tag:+,${(q)tag}}" >>|$ZPLUG_EXTERNAL
+                        echo "zplug ${arg}${tag:+, ${(q)tag}}" >>|$ZPLUG_EXTERNAL
                         chmod a-w $ZPLUG_EXTERNAL
                     fi
 
@@ -1643,7 +1643,11 @@ zplug() {
                     tag=""
                 done
             else
-                __die "$arg: no such command\n"
+                if [[ $arg =~ , ]]; then
+                    __die "$arg: must be put one or more spaces after comma\n"
+                else
+                    __die "$arg: no such command\n"
+                fi
                 return 1
             fi
             ;;
