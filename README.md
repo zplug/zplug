@@ -223,7 +223,7 @@ All that's left is to run `zplug update`.
 |-----------|-------------|-----------------|---------|
 | `as`      | Specify whether to register as commands or to register as plugins | `plugin`,`command` (`plugin`) | `as:command` |
 | `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) / In case of `from:gh-r`, can specify `of:linux` and so on | - (`of:"*.zsh"`) | `of:bin`,`of:"*.sh"`, `of:amd64` |
-| `from`    | Specify the services you use to install | `github`,`bitbucket`,`gh-r`,`gist`,`oh-my-zsh` (`github`) | `from:gh-r` |
+| `from`    | Specify the services you use to install | `github`,`bitbucket`<br>,`gh-r`,`gist`,<br>`oh-my-zsh` (`github`) | `from:gh-r` |
 | `at`      | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
 | `file`    | Specify filename you want to rename (*only* `as:plugin`) | filename (-) | `file:fzf` |
 | `dir`     | Installation directory which is managed by zplug | **READ ONLY** | `dir:/path/to/user/repo` |
