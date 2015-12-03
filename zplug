@@ -10,24 +10,25 @@
 # ===========================
 #
 # zplug is next-generation zsh plugin manager.
-# zplug can manage everything and can do not only plugins
-# but also commands and binaries.
 #
 # Pros.
 #
-# - Manage everything
+# - Can manage everything
+#   - Zsh plugins/UNIX commands on GitHub and Bitbucket
+#   - Gist file (gist.github.com)
+#   - Externally managed plugins e.g., oh-my-zsh plugins
+#   - Birary artifacts on GitHub Releases
+#   - etc.
 # - Super-fast parallel installation/update
 # - Branch/tag/commit support
-# - Can manage UNIX commands (what language is okay)
 # - Post-update hooks
-# - Support for externally managed plugins (oh-my-zsh?)
-# - Can manage binaries (e.g., GitHub Releases)
-# - Creates shallow clones to minimize disk space usage and download time
-# - Understand dependencies between plugins
+# - Understands dependencies between plugins
+# - Unlike antigen, no ZSH plugin file (*.plugin.zsh) required
+# - Interactive interface (fzf, peco, zaw, and so on)
 #
 # Download zplug and put it in ~/.zplug
 #
-#   curl -fLo ~/.zplug/zplug --create-dirs git.io/zplug
+#   curl -fLo ~/.zplug/zplug --create-dirs https://git.io/zplug
 #
 # Edit your .zshrc
 #
@@ -39,36 +40,49 @@ zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-history-substring-search"
 
 # Can manage a plugin as a command
-zplug "junegunn/dotfiles", as:cmd, of:bin/vimcat
+# And accept glob patterns (e.g., brace, wildcard, ...)
+zplug "Jxck/dotfiles", as:command, of:"bin/{histuniq,color}"
 
-# Manage everything e.g. zshrc (alias)
+# Can manage everything e.g., other person's zshrc
 zplug "tcnksm/docker-alias", of:zshrc
 
-# Prohibit updates to a plugin by using the frozen keyword
-zplug "k4rthik/git-cal", as:cmd, frozen:1
+# Prohibit updates to a plugin by using the "frozen:" tag
+zplug "k4rthik/git-cal", as:command, frozen:1
 
-# Grab binaries (from GitHub Releases)
+# Grab binaries from GitHub Releases
 # and rename to use "file:" tag
 zplug "junegunn/fzf-bin", \
     as:command, \
     from:gh-r, \
     file:fzf
 
-# Run a command after a plugin is installed
+# Support oh-my-zsh plugins and the like
+zplug "plugins/git",   from:oh-my-zsh
+zplug "themes/duellj", from:oh-my-zsh
+zplug "lib/clipboard", from:oh-my-zsh
+
+# Run a command after a plugin is installed/updated
 zplug "tj/n", do:"make install"
 
 # Support checking out a specific branch/tag/commit of a plugin
 zplug "b4b4r07/enhancd", at:v1
 zplug "mollifier/anyframe", commit:4c23cb60
 
-# Install if `if` tag returns true
+# Install if "if:" tag returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
-# Gist can be used
+# Can manage gist file just like other plugins
 zplug "b4b4r07/79ee61f7c140c63d2786", \
     from:gist, \
     as:command, \
     of:get_last_pane_path.sh
+
+# Support bitbucket
+zplug "b4b4r07/hello_bitbucket", \
+    as:command
+    from:bitbucket, \
+    do:"chmod 755 *.sh", \
+    of:"*.sh"
 
 # Group dependencies, emoji-cli depends on jq in this example
 zplug "stedolan/jq", \
