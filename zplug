@@ -878,7 +878,7 @@ __zplug::validator()
         __die "\$ZPLUG_THREADS: must be an interger"
         return 1
     fi
-    if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https|SSH|ssh)$ ]]; then
+    if [[ ! $ZPLUG_PROTOCOL =~ ^(HTTPS|https|SSH|ssh)$ ]]; then
         __die "\$ZPLUG_PROTOCOL: must be a secure protocol by HTTPS or SSH"
         return 1
     fi
