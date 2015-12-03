@@ -58,7 +58,7 @@
 ## Pros.
 
 - Can manage everything
-  - Zsh plugins/UNIX commands
+  - Zsh plugins/UNIX commands on [GitHub](https://github.com) and [Bitbucket](https://bitbucket.org)
   - Gist file ([gist.github.com](https://gist.github.com))
   - Externally managed plugins e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) plugins
   - Birary artifacts on [GitHub Releases](https://help.github.com/articles/about-releases/)
@@ -136,6 +136,13 @@ zplug "b4b4r07/79ee61f7c140c63d2786", \
     from:gist, \
     as:command, \
     of:get_last_pane_path.sh
+
+# Support bitbucket
+zplug "b4b4r07/hello_bitbucket", \
+    as:command
+    from:bitbucket, \
+    do:"chmod 755 *.sh", \
+    of:"*.sh"
 
 # Group dependencies, emoji-cli depends on jq in this example
 zplug "stedolan/jq", \
@@ -216,11 +223,11 @@ All that's left is to run `zplug update`.
 |-----------|-------------|-----------------|---------|
 | `as`      | Specify whether to register as commands or to register as plugins | `plugin`,`command` (`plugin`) | `as:command` |
 | `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) / In case of `from:gh-r`, can specify `of:linux` and so on | - (`of:"*.zsh"`) | `of:bin`,`of:"*.sh"`, `of:amd64` |
-| `from`    | Specify the services you use to install | `gh-r`,`gist`,`oh-my-zsh` (-) | `from:gh-r` |
+| `from`    | Specify the services you use to install | `github`,`bitbucket`,`gh-r`,`gist`,`oh-my-zsh` (`github`) | `from:gh-r` |
 | `at`      | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
 | `file`    | Specify filename you want to rename (*only* `as:plugin`) | filename (-) | `file:fzf` |
 | `dir`     | Installation directory which is managed by zplug | **READ ONLY** | `dir:/path/to/user/repo` |
-| `if`      | Specify the conditions under which to run `source` or add to `$PATH` | true/false (-) | `if:"[ -d ~/.zsh ]"` |
+| `if`      | Specify the conditions under which to run `source` or add to `$PATH` | true or false (-) | `if:"[ -d ~/.zsh ]"` |
 | `do`      | Run commands after installation/update | commands (-) | `do:make install` |
 | `frozen`  | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
 | `commit`  | Support commit installation (regardless of whether the `$ZPLUG_SHALLOW` is true or not) | commit hash (-) | `commit:4428d48` |
