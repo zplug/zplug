@@ -1705,14 +1705,14 @@ _zplug()
                     ;;
                 */*)
                     _values -S : -s , "zplug tags" \
-                        "as[Regard that as plugins or commands]:as:(plugin command)" \
+                        "as[Specify whether to register as commands or to register as plugins]:as:(plugin command)" \
                         "of[Specify the pattern to source (for plugin) or relative path to export (for command)]:of:->of" \
-                        "from[Grab external binaries from e.g., GitHub Releases]:from:(gh-r gist oh-my-zsh)" \
+                        "from[Specify the services you use to install]:from:(gh-r gist oh-my-zsh github bitbucket)" \
                         "at[Support branch/tag installation]:at:" \
                         "file[Specify filename you want to rename]:file:" \
                         "dir[Installation directory (RO)]:dir:->dir" \
-                        "if[Whether to install or not]:if:" \
-                        "do[Run commands after installation]:do:" \
+                        "if[Specify the conditions under which to source or add to \$PATH]:if:" \
+                        "do[Run commands after installation/update]:do:" \
                         "frozen[Do not update unless explicitly specified]:frozen:(0 1)" \
                         "commit[Support commit installation]:commit:" \
                         "on[Dependencies (RO)]:on:->on" && ret=0
@@ -1727,7 +1727,7 @@ _zplug()
                                 'zsh/*.zsh' \
                                 '*.plugin.zsh' \
                                 'init.zsh'
-                            compadd -J 'gh-r' -x "%F{yellow}Completing%f %BGitHub Releases%b" \
+                            compadd -J 'gh-r' -x "%F{yellow}Completing%f %BGitHub Releases (example)%b" \
                                 'amd64' \
                                 'darwin*amd64' \
                                 'linux*amd64' \
