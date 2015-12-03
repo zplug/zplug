@@ -67,7 +67,7 @@
 - Branch/tag/commit support
 - Post-update hooks
 - Understands dependencies between plugins
-- Unlike [antigen](https://github.com/zsh-users/antigen), no ZSH plugin support file (`*.plugin.zsh`) is needed
+- Unlike [antigen](https://github.com/zsh-users/antigen), no ZSH plugin file (`*.plugin.zsh`) required
 - Interactive interface ([fzf](https://github.com/junegunn/fzf), [peco](https://github.com/peco/peco), [zaw](https://github.com/zsh-users/zaw), and so on)
 
 ***DEMO:***
@@ -101,7 +101,8 @@ zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-history-substring-search"
 
 # Can manage a plugin as a command
-zplug "junegunn/dotfiles", as:command, of:bin/vimcat
+# And accept glob patterns (e.g., brace, wildcard, ...)
+zplug "Jxck/dotfiles", as:command, of:"bin/{histuniq,color}"
 
 # Can manage everything e.g., other person's zshrc
 zplug "tcnksm/docker-alias", of:zshrc
@@ -171,7 +172,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 |-----------|-------------|--------|
 | `install` | Install described items (plugins/commands) in parallel | `--verbose`,`--select` |
 | `load`    | Load installed items | `--verbose` |
-| `list`    | List installed items | `--select` |
+| `list`    | List installed items (Strictly speaking, view the associative array `$zplugs`) | `--select` |
 | `update`  | Update items in parallel | `--self`,`--select` |
 | `check`   | Check whether an installation is available | `--verbose`,`--select` |
 | `status`  | Check if the remote is up-to-date | `--select` |
@@ -223,7 +224,7 @@ All that's left is to run `zplug update`.
 |-----------|-------------|-----------------|---------|
 | `as`      | Specify whether to register as commands or to register as plugins | `plugin`,`command` (`plugin`) | `as:command` |
 | `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) / In case of `from:gh-r`, can specify `of:linux` and so on | - (`of:"*.zsh"`) | `of:bin`,`of:"*.sh"`, `of:amd64` |
-| `from`    | Specify the services you use to install | `github`,`bitbucket`<br>,`gh-r`,`gist`,<br>`oh-my-zsh` (`github`) | `from:gh-r` |
+| `from`    | Specify the services you use to install | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh` (`github`) | `from:gh-r` |
 | `at`      | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
 | `file`    | Specify filename you want to rename (*only* `as:plugin`) | filename (-) | `file:fzf` |
 | `dir`     | Installation directory which is managed by zplug | **READ ONLY** | `dir:/path/to/user/repo` |
