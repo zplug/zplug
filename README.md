@@ -39,13 +39,15 @@
 </p>
 
 <p align="center">
-  <b><a href="#proc">Proc.</a></b>
-  |
-  <b><a href="#installation">Installation</a></b>
+  <b><a href="#proc">About</a></b>
   |
   <b><a href="#usage">Usage</a></b>
   |
-  <b><a href="#example">Example</a></b>
+  <b><a href="#1-zplug-commands">Commands</a></b>
+  |
+  <b><a href="#2-zplug-tags">Tags</a></b>
+  |
+  <b><a href="#3-zplug-configurations">Configurations</a></b>
   |
   <b><a href="#note">Note</a></b>
 
@@ -55,13 +57,15 @@
 
 ## Pros.
 
-- Manage everything (plugin, command, and gist file)
+- Can manage everything
+  - Zsh plugins/UNIX commands
+  - Gist file ([gist.github.com](https://gist.github.com))
+  - Externally managed plugins e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) plugins
+  - Birary artifacts on [GitHub Releases](https://help.github.com/articles/about-releases/)
+  - etc.
 - Super-fast parallel installation/update
 - Branch/tag/commit support
-- Can manage UNIX commands
 - Post-update hooks
-- Support for externally managed plugins (e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh))
-- Can manage binaries (e.g., GitHub Releases)
 - Understands dependencies between plugins
 - Unlike [antigen](https://github.com/zsh-users/antigen), no ZSH plugin support file (`*.plugin.zsh`) is needed
 - Interactive interface ([fzf](https://github.com/junegunn/fzf), [peco](https://github.com/peco/peco), [zaw](https://github.com/zsh-users/zaw), and so on)
@@ -99,25 +103,25 @@ zplug "zsh-users/zsh-history-substring-search"
 # Can manage a plugin as a command
 zplug "junegunn/dotfiles", as:command, of:bin/vimcat
 
-# Manage everything e.g. zshrc (alias)
+# Can manage everything e.g., other person's zshrc
 zplug "tcnksm/docker-alias", of:zshrc
 
 # Prohibit updates to a plugin by using the "frozen:" tag
 zplug "k4rthik/git-cal", as:command, frozen:1
 
-# Grab binaries (from GitHub Releases)
+# Grab binaries from GitHub Releases
 # and rename to use "file:" tag
 zplug "junegunn/fzf-bin", \
     as:command, \
     from:gh-r, \
     file:fzf
 
-# Support oh-my-zsh
+# Support oh-my-zsh plugins and the like
 zplug "plugins/git",   from:oh-my-zsh
 zplug "themes/duellj", from:oh-my-zsh
 zplug "lib/clipboard", from:oh-my-zsh
 
-# Run a command after a plugin is installed
+# Run a command after a plugin is installed/updated
 zplug "tj/n", do:"make install"
 
 # Support checking out a specific branch/tag/commit of a plugin
@@ -127,7 +131,7 @@ zplug "mollifier/anyframe", commit:4c23cb60
 # Install if "if:" tag returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
-# Gist can be used
+# Can manage gist file just like other plugins
 zplug "b4b4r07/79ee61f7c140c63d2786", \
     from:gist, \
     as:command, \
