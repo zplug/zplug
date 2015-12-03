@@ -875,15 +875,15 @@ __zplug::validator()
     # Not Read-Only variables are:
     # ZPLUG_HOME, ZPLUG_THREADS, ZPLUG_FILTER, ZPLUG_PROTOCOL, ZPLUG_SHALLOW, ZPLUG_EXTERNAL
     if [[ $ZPLUG_THREADS != <-> ]]; then
-        __die "\$ZPLUG_THREADS: must be an interger"
+        __die "\$ZPLUG_THREADS: must be an interger\n"
         return 1
     fi
     if [[ ! $ZPLUG_PROTOCOL =~ ^(HTTPS|https|SSH|ssh)$ ]]; then
-        __die "\$ZPLUG_PROTOCOL: must be a secure protocol by HTTPS or SSH"
+        __die "\$ZPLUG_PROTOCOL: must be a secure protocol by HTTPS or SSH\n"
         return 1
     fi
-    if [[ $ZPLUG_SHALLOW =~ ^(true|false)$ ]]; then
-        __die "\$ZPLUG_SHALLOW: must be a boolean (true/false)"
+    if [[ ! $ZPLUG_SHALLOW =~ ^(true|false)$ ]]; then
+        __die "\$ZPLUG_SHALLOW: must be a boolean (true/false)\n"
         return 1
     fi
 
