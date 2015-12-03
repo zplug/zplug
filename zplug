@@ -587,87 +587,14 @@ __zplug::install()
             # If zspec from is gh-r (GitHub Releases),
             # send a http request to git.io/releases with os argument
             # or, git clone (case of normal plugin)
-            case $zspec[from] in
-                "gh-r")
-                    # Create directory (reponame)
-                    [[ -d ${zspec[name]%/*} ]] || mkdir -p "${zspec[name]%/*}"
-                    # Change directory to it
-                    builtin cd "${zspec[name]%/*}" >/dev/null 2>&1
-                    __zplug::releases $zspec[name] $zspec[of]
-                    ret=${ret:-$status}
-                    ;;
-                "gist")
-                    __zplug::gist_clone "$line"
-                    ret=${ret:-$status}
-                    ;;
-                "oh-my-zsh")
-                    line="$oh_my_zsh_repo"
-                    ;&
-                "")
-                    local url_format
-                    # Create the format of URL used to git clone
-                    # When vim-plug clones a repository, it injects git::@ into the URL
-                    # It's a little hack to avoid username/password prompt
-                    # from git when the repository doesn't exist.
-                    # Such thing can happen when there's a typo in the argument,
-                    # or when the repository is removed from GitHub
-                    # For more information, see also vim-plug wiki.
-                    if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
-                        # HTTPS: "https://git::@github.com/%s.git"
-                        url_format="https://git::@github.com/${line}.git"
-
-                        # However, Git 2.3.0 introduced $GIT_TERMINAL_PROMPT
-                        # which can be used to suppress user prompt
-                        if __git_version 2.3; then
-                            # HTTPS (git 2.3+): "https://github.com/%s.git"
-                            export GIT_TERMINAL_PROMPT=0
-                            url_format="https://github.com/${line}.git"
-                        fi
-
-                    elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
-                        # SSH: "git@github.com:%s.git"
-                        url_format="git@github.com:${line}.git"
-
-                    else
-                        # OTHER: not supported
-                        __die "\033[31m x Failed      $line\033[m (use SSH/HTTPS for cloning protocol)\n"
-                        # Save exit code 2 to ret
-                        ret=${ret:-2}
-                    fi
-
-                    # Shallow clone
-                    # What's shallow clone?
-                    # It's the repository consists of only 1 recent commit
-                    # If zspec[commit] is not empty, do normal clone automatically
-                    local shallow_clone
-                    if $ZPLUG_SHALLOW && (( $#zspec[commit] < 9 )); then
-                        shallow_clone="--depth=1"
-                    fi
-
-                    # If exit code is true,
-                    # run git clone
-                    [[ $ret -eq 0 ]] &&
-                        git clone $shallow_clone \
-                        --recursive \
-                        --quiet \
-                        --branch $zspec[at] \
-                        "$url_format" "$line" >/dev/null 2>&1
-                    ret=${ret:-$status}
-
-                    # Not shallow clone
-                    if (( $#zspec[commit] >= 8 )); then
-                        builtin cd "$line" && git checkout $zspec[commit] >/dev/null 2>&1
-                    fi
-                    ;;
-            esac
-
-            # If not empty
-            if [[ -n $zspec[do] ]]; then
-                if [[ $ret -eq 0 ]]; then
-                    # Run command if git clone returns true
-                    eval "$zspec[do]"
-                fi
-            fi
+            __zplug::clone \
+                --of ${zspec[of]:-""} \
+                --commit ${zspec[commit]:-""} \
+                --from ${zspec[from]:-""} \
+                --at ${zspec[at]:-""} \
+                --do ${zspec[do]:-""} \
+                "$line"
+            ret=$status
 
             # Force-quit background process (__bg_rotation_bar)
             kill -9 $bg_pid &>/dev/null
@@ -675,10 +602,10 @@ __zplug::install()
             # Whether to success or not
             if [[ $ret -eq 0 ]]; then
                 # Output in green
-                __put "\033[32mInstalled!\033[m     %-${max}s\t(%.2fs)\n" "$line" $SECONDS
+                __put "\033[32mInstalled!\033[m     %-${max}s\t(%.2fs)\n" "${oh_my_line:-$line}" $SECONDS
             elif [[ $ret -eq 1 ]]; then
                 # Output in red
-                __put "\033[31mNot Installed\033[m  %-${max}s\t(%.2fs)\n" "$line" $SECONDS
+                __put "\033[31mNot Installed\033[m  %-${max}s\t(%.2fs)\n" "${oh_my_line:-$line}" $SECONDS
                 # Return false (by false command) instead of return 1
                 false
             else
@@ -745,7 +672,7 @@ __zplug::parser()
     as=${${${(M)parsed_zplugs:#as*}#*:}:-plugin}
     of=${${${(M)parsed_zplugs:#of*}#*:}:--EMP-}
     to=${${${(M)parsed_zplugs:#to*}#*:}:--EMP-}
-    from=${${${(M)parsed_zplugs:#from*}#*:}:--EMP-}
+    from=${${${(M)parsed_zplugs:#from*}#*:}:-github}
     if=${${${(M)parsed_zplugs:#if*}#*:}:--EMP-}
     dir=${${${(M)parsed_zplugs:#dir*}#*:}:--EMP-}
     file=${${${(M)parsed_zplugs:#file*}#*:}:--EMP-}
@@ -962,7 +889,7 @@ __zplug::validator()
 
         # as: must (default: plugin)
         if [[ ! $zspec[as] =~ ^(command|plugin)$ ]]; then
-            __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'as:' takes command/plugin (zplug \"$zspec[name]\")\033[m\n"
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'as:' takes ['command','plugin'] (zplug \"$zspec[name]\")\033[m\n"
 
             # Remove that key and value
             unset "zplugs[$zspec[name]]"
@@ -972,19 +899,19 @@ __zplug::validator()
 
         # from: opt
         if [[ -n $zspec[from] ]]; then
-            if [[ ! $zspec[from] =~ ^(gh-r|gist|oh-my-zsh)$ ]]; then
-                __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'from:' takes gh-r/gist (zplug \"$zspec[name]\")\033[m\n"
+            if [[ ! $zspec[from] =~ ^(gh-r|gist|oh-my-zsh|bitbucket|github)$ ]]; then
+                __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'from:' takes ['gh-r','gist','oh-my-zsh','bitbucket','github'] (zplug \"$zspec[name]\")\033[m\n"
                 unset "zplugs[$zspec[name]]"; let fail++
             fi
             if [[ $zspec[from] == "oh-my-zsh" && ! $zspec[name] =~ ^(plugins|themes|lib) ]]; then
-                __die "\033[31m[$ZPLUG_NAME] #syntax error# 'plugin name' must be starting with plugins|themes|lib (zplug \"$zspec[name]\")\033[m\n"
+                __die "\033[31m[$ZPLUG_NAME] #syntax error# 'plugin name' must be starting with ['plugins','themes','lib'] (zplug \"$zspec[name]\")\033[m\n"
                 unset "zplugs[$zspec[name]]"; let fail++
             fi
         fi
 
         # frozen: must (default: 0)
         if [[ ! $zspec[frozen] =~ ^(0|1)$ ]]; then
-            __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'frozen:' takes 0/1 (zplug \"$zspec[name]\")\033[m\n"
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'frozen:' takes [0,1] (zplug \"$zspec[name]\")\033[m\n"
 
             # Remove that key and value
             unset "zplugs[$zspec[name]]"
@@ -1236,35 +1163,170 @@ __zplug::status()
     unfunction get_remote_name get_head_branch check_remote
 }
 
-__zplug::gist_clone()
+__zplug::clone()
 {
-    local line url_format
-    line="$1"
+    local repository
+    local tag_of tag_commit tag_from tag_at tag_do
+    local url_format ret
 
-    if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
-        # HTTPS: "https://git::@github.com/%s.git"
-        url_format="https://git::@gist.github.com/${line}.git"
+    # Process arguments
+    while (( $# > 0 )); do
+        case "$1" in
+            --of)
+                tag_of="$2"; shift
+                ;;
+            --commit)
+                tag_commit="$2"; shift
+                ;;
+            --from)
+                tag_from="$2"; shift
+                ;;
+            --at)
+                tag_at="$2"; shift
+                ;;
+            --do)
+                tag_do="$2"; shift
+                ;;
+            -*|--*)
+                return 1
+                ;;
+            *)
+                repository="$1"
+                ;;
+        esac
+        shift
+    done
 
-        # However, Git 2.3.0 introduced $GIT_TERMINAL_PROMPT
-        # which can be used to suppress user prompt
-        if __git_version 2.3; then
-            # HTTPS (git 2.3+): "https://github.com/%s.git"
-            export GIT_TERMINAL_PROMPT=0
-            url_format="https://gist.github.com/${line}.git"
-        fi
+    case "$tag_from" in
+        oh-my-zsh)
+            repository="$oh_my_zsh_repo"
+            ;&
 
-    elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
-        # SSH: "git@github.com:%s.git"
-        url_format="git@gist.github.com:${line}.git"
+        github)
+            if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
+                # Create the format of URL used to git clone
+                # When vim-plug clones a repository, it injects git::@ into the URL
+                # It's a little hack to avoid username/password prompt
+                # from git when the repository doesn't exist.
+                # Such thing can happen when there's a typo in the argument,
+                # or when the repository is removed from GitHub
+                # For more information, see also vim-plug wiki.
+                # HTTPS: "https://git::@github.com/%s.git"
+                url_format="https://git::@github.com/${repository}.git"
 
-    else
-        # OTHER: not supported
-        __die "\033[31m x Failed      $line\033[m (use SSH/HTTPS for cloning protocol)\n"
-        # Save exit code 2 to ret
-        return 2
+                # However, Git 2.3.0 introduced $GIT_TERMINAL_PROMPT
+                # which can be used to suppress user prompt
+                if __git_version 2.3; then
+                    # HTTPS (git 2.3+): "https://github.com/%s.git"
+                    export GIT_TERMINAL_PROMPT=0
+                    url_format="https://github.com/${repository}.git"
+                fi
+            elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
+                # SSH: "git@github.com:%s.git"
+                url_format="git@github.com:${repository}.git"
+            fi
+            ;;
+
+        bitbucket)
+            if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
+                # HTTPS: "https://git::@bitbucket.org/%s.git"
+                url_format="https://git::@bitbucket.org/${repository}.git"
+            elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
+                # SSH: "git@bitbucket.org:%s.git"
+                url_format="git@bitbucket.org:${repository}.git"
+            fi
+            ;;
+
+        gist)
+            if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
+                # the same as github
+                #
+                # HTTPS: "https://git::@github.com/%s.git"
+                url_format="https://git::@gist.github.com/${repository}.git"
+
+                if __git_version 2.3; then
+                    # HTTPS (git 2.3+): "https://gist.github.com/%s.git"
+                    export GIT_TERMINAL_PROMPT=0
+                    url_format="https://gist.github.com/${repository}.git"
+                fi
+            elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
+                # SSH: "git@github.com:%s.git"
+                url_format="git@gist.github.com:${repository}.git"
+            fi
+            ;;
+
+        gh-r)
+            local dirname
+            dirname="${repository%/*}"
+            [[ -d $dirname ]] || mkdir -p "$dirname"
+            builtin cd "$dirname" &>/dev/null
+            __zplug::releases "$repository" "$tag_of"
+
+            # Post-installation hooks
+            builtin cd "$ZPLUG_HOME/repos/$repository" &>/dev/null
+            # If not empty
+            if [[ -n $tag_do ]]; then
+                if [[ $ret -eq 0 ]]; then
+                    # Run command if git clone returns true
+                    eval "$tag_do"
+                fi
+            fi
+
+            return $status
+            ;;
+
+        *)
+            __die "$tag_from: Unknown tag\n"
+            return 1
+            ;;
+    esac
+    ret=${ret:-$status}
+
+    if [[ ! $ZPLUG_PROTOCOL =~ ^(HTTPS|https|SSH|ssh)$ ]]; then
+        __die "$ZPLUG_PROTOCOL: Invalid protocol for cloning\n"
+        return 1
     fi
 
-    git clone --quiet "$url_format" "$head$line" >/dev/null 2>&1
+    if [[ -z $url_format ]]; then
+        __die "$repository: Invalid user/repo format\n"
+        return 1
+    fi
+
+    # Shallow clone
+    # What's shallow clone?
+    # It's the repository consists of only 1 recent commit
+    # If zspec[commit] is not empty, do normal clone automatically
+    local shallow_clone
+    if $ZPLUG_SHALLOW && (( $#tag_commit < 9 )); then
+        shallow_clone="--depth=1"
+    fi
+
+    # If exit code is true,
+    # run git clone
+    [[ $ret -eq 0 ]] &&
+        git clone $shallow_clone \
+        --recursive \
+        --quiet \
+        --branch $tag_at \
+        "$url_format" "$repository" >/dev/null 2>&1
+    ret=${ret:-$status}
+
+    # Not shallow clone
+    if (( $#tag_commit >= 8 )); then
+        builtin cd "$line" && git checkout $tag_commit >/dev/null 2>&1
+    fi
+
+    # Post-installation hooks
+    builtin cd "$ZPLUG_HOME/repos/$repository" &>/dev/null
+    # If not empty
+    if [[ -n $tag_do ]]; then
+        if [[ $ret -eq 0 ]]; then
+            # Run command if git clone returns true
+            eval "$tag_do"
+        fi
+    fi
+
+    return $ret
 }
 
 __zplug::clean()
@@ -1701,7 +1763,7 @@ if (( ! $+commands[git] )) || __zsh_version 4.3.9; then
         __zplug::validator \
         __zplug::check \
         __zplug::status \
-        __zplug::gist_clone \
+        __zplug::clone \
         __zplug::clean \
         __zplug::generate_external \
         zplug \
