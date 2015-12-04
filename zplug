@@ -166,6 +166,8 @@ typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
 typeset -gx ZPLUG_EXTERNAL=${ZPLUG_EXTERNAL:-$ZPLUG_HOME/init.zsh}
 typeset -gx ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:zaw"}
 
+typeset -gr _zplug_tag_pattern="as|of|from|to|if|dir|file|at|do|frozen|on|commit"
+
 #
 # zplug utilities
 #
@@ -325,7 +327,7 @@ __zplug::list()
     __put '%s  =>  %s\n' "${(@kv)out}" \
         | sed -e 's/-EMP-/""/g' \
         | perl -pe 's/^(.*)( *=>.*)$/\033[32m$1\033[m$2/g' \
-        | perl -pe 's/(as|of|from|to|if|dir|file|at|do|frozen|on|commit)(:)/\033[34m$1\033[m$2/g'
+        | perl -pe 's/('"$_zplug_tag_pattern"')(:)/\033[34m$1\033[m$2/g'
 }
 
 __zplug::self_update()
@@ -1616,20 +1618,17 @@ zplug() {
 
                     for i in ${specs[@]}
                     do
-                        case "${i%%:*}" in
-                            as|of|from|to|if|dir|file|at|do|frozen|on|commit)
-                                tag="${tag}${i%,}, "
-                                if [[ $i == "from:oh-my-zsh" ]]; then
-                                    is_oh_my_zsh=true
-                                else
-                                    is_oh_my_zsh=false
-                                fi
-                                ;;
-                            *)
-                                __die "$i: invalid tag\n"
-                                return 1
-                                ;;
-                        esac
+                        if [[ ${i%%:*} =~ ^($_zplug_tag_pattern)$ ]]; then
+                            tag="${tag}${i%,}, "
+                            if [[ $i == "from:oh-my-zsh" ]]; then
+                                is_oh_my_zsh=true
+                            else
+                                is_oh_my_zsh=false
+                            fi
+                        else
+                            __die "$i: invalid tag\n"
+                            return 1
+                        fi
                     done
 
                     tag="${tag%, }"
