@@ -154,17 +154,22 @@ COMMANDS:
 
 For more information, see also $ZPLUG_URL."
 
-# Global variables
-typeset -g -A zplugs
-typeset -gr oh_my_zsh_repo="robbyrussell/oh-my-zsh"
-
 # Environment variables
 typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
 typeset -gx ZPLUG_THREADS=${ZPLUG_THREADS:-16}
 typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-true}
 typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
-typeset -gx ZPLUG_EXTERNAL=${ZPLUG_EXTERNAL:-$ZPLUG_HOME/init.zsh}
 typeset -gx ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:zaw"}
+
+# temporary
+typeset -gx ZPLUG_EXTERNAL=${ZPLUG_EXTERNAL:-$ZPLUG_HOME/init.zsh}
+typeset -gx ZPLUG_STATICLOAD=true
+typeset -gx ZPLUG_STATICFILE=$ZPLUG_HOME/static.zplug
+
+# Global variables
+typeset -gx -A zplugs
+typeset -gr oh_my_zsh_repo="robbyrussell/oh-my-zsh"
+typeset -gr _zplug_tag_pattern="as|of|from|to|if|dir|file|at|do|frozen|on|commit"
 
 #
 # zplug utilities
@@ -325,7 +330,7 @@ __zplug::list()
     __put '%s  =>  %s\n' "${(@kv)out}" \
         | sed -e 's/-EMP-/""/g' \
         | perl -pe 's/^(.*)( *=>.*)$/\033[32m$1\033[m$2/g' \
-        | perl -pe 's/(as|of|from|to|if|dir|file|at|do|frozen|on|commit)(:)/\033[34m$1\033[m$2/g'
+        | perl -pe 's/('"$_zplug_tag_pattern"')(:)/\033[34m$1\033[m$2/g'
 }
 
 __zplug::self_update()
@@ -726,9 +731,13 @@ __zplug::parser()
 
 __zplug::load()
 {
-    local f files k ret
-    local key is_verbose=false
-    local -A zspec
+    # Recursive call
+    if (( $#funcstack[@] <= 6 )) && $ZPLUG_STATICLOAD && [[ -f $ZPLUG_STATICFILE ]]; then
+        source $ZPLUG_STATICFILE
+        return $status
+    fi
+
+    local is_verbose=false
     local loaded_omz=false
 
     # Process arguments
@@ -743,8 +752,17 @@ __zplug::load()
             ;;
     esac
 
+    local key k
+    local -A zspec
+
+    local f
+    local dirname basename
+    local -a commands plugins fpaths repos
+    local -a glob
+
     for key in ${(k)zplugs}
     do
+        # Reset zplugs attributes
         zspec=( ${(@f)"$(__zplug::parser "$key")"} )
         for k in ${(k)zspec}
         do
@@ -754,133 +772,135 @@ __zplug::load()
             fi
         done
 
-        # It is limited to loading of the repository that exists
-        if [[ $zspec[from] != "oh-my-zsh" && ! -e $zspec[dir] ]] || [[ $zspec[from] == "oh-my-zsh" && ! -d ${zspec[dir]:h} ]]; then
-            continue
-        fi
-
-        # if tag
-        if [[ -n $zspec[if] ]]; then
-            if ! eval '$zspec[if]' >/dev/null 2>&1; then
-                __die "$zspec[name]: (not load)\n"
-                continue
+        {   # Skip cases
+            # Skip: non-existing directory
+            if [[ $zspec[from] == "oh-my-zsh" ]]; then
+                # Check parent directory thus oh-my-zsh root dir
+                [[ -d ${zspec[dir]:h} ]] || continue
+            else
+                # Use -e flag bacause zspec[dir] returns directory and file
+                [[ -e $zspec[dir] ]] || continue
             fi
-        fi
-
-        # on tag
-        if [[ -n $zspec[on] ]]; then
-            if ! [[ -e $ZPLUG_HOME/repos/$zspec[on] ]]; then
-                __die "$zspec[name]: (not load)\n"
-                continue
-            fi
-        fi
-
-        # as tag
-        # Conditional branching by as
-        case $zspec[as] in
-            command)
-                # Hold files to be read in files variable
-                files=()
-                # Create bin directory to export
-                [[ -d $ZPLUG_HOME/bin ]] || mkdir -p $ZPLUG_HOME/bin
-
-                # Taking every imaginable locations into accounts,
-                # to find the command file or binary file
-                if [[ -f $zspec[dir]/${zspec[name]#*/} ]]; then
-                    # fullpath and filename
-                    files+=("$zspec[dir]/${zspec[name]#*/}")
-
-                elif [[ -f $zspec[dir]/$zspec[of] ]]; then
-                    # fullpath and of tag
-                    files+=("$zspec[dir]/$zspec[of]")
-
-                elif [[ -f $zspec[dir]/$zspec[of]/${zspec[name]#*/} ]]; then
-                    # fullpath and of tag and filename
-                    files+=("$zspec[dir]/$zspec[of]/${zspec[name]#*/}")
-
-                elif [[ -f $zspec[dir] ]]; then
-                    # fullpath
-                    files+=("$zspec[dir]")
+            # Skip: if tag
+            if [[ -n $zspec[if] ]]; then
+                if ! eval '$zspec[if]' >/dev/null 2>&1; then
+                    __die "$zspec[name]: (not load)\n"
+                    continue
                 fi
-                files+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*(*N.)"}" 2>/dev/null) )
+            fi
+            # Skip: on tag
+            if [[ -n $zspec[on] ]]; then
+                if ! [[ -e $ZPLUG_HOME/repos/$zspec[on] ]]; then
+                    __die "$zspec[name]: (not load)\n"
+                    continue
+                fi
+            fi
+        }
 
-                # Disable job control
-                set +m
+        dirname="${zspec[name]%*/}"
+        basename="${zspec[name]#*/}"
 
-                # Make symlink to $ZPLUG_HOME/bin in parallel
-                for f in "${(u)files[@]}"
-                do
-                    {
-                        # Base directory
-                        builtin cd $ZPLUG_HOME/bin
-
-                        # Rename by using file tag
-                        [[ -f $f ]] && ln -snf "$f" ${zspec[file]:-.}
-                    } >/dev/null 2>&1 &
-                done
-
-                # Wait until all jobs known to the invoking shell have terminated
-                wait
-
-                # Enable job control
-                set -m
-
-                # Export ZPLUG_HOME/bin
-                path=("$ZPLUG_HOME/bin" $path)
-                # Unique path
-                typeset -gx -U path
+        repos+=("$zspec[name]")
+        case $zspec[as] in
+            "command")
+                [[ -d $ZPLUG_HOME/bin ]] || mkdir -p $ZPLUG_HOME/bin
+                if [[ -f $zspec[dir]/$basename ]]; then
+                    commands+=($zspec[dir]/$basename)
+                elif [[ -f $zspec[dir]/$zspec[of] ]]; then
+                    commands+=($zspec[dir]/$zspec[of])
+                elif [[ -f $zspec[dir]/$zspec[of]/$basename ]]; then
+                    commands+=($zspec[dir]/$zspec[of]/$basename)
+                elif [[ -f $zspec[dir] ]]; then
+                    commands+=($zspec[dir])
+                else
+                    commands+=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-"*(*N.)"}" 2>/dev/null) )
+                fi
                 ;;
 
-            plugin)
-                files=()
-                # To find files to be sourced and
-                # expand file glob (using zsh -c "foo*bar")
+            "plugin")
                 if [[ $zspec[from] == "oh-my-zsh" ]]; then
                     if ! $loaded_omz; then
-                        export ZSH=$ZPLUG_HOME/repos/$oh_my_zsh_repo
-                        source $ZSH/oh-my-zsh.sh
                         loaded_omz=true
+                        export ZSH=$ZPLUG_HOME/repos/$oh_my_zsh_repo
+                        # Insert to the top
+                        plugins=($ZSH/oh-my-zsh.sh ${plugins[@]})
                     fi
 
                     case $zspec[name] in
                         plugins/*)
-                            # case of command file (read only file ending with "plugin.zsh")
-                            files+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*.plugin.zsh"}" 2>/dev/null) )
-                            # case of completion file
-                            fpath=($zspec[dir] $fpath)
+                            plugins+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*.plugin.zsh(.N)"}" 2>/dev/null) )
+                            fpaths+=($zspec[dir])
                             ;;
                         themes/*)
-                            files+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".{zsh-theme,theme.zsh}"}" 2>/dev/null) )
+                            plugins+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".{zsh-theme,theme.zsh}(.N)"}" 2>/dev/null) )
                             ;;
                         lib/*)
-                            files+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".zsh"}" 2>/dev/null) )
+                            plugins+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".zsh(.N)"}" 2>/dev/null) )
                             ;;
                     esac
                 else
-                    files+=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-*.zsh(N)}" 2>/dev/null) )
-                fi
-
-                for f in "${(u)files[@]}"
-                do
-                    if [[ -e $f ]]; then
-                        # source
-                        [[ -f $f ]] && source "$f"; ret=$status
-                        # fpath
-                        [[ -d $f ]] && fpath=($f $fpath)
-
-                        [[ $ret -eq 0 ]] &&
-                            if $is_verbose; then
-                                __put "\033[32m  Loaded\033[m ${f/$ZPLUG_HOME\/repos\//}\n"
-                            fi
-                    else
-                        # case of removing project repository
-                        :
+                    glob=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-"*.plugin.zsh(N)"}" 2>/dev/null) )
+                    if (( $#glob == 0 )); then
+                        glob=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-"*.zsh(N)"}" 2>/dev/null) )
                     fi
-                done
-                compinit -d "$ZPLUG_HOME/zcompdump"
+                    plugins+=( ${glob[@]} )
+                fi
+                ;;
+
+            *)
+                __die "$zspec[as]: as tag must be command or plugin\n"
+                return 1
                 ;;
         esac
     done
+
+    # Commands
+    for f in ${(u)commands}
+    do
+        [[ -f $f ]] && ln -snf "$f" "${zspec[file]:-$ZPLUG_HOME/bin}"
+    done
+    path=("$ZPLUG_HOME/bin" $path)
+    typeset -gx -U path
+
+    # Plugins
+    for f in ${(u)plugins}
+    do
+        # Use -e flag to check existing
+        if [[ -e $f ]]; then
+            [[ -f $f ]] && source "$f"; ret=$status
+            [[ -d $f ]] && fpaths+=($f)
+            if [[ $ret -eq 0 ]] && $is_verbose; then
+                __put "\033[32m  Loaded\033[m ${f/$ZPLUG_HOME\/repos\//}\n"
+            fi
+        fi
+    done
+    compinit -d "$ZPLUG_HOME/zcompdump"
+
+    # Generate static file
+    {
+        __put '#!/bin/zsh\n\n'
+        __put '# This file gerenated by zplug\n'
+        __put '# *** DO NOT EDIT THIS FILE ***\n\n'
+        __put '[[ $- =~ i ]] || exit\n'
+        __put 'path=("$ZPLUG_HOME/bin" $path)\n'
+        __put 'typeset -gx -U path\n'
+        __put 'export ZSH=%s\n\n' "$ZPLUG_HOME/repos/$oh_my_zsh_repo"
+        __put '_zplug_repos=(${(o)${(qqq@k)zplugs}})\n'
+        __put '_zplug_saved=(%s)\n' "${(@fu)${(qqq)repos[@]}}"
+        __put '_zplug_saved=(${(oqqq)_zplug_saved})\n\n'
+        __put 'if [[ $_zplug_repos != $_zplug_saved ]]; then\n'
+        if $is_verbose; then
+            __put '  ZPLUG_STATICLOAD=false zplug load --verbose\n  return $status\n'
+        else
+            __put '  ZPLUG_STATICLOAD=false zplug load\n  return $status\n'
+        fi
+        __put 'fi\n'
+        __put '\necho "Static loading..." >&2\n'
+        __put 'source %s\n' "${(qqqu)plugins[@]}"
+        __put 'fpath=(%s $fpath)\n' "${(qqqu)fpaths[@]}"
+    } >|$ZPLUG_STATICFILE
+    # Read-Only
+    chmod a-w $ZPLUG_STATICFILE
 }
 
 __zplug::validator()
@@ -1616,20 +1636,17 @@ zplug() {
 
                     for i in ${specs[@]}
                     do
-                        case "${i%%:*}" in
-                            as|of|from|to|if|dir|file|at|do|frozen|on|commit)
-                                tag="${tag}${i%,}, "
-                                if [[ $i == "from:oh-my-zsh" ]]; then
-                                    is_oh_my_zsh=true
-                                else
-                                    is_oh_my_zsh=false
-                                fi
-                                ;;
-                            *)
-                                __die "$i: invalid tag\n"
-                                return 1
-                                ;;
-                        esac
+                        if [[ ${i%%:*} =~ ^($_zplug_tag_pattern)$ ]]; then
+                            tag="${tag}${i%,}, "
+                            if [[ $i == "from:oh-my-zsh" ]]; then
+                                is_oh_my_zsh=true
+                            else
+                                is_oh_my_zsh=false
+                            fi
+                        else
+                            __die "$i: invalid tag\n"
+                            return 1
+                        fi
                     done
 
                     tag="${tag%, }"
@@ -1810,7 +1827,7 @@ if (( is_ready_zplug++ == 0 )); then
 
     if (( ! $+functions[compdef] )); then
         autoload -Uz compinit
-        compinit
+        compinit -C
     fi
     compdef _zplug zplug
 fi
