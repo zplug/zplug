@@ -874,6 +874,7 @@ __zplug::load()
             fi
         fi
     done
+    fpath=($fpaths $fpath)
     compinit -d "$ZPLUG_HOME/zcompdump"
 
     # Generate static file
@@ -898,6 +899,7 @@ __zplug::load()
         __put '\necho "Static loading..." >&2\n'
         __put 'source %s\n' "${(qqqu)plugins[@]}"
         __put 'fpath=(%s $fpath)\n' "${(qqqu)fpaths[@]}"
+        __put 'compinit -d %s\n' "$ZPLUG_HOME/zcompdump"
     } >|$ZPLUG_STATICFILE
     # Read-Only
     chmod a-w $ZPLUG_STATICFILE
