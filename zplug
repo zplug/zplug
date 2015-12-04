@@ -877,6 +877,7 @@ __zplug::load()
     fpath=($fpaths $fpath)
     compinit -d "$ZPLUG_HOME/zcompdump"
 
+    [[ -f $ZPLUG_STATICFILE ]] && chmod a+w $ZPLUG_STATICFILE
     # Generate static file
     {
         __put '#!/bin/zsh\n\n'
@@ -902,7 +903,7 @@ __zplug::load()
         __put 'compinit -d %s\n' "$ZPLUG_HOME/zcompdump"
     } >|$ZPLUG_STATICFILE
     # Read-Only
-    chmod a-w $ZPLUG_STATICFILE
+    [[ -f $ZPLUG_STATICFILE ]] && chmod a-w $ZPLUG_STATICFILE
 }
 
 __zplug::validator()
