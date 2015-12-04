@@ -334,7 +334,7 @@ __zplug::self_update()
     local zplug
     zplug="b4b4r07/zplug"
 
-    __put "\033[;1m * zplug self manegement\033[m\n"
+    __put "\033[;1m * zplug self management\033[m\n"
 
     # Add zplugs if needed
     zplug check "$zplug" || zplug "$zplug"
