@@ -1700,7 +1700,10 @@ _zplug()
     return ret
 }
 
-if (( ! $+commands[git] )) || ! __zsh_version 4.3.9; then
+if ! __zsh_version 4.3.9; then
+    __die "zplug does not work this version of zsh $ZSH_VERSION.\n"
+    __die "You must use zsh 4.3.9 or later.\n"
+
     unfunction \
         __die \
         __put \
@@ -1722,6 +1725,14 @@ if (( ! $+commands[git] )) || ! __zsh_version 4.3.9; then
         __zplug::generate_external \
         zplug \
         _zplug
+
+    return 1
+fi
+
+if (( ! $+commands[git] )); then
+    __die "git: not found in \$PATH\n"
+    __die "zplug depends on git 1.7 or later.\n"
+    return 1
 fi
 
 typeset -i is_ready_zplug
