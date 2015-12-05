@@ -133,7 +133,8 @@ EXAMPLE
 # THE SOFTWARE.
 #
 
-# Global variables (Read-Only)
+# To make readable
+functions zplug &>/dev/null || {
 typeset -gr ZPLUG_NAME="zplug"
 typeset -gr ZPLUG_VERSION="0.1.9"
 typeset -gr ZPLUG_RAWURL="https://git.io/zplug"
@@ -153,6 +154,9 @@ COMMANDS:
   clean     Remove repositories which is no longer managed
 
 For more information, see also $ZPLUG_URL."
+typeset -gr oh_my_zsh_repo="robbyrussell/oh-my-zsh"
+typeset -gr _zplug_tag_pattern="as|of|from|to|if|dir|file|at|do|frozen|on|commit"
+}
 
 # Environment variables
 typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
@@ -168,8 +172,6 @@ typeset -gx ZPLUG_STATICFILE=$ZPLUG_HOME/static.zplug
 
 # Global variables
 typeset -gx -A zplugs
-typeset -gr oh_my_zsh_repo="robbyrussell/oh-my-zsh"
-typeset -gr _zplug_tag_pattern="as|of|from|to|if|dir|file|at|do|frozen|on|commit"
 
 #
 # zplug utilities
