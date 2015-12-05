@@ -794,7 +794,8 @@ __zplug::load()
                         fpaths+=(${zspec[dir]}{,/**/*(N/)})
                     fi
                     # Foreshadowing
-                    # fpaths+=(${glob[@]:h})
+                    # fpaths+=(${zspec[dir]}{,/**/*(N/)})
+                    fpaths+=(${glob[@]:h})
                     plugins+=(${glob[@]})
                 fi
                 ;;
