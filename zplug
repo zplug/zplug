@@ -896,9 +896,8 @@ __zplug::load()
         __put 'path=("$ZPLUG_HOME/bin" $path)\n'
         __put 'typeset -gx -U path\n'
         __put 'export ZSH=%s\n\n' "$ZPLUG_HOME/repos/$oh_my_zsh_repo"
-        __put '_zplug_repos=(${(o)${(qqq@k)zplugs}})\n'
-        __put '_zplug_saved=(%s)\n' "${(@fu)${(qqq)repos[@]}}"
-        __put '_zplug_saved=(${(oqqq)_zplug_saved})\n\n'
+        __put '_zplug_repos=(${(kv)zplugs})\n'
+        __put '_zplug_saved=(%s)\n' "${(qqqkv)zplugs}"
         __put 'if [[ $_zplug_repos != $_zplug_saved ]]; then\n'
         if $is_verbose; then
             __put '  ZPLUG_STATICLOAD=false zplug load --verbose\n  return $status\n'
