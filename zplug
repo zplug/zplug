@@ -749,6 +749,7 @@ __zplug::load()
         case $zspec[as] in
             "command")
                 [[ -d $ZPLUG_HOME/bin ]] || mkdir -p $ZPLUG_HOME/bin
+                fpaths+=(${zspec[dir]}{,/**/*(N/)})
                 if [[ -f $zspec[dir]/$basename ]]; then
                     commands+=($zspec[dir]/$basename)
                 elif [[ -f $zspec[dir]/$zspec[of] ]]; then
@@ -788,7 +789,13 @@ __zplug::load()
                     if (( $#glob == 0 )); then
                         glob=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-"*.zsh(N)"}" 2>/dev/null) )
                     fi
-                    plugins+=( ${glob[@]} )
+                    # Case of completion repository like felixr/docker-zsh-completion
+                    if (( $#glob == 0 )); then
+                        fpaths+=(${zspec[dir]}{,/**/*(N/)})
+                    fi
+                    # Foreshadowing
+                    # fpaths+=(${glob[@]:h})
+                    plugins+=(${glob[@]})
                 fi
                 ;;
 
@@ -819,6 +826,7 @@ __zplug::load()
             fi
         fi
     done
+    # NOTE: set fpath before compinit
     fpath=($fpaths $fpath)
     compinit -d "$ZPLUG_HOME/zcompdump"
 
@@ -844,7 +852,7 @@ __zplug::load()
         if (( $#plugins > 0 )); then
             __put 'source %s\n' "${(qqqu)plugins[@]}"
         fi
-        __put 'fpath=(%s $fpath)\n' "${(qqqu)fpaths[@]}"
+        __put 'fpath=(%s $fpath)\n' "${(u)fpaths}"
     } >|$ZPLUG_STATICFILE
     [[ -f $ZPLUG_STATICFILE ]] && chmod a-w $ZPLUG_STATICFILE
 }
