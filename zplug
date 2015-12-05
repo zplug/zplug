@@ -898,9 +898,10 @@ __zplug::load()
         fi
         __put 'fi\n'
         __put '\necho "Static loading..." >&2\n'
-        __put 'source %s\n' "${(qqqu)plugins[@]}"
+        if (( $#plugins > 0 )); then
+            __put 'source %s\n' "${(qqqu)plugins[@]}"
+        fi
         __put 'fpath=(%s $fpath)\n' "${(qqqu)fpaths[@]}"
-        __put 'compinit -d %s\n' "$ZPLUG_HOME/zcompdump"
     } >|$ZPLUG_STATICFILE
     # Read-Only
     [[ -f $ZPLUG_STATICFILE ]] && chmod a-w $ZPLUG_STATICFILE
