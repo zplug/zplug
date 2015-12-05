@@ -295,7 +295,7 @@ Defaults to `$ZPLUG_HOME/init.zsh`. This file is used to add plugins from zplug 
 - :tada: Congrats! Released v1.0.0 version!!
 - ~~:construction: Until version 1.0.0 is released, `zplug` may be changed in ways that are not backward compatible.~~
 - Not antigen :syringe: but **zplug** :hibiscus: will be here to stay from now on.
-- :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug) and the like.
+- :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug), [neobundle.vim](https://github.com/Shougo/neobundle.vim) and the like.
 
 ## Other resources
 
