@@ -203,18 +203,25 @@ __get_filter() {
 
 __version_requirement() {
     local idx
-    local -a expect actual
+    local -a min val
 
-    actual=("${(s:.:)1}")
-    expect=("${(s:.:)2}")
+    # Perfect matching
+    [[ $1 == $2 ]] && return 0
+
+    val=("${(s:.:)1}")
+    min=("${(s:.:)2}")
 
     # Check magnitude relation
-    for (( idx=1; idx <= $#actual; idx++ ))
+    for (( idx=1; idx <= $#val; idx++ ))
     do
-        (( actual[$idx] >= ${expect[$idx]:-0} )) && continue || return 1
+        if (( val[$idx] > ${min[$idx]:-0} )); then
+            return 0
+        elif (( val[$idx] < ${min[$idx]:-0} )); then
+            return 1
+        fi
     done
 
-    return 0
+    return 1
 }
 
 __git_version() {
@@ -1801,7 +1808,7 @@ _zplug()
     return ret
 }
 
-if (( ! $+commands[git] )) || __zsh_version 4.3.9; then
+if (( ! $+commands[git] )) || ! __zsh_version 4.3.9; then
     unfunction \
         __die \
         __put \
