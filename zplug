@@ -729,6 +729,7 @@ __zplug::load()
     local dirname basename
     local -a commands plugins fpaths repos
     local -a glob
+    local themes_ext
 
     for key in ${(k)zplugs}
     do
@@ -781,7 +782,7 @@ __zplug::load()
                 elif [[ -f $zspec[dir] ]]; then
                     commands+=($zspec[dir])
                 else
-                    commands+=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-"*(*N.)"}" 2>/dev/null) )
+                    commands+=( $zspec[dir]/${~zspec[of]:-"*(-*N)"} )
                 fi
                 ;;
 
@@ -796,28 +797,22 @@ __zplug::load()
 
                     case $zspec[name] in
                         plugins/*)
-                            plugins+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*.plugin.zsh(.N)"}" 2>/dev/null) )
-                            fpaths+=($zspec[dir])
+                            plugins+=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
                             ;;
                         themes/*)
-                            plugins+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".{zsh-theme,theme.zsh}(.N)"}" 2>/dev/null) )
+                            themes_ext=(.zsh-theme .theme-zsh)
+                            plugins+=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
                             ;;
                         lib/*)
-                            plugins+=( $(zsh -c "echo ${zspec[dir]}${zspec[of]:-".zsh(.N)"}" 2>/dev/null) )
+                            plugins+=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
                             ;;
                     esac
                 else
-                    glob=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-"*.plugin.zsh(N)"}" 2>/dev/null) )
+                    glob=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
                     if (( $#glob == 0 )); then
-                        glob=( $(zsh -c "echo $zspec[dir]/${zspec[of]:-"*.zsh(N)"}" 2>/dev/null) )
+                        glob=( $zspec[dir]/${~zspec[of]:-"*.zsh(-.N)"} )
                     fi
-                    # Case of completion repository like felixr/docker-zsh-completion
-                    if (( $#glob == 0 )); then
-                        fpaths+=(${zspec[dir]}{,/**/*(N/)})
-                    fi
-                    # Foreshadowing
-                    # fpaths+=(${zspec[dir]}{,/**/*(N/)})
-                    fpaths+=(${glob[@]:h})
+                    fpaths+=(${zspec[dir]}/_*(N-.:h))
                     plugins+=(${glob[@]})
                 fi
                 ;;
@@ -841,10 +836,9 @@ __zplug::load()
     for f in ${(u)plugins}
     do
         # Use -e flag to check existing
-        if [[ -e $f ]]; then
-            [[ -f $f ]] && source "$f"; ret=$status
-            [[ -d $f ]] && fpaths+=($f)
-            if [[ $ret -eq 0 ]] && $is_verbose; then
+        if [[ -f $f ]]; then
+            source "$f"
+            if [[ $status -eq 0 ]] && $is_verbose; then
                 __put "\033[32m  Loaded\033[m ${f/$ZPLUG_HOME\/repos\//}\n"
             fi
         fi
