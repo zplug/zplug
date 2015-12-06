@@ -1562,7 +1562,7 @@ zplug() {
                         specs=("${args[@]}")
                     fi
 
-                    for i in ${specs[@]}
+                    for i in ${==specs[@]}
                     do
                         if [[ ${i%%:*} =~ ^($_zplug_tag_pattern)$ ]]; then
                             tag="${tag}${i%,}, "
