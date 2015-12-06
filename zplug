@@ -231,6 +231,26 @@ __zsh_version() {
     return $status
 }
 
+__job_control()
+{
+    case "$1" in
+        on)
+            # default in interactive shell
+            set -o monitor
+            ;;
+        off)
+            # no job control in this shell.
+            set +o monitor
+            ;;
+        "")
+            set -o | grep "^monitor"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
 __bg_rotation_bar() {
     local current_count simbol
     for ((current_count=0; ; current_count++))
@@ -332,7 +352,7 @@ __zplug::list()
 
 __zplug::self_update()
 {
-    trap 'kill -9 $bg_pid &>/dev/null; set -m; trap - EXIT INT' EXIT INT
+    trap 'kill -9 $bg_pid &>/dev/null; __job_control on; trap - EXIT INT' EXIT INT
     local zplug
     zplug="b4b4r07/zplug"
 
@@ -375,7 +395,7 @@ __zplug::update()
             ;;
     esac
 
-    set +m
+    __job_control off
 
     filter="$(__get_filter "$ZPLUG_FILTER")"
     if $is_select; then
@@ -392,7 +412,7 @@ __zplug::update()
     for line in "${args[@]}"; do
         # Run installation in subprocess
         {
-            trap 'kill -9 ${${(v)jobstates##*:*:}%"="*} $bg_pid &>/dev/null; set -m; trap - INT' INT
+            trap 'kill -9 ${${(v)jobstates##*:*:}%"="*} $bg_pid &>/dev/null; __job_control on; trap - INT' INT
 
             # All variables are treated as local variable
             # because of background job (subprocess)
@@ -479,7 +499,7 @@ __zplug::update()
     # Wait until all jobs known to the invoking shell have terminated
     wait
 
-    set -m
+    __job_control on
 }
 
 __zplug::install()
@@ -511,7 +531,7 @@ __zplug::install()
             ;;
     esac
 
-    set +m
+    __job_control off
 
     filter="$(__get_filter "$ZPLUG_FILTER")"
     if $is_select; then
@@ -550,7 +570,7 @@ __zplug::install()
 
         # Run installation in subprocess
         {
-            trap 'kill -9 ${${(v)jobstates##*:*:}%"="*} $bg_pid &>/dev/null; set -m; trap - INT' INT
+            trap 'kill -9 ${${(v)jobstates##*:*:}%"="*} $bg_pid &>/dev/null; __job_control on; trap - INT' INT
 
             # All variables are treated as local variable
             # because of background job (subprocess)
@@ -610,7 +630,7 @@ __zplug::install()
     # Wait until all jobs known to the invoking shell have terminated
     wait
 
-    set -m
+    __job_control on
 
     # Skip footer prints
     if [[ $cnt -eq 0 ]]; then
@@ -1069,7 +1089,7 @@ __zplug::status()
 
     local line cnt=0 is_select=false
 
-    set +m
+    __job_control off
 
     case "$1" in
         --select)
@@ -1092,7 +1112,7 @@ __zplug::status()
     for line in "${args[@]}"; do
         # Run installation in subprocess
         {
-            trap 'kill -9 ${${(v)jobstates##*:*:}%"="*} $bg_pid &>/dev/null; set -m; trap - INT' INT
+            trap 'kill -9 ${${(v)jobstates##*:*:}%"="*} $bg_pid &>/dev/null; __job_control on; trap - INT' INT
 
             # All variables are treated as local variable
             # because of background job (subprocess)
@@ -1138,7 +1158,7 @@ __zplug::status()
     # Wait until all jobs known to the invoking shell have terminated
     wait
 
-    set -m
+    __job_control on
 
     unfunction get_remote_name get_head_branch check_remote
 }
@@ -1708,7 +1728,10 @@ if ! __zsh_version 4.3.9; then
         __die \
         __put \
         __get_filter \
+        __version_requirement \
         __git_version \
+        __zsh_version \
+        __job_control \
         __bg_rotation_bar \
         __zplug::releases \
         __zplug::list \
