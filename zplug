@@ -770,12 +770,12 @@ __zplug::load()
             "command")
                 [[ -d $ZPLUG_HOME/bin ]] || mkdir -p $ZPLUG_HOME/bin
                 fpaths+=(${zspec[dir]}{,/**/*(N/)})
-                if [[ -f $zspec[dir]/$basename ]]; then
-                    commands+=($zspec[dir]/$basename)
-                elif [[ -f $zspec[dir]/$zspec[of] ]]; then
+                if [[ -f $zspec[dir]/$zspec[of] ]]; then
                     commands+=($zspec[dir]/$zspec[of])
                 elif [[ -f $zspec[dir]/$zspec[of]/$basename ]]; then
                     commands+=($zspec[dir]/$zspec[of]/$basename)
+                elif [[ -f $zspec[dir]/$basename ]]; then
+                    commands+=($zspec[dir]/$basename)
                 elif [[ -f $zspec[dir] ]]; then
                     commands+=($zspec[dir])
                 else
