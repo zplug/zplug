@@ -133,7 +133,7 @@ EXAMPLE
 # THE SOFTWARE.
 #
 
-# To make readable
+# To make zplug readable
 functions zplug &>/dev/null || {
 typeset -gr ZPLUG_NAME="zplug"
 typeset -gr ZPLUG_VERSION="0.1.9"
@@ -231,8 +231,7 @@ __zsh_version() {
     return $status
 }
 
-__job_control()
-{
+__job_control() {
     case "$1" in
         on)
             # default in interactive shell
@@ -243,7 +242,8 @@ __job_control()
             set +o monitor
             ;;
         "")
-            set -o | grep "^monitor"
+            # on/off
+            echo ${${(M)${(@f)"$(set -o)"}:#monitor*}[2]}
             ;;
         *)
             return 1
@@ -367,7 +367,7 @@ __zplug::self_update()
 
     ln -snf "$ZPLUG_HOME/repos/$zplug/zplug" "$ZPLUG_HOME/zplug"
     if [[ $status -eq 0 && -d $ZPLUG_HOME/repos/b4b4r07/zplug && -f $ZPLUG_HOME/zplug ]]; then
-        __put "\033[32mUpdated $ZPLUG_NAME \033[;1m($ZPLUG_HOME/zplug)\033[m\n"
+        __put "\033[32mEverything is ready. \033[;1m($ZPLUG_HOME/zplug)\033[m\n"
     else
         __die "\033[31mError occured (see $ZPLUG_URL)\033[m\n"
         return 1
@@ -815,6 +815,10 @@ __zplug::load()
                     fpaths+=(${zspec[dir]}/_*(N-.:h))
                     plugins+=(${glob[@]})
                 fi
+                ;;
+
+            "none")
+                return 0
                 ;;
 
             *)
