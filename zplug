@@ -729,7 +729,7 @@ __zplug::load()
                 [[ -e $zspec[dir] ]] || continue
             fi
             if [[ -n $zspec[if] ]]; then
-                if ! eval '$zspec[if]' >/dev/null 2>&1; then
+                if ! eval "$zspec[if]" >/dev/null 2>&1; then
                     __die "$zspec[name]: (not load)\n"
                     continue
                 fi
