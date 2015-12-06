@@ -769,7 +769,9 @@ __zplug::load()
         case $zspec[as] in
             "command")
                 [[ -d $ZPLUG_HOME/bin ]] || mkdir -p $ZPLUG_HOME/bin
-                fpaths+=(${zspec[dir]}{,/**/*(N/)})
+                # Add parent directories to fpath if any files starting in _* exist
+                fpaths+=(${zspec[dir]}{_*,/**/_*}(N-.:h))
+
                 if [[ -f $zspec[dir]/$zspec[of] ]]; then
                     commands+=($zspec[dir]/$zspec[of])
                 elif [[ -f $zspec[dir]/$zspec[of]/$basename ]]; then
