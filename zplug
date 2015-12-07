@@ -1488,7 +1488,7 @@ __zplug::clear()
     __put "Remove cache file? [y/N]: "
 
     if $is_force || read -q; then
-        command rm -rf $ZPLUG_CACHE_FILE
+        command rm -f $ZPLUG_CACHE_FILE
         __put "\nRemoved\n"
     else
         __put "\nCanceled\n"
