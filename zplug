@@ -1474,6 +1474,8 @@ __zplug::clean()
 
 __zplug::clear()
 {
+    local is_force=false
+
     case "$1" in
         --force)
             is_force=true
