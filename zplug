@@ -164,7 +164,7 @@ COMMANDS:
 
 For more information, see also $ZPLUG_URL."
 typeset -gr oh_my_zsh_repo="robbyrussell/oh-my-zsh"
-typeset -gr _zplug_tag_pattern="as|of|from|to|if|dir|file|at|do|frozen|on|commit"
+typeset -gr _zplug_tag_pattern="as|of|from|to|if|dir|file|at|do|frozen|on|commit|nice"
 typeset -gr ZPLUG_CACHE_FILE=$ZPLUG_HOME/.cache
 }
 
@@ -657,7 +657,7 @@ __zplug::parser()
 
     parsed_zplugs=(${(s/, /)arg:gs/,  */, })
 
-    local name as of to from if dir file at do frozen on commit
+    local name as of to from if dir file at do frozen on commit nice
     name="${parsed_zplugs[1]}"
     as=${${${(M)parsed_zplugs:#as*}#*:}:-plugin}
     of=${${${(M)parsed_zplugs:#of*}#*:}:--EMP-}
@@ -671,6 +671,7 @@ __zplug::parser()
     frozen=${${${(M)parsed_zplugs:#frozen*}#*:}:-0}
     on=${${${(M)parsed_zplugs:#on*}#*:}:--EMP-}
     commit=${${${(M)parsed_zplugs:#commit*}#*:}:--EMP-}
+    nice=${${${(M)parsed_zplugs:#nice*}#*:}:-0}
 
     local -A zplugs_tags
     zplugs_tags=(
@@ -687,6 +688,7 @@ __zplug::parser()
       frozen  "$frozen"
       on      "$on"
       commit  "$commit"
+      nice    "$nice"
     )
 
     # Output zplugs_tags
@@ -729,8 +731,17 @@ __zplug::load()
     local -a commands plugins fpaths repos
     local -a glob
     local themes_ext
+    local -a args nices
+    args=(${(k)zplugs})
 
-    for key in ${(k)zplugs}
+    # Order by nice value
+    for key in ${args[@]}
+    do
+        zspec=( ${(@f)"$(__zplug::parser "$key")"} )
+        nices+=("$zspec[nice]:$zspec[name]")
+    done
+
+    for key in ${${(on)nices}#*:}
     do
         zspec=( ${(@f)"$(__zplug::parser "$key")"} )
         for k in ${(k)zspec}
@@ -765,7 +776,6 @@ __zplug::load()
         dirname="${zspec[name]%*/}"
         basename="${zspec[name]#*/}"
 
-        repos+=("$zspec[name]")
         case $zspec[as] in
             "command")
                 [[ -d $ZPLUG_HOME/bin ]] || mkdir -p $ZPLUG_HOME/bin
@@ -796,14 +806,26 @@ __zplug::load()
 
                     case $zspec[name] in
                         plugins/*)
-                            plugins+=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
+                            if (( $zspec[nice] > 18 )); then
+                                niced_array+=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
+                            else
+                                plugins+=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
+                            fi
                             ;;
                         themes/*)
                             themes_ext=(.zsh-theme .theme-zsh)
-                            plugins+=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
+                            if (( $zspec[nice] > 18 )); then
+                                niced_array+=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
+                            else
+                                plugins+=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
+                            fi
                             ;;
                         lib/*)
-                            plugins+=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
+                            if (( $zspec[nice] > 18 )); then
+                                niced_array+=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
+                            else
+                                plugins+=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
+                            fi
                             ;;
                     esac
                 else
@@ -812,7 +834,11 @@ __zplug::load()
                         glob=( $zspec[dir]/${~zspec[of]:-"*.zsh(-.N)"} )
                     fi
                     fpaths+=(${zspec[dir]}/_*(N-.:h))
-                    plugins+=(${glob[@]})
+                    if (( $zspec[nice] > 18 )); then
+                        niced_array+=(${glob[@]})
+                    else
+                        plugins+=(${glob[@]})
+                    fi
                 fi
                 ;;
 
@@ -849,6 +875,17 @@ __zplug::load()
     # NOTE: set fpath before compinit
     fpath=($fpaths $fpath)
     compinit -d "$ZPLUG_HOME/zcompdump"
+
+    for f in ${(u)niced_array}
+    do
+        # Use -e flag to check existing
+        if [[ -f $f ]]; then
+            source "$f"
+            if [[ $status -eq 0 ]] && $is_verbose; then
+                __put "\033[32m  Loaded\033[m ${f/$ZPLUG_HOME\/repos\//} \033[33mafter running compinit\033[m\n"
+            fi
+        fi
+    done
 
     [[ -f $ZPLUG_CACHE_FILE ]] && chmod a+w $ZPLUG_CACHE_FILE
     {
@@ -942,6 +979,16 @@ __zplug::validator()
         # commit: opt
         if [[ -n $zspec[commit] ]] && (( $#zspec[commit] < 8 )); then
             __die "\033[31m[$ZPLUG_NAME] #syntax error# the length of tag 'commit:' must be eight characters or more (zplug \"$zspec[name]\")\033[m\n"
+
+            # Remove that key and value
+            unset "zplugs[$zspec[name]]"
+            # Increments if it fails
+            let fail++
+        fi
+
+        # nice: must
+        if (( $zspec[nice] > 19 || $zspec[nice] < -20 )); then
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'nice:' must be an interger between -20..19 (zplug \"$zspec[name]\")\033[m\n"
 
             # Remove that key and value
             unset "zplugs[$zspec[name]]"
