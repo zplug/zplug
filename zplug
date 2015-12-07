@@ -1474,8 +1474,20 @@ __zplug::clean()
 
 __zplug::clear()
 {
+    case "$1" in
+        --force)
+            is_force=true
+            shift
+            ;;
+        -*|--*)
+            __die "$1: Unknown option\n"
+            return 1
+            ;;
+    esac
+
     __put "Remove cache file? [y/N]: "
-    if read -q; then
+
+    if $is_force || read -q; then
         command rm -rf $ZPLUG_CACHE_FILE
         __put "\nRemoved\n"
     else
