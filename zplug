@@ -1739,7 +1739,8 @@ _zplug()
                         "do[Run commands after installation/update]:do:" \
                         "frozen[Do not update unless explicitly specified]:frozen:(0 1)" \
                         "commit[Support commit installation]:commit:" \
-                        "on[Dependencies (RO)]:on:->on" && ret=0
+                        "on[Dependencies (RO)]:on:->on" \
+                        "nice[Priority of loading the plugins]:nice:->nice" && ret=0
                     case $state in
                         on|dir)
                             compadd -x "%F{green}READ ONLY%f %Bno arguments%b"
@@ -1760,6 +1761,12 @@ _zplug()
                                 'linux*386' \
                                 'darwin' \
                                 'linux'
+                            ;;
+                        nice)
+                            compadd -V 'default' -x "%F{yellow}Completing%f %Bpriority (default)%b" 0
+                            compadd -V 'high' -x "%F{yellow}Completing%f %Bpriority (high)%b" -- {-1..-20}
+                            compadd -V 'low' -x "%F{yellow}Completing%f %Bpriority (low)%b" {1..9}
+                            compadd -V 'lowest' -x "%F{yellow}Completing%f %Bpriority (low) after compinit%b" {10..19}
                             ;;
                     esac
                     ;;
