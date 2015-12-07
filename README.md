@@ -97,7 +97,6 @@ Add a zplug section to your `.zshrc`:
 source ~/.zplug/zplug
 
 # Make sure you use double quotes
-zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-history-substring-search"
 
 # Can manage a plugin as a command
@@ -151,6 +150,11 @@ zplug "stedolan/jq", \
     file:jq, \
     from:gh-r \
     | zplug "b4b4r07/emoji-cli"
+
+# Set priority to load command like a nice command
+# e.g., zsh-syntax-highlighting must be loaded
+# after executing compinit command and sourcing other plugins
+zplug "zsh-users/zsh-syntax-highlighting", nice:10
 
 # Install plugins if there are plugins that have not been installed
 if ! zplug check --verbose; then
@@ -233,6 +237,7 @@ All that's left is to run `zplug update`.
 | `frozen`  | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
 | `commit`  | Support commit installation (regardless of whether the `$ZPLUG_SHALLOW` is true or not) | commit hash (-) | `commit:4428d48` |
 | `on`      | Dependencies | **READ ONLY** | `on:user/repo` |
+| `nice`    | Priority of loading the plugins. If this tag is specified 10 or more, zplug will load plugins after `compinit` | -20..19 (0) | `nice:19` |
 
 #### Available on CLI
 
@@ -290,6 +295,14 @@ Defaults to `fzf-tmux:fzf:peco:percol:zaw`. When `--select` option is specified,
 
 Defaults to `$ZPLUG_HOME/init.zsh`. This file is used to add plugins from zplug on the command-line. Currently it's read-only.
 
+#### `ZPLUG_USE_CACHE`
+
+Defaults to `true`. If this variable is set, zplug comes to use a cache to speed up when it will load plugins after the first.The cache file is located in `$ZPLUG_HOME/.cache`. If you want to clear the cache, please remove it or run the following:
+
+```console
+$ ZPLUG_USE_CACHE=false zplug load
+```
+
 ## Note
 
 - :tada: Congrats! Released v1.0.0 version!!
@@ -308,3 +321,4 @@ Defaults to `$ZPLUG_HOME/init.zsh`. This file is used to add plugins from zplug 
 [repo]: https://github.com/b4b4r07/zplug
 [travis]: https://travis-ci.org/b4b4r07/zplug_test
 [license]: http://b4b4r07.mit-license.org
+ 
