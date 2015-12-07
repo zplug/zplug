@@ -1601,9 +1601,10 @@ zplug() {
                 fi
 
                 local i tag
-                local is_oh_my_zsh=false
+                local is_oh_my_zsh
                 for arg in "${task[@]}"
                 do
+                    is_oh_my_zsh=false
                     if [[ $arg == $on_name ]]; then
                         specs=("${on_args[@]}")
                     else
@@ -1616,8 +1617,6 @@ zplug() {
                             tag="${tag}${i%,}, "
                             if [[ $i == "from:oh-my-zsh" ]]; then
                                 is_oh_my_zsh=true
-                            else
-                                is_oh_my_zsh=false
                             fi
                         else
                             __die "$i: invalid tag\n"
