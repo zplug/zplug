@@ -222,7 +222,7 @@ __version_requirement() {
 }
 
 __git_version() {
-    __version_requirement "${${(z)"$(git --version)"}[-1]}" "$@"
+    __version_requirement "${${(z)"$(git --version | cut -d\( -f1)"}[-1]}" "$@"
     return $status
 }
 
