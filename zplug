@@ -607,10 +607,9 @@ __zplug::install()
 
             if [[ $ret -eq 0 ]]; then
                 __put "\033[32mInstalled!\033[m     %-${max}s\t(%.2fs)\n" "${oh_my_line:-$line}" $SECONDS
-            elif [[ $ret -eq 1 ]]; then
-                __put "\033[31mNot Installed\033[m  %-${max}s\t(%.2fs)\n" "${oh_my_line:-$line}" $SECONDS
-                false
             else
+                __put "\033[31mNot Installed\033[m  %-${max}s\t(%.2fs)\n" "${oh_my_line:-$line}" $SECONDS
+                # Return error exit code
                 false
             fi
         } &
@@ -1278,7 +1277,6 @@ __zplug::clone()
             return 1
             ;;
     esac
-    ret=${ret:-$status}
 
     if [[ ! $ZPLUG_PROTOCOL =~ ^(HTTPS|https|SSH|ssh)$ ]]; then
         __die "$ZPLUG_PROTOCOL: Invalid protocol for cloning\n"
@@ -1301,7 +1299,7 @@ __zplug::clone()
         --quiet \
         --branch $tag_at \
         "$url_format" "$repository" >/dev/null 2>&1
-    ret=${ret:-$status}
+    ret=$status
 
     if (( $#tag_commit >= 8 )); then
         builtin cd "$line" && git checkout $tag_commit >/dev/null 2>&1
