@@ -742,7 +742,7 @@ __zplug::load()
         nices+=("$zspec[nice]:$zspec[name]")
     done
 
-    for key in ${${(on)nices}#*:}
+    for key in ${${(OnM)nices:#-*}#*:} ${${(on)nices:#-*}#*:}
     do
         zspec=( ${(@f)"$(__zplug::parser "$key")"} )
         for k in ${(k)zspec}
