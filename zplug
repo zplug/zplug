@@ -161,6 +161,7 @@ COMMANDS:
   check     Check whether an update or installation is available
   status    Check if remote branch is up-to-date
   clean     Remove repositories which is no longer managed
+  clear     Remove the cache file
 
 For more information, see also $ZPLUG_URL."
 typeset -gr oh_my_zsh_repo="robbyrussell/oh-my-zsh"
@@ -1471,6 +1472,31 @@ __zplug::clean()
     done
 }
 
+__zplug::clear()
+{
+    local is_force=false
+
+    case "$1" in
+        --force)
+            is_force=true
+            shift
+            ;;
+        -*|--*)
+            __die "$1: Unknown option\n"
+            return 1
+            ;;
+    esac
+
+    __put "Remove cache file? [y/N]: "
+
+    if $is_force || read -q; then
+        command rm -f $ZPLUG_CACHE_FILE
+        __put "\nRemoved\n"
+    else
+        __put "\nCanceled\n"
+    fi
+}
+
 __zplug::generate_external()
 {
     if [[ -f $ZPLUG_EXTERNAL ]]; then
@@ -1557,6 +1583,12 @@ zplug() {
         clean)
             shift
             __zplug::clean "$@"
+            return $status
+            ;;
+
+        clear)
+            shift
+            __zplug::clear "$@"
             return $status
             ;;
 
@@ -1677,6 +1709,7 @@ _zplug()
                 "check[Check whether an update or installation is available]" \
                 "list[Show all of the zplugs in the current shell]" \
                 "clean[Remove deprecated repositories]" \
+                "clear[Remove cache file]" \
                 "status[Check if remote branch is up-to-date]" \
                 "version[Show version information]" \
                 "help[Show help message and usage]"
@@ -1720,6 +1753,11 @@ _zplug()
                         '(--force --select)--force[force the removing activity]' \
                         '(--select --force)--select[select items with interactive filters]' \
                         '*:: :_files -W $ZPLUG_HOME/repos'
+                    ret=0
+                    ;;
+                clear)
+                    _arguments \
+                        '(--force)--force[force the removing activity]'
                     ret=0
                     ;;
                 version|help)
@@ -1801,6 +1839,7 @@ if ! __zsh_version 4.3.9; then
         __zplug::status \
         __zplug::clone \
         __zplug::clean \
+        __zplug::clear \
         __zplug::generate_external \
         zplug \
         _zplug
