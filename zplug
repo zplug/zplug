@@ -705,11 +705,6 @@ __zplug::parser()
 
 __zplug::load()
 {
-    if (( $#funcstack[@] <= 6 )) && $ZPLUG_USE_CACHE && [[ -f $ZPLUG_CACHE_FILE ]]; then
-        source $ZPLUG_CACHE_FILE
-        return $status
-    fi
-
     local is_verbose=false
     local loaded_omz=false
 
@@ -723,6 +718,11 @@ __zplug::load()
             return 1
             ;;
     esac
+
+    if (( $#funcstack[@] <= 6 )) && $ZPLUG_USE_CACHE && [[ -f $ZPLUG_CACHE_FILE ]]; then
+        source $ZPLUG_CACHE_FILE
+        return $status
+    fi
 
     local key k
     local -A zspec
@@ -905,7 +905,9 @@ __zplug::load()
             __put '  ZPLUG_USE_CACHE=false zplug load\n  return $status\n'
         fi
         __put 'fi\n'
-        __put '\necho "Static loading..." >&2\n'
+        __put 'if $is_verbose; then\n'
+        __put '  echo "Static loading..." >&2\n'
+        __put 'fi\n'
         if (( $#plugins > 0 )); then
             __put 'source %s\n' "${(qqqu)plugins[@]}"
         fi
