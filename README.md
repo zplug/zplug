@@ -60,7 +60,7 @@
 - Can manage everything
   - Zsh plugins/UNIX commands on [GitHub](https://github.com) and [Bitbucket](https://bitbucket.org)
   - Gist file ([gist.github.com](https://gist.github.com))
-  - Externally managed plugins e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) plugins
+  - Externally managed plugins e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) plugins/themes
   - Birary artifacts on [GitHub Releases](https://help.github.com/articles/about-releases/)
   - etc.
 - Super-fast parallel installation/update
@@ -114,12 +114,13 @@ zplug "k4rthik/git-cal", as:command, frozen:1
 zplug "junegunn/fzf-bin", \
     as:command, \
     from:gh-r, \
-    file:fzf
+    file:fzf, \
+    of:"*darwin*amd64*"
 
 # Support oh-my-zsh plugins and the like
-zplug "plugins/git",   from:oh-my-zsh
+zplug "plugins/git",   from:oh-my-zsh, if:"which git"
 zplug "themes/duellj", from:oh-my-zsh
-zplug "lib/clipboard", from:oh-my-zsh
+zplug "lib/clipboard", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
 
 # Run a command after a plugin is installed/updated
 zplug "tj/n", do:"make install"
@@ -181,6 +182,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 | `check`   | Check whether an installation is available | `--verbose`,`--select` |
 | `status`  | Check if the remote is up-to-date | `--select` |
 | `clean`   | Remove repositories which are no longer used | `--force`,`--select` |
+| `cache`   | Remove the cache file | `--force` |
 
 #### Take a closer look
 
@@ -227,7 +229,7 @@ All that's left is to run `zplug update`.
 | Tag | Description | Value (default) | Example |
 |-----------|-------------|-----------------|---------|
 | `as`      | Specify whether to register as commands or to register as plugins | `plugin`,`command` (`plugin`) | `as:command` |
-| `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) / In case of `from:gh-r`, can specify `of:linux` and so on | - (`of:"*.zsh"`) | `of:bin`,`of:"*.sh"`, `of:amd64` |
+| `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) / In case of `from:gh-r`, can specify `of:"*darwin*{amd,386}*"` and so on | - (`of:"*.zsh"`) | `of:bin`,`of:"*.sh"`, `of:*darwin*` |
 | `from`    | Specify the services you use to install | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh` (`github`) | `from:gh-r` |
 | `at`      | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
 | `file`    | Specify filename you want to rename (*only* `as:plugin`) | filename (-) | `file:fzf` |
@@ -293,11 +295,11 @@ Defaults to `fzf-tmux:fzf:peco:percol:zaw`. When `--select` option is specified,
 
 #### `ZPLUG_EXTERNAL`
 
-Defaults to `$ZPLUG_HOME/init.zsh`. This file is used to add plugins from zplug on the command-line. Currently it's read-only.
+Defaults to `$ZPLUG_HOME/init.zsh`. This file is used to add plugins from zplug on the command-line.
 
 #### `ZPLUG_USE_CACHE`
 
-Defaults to `true`. If this variable is set, zplug comes to use a cache to speed up when it will load plugins after the first.The cache file is located in `$ZPLUG_HOME/.cache`. If you want to clear the cache, please remove it or run the following:
+Defaults to `true`. If this variable is set, zplug comes to use a cache to speed up when it will load plugins after the first. The cache file is located in `$ZPLUG_HOME/.cache`. If you want to clear the cache, please run `zplug clear` or do the following:
 
 ```console
 $ ZPLUG_USE_CACHE=false zplug load
@@ -307,6 +309,10 @@ $ ZPLUG_USE_CACHE=false zplug load
 
 - :tada: Congrats! Released v1.0.0 version!!
 - ~~:construction: Until version 1.0.0 is released, `zplug` may be changed in ways that are not backward compatible.~~
+- :art: Design vision
+  - Fantabulous plugin
+  - Without simple, but without complex
+  - Manage everything
 - Not antigen :syringe: but **zplug** :hibiscus: will be here to stay from now on.
 - :hibiscus: It was heavily inspired by [vim-plug](https://github.com/junegunn/vim-plug), [neobundle.vim](https://github.com/Shougo/neobundle.vim) and the like.
 
