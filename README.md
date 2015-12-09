@@ -66,9 +66,10 @@
 - Super-fast parallel installation/update
 - Branch/tag/commit support
 - Post-update hooks
-- Understands dependencies between plugins
+- Dependencies between plugins
 - Unlike [antigen](https://github.com/zsh-users/antigen), no ZSH plugin file (`*.plugin.zsh`) required
 - Interactive interface ([fzf](https://github.com/junegunn/fzf), [peco](https://github.com/peco/peco), [zaw](https://github.com/zsh-users/zaw), and so on)
+- Cache mechanism for reducing the startup time
 
 ***DEMO:***
 
@@ -253,9 +254,7 @@ In this case, zplug spit out its settings to `$ZPLUG_EXTERNAL` instead of `.zshr
 
 #### `ZPLUG_HOME`
 
-Defaults to `~/.zplug`.
-
-`zplug` will store/load plugins in this directory. The directory structure is below.
+Defaults to `~/.zplug`. `zplug` will store/load plugins in this directory. The directory structure is below.
 
 ```
 $ZPLUG_HOME
@@ -287,7 +286,7 @@ For more information, see also [**Which remote URL should I use?** - GitHub Help
 
 #### `ZPLUG_SHALLOW`
 
-Defaults to `true`. Makes zplug use shallow clone with a history truncated to the specified number of revisions (depth 1).
+Defaults to `true`. When cloning a Git repository, there is an option to limit the amount of history your clone will have. If you set this environment variable to `true`, you get the least amount of history, and you create a shallow clone.
 
 #### `ZPLUG_FILTER`
 
@@ -327,4 +326,3 @@ $ ZPLUG_USE_CACHE=false zplug load
 [repo]: https://github.com/b4b4r07/zplug
 [travis]: https://travis-ci.org/b4b4r07/zplug_test
 [license]: http://b4b4r07.mit-license.org
- 
