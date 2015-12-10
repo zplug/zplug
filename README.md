@@ -177,12 +177,12 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 |  Command  | Description | Option |
 |-----------|-------------|--------|
 | `install` | Install described items (plugins/commands) in parallel | `--verbose`,`--select` |
-| `load`    | Load installed items | `--verbose` |
+| `load`    | Source installed plugins and add installed commands to `$PATH` | `--verbose` |
 | `list`    | List installed items (Strictly speaking, view the associative array `$zplugs`) | `--select` |
-| `update`  | Update items in parallel | `--self`,`--select` |
-| `check`   | Check whether an installation is available | `--verbose`,`--select` |
-| `status`  | Check if the remote is up-to-date | `--select` |
-| `clean`   | Remove repositories which are no longer used | `--force`,`--select` |
+| `update`  | Update installed items in parallel | `--self`,`--select` |
+| `check`   | Return false if there are not installed items | `--verbose`,`--select` |
+| `status`  | Check if the remote repositories are up to date | `--select` |
+| `clean`   | Remove repositories which are no longer managed | `--force`,`--select` |
 | `cache`   | Remove the cache file | `--force` |
 
 #### Take a closer look
@@ -207,7 +207,7 @@ fi
 
 #### Let zplug manage zplug
 
-If you want to manage zplug by itself, to run this command (after installing zplug, of course):
+If you want to manage zplug by itself, run this command (after installing zplug, of course):
 
 ```console
 $ zplug update --self
@@ -240,7 +240,7 @@ All that's left is to run `zplug update`.
 | `frozen`  | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
 | `commit`  | Support commit installation (regardless of whether the `$ZPLUG_SHALLOW` is true or not) | commit hash (-) | `commit:4428d48` |
 | `on`      | Dependencies | **READ ONLY** | `on:user/repo` |
-| `nice`    | Priority of loading the plugins. If this tag is specified 10 or more, zplug will load plugins after `compinit` | -20..19 (0) | `nice:19` |
+| `nice`    | Priority of loading the plugins. If this tag is specified 10 or more, zplug will load plugins after `compinit` (see also [#26](https://github.com/b4b4r07/zplug/issues/26)) | -20..19 (0) | `nice:19` |
 
 #### Available on CLI
 
