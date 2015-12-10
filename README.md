@@ -304,6 +304,12 @@ Defaults to `true`. If this variable is set, zplug comes to use a cache to speed
 $ ZPLUG_USE_CACHE=false zplug load
 ```
 
+## V.S.
+
+zplug is the fastest of famous plugin managers for zsh. The figures are graphs showing the facts.
+
+[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/time.png)][repo]
+
 ## Note
 
 - :tada: Congrats! Released v1.0.0 version!!
