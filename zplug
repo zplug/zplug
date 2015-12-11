@@ -727,10 +727,10 @@ __zplug::load()
     local key k
     local -A zspec
 
-    local f
+    local f ext
     local dirname basename
     local -a commands plugins fpaths repos
-    local -a glob
+    local -a extentions globs
     local themes_ext
     local -a args nices niced_array
     args=(${(k)zplugs})
@@ -830,15 +830,29 @@ __zplug::load()
                             ;;
                     esac
                 else
-                    glob=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
-                    if (( $#glob == 0 )); then
-                        glob=( $zspec[dir]/${~zspec[of]:-"*.zsh(-.N)"} )
-                    fi
+                    extentions=(plugin.zsh zsh zsh-theme)
+                    for ext in ${extentions[@]}
+                    do
+                        if [[ -n $zspec[of] ]]; then
+                            globs=( $zspec[dir]/${~zspec[of]}(-.N) )
+                            if (( $#globs == 0 )); then
+                                globs=( $zspec[dir]/${~zspec[of]}.$ext(-.N) )
+                            fi
+                        else
+                            globs=( $zspec[dir]/*.$ext(-.N) )
+                        fi
+                        if (( $#globs > 0 )); then
+                            break
+                        fi
+                    done
+
+                    # Add files to fpath
                     fpaths+=(${zspec[dir]}/_*(N-.:h))
+
                     if (( $zspec[nice] > 9 )); then
-                        niced_array+=(${glob[@]})
+                        niced_array+=(${globs[@]})
                     else
-                        plugins+=(${glob[@]})
+                        plugins+=(${globs[@]})
                     fi
                 fi
                 ;;
