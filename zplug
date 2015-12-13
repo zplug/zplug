@@ -660,19 +660,19 @@ __zplug::parser()
 
     local name as of to from if dir file at do frozen on commit nice
     name="${parsed_zplugs[1]}"
-    as=${${${(M)parsed_zplugs:#as*}#*:}:-plugin}
-    of=${${${(M)parsed_zplugs:#of*}#*:}:--EMP-}
-    to=${${${(M)parsed_zplugs:#to*}#*:}:--EMP-}
-    from=${${${(M)parsed_zplugs:#from*}#*:}:-github}
-    if=${${${(M)parsed_zplugs:#if*}#*:}:--EMP-}
-    dir=${${${(M)parsed_zplugs:#dir*}#*:}:--EMP-}
-    file=${${${(M)parsed_zplugs:#file*}#*:}:--EMP-}
-    at=${${${(M)parsed_zplugs:#at*}#*:}:-master}
-    do=${${${(M)parsed_zplugs:#do*}#*:}:--EMP-}
-    frozen=${${${(M)parsed_zplugs:#frozen*}#*:}:-0}
-    on=${${${(M)parsed_zplugs:#on*}#*:}:--EMP-}
-    commit=${${${(M)parsed_zplugs:#commit*}#*:}:--EMP-}
-    nice=${${${(M)parsed_zplugs:#nice*}#*:}:-0}
+    as=${${${(M)parsed_zplugs:#as:*}#*:}:-plugin}
+    of=${${${(M)parsed_zplugs:#of:*}#*:}:--EMP-}
+    to=${${${(M)parsed_zplugs:#to:*}#*:}:--EMP-}
+    from=${${${(M)parsed_zplugs:#from:*}#*:}:-github}
+    if=${${${(M)parsed_zplugs:#if:*}#*:}:--EMP-}
+    dir=${${${(M)parsed_zplugs:#dir:*}#*:}:--EMP-}
+    file=${${${(M)parsed_zplugs:#file:*}#*:}:--EMP-}
+    at=${${${(M)parsed_zplugs:#at:*}#*:}:-master}
+    do=${${${(M)parsed_zplugs:#do:*}#*:}:--EMP-}
+    frozen=${${${(M)parsed_zplugs:#frozen:*}#*:}:-0}
+    on=${${${(M)parsed_zplugs:#on:*}#*:}:--EMP-}
+    commit=${${${(M)parsed_zplugs:#commit:*}#*:}:--EMP-}
+    nice=${${${(M)parsed_zplugs:#nice:*}#*:}:-0}
 
     local -A zplugs_tags
     zplugs_tags=(
