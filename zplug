@@ -809,6 +809,7 @@ __zplug::load()
 
                     case $zspec[name] in
                         plugins/*)
+                            fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
                             if (( $zspec[nice] > 9 )); then
                                 niced_array+=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
                             else
@@ -816,6 +817,7 @@ __zplug::load()
                             fi
                             ;;
                         themes/*)
+                            fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
                             themes_ext=(.zsh-theme .theme-zsh)
                             if (( $zspec[nice] > 9 )); then
                                 niced_array+=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
@@ -824,6 +826,7 @@ __zplug::load()
                             fi
                             ;;
                         lib/*)
+                            fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
                             if (( $zspec[nice] > 9 )); then
                                 niced_array+=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
                             else
@@ -890,7 +893,7 @@ __zplug::load()
         fi
     done
     # NOTE: set fpath before compinit
-    fpath=($fpaths $fpath)
+    fpath=(${(u)fpaths} $fpath)
     compinit -C -d "$ZPLUG_HOME/zcompdump"
 
     for f in ${(u)niced_array}
