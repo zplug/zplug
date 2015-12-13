@@ -674,6 +674,10 @@ __zplug::parser()
     commit=${${${(M)parsed_zplugs:#commit:*}#*:}:--EMP-}
     nice=${${${(M)parsed_zplugs:#nice:*}#*:}:-0}
 
+    if [[ $name == $oh_my_zsh_repo ]]; then
+        nice=-10
+    fi
+
     local -A zplugs_tags
     zplugs_tags=(
       name    "$name"
