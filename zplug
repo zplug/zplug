@@ -728,8 +728,9 @@ __zplug::load()
     local -A zspec
 
     local f ext
-    local dirname basename
-    local -a commands plugins fpaths repos
+    local dirname basename to
+    local -A zcommands
+    local -a plugins fpaths repos
     local -a extentions globs
     local themes_ext
     local -a args nices niced_array
@@ -782,17 +783,18 @@ __zplug::load()
                 [[ -d $ZPLUG_HOME/bin ]] || mkdir -p $ZPLUG_HOME/bin
                 # Add parent directories to fpath if any files starting in _* exist
                 fpaths+=(${zspec[dir]}{_*,/**/_*}(N-.:h))
+                to=${${zspec[file]:+$ZPLUG_HOME/bin/$zspec[file]}:-$ZPLUG_HOME/bin}
 
                 if [[ -f $zspec[dir]/$zspec[of] ]]; then
-                    commands+=($zspec[dir]/$zspec[of])
+                    zcommands+=($zspec[dir]/$zspec[of] $to)
                 elif [[ -f $zspec[dir]/$zspec[of]/$basename ]]; then
-                    commands+=($zspec[dir]/$zspec[of]/$basename)
+                    zcommands+=($zspec[dir]/$zspec[of]/$basename $to)
                 elif [[ -f $zspec[dir]/$basename ]]; then
-                    commands+=($zspec[dir]/$basename)
+                    zcommands+=($zspec[dir]/$basename $to)
                 elif [[ -f $zspec[dir] ]]; then
-                    commands+=($zspec[dir])
+                    zcommands+=($zspec[dir] $to)
                 else
-                    commands+=( $zspec[dir]/${~zspec[of]:-"*(-*N)"} )
+                    zcommands+=($zspec[dir]/${~zspec[of]:-"*(-*N)"} $to)
                 fi
                 ;;
 
@@ -869,9 +871,9 @@ __zplug::load()
     done
 
     # Commands
-    for f in ${(u)commands}
+    for f in ${(k)zcommands}
     do
-        [[ -f $f ]] && ln -snf "$f" "${zspec[file]:-$ZPLUG_HOME/bin}"
+        [[ -f $f ]] && ln -snf "$f" "$zcommands[$f]"
     done
     path=("$ZPLUG_HOME/bin" $path)
     typeset -gx -U path
