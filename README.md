@@ -180,7 +180,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 | `load`    | Source installed plugins and add installed commands to `$PATH` | `--verbose` |
 | `list`    | List installed items (Strictly speaking, view the associative array `$zplugs`) | `--select` |
 | `update`  | Update installed items in parallel | `--self`,`--select` |
-| `check`   | Return false if there are not installed items | `--verbose`,`--select` |
+| `check`   | Return false if there are not installed items | `--verbose` |
 | `status`  | Check if the remote repositories are up to date | `--select` |
 | `clean`   | Remove repositories which are no longer managed | `--force`,`--select` |
 | `clear`   | Remove the cache file | `--force` |
