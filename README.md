@@ -183,7 +183,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 | `check`   | Return false if there are not installed items | `--verbose`,`--select` |
 | `status`  | Check if the remote repositories are up to date | `--select` |
 | `clean`   | Remove repositories which are no longer managed | `--force`,`--select` |
-| `cache`   | Remove the cache file | `--force` |
+| `clear`   | Remove the cache file | `--force` |
 
 #### Take a closer look
 
