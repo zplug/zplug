@@ -732,22 +732,21 @@ __zplug::load()
     local -A zspec
 
     local f ext
-    local dirname basename to
-    local -A zcommands
-    local -a plugins fpaths repos
-    local -a extentions globs
-    local themes_ext
-    local -a args nices niced_array
+    local dirname basename destination
+    local -A load_commands
+    local -a load_plugins load_fpaths
+    local -a themes_ext plugins_ext glob_patterns
+    local -a args unsorted_nice nice_plugins
     args=(${(k)zplugs})
 
     # Order by nice value
     for key in ${args[@]}
     do
         zspec=( ${(@f)"$(__zplug::parser "$key")"} )
-        nices+=("$zspec[nice]:$zspec[name]")
+        unsorted_nice+=("$zspec[nice]:$zspec[name]")
     done
 
-    for key in ${${(OnM)nices:#-*}#*:} ${${(on)nices:#-*}#*:}
+    for key in ${${(OnM)unsorted_nice:#-*}#*:} ${${(on)unsorted_nice:#-*}#*:}
     do
         zspec=( ${(@f)"$(__zplug::parser "$key")"} )
         for k in ${(k)zspec}
@@ -786,19 +785,19 @@ __zplug::load()
             "command")
                 [[ -d $ZPLUG_HOME/bin ]] || mkdir -p $ZPLUG_HOME/bin
                 # Add parent directories to fpath if any files starting in _* exist
-                fpaths+=(${zspec[dir]}{_*,/**/_*}(N-.:h))
-                to=${${zspec[file]:+$ZPLUG_HOME/bin/$zspec[file]}:-$ZPLUG_HOME/bin}
+                load_fpaths+=(${zspec[dir]}{_*,/**/_*}(N-.:h))
+                destination=${${zspec[file]:+$ZPLUG_HOME/bin/$zspec[file]}:-$ZPLUG_HOME/bin}
 
                 if [[ -f $zspec[dir]/$zspec[of] ]]; then
-                    zcommands+=($zspec[dir]/$zspec[of] $to)
+                    load_commands+=($zspec[dir]/$zspec[of] $destination)
                 elif [[ -f $zspec[dir]/$zspec[of]/$basename ]]; then
-                    zcommands+=($zspec[dir]/$zspec[of]/$basename $to)
+                    load_commands+=($zspec[dir]/$zspec[of]/$basename $destination)
                 elif [[ -f $zspec[dir]/$basename ]]; then
-                    zcommands+=($zspec[dir]/$basename $to)
+                    load_commands+=($zspec[dir]/$basename $destination)
                 elif [[ -f $zspec[dir] ]]; then
-                    zcommands+=($zspec[dir] $to)
+                    load_commands+=($zspec[dir] $destination)
                 else
-                    zcommands+=($zspec[dir]/${~zspec[of]:-"*(-*N)"} $to)
+                    load_commands+=($zspec[dir]/${~zspec[of]:-"*(-*N)"} $destination)
                 fi
                 ;;
 
@@ -808,60 +807,60 @@ __zplug::load()
                         loaded_omz=true
                         export ZSH=$ZPLUG_HOME/repos/$oh_my_zsh_repo
                         # Insert to the top
-                        plugins=($ZSH/oh-my-zsh.sh ${plugins[@]})
+                        load_plugins=($ZSH/oh-my-zsh.sh ${load_plugins[@]})
                     fi
 
                     case $zspec[name] in
                         plugins/*)
-                            fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
+                            load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
                             if (( $zspec[nice] > 9 )); then
-                                niced_array+=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
+                                nice_plugins+=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
                             else
-                                plugins+=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
+                                load_plugins+=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
                             fi
                             ;;
                         themes/*)
-                            fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
+                            load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
                             themes_ext=(.zsh-theme .theme-zsh)
                             if (( $zspec[nice] > 9 )); then
-                                niced_array+=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
+                                nice_plugins+=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
                             else
-                                plugins+=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
+                                load_plugins+=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
                             fi
                             ;;
                         lib/*)
-                            fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
+                            load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
                             if (( $zspec[nice] > 9 )); then
-                                niced_array+=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
+                                nice_plugins+=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
                             else
-                                plugins+=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
+                                load_plugins+=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
                             fi
                             ;;
                     esac
                 else
-                    extentions=(plugin.zsh zsh zsh-theme)
-                    for ext in ${extentions[@]}
+                    plugins_ext=(plugin.zsh zsh zsh-theme)
+                    for ext in ${plugins_ext[@]}
                     do
                         if [[ -n $zspec[of] ]]; then
-                            globs=( $zspec[dir]/${~zspec[of]}(-.N) )
-                            if (( $#globs == 0 )); then
-                                globs=( $zspec[dir]/${~zspec[of]}.$ext(-.N) )
+                            glob_patterns=( $zspec[dir]/${~zspec[of]}(-.N) )
+                            if (( $#glob_patterns == 0 )); then
+                                glob_patterns=( $zspec[dir]/${~zspec[of]}.$ext(-.N) )
                             fi
                         else
-                            globs=( $zspec[dir]/*.$ext(-.N) )
+                            glob_patterns=( $zspec[dir]/*.$ext(-.N) )
                         fi
-                        if (( $#globs > 0 )); then
+                        if (( $#glob_patterns > 0 )); then
                             break
                         fi
                     done
 
                     # Add files to fpath
-                    fpaths+=(${zspec[dir]}/_*(N-.:h))
+                    load_fpaths+=(${zspec[dir]}/_*(N-.:h))
 
                     if (( $zspec[nice] > 9 )); then
-                        niced_array+=(${globs[@]})
+                        nice_plugins+=(${glob_patterns[@]})
                     else
-                        plugins+=(${globs[@]})
+                        load_plugins+=(${glob_patterns[@]})
                     fi
                 fi
                 ;;
@@ -878,15 +877,15 @@ __zplug::load()
     done
 
     # Commands
-    for f in ${(k)zcommands}
+    for f in ${(k)load_commands}
     do
-        [[ -f $f ]] && ln -snf "$f" "$zcommands[$f]"
+        [[ -f $f ]] && ln -snf "$f" "$load_commands[$f]"
     done
     path=("$ZPLUG_HOME/bin" $path)
     typeset -gx -U path
 
     # Plugins
-    for f in ${(u)plugins}
+    for f in ${(u)load_plugins}
     do
         # Use -e flag to check existing
         if [[ -f $f ]]; then
@@ -897,10 +896,10 @@ __zplug::load()
         fi
     done
     # NOTE: set fpath before compinit
-    fpath=(${(u)fpaths} $fpath)
+    fpath=(${(u)load_fpaths} $fpath)
     compinit -C -d "$ZPLUG_HOME/zcompdump"
 
-    for f in ${(u)niced_array}
+    for f in ${(u)nice_plugins}
     do
         # Use -e flag to check existing
         if [[ -f $f ]]; then
@@ -931,16 +930,16 @@ __zplug::load()
         __put 'if $is_verbose; then\n'
         __put '  echo "Static loading..." >&2\n'
         __put 'fi\n'
-        if (( $#plugins > 0 )); then
-            __put 'source %s\n' "${(qqqu)plugins[@]}"
+        if (( $#load_plugins > 0 )); then
+            __put 'source %s\n' "${(qqqu)load_plugins[@]}"
         fi
         __put '\ncompinit -C -d %s\n' "$ZPLUG_HOME/zcompdump"
-        if (( $#niced_array > 0 )); then
+        if (( $#nice_plugins > 0 )); then
             __put '\n# Loading after compinit\n'
-            __put 'source %s\n' "${(qqqu)niced_array[@]}"
+            __put 'source %s\n' "${(qqqu)nice_plugins[@]}"
         fi
         __put '\n# fpath\n'
-        __put 'fpath=(%s $fpath)\n' "${(u)fpaths}"
+        __put 'fpath=(%s $fpath)\n' "${(u)load_fpaths}"
     } >|$ZPLUG_CACHE_FILE
     [[ -f $ZPLUG_CACHE_FILE ]] && chmod a-w $ZPLUG_CACHE_FILE
 }
