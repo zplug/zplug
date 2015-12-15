@@ -513,6 +513,7 @@ __zplug::install()
     local -A zspec
     cnt=0
     max=0
+    fail=0
 
     [[ -d $ZPLUG_HOME/repos ]] || mkdir -p "$ZPLUG_HOME/repos"
 
@@ -619,12 +620,10 @@ __zplug::install()
         (( (cnt += 1) % ZPLUG_THREADS == 0 )) && wait
     done
 
-    fail=0
-
     # Pauses until execution of a background process has ended
     for job in ${${(v)jobstates##*:*:}%"="*}
     do
-        wait $job || let fail++
+        wait $job
     done >/dev/null 2>&1
 
     # Wait until all jobs known to the invoking shell have terminated
@@ -637,6 +636,9 @@ __zplug::install()
         return 0
     fi
 
+    for line in "${args[@]}"; do
+        [[ -d $ZPLUG_HOME/repos/$line ]] || let fail++
+    done
     if [[ $fail -eq 0 ]]; then
         __put "\033[;1m ==> Installed all plugins to $ZPLUG_HOME/repos, successfully!\033[m\n"
     else
