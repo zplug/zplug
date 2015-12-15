@@ -799,7 +799,7 @@ __zplug::load()
                     load_commands+=($zspec[dir] $dst)
                 else
                     src=$zspec[dir]/${~zspec[of]:-"*(-*N)"}
-                    if [[[ -n $src ]]; then
+                    if [[ -n $src ]]; then
                         load_commands+=($src $dst)
                     fi
                 fi
