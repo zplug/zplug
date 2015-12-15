@@ -732,7 +732,8 @@ __zplug::load()
     local -A zspec
 
     local f ext
-    local dirname basename destination
+    local dirname basename
+    local src dst
     local -A load_commands
     local -a load_plugins load_fpaths
     local -a themes_ext plugins_ext glob_patterns
@@ -786,18 +787,21 @@ __zplug::load()
                 [[ -d $ZPLUG_HOME/bin ]] || mkdir -p $ZPLUG_HOME/bin
                 # Add parent directories to fpath if any files starting in _* exist
                 load_fpaths+=(${zspec[dir]}{_*,/**/_*}(N-.:h))
-                destination=${${zspec[file]:+$ZPLUG_HOME/bin/$zspec[file]}:-$ZPLUG_HOME/bin}
+                dst=${${zspec[file]:+$ZPLUG_HOME/bin/$zspec[file]}:-$ZPLUG_HOME/bin}
 
                 if [[ -f $zspec[dir]/$zspec[of] ]]; then
-                    load_commands+=($zspec[dir]/$zspec[of] $destination)
+                    load_commands+=($zspec[dir]/$zspec[of] $dst)
                 elif [[ -f $zspec[dir]/$zspec[of]/$basename ]]; then
-                    load_commands+=($zspec[dir]/$zspec[of]/$basename $destination)
+                    load_commands+=($zspec[dir]/$zspec[of]/$basename $dst)
                 elif [[ -f $zspec[dir]/$basename ]]; then
-                    load_commands+=($zspec[dir]/$basename $destination)
+                    load_commands+=($zspec[dir]/$basename $dst)
                 elif [[ -f $zspec[dir] ]]; then
-                    load_commands+=($zspec[dir] $destination)
+                    load_commands+=($zspec[dir] $dst)
                 else
-                    load_commands+=($zspec[dir]/${~zspec[of]:-"*(-*N)"} $destination)
+                    src=$zspec[dir]/${~zspec[of]:-"*(-*N)"}
+                    if [[[ -n $src ]]; then
+                        load_commands+=($src $dst)
+                    fi
                 fi
                 ;;
 
