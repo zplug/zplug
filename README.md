@@ -158,6 +158,11 @@ zplug "stedolan/jq", \
 # after executing compinit command and sourcing other plugins
 zplug "zsh-users/zsh-syntax-highlighting", nice:10
 
+# Can manage local plugins
+zplug "~/.zsh", from:local
+# A relative path is resolved with respect to the $ZPLUG_HOME
+zplug "repos/robbyrussell/oh-my-zsh/custom/plugins/my-plugin", from:local
+
 # Install plugins if there are plugins that have not been installed
 if ! zplug check --verbose; then
     printf "Install? [y/N]: "
@@ -231,7 +236,7 @@ All that's left is to run `zplug update`.
 |-----------|-------------|-----------------|---------|
 | `as`      | Specify whether to register as commands or to register as plugins | `plugin`,`command` (`plugin`) | `as:command` |
 | `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) / In case of `from:gh-r`, can specify `of:"*darwin*{amd,386}*"` and so on | - (`of:"*.zsh"`) | `of:bin`,`of:"*.sh"`, `of:*darwin*` |
-| `from`    | Specify the services you use to install | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh` (`github`) | `from:gh-r` |
+| `from`    | Specify the services you use to install | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`local` (`github`) | `from:gh-r` |
 | `at`      | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
 | `file`    | Specify filename you want to rename (*only* `as:plugin`) | filename (-) | `file:fzf` |
 | `dir`     | Installation directory which is managed by zplug | **READ ONLY** | `dir:/path/to/user/repo` |

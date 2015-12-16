@@ -1900,7 +1900,7 @@ _zplug()
                     _values -S : -s , "zplug tags" \
                         "as[Specify whether to register as commands or to register as plugins]:as:(plugin command)" \
                         "of[Specify the pattern to source (for plugin) or relative path to export (for command)]:of:->of" \
-                        "from[Specify the services you use to install]:from:(gh-r gist oh-my-zsh github bitbucket)" \
+                        "from[Specify the services you use to install]:from:(gh-r gist oh-my-zsh github bitbucket local)" \
                         "at[Support branch/tag installation]:at:" \
                         "file[Specify filename you want to rename]:file:" \
                         "dir[Installation directory (RO)]:dir:->dir" \
