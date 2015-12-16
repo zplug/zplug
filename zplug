@@ -1948,8 +1948,6 @@ _zplug()
 
 __zplug::reset()
 {
-    unset -m 'ZPLUG_*'
-    unset -m '_zplug_*'
     unset zplugs
 
     unfunction \
