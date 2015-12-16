@@ -648,6 +648,7 @@ __zplug::install()
         done
 
         # Skip installed items
+        [[ $zspec[from] == "local" ]] && continue
         [[ -e $ZPLUG_HOME/repos/$line ]] || [[ $zspec[from] == "oh-my-zsh" && -d $ZPLUG_HOME/repos/$_zplug_omz_repo/$line ]] &&
             {
                 if $is_verbose; then
@@ -1078,8 +1079,8 @@ __zplug::validator()
 
         # from: opt
         if [[ -n $zspec[from] ]]; then
-            if [[ ! $zspec[from] =~ ^(gh-r|gist|oh-my-zsh|bitbucket|github)$ ]]; then
-                __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'from:' takes ['gh-r','gist','oh-my-zsh','bitbucket','github'] (zplug \"$zspec[name]\")\033[m\n"
+            if [[ ! $zspec[from] =~ ^(gh-r|gist|oh-my-zsh|bitbucket|github|local)$ ]]; then
+                __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'from:' takes ['gh-r','gist','oh-my-zsh','bitbucket','github','local'] (zplug \"$zspec[name]\")\033[m\n"
                 unset "zplugs[$zspec[name]]"; let fail++
             fi
             if [[ $zspec[from] == "oh-my-zsh" && ! $zspec[name] =~ ^(plugins|themes|lib) ]]; then
@@ -1150,6 +1151,7 @@ __zplug::check()
     for line in "${args[@]}"
     do
         zspec=( ${(@f)"$(__zplug::parser "$line")"} )
+        [[ $zspec[from] == "local" ]] && continue
         if [[ $zspec[from] != "oh-my-zsh" && ! -e $zspec[dir] ]] || [[ $zspec[from] == "oh-my-zsh" && ! -d ${zspec[dir]:h} ]]; then
             fail+=("$zspec[name]")
         fi
@@ -1713,13 +1715,13 @@ zplug() {
             return 1
             ;;
 
-        *)
+        */*)
             local -a args
             args=(${(s/, /)@:gs/,  */, })
             arg="${args[1]}"
             args[1]=()
 
-            if [[ $arg =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
+            # if [[ $arg =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
                 # Check duplicate plugins
                 # `s` option flags means `shinstdin`
                 if [[ $- =~ s ]] && (( $+zplugs[$arg] )); then
@@ -1749,10 +1751,11 @@ zplug() {
                 fi
 
                 local i tag
-                local is_oh_my_zsh
+                local is_oh_my_zsh is_local
                 for arg in "${task[@]}"
                 do
                     is_oh_my_zsh=false
+                    is_local=false
                     if [[ $arg == $on_name ]]; then
                         specs=("${on_args[@]}")
                     else
@@ -1765,6 +1768,8 @@ zplug() {
                             tag="${tag}${i%,}, "
                             if [[ $i == "from:oh-my-zsh" ]]; then
                                 is_oh_my_zsh=true
+                            elif [[ $i == "from:local" ]]; then
+                                is_local=true
                             fi
                         else
                             __die "$i: invalid tag\n"
@@ -1778,6 +1783,12 @@ zplug() {
                     # Add dir tag to $zplugs
                     if $is_oh_my_zsh; then
                         zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/repos/$_zplug_omz_repo/$arg"
+                    elif $is_local; then
+                        if [[ $arg[1] =~ [~$/] ]]; then
+                            zplugs[$arg]+="${zplugs[$arg]:+, }dir:"${~arg}""
+                        else
+                            zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/$arg"
+                        fi
                     else
                         zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/repos/$arg"
                     fi
@@ -1794,14 +1805,17 @@ zplug() {
 
                     tag=""
                 done
-            else
-                if [[ $arg =~ , ]]; then
-                    __die "$arg: must be put one or more spaces after comma\n"
-                else
-                    __die "$arg: no such command\n"
-                fi
-                return 1
-            fi
+            # else
+            #     if [[ $arg =~ , ]]; then
+            #         __die "$arg: must be put one or more spaces after comma\n"
+            #     else
+            #         __die "$arg: no such command\n"
+            #     fi
+            #     return 1
+            # fi
+            ;;
+        *)
+            __die "$arg: no such command\n"
             ;;
     esac
 
