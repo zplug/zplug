@@ -512,6 +512,7 @@ __zplug::update()
                     zspec[$k]=""
                 fi
             done
+            [[ $zspec[from] == "local" ]] && continue
 
             typeset -F SECONDS=0
 
