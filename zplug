@@ -1644,7 +1644,7 @@ __zplug::generate_external()
 	# zplug "rupa/z",          as:plugin, of:"*.sh"
 	#
 TEMPLATE
-    chmod a-w $ZPLUG_EXTERNAL
+    # chmod a-w $ZPLUG_EXTERNAL
 }
 
 zplug() {
@@ -1802,7 +1802,7 @@ zplug() {
                         __zplug::generate_external
                         chmod a+w $ZPLUG_EXTERNAL
                         echo "zplug ${arg}${tag:+, ${(q)tag}}" >>|$ZPLUG_EXTERNAL
-                        chmod a-w $ZPLUG_EXTERNAL
+                        # chmod a-w $ZPLUG_EXTERNAL
                     fi
 
                     tag=""
