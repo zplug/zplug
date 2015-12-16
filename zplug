@@ -238,35 +238,36 @@ __log() {
 
     case "$state" in
         TITLE)
-            color=yellow
+            color="yellow"
             ;;
         INFO)
-            color=blue
+            color="blue"
             ;;
         FAIL | WARN)
-            color=red
+            color="red"
             tty=2
             ;;
         ERROR)
-            color=red
+            color="red"
             bold="--bold"
             tty=2
             ;;
         PASS)
-            color=green
+            color="green"
             ;;
         SUCCESS)
             bold="--bold"
-            color=green
+            color="green"
             ;;
         *)
             text="$1"
+            ;;
     esac
 
-    __ink "[" --color white
-    __ink "$(date +%H:%M:%S)" --color magenta --bold
-    __ink "]" --color white
-    __ink " $text" --color "$color" --tty "$tty" $bold
+    __ink --color white "["
+    __ink --color magenta --bold "$(date +%H:%M:%S)"
+    __ink --color white "]"
+    __ink --color "$color" --tty "$tty" $bold " $text"
 }
 
 __get_filter() {
