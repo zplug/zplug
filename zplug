@@ -825,6 +825,7 @@ __zplug::load()
     local f ext
     local dirname basename
     local src dst
+    local -a src_a
     local -A load_commands
     local -a load_plugins load_fpaths
     local -a themes_ext plugins_ext glob_patterns
@@ -880,19 +881,22 @@ __zplug::load()
                 load_fpaths+=(${zspec[dir]}{_*,/**/_*}(N-.:h))
                 dst=${${zspec[file]:+$ZPLUG_HOME/bin/$zspec[file]}:-$ZPLUG_HOME/bin}
 
-                if [[ -f $zspec[dir]/$zspec[of] ]]; then
-                    load_commands+=($zspec[dir]/$zspec[of] $dst)
-                elif [[ -f $zspec[dir]/$zspec[of]/$basename ]]; then
-                    load_commands+=($zspec[dir]/$zspec[of]/$basename $dst)
+                zspec[dir]=${zspec[dir]%/}
+                if [[ -f $zspec[dir]${zspec[of]:+"/$zspec[of]"} ]]; then
+                    load_commands+=($zspec[dir]${zspec[of]:+"/$zspec[of]"} $dst)
+                elif [[ -f $zspec[dir]${zspec[of]:+"/$zspec[of]"}/$basename ]]; then
+                    load_commands+=($zspec[dir]${zspec[of]:+"/$zspec[of]"}/$basename $dst)
                 elif [[ -f $zspec[dir]/$basename ]]; then
                     load_commands+=($zspec[dir]/$basename $dst)
                 elif [[ -f $zspec[dir] ]]; then
                     load_commands+=($zspec[dir] $dst)
                 else
-                    src=$zspec[dir]/${~zspec[of]:-"*(-*N)"}
-                    if [[ -n $src ]]; then
+                    # For brace
+                    src_a=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*(*N.)"}" 2>/dev/null) )
+                    for src in $src_a
+                    do
                         load_commands+=($src $dst)
-                    fi
+                    done
                 fi
                 ;;
 
