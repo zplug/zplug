@@ -350,7 +350,7 @@ __bg_rotation_bar() {
             2) echo -ne " -\r";;
             3) echo -ne " \\\\\r";;
         esac
-        sleep 0.05s
+        sleep 0.05
     done
 }
 
