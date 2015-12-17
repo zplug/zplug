@@ -165,7 +165,7 @@ COMMANDS:
 
 For more information, see also $ZPLUG_URL."
 typeset -gr _zplug_omz_repo="robbyrussell/oh-my-zsh"
-typeset -gr _zplug_tag_pattern="as|of|from|to|if|dir|file|at|do|frozen|on|commit|nice"
+typeset -gr _zplug_tag_pattern="as|of|from|to|if|dir|file|at|do|frozen|on|commit|nice|ignore"
 typeset -gr ZPLUG_CACHE_FILE=$ZPLUG_HOME/.cache
 }
 
@@ -749,7 +749,7 @@ __zplug::parser()
 
     parsed_zplugs=(${(s/, /)arg:gs/,  */, })
 
-    local name as of to from if dir file at do frozen on commit nice
+    local name as of to from if dir file at do frozen on commit nice ignore
     name="${parsed_zplugs[1]}"
     as=${${${(M)parsed_zplugs:#as:*}#*:}:-plugin}
     of=${${${(M)parsed_zplugs:#of:*}#*:}:--EMP-}
@@ -764,6 +764,7 @@ __zplug::parser()
     on=${${${(M)parsed_zplugs:#on:*}#*:}:--EMP-}
     commit=${${${(M)parsed_zplugs:#commit:*}#*:}:--EMP-}
     nice=${${${(M)parsed_zplugs:#nice:*}#*:}:-0}
+    ignore=${${${(M)parsed_zplugs:#ignore:*}#*:}:--EMP-}
 
     if [[ $name == $_zplug_omz_repo ]]; then
         nice=-10
@@ -785,6 +786,7 @@ __zplug::parser()
       on      "$on"
       commit  "$commit"
       nice    "$nice"
+      ignore  "$ignore"
     )
 
     # Output zplugs_tags
@@ -826,8 +828,10 @@ __zplug::load()
     local dirname basename
     local src dst
     local -a src_a
+    local ignore
     local -A load_commands
     local -a load_plugins load_fpaths
+    local -a load_ignores
     local -a themes_ext plugins_ext glob_patterns
     local -a args unsorted_nice nice_plugins
     args=(${(k)zplugs})
@@ -973,6 +977,27 @@ __zplug::load()
                 return 1
                 ;;
         esac
+
+        if [[ -n $zspec[ignore] ]]; then
+            if [[ $zspec[from] == "oh-my-zsh" ]]; then
+                load_ignores=( $ZPLUG_HOME/repos/$_zplug_omz_repo/${~zspec[ignore]}(N) )
+            else
+                load_ignores=( $zspec[dir]/${~zspec[ignore]}(N) )
+            fi
+
+            for ignore in ${load_ignores[@]}
+            do
+                # Commands
+                if [[ -n $load_commands[(i)$ignore] ]]; then
+                    unset "load_commands[$ignore]"
+                fi
+                # Plugins
+                load_plugins=(${load_plugins#$ignore})
+                nice_plugins=(${nice_plugins#$ignore})
+                # fpath
+                load_fpaths=(${load_fpaths#$ignore})
+            done
+        fi
     done
 
     # Commands
