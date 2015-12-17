@@ -765,7 +765,7 @@ __zplug::parser()
     commit=${${${(M)parsed_zplugs:#commit:*}#*:}:--EMP-}
     nice=${${${(M)parsed_zplugs:#nice:*}#*:}:-0}
 
-    if [[ $name == $_zplug_omz_repo ]] && [[ $nice -lt 10 ]]; then
+    if [[ $name == $_zplug_omz_repo ]] && [[ $nice -eq 0 ]]; then
         nice=-10
     fi
 
