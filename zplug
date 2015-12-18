@@ -165,7 +165,7 @@ COMMANDS:
 
 For more information, see also $ZPLUG_URL."
 typeset -gr _zplug_omz_repo="robbyrussell/oh-my-zsh"
-typeset -gr _zplug_tag_pattern="as|of|from|to|if|dir|file|at|do|frozen|on|commit|nice|ignore"
+typeset -gr _zplug_tag_pattern="as|of|from|if|dir|file|at|do|frozen|on|commit|nice|ignore"
 typeset -gr ZPLUG_CACHE_FILE=$ZPLUG_HOME/.cache
 }
 
@@ -749,11 +749,10 @@ __zplug::parser()
 
     parsed_zplugs=(${(s/, /)arg:gs/,  */, })
 
-    local name as of to from if dir file at do frozen on commit nice ignore
+    local name as of from if dir file at do frozen on commit nice ignore
     name="${parsed_zplugs[1]}"
     as=${${${(M)parsed_zplugs:#as:*}#*:}:-plugin}
     of=${${${(M)parsed_zplugs:#of:*}#*:}:--EMP-}
-    to=${${${(M)parsed_zplugs:#to:*}#*:}:--EMP-}
     from=${${${(M)parsed_zplugs:#from:*}#*:}:-github}
     if=${${${(M)parsed_zplugs:#if:*}#*:}:--EMP-}
     dir=${${${(M)parsed_zplugs:#dir:*}#*:}:--EMP-}
@@ -775,7 +774,6 @@ __zplug::parser()
       name    "$name"
       as      "$as"
       of      "$of"
-      to      "$to"
       from    "$from"
       if      "$if"
       dir     "$dir"
@@ -1111,7 +1109,7 @@ __zplug::validator()
         done
 
         # as: must (default: plugin)
-        if [[ ! $zspec[as] =~ ^(command|plugin)$ ]]; then
+        if [[ ! $zspec[as] =~ ^(command|plugin|none)$ ]]; then
             __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'as:' takes ['command','plugin'] (zplug \"$zspec[name]\")\033[m\n"
 
             # Remove that key and value
