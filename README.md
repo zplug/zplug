@@ -62,6 +62,7 @@
   - Gist file ([gist.github.com](https://gist.github.com))
   - Externally managed plugins e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) plugins/themes
   - Birary artifacts on [GitHub Releases](https://help.github.com/articles/about-releases/)
+  - Local plugins
   - etc.
 - Super-fast parallel installation/update
 - Branch/tag/commit support
@@ -69,7 +70,7 @@
 - Dependencies between plugins
 - Unlike [antigen](https://github.com/zsh-users/antigen), no ZSH plugin file (`*.plugin.zsh`) required
 - Interactive interface ([fzf](https://github.com/junegunn/fzf), [peco](https://github.com/peco/peco), [zaw](https://github.com/zsh-users/zaw), and so on)
-- Cache mechanism for reducing the startup time
+- Cache mechanism for reducing [the startup time](#vs)
 
 ***DEMO:***
 
@@ -235,17 +236,18 @@ All that's left is to run `zplug update`.
 | Tag | Description | Value (default) | Example |
 |-----------|-------------|-----------------|---------|
 | `as`      | Specify whether to register as commands or to register as plugins | `plugin`,`command` (`plugin`) | `as:command` |
-| `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) / In case of `from:gh-r`, can specify `of:"*darwin*{amd,386}*"` and so on | - (`of:"*.zsh"`) | `of:bin`,`of:"*.sh"`, `of:*darwin*` |
+| `of`      | Specify the pattern to source files (for `plugin`) or specify relative path to add to the `$PATH` (for `command`) / In case of `from:gh-r`, can specify `of:"*darwin*{amd,386}*"` and so on | *glob* (`of:"*.zsh"`) | `of:bin`,`of:"*.sh"`, `of:*darwin*` |
 | `from`    | Specify the services you use to install | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`local` (`github`) | `from:gh-r` |
-| `at`      | Support branch/tag installation | branch/tag name (`master`) | `at:v1.5.6` |
-| `file`    | Specify filename you want to rename (*only* `as:plugin`) | filename (-) | `file:fzf` |
+| `at`      | Support branch/tag installation | *branch/tag* (`master`) | `at:v1.5.6` |
+| `file`    | Specify filename you want to rename (only `as:plugin`) | *filename* (-) | `file:fzf` |
 | `dir`     | Installation directory which is managed by zplug | **READ ONLY** | `dir:/path/to/user/repo` |
-| `if`      | Specify the conditions under which to run `source` or add to `$PATH` | true or false (-) | `if:"[ -d ~/.zsh ]"` |
-| `do`      | Run commands after installation/update | commands (-) | `do:make install` |
+| `if`      | Specify the conditions under which to run `source` or add to `$PATH` | *boolean* (-) | `if:"[ -d ~/.zsh ]"` |
+| `do`      | Run commands after installation/update | *commands* (-) | `do:make install` |
 | `frozen`  | Do not update unless explicitly specified | 0,1 (0) | `frozen:1` |
-| `commit`  | Support commit installation (regardless of whether the `$ZPLUG_SHALLOW` is true or not) | commit hash (-) | `commit:4428d48` |
+| `commit`  | Support commit installation (regardless of whether the `$ZPLUG_SHALLOW` is true or not) | *revision* (-) | `commit:4428d48` |
 | `on`      | Dependencies | **READ ONLY** | `on:user/repo` |
 | `nice`    | Priority of loading the plugins. If this tag is specified 10 or more, zplug will load plugins after `compinit` (see also [#26](https://github.com/b4b4r07/zplug/issues/26)) | -20..19 (0) | `nice:19` |
+| `ignore`  | Similar to `of` tag, specify exception pattern so as not to load the files you want to ignore (see also [#56](https://github.com/b4b4r07/zplug/issues/56)) | *glob* (-) | `ignore:"some_*.zsh"` |
 
 #### Available on CLI
 
