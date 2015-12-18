@@ -827,6 +827,7 @@ __zplug::load()
     local src dst
     local -A load_commands
     local -a load_plugins load_fpaths
+    local -a temporary_array
     local -a themes_ext plugins_ext glob_patterns
     local -a args unsorted_nice nice_plugins
     args=(${(k)zplugs})
@@ -898,41 +899,52 @@ __zplug::load()
 
             "plugin")
                 if [[ $zspec[from] == "oh-my-zsh" ]]; then
-                    if ! $loaded_omz; then
-                        loaded_omz=true
-                        export ZSH=$ZPLUG_HOME/repos/$_zplug_omz_repo
-                        # Insert to the top
-                        load_plugins=($ZSH/oh-my-zsh.sh ${load_plugins[@]})
-                    fi
+                    load_omz() {
+                        if ! $loaded_omz; then
+                            loaded_omz=true
+                            export ZSH=$ZPLUG_HOME/repos/$_zplug_omz_repo
+                            # Insert to the top
+                            load_plugins=($ZSH/oh-my-zsh.sh ${load_plugins[@]})
+                        fi
+                    }
 
+                    # oh-my-zsh
                     case $zspec[name] in
                         plugins/*)
                             load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
+                            temporary_array=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
                             if (( $zspec[nice] > 9 )); then
-                                nice_plugins+=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
+                                nice_plugins+=( ${temporary_array[@]} )
                             else
-                                load_plugins+=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
+                                load_plugins+=( ${temporary_array[@]} )
                             fi
+                            (( $#temporary_array > 0 )) && load_omz
                             ;;
                         themes/*)
                             load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
                             themes_ext=(.zsh-theme .theme-zsh)
+                            temporary_array=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
                             if (( $zspec[nice] > 9 )); then
-                                nice_plugins+=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
+                                nice_plugins+=( ${temporary_array[@]} )
                             else
-                                load_plugins+=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
+                                load_plugins+=( ${temporary_array[@]} )
                             fi
+                            (( $#temporary_array > 0 )) && load_omz
                             ;;
                         lib/*)
                             load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
+                            temporary_array=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
                             if (( $zspec[nice] > 9 )); then
-                                nice_plugins+=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
+                                nice_plugins+=( ${temporary_array[@]} )
                             else
-                                load_plugins+=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
+                                load_plugins+=( ${temporary_array[@]} )
                             fi
+                            (( $#temporary_array > 0 )) && load_omz
                             ;;
                     esac
+
                 else
+                    # NOT oh-my-zsh
                     plugins_ext=(plugin.zsh zsh zsh-theme)
                     for ext in ${plugins_ext[@]}
                     do
