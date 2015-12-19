@@ -1547,6 +1547,16 @@ __zplug::clean()
             ;;
     esac
 
+    clean_deadlinks() {
+        local link
+        for link in $ZPLUG_HOME/bin/*(@)
+        do
+            if [[ -L $link ]] && [[ ! -e $link ]]; then
+                command rm -f "$link"
+            fi
+        done
+    }
+
     # Note:
     # How to remove elements from ordinary array or associative array
     # ordinary array   : array[num]=() or shift 1 array <= overwrite empty element or shift command
@@ -1588,6 +1598,7 @@ __zplug::clean()
         __put "Remove really? [y/N]: "
         if $is_force || read -q; then
             command rm -rf "${(u)remove_args[@]}"
+            clean_deadlinks
             __put "\nRemoved\n"
         else
             __put "\nCanceled\n"
@@ -1616,6 +1627,7 @@ __zplug::clean()
         __put "Remove? [y/N]: "
         if $is_force || read -q; then
             command rm -rf "${repos[@]}"
+            clean_deadlinks
             __put "\nRemoved\n"
         else
             __put "\nCanceled\n"
