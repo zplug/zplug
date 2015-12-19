@@ -862,13 +862,13 @@ __zplug::load()
             fi
             if [[ -n $zspec[if] ]]; then
                 if ! eval "$zspec[if]" >/dev/null 2>&1; then
-                    __die "$zspec[name]: (not load)\n"
+                    __die "$zspec[name]: (not loaded)\n"
                     continue
                 fi
             fi
             if [[ -n $zspec[on] ]]; then
                 if ! [[ -e $ZPLUG_HOME/repos/$zspec[on] ]]; then
-                    __die "$zspec[name]: (not load)\n"
+                    __die "$zspec[name]: (not loaded)\n"
                     continue
                 fi
             fi
