@@ -867,7 +867,7 @@ __zplug::load()
                 fi
             fi
             if [[ -n $zspec[on] ]]; then
-                if ! [[ -e $ZPLUG_HOME/repos/$zspec[on] ]]; then
+                if ! [[ -e $ZPLUG_HOME/repos/$zspec[on] ]] || [[ $zspec[from] == "local" && ! -e $zspec[on] ]]; then
                     $is_verbose && __die "$zspec[name]: (not loaded)\n"
                     continue
                 fi
