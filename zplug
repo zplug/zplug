@@ -596,7 +596,7 @@ __zplug::install()
     local cnt line fail job filter max
     local start end
     local is_verbose=false is_select=false
-    local -a args
+    local -a args check
     local oh_my_line oh_my_count=0
     local -A zspec
     cnt=0
@@ -648,6 +648,9 @@ __zplug::install()
                 zspec[$k]=""
             fi
         done
+
+        # For checking
+        check+=($zspec[dir])
 
         # Skip installed items
         [[ $zspec[from] == "local" ]] && continue
@@ -725,8 +728,8 @@ __zplug::install()
         return 0
     fi
 
-    for line in "${args[@]}"; do
-        [[ -d $ZPLUG_HOME/repos/$line ]] || let fail++
+    for line in "${check[@]}"; do
+        [[ -e $line ]] || let fail++
     done
     if [[ $fail -eq 0 ]]; then
         __put "\033[;1m ==> Installed all plugins to $ZPLUG_HOME/repos, successfully!\033[m\n"
