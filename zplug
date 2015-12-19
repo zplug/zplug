@@ -1208,6 +1208,7 @@ __zplug::check()
     fi
 }
 
+# WIP
 __zplug::status()
 {
     get_head_branch() {
@@ -1240,11 +1241,9 @@ __zplug::status()
         local zspec_dir="$1"
         local dir="${zspec_dir##*/}"
 
-        local state
-        local branch
+        local state branch url
         local remote_name
         local merge_branch
-        local url
 
         if [[ ! -e .git ]]; then
             state="not init"
@@ -1253,31 +1252,30 @@ __zplug::status()
             if [[ $status -eq 0 ]]; then
                 remote_name=$(get_remote_name "$branch")
                 if [[ $status -eq 0 ]]; then
-                    merge_branch="$(git config branch."${branch}".merge | sed 's%^refs/heads/%%')"
                     local remote_show
+                    merge_branch="${$(git config branch.${branch}.merge)#refs/heads/}"
                     remote_show="$(git remote show "$remote_name")"
-                    state=$(echo "$remote_show" \
-                        | grep "^ *$branch *pushes" | sed 's/.*(\(.*\)).*/\1/')
+                    state=$(echo "$remote_show" | grep "^ *$branch *pushes" | sed 's/.*(\(.*\)).*/\1/')
                     if [[ -z $state ]]; then
-                        local behind_ahead
-                        behind_ahead="$(git rev-list --left-right --count "$remote_name/$merge_branch"...$branch)"
-                        local behind="$(echo "$behind_ahead" | awk '{print $1}')"
-                        local ahead="$(echo "$behind_ahead" | awk '{print $2}')"
-                        if [[ $behind -gt 0 ]]; then
+                        local -a behind_ahead
+                        local -i behind ahead
+                        local origin_head
+                        behind_ahead=( $(git rev-list --left-right --count "$remote_name/$merge_branch"...$branch) )
+                        behind=$behind_ahead[1] ahead=$behind_ahead[2]
+                        if (( $behind > 0 )); then
                             state="local out of date"
                         else
-                            local origin_head
                             origin_head="$(git ls-remote origin HEAD | cut -f 1)"
                             if ! git rev-parse -q "$origin_head" >/dev/null 2>&1; then
                                 state="local out of date"
-                            elif [[ $ahead -gt 0 ]]; then
+                            elif (( $ahead > 0 )); then
                                 state="fast-forwardable"
                             else
                                 state="up to date"
                             fi
                         fi
                     fi
-                    url="$(echo "$remote_show" | grep '^ *Push' | sed 's/^.*URL: \(.*\)$/\1/')"
+                    url="$(grep '^ *Push' <<<"$remote_show" | sed 's/^.*URL: \(.*\)$/\1/')"
                 else
                     state="$remote_name"
                     remote_name=
@@ -1287,7 +1285,7 @@ __zplug::status()
             fi
         fi
 
-        state=${state:-'?'}
+        state="${state:-'?'}"
         if [[ "$state" == "up to date" ]]; then
             state="\033[0;32m${state}\033[0;39m"
         else
@@ -2059,6 +2057,7 @@ if (( is_ready_zplug++ == 0 )); then
     fi
     compdef _zplug zplug
 fi
+
 
 # __END__ {{{1
 # vim:fdm=marker fdc=3 ft=zsh ts=4 sw=4 sts=4:
