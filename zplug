@@ -1269,7 +1269,7 @@ __zplug::status()
                         if (( $behind > 0 )); then
                             state="local out of date"
                         else
-                            origin_head="$(git ls-remote origin HEAD | cut -f 1)"
+                            origin_head="${$(git ls-remote origin HEAD)[1]}"
                             if ! git rev-parse -q "$origin_head" >/dev/null 2>&1; then
                                 state="local out of date"
                             elif (( $ahead > 0 )); then
@@ -1291,11 +1291,11 @@ __zplug::status()
 
         state="${state:-'?'}"
         if [[ "$state" == "up to date" ]]; then
-            state="\033[0;32m${state}\033[0;39m"
+            state="$(__ink --color green ${state})"
         else
-            state="\033[0;31m${state}\033[0;39m"
+            state="$(__ink --color red ${state})"
         fi
-        dir="\033[0;34m${zspec_dir}\033[0;39m"
+        dir="$(__ink --color blue ${zspec_dir})"
 
         # __put "($state) [${dir:-?}] (${branch:-?} -> ${remote_name:-?}/${merge_branch:-?}) URL: ${url:-?}\n"
         __put "($state) [${dir:-?}] URL: ${url:-?}\n"
@@ -1365,7 +1365,8 @@ __zplug::status()
 
             case $ret in
                 2)
-                    __put "(not managed) [\033[34m$zspec[name]\033[m] (not having .git directory) URL: https://github.com/${zspec[name]}.git\n"
+                    sleep 1
+                    __put "(not managed) [\033[34m$zspec[name]\033[m] URL: https://github.com/${zspec[name]}.git\n"
                     ;;
             esac
         } &
