@@ -360,11 +360,11 @@ __zplug::releases()
     # For more information, see also https://github.com/b4b4r07/releases
 
     if (( $+commands[curl] )); then
-        L="$1" bash -c "$(curl -fsSL git.io/releases)" -s "${2:-os}"
+        L="$1" V="${3:-latest}" bash -c "$(curl -fsSL git.io/releases)" -s "${2:-os}"
         return $status
 
     elif (( $+commands[wget] )); then
-        L="$1" bash -c "$(wget -qO - git.io/releases)" -s "${2:-os}"
+        L="$1" V="${3:-latest}" bash -c "$(wget -qO - git.io/releases)" -s "${2:-os}"
         return $status
 
     fi >/dev/null 2>&1
@@ -546,7 +546,7 @@ __zplug::update()
                 # send a http request to git.io/releases with os argument
                 # or, git pull (case of normal plugin)
                 if [[ $zspec[from] == "gh-r" ]]; then
-                    __zplug::releases $zspec[name] $zspec[of]
+                    __zplug::releases $zspec[name] $zspec[of] ${zspec[at]:#master}
                 else
                     git pull --quiet
                 fi || return 1
@@ -1483,7 +1483,7 @@ __zplug::clone()
             dirname="${repository%/*}"
             [[ -d $dirname ]] || mkdir -p "$dirname"
             builtin cd "$dirname" &>/dev/null
-            __zplug::releases "$repository" "$tag_of"
+            __zplug::releases "$repository" "$tag_of" "${tag_at:#master}"
 
             # Post-installation hooks
             builtin cd "$ZPLUG_HOME/repos/$repository" &>/dev/null
