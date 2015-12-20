@@ -1209,76 +1209,78 @@ __zplug::check()
     fi
 }
 
+# WIP
 __zplug::status()
 {
     get_head_branch() {
-        local head_branch prehash
+        local head_branch
         if __git_version 1.7.10; then
             head_branch="$(git symbolic-ref -q --short HEAD)"
         else
-            head_branch="$(git symbolic-ref -q HEAD | sed -e 's/^refs\/heads\///')"
+            head_branch="${$(git symbolic-ref -q HEAD)#refs/heads/}"
         fi
+
         if [[ -z $head_branch ]]; then
-            prehash="$(git rev-parse --short HEAD)"
-            echo "$prehash"
+            git rev-parse --short HEAD
             return 1
         fi
-        echo "$head_branch"
+        __put "$head_branch\n"
     }
 
     get_remote_name() {
         local branch remote_name
         branch="$1"
-        remote_name=$(git config branch."${branch}".remote)
+        remote_name="$(git config branch.${branch}.remote)"
+
         if [[ -z $remote_name ]]; then
             __die "no remote repository\n"
             return 1
         fi
-        echo "$remote_name"
+        __put "$remote_name\n"
     }
 
-    check_remote() {
+    get_remote_status() {
         local zspec_dir="$1"
         local dir="${zspec_dir##*/}"
 
-        local state
-        local branch
+        local state branch url
         local remote_name
         local merge_branch
-        local url
 
         if [[ ! -e .git ]]; then
             state="not init"
         else
             branch="$(get_head_branch)"
             if [[ $status -eq 0 ]]; then
-                remote_name=$(get_remote_name "$branch")
+                remote_name="$(get_remote_name "$branch")"
+
                 if [[ $status -eq 0 ]]; then
-                    merge_branch="$(git config branch."${branch}".merge | sed 's%^refs/heads/%%')"
                     local remote_show
+                    merge_branch="${$(git config branch.${branch}.merge)#refs/heads/}"
                     remote_show="$(git remote show "$remote_name")"
-                    state=$(echo "$remote_show" \
-                        | grep "^ *$branch *pushes" | sed 's/.*(\(.*\)).*/\1/')
+                    state="$(grep "^ *$branch *pushes" <<<"$remote_show" | sed 's/.*(\(.*\)).*/\1/')"
+
                     if [[ -z $state ]]; then
-                        local behind_ahead
-                        behind_ahead="$(git rev-list --left-right --count "$remote_name/$merge_branch"...$branch)"
-                        local behind="$(echo "$behind_ahead" | awk '{print $1}')"
-                        local ahead="$(echo "$behind_ahead" | awk '{print $2}')"
-                        if [[ $behind -gt 0 ]]; then
+                        local -a behind_ahead
+                        local -i behind ahead
+                        local origin_head
+                        behind_ahead=( $(git rev-list --left-right --count "$remote_name/$merge_branch"...$branch) )
+                        behind=$behind_ahead[1] ahead=$behind_ahead[2]
+
+                        if (( $behind > 0 )); then
                             state="local out of date"
                         else
-                            local origin_head
-                            origin_head="$(git ls-remote origin HEAD | cut -f 1)"
+                            origin_head="${$(git ls-remote origin HEAD)[1]}"
                             if ! git rev-parse -q "$origin_head" >/dev/null 2>&1; then
                                 state="local out of date"
-                            elif [[ $ahead -gt 0 ]]; then
+                            elif (( $ahead > 0 )); then
                                 state="fast-forwardable"
                             else
                                 state="up to date"
                             fi
                         fi
                     fi
-                    url="$(echo "$remote_show" | grep '^ *Push' | sed 's/^.*URL: \(.*\)$/\1/')"
+                    url="$(grep '^ *Push' <<<"$remote_show" | sed 's/^.*URL: \(.*\)$/\1/')"
                 else
                     state="$remote_name"
                     remote_name=
@@ -1288,15 +1290,16 @@ __zplug::status()
             fi
         fi
 
-        state=${state:-'?'}
+        state="${state:-'?'}"
         if [[ "$state" == "up to date" ]]; then
-            state="\033[0;32m${state}\033[0;39m"
+            state="$(__ink --color green ${state})"
         else
-            state="\033[0;31m${state}\033[0;39m"
+            state="$(__ink --color red ${state})"
         fi
-        dir="\033[0;34m${zspec_dir}\033[0;39m"
+        dir="$(__ink --color blue ${zspec_dir})"
 
-        __put "($state) [${dir:-?}] (${branch:-?} -> ${remote_name:-?}/${merge_branch:-?}) URL: ${url:-?}\n"
+        # __put "($state) [${dir:-?}] (${branch:-?} -> ${remote_name:-?}/${merge_branch:-?}) URL: ${url:-?}\n"
+        __put "($state) [${dir:-?}] URL: ${url:-?}\n"
     }
 
     local line cnt=0 is_select=false
@@ -1346,8 +1349,13 @@ __zplug::status()
             __bg_rotation_bar & bg_pid=$!
 
             () {
-                builtin cd $zspec[dir] &>/dev/null || return 2
-                check_remote $zspec[name]
+                if [[ $zspec[from] == "oh-my-zsh" ]]; then
+                    builtin cd $ZPLUG_HOME/repos/$_zplug_omz_repo &>/dev/null || return 2
+                    get_remote_status $_zplug_omz_repo
+                else
+                    builtin cd $zspec[dir] &>/dev/null || return 2
+                    get_remote_status $zspec[name]
+                fi
             }
             # Return code of above unnamed function
             # Incidentally,
@@ -1358,7 +1366,8 @@ __zplug::status()
 
             case $ret in
                 2)
-                    __put "(not managed) [\033[34m$zspec[name]\033[m] (not having .git directory) URL: https://github.com/${zspec[name]}.git\n"
+                    sleep 1
+                    __put "(not managed) [\033[34m$zspec[name]\033[m] URL: https://github.com/${zspec[name]}.git\n"
                     ;;
             esac
         } &
@@ -1372,7 +1381,7 @@ __zplug::status()
 
     __job_control on
 
-    unfunction get_remote_name get_head_branch check_remote
+    unfunction get_remote_name get_head_branch get_remote_status
 }
 
 __zplug::clone()
@@ -2060,6 +2069,7 @@ if (( is_ready_zplug++ == 0 )); then
     fi
     compdef _zplug zplug
 fi
+
 
 # __END__ {{{1
 # vim:fdm=marker fdc=3 ft=zsh ts=4 sw=4 sts=4:
