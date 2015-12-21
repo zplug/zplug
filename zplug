@@ -548,8 +548,33 @@ __zplug::update()
                 if [[ $zspec[from] == "gh-r" ]]; then
                     __zplug::releases $zspec[name] $zspec[of] ${zspec[at]:#master}
                 else
-                    git pull --quiet
-                fi || return 1
+                    local fetch_opt
+                    if [[ -e $zspec[dir]/.git/shallow ]]; then
+                        fetch_opt='--depth 99999999'
+                    fi
+                    git fetch $fetch_opt
+                    git checkout -q $zspec[at]
+
+                    local rev_local rev_remote rev_base
+                    rev_local=$(git rev-parse @)
+                    rev_remote=$(git rev-parse "@{u}")
+                    rev_base=$(git merge-base @ "@{u}")
+
+                    if [[ $rev_local == $rev_remote ]]; then
+                        # up-to-date
+                        return 128
+                    elif [[ $rev_local = $rev_base ]]; then
+                        # need to pull
+                        git merge --ff-only origin/$zspec[at] && git submodule update --init --recursive
+                        return $status
+                    elif [ $rev_remote = $rev_base ]; then
+                        # need to push
+                        return 1
+                    else
+                        # Diverged
+                        return 1
+                    fi
+                fi
             } >/dev/null 2>&1
             # Return code of above unnamed function
             # Incidentally,
@@ -577,6 +602,9 @@ __zplug::update()
                     # Output in magenta
                     # and SECONDS-1 (sleep 1)
                     __put "\033[35mNot Found\033[m    %-${max}s\t(%.2fs)\n" "$line" $((SECONDS-1))
+                    ;;
+                128)
+                    __put "%s   %-${max}s\t(%.2fs)\n" $(__ink --color white "Up-to-date") "$line" $SECONDS
                     ;;
             esac
         } &
