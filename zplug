@@ -994,7 +994,7 @@ __zplug::load()
                         else
                             glob_patterns=( $zspec[dir]/*.$ext(-.N) )
                             # Support user/repo.ext
-                            glob_patterns=( $zspec[dir].$ext(-.N) )
+                            glob_patterns+=( $zspec[dir].$ext(-.N) )
                         fi
                         if (( $#glob_patterns > 0 )); then
                             break
