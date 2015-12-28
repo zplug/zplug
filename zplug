@@ -432,7 +432,7 @@ __zplug::list()
         __die "$arg: not found in \$zplugs\n"
         return 1
     fi
-    __put '%s  =>  %s\n' "${(@kv)out}" \
+    __put '%s  =>  %s\n' "${(@kv)out:gs:@::}" \
         | sed -e 's/-EMP-/""/g' \
         | perl -pe 's/^(.*)( *=>.*)$/\033[32m$1\033[m$2/g' \
         | perl -pe 's/('"$_zplug_tag_pattern"')(:)/\033[34m$1\033[m$2/g'
@@ -489,7 +489,7 @@ __zplug::update()
     if $is_select; then
         args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
     else
-        args=("$@")
+        args=(${(u)${@:gs:@::}})
     fi
 
     local max=0
@@ -657,7 +657,7 @@ __zplug::install()
     if $is_select; then
         args=(${(@f)"$(echo "${(F)@}" | eval "$filter")"})
     else
-        args=("$@")
+        args=(${(u)${@:gs:@::}})
     fi
 
     typeset -F SECONDS=0
@@ -1053,7 +1053,7 @@ __zplug::load()
     typeset -gx -U path
 
     # Plugins
-    for f in ${(u)load_plugins}
+    for f in ${load_plugins[@]}
     do
         # Use -e flag to check existing
         if [[ -f $f ]]; then
@@ -1067,7 +1067,7 @@ __zplug::load()
     fpath=(${(u)load_fpaths} $fpath)
     compinit -C -d "$ZPLUG_HOME/zcompdump"
 
-    for f in ${(u)nice_plugins}
+    for f in ${nice_plugins[@]}
     do
         # Use -e flag to check existing
         if [[ -f $f ]]; then
@@ -1099,12 +1099,12 @@ __zplug::load()
         __put '  echo "Static loading..." >&2\n'
         __put 'fi\n'
         if (( $#load_plugins > 0 )); then
-            __put 'source %s\n' "${(qqqu)load_plugins[@]}"
+            __put 'source %s\n' "${(qqq)load_plugins[@]}"
         fi
         __put '\ncompinit -C -d %s\n' "$ZPLUG_HOME/zcompdump"
         if (( $#nice_plugins > 0 )); then
             __put '\n# Loading after compinit\n'
-            __put 'source %s\n' "${(qqqu)nice_plugins[@]}"
+            __put 'source %s\n' "${(qqq)nice_plugins[@]}"
         fi
         __put '\n# fpath\n'
         __put 'fpath=(%s $fpath)\n' "${(u)load_fpaths}"
@@ -1223,7 +1223,7 @@ __zplug::check()
         shift
     done
 
-    for line in "${args[@]}"
+    for line in ${(u)${args[@]:gs:@::}}
     do
         zspec=( ${(@f)"$(__zplug::parser "$line")"} )
         [[ $zspec[from] == "local" ]] && continue
@@ -1354,7 +1354,7 @@ __zplug::status()
     if $is_select; then
         args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
     else
-        args=("$@")
+        args=(${(u)${@:gs:@::}})
     fi
 
     for line in "${args[@]}"; do
@@ -1814,6 +1814,7 @@ zplug() {
             ;;
 
         */*)
+            local -i max=0
             local -a args
             args=(${(s/, /)@:gs/,  */, })
             arg="${args[1]}"
@@ -1877,18 +1878,27 @@ zplug() {
 
                     tag="${tag%, }"
                     # Add to $zplugs(AA; key:"user/repo" => value:"tag:value")
+                    if [[ -n ${zplugs[(I)${arg}]} ]]; then
+                        for local same in ${(k)zplugs}
+                        do
+                            if [[ $same =~ ^$arg ]] && (( max < $#same )); then
+                                 max=$#same
+                                 arg="${same}@"
+                            fi
+                        done
+                    fi
                     zplugs+=("$arg" "${tag:-}")
                     # Add dir tag to $zplugs
                     if $is_oh_my_zsh; then
-                        zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/repos/$_zplug_omz_repo/$arg"
+                        zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/repos/$_zplug_omz_repo/${arg:gs:@::}"
                     elif $is_local; then
                         if [[ $arg[1] =~ [~$/] ]]; then
-                            zplugs[$arg]+="${zplugs[$arg]:+, }dir:"${~arg}""
+                            zplugs[$arg]+="${zplugs[$arg]:+, }dir:"${~arg:gs:@::}""
                         else
-                            zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/$arg"
+                            zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/${arg:gs:@::}"
                         fi
                     else
-                        zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/repos/$arg"
+                        zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/repos/${arg:gs:@::}"
                     fi
                     if [[ $arg != $on_name && -n $on_name ]]; then
                         zplugs[$arg]+="${zplugs[$arg]:+, }on:$on_name"
