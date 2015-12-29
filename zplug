@@ -550,15 +550,15 @@ __zplug::update()
                 else
                     local fetch_opt
                     if [[ -e $zspec[dir]/.git/shallow ]]; then
-                        fetch_opt='--depth 99999999'
+                        fetch_opt='--unshallow'
                     fi
                     git fetch $fetch_opt
                     git checkout -q $zspec[at]
 
                     local rev_local rev_remote rev_base
-                    rev_local=$(git rev-parse @)
+                    rev_local=$(git rev-parse HEAD)
                     rev_remote=$(git rev-parse "@{u}")
-                    rev_base=$(git merge-base @ "@{u}")
+                    rev_base=$(git merge-base HEAD "@{u}")
 
                     if [[ $rev_local == $rev_remote ]]; then
                         # up-to-date
