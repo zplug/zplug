@@ -989,7 +989,8 @@ __zplug::load()
                         if [[ -n $zspec[of] ]]; then
                             glob_patterns=( $zspec[dir]/${~zspec[of]}(-.N) )
                             if (( $#glob_patterns == 0 )); then
-                                glob_patterns=( $zspec[dir]/${~zspec[of]}.$ext(-.N) )
+                                glob_patterns+=( $zspec[dir]/${~zspec[of]}.$ext(-.N) )
+                                glob_patterns+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*(*N.)"}" 2>/dev/null) )
                             fi
                         else
                             glob_patterns=( $zspec[dir]/*.$ext(-.N) )
