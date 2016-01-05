@@ -142,7 +142,7 @@ zplug "b4b4r07/79ee61f7c140c63d2786", \
 
 # Support bitbucket
 zplug "b4b4r07/hello_bitbucket", \
-    as:command
+    as:command, \
     from:bitbucket, \
     do:"chmod 755 *.sh", \
     of:"*.sh"
