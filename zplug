@@ -1102,13 +1102,13 @@ __zplug::load()
         if (( $#load_plugins > 0 )); then
             __put 'source %s\n' "${(qqq)load_plugins[@]}"
         fi
-        __put '\ncompinit -C -d %s\n' "$ZPLUG_HOME/zcompdump"
+        __put '\n# fpath\n'
+        __put 'fpath=(%s $fpath)\n' "${(u)load_fpaths}"
+        __put 'compinit -C -d %s\n' "$ZPLUG_HOME/zcompdump"
         if (( $#nice_plugins > 0 )); then
             __put '\n# Loading after compinit\n'
             __put 'source %s\n' "${(qqq)nice_plugins[@]}"
         fi
-        __put '\n# fpath\n'
-        __put 'fpath=(%s $fpath)\n' "${(u)load_fpaths}"
     } >|$ZPLUG_CACHE_FILE
     [[ -f $ZPLUG_CACHE_FILE ]] && chmod a-w $ZPLUG_CACHE_FILE
 }
