@@ -1880,7 +1880,8 @@ zplug() {
                     tag="${tag%, }"
                     # Add to $zplugs(AA; key:"user/repo" => value:"tag:value")
                     if [[ -n ${zplugs[(I)${arg}]} ]]; then
-                        for local same in ${(k)zplugs}
+                        local same
+                        for same in ${(k)zplugs}
                         do
                             if [[ $same =~ ^$arg ]] && (( max < $#same )); then
                                  max=$#same
