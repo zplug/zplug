@@ -1880,12 +1880,13 @@ zplug() {
                     tag="${tag%, }"
                     # Add to $zplugs(AA; key:"user/repo" => value:"tag:value")
                     if [[ -n ${zplugs[(I)${arg}]} ]]; then
-                        local same
-                        for same in ${(k)zplugs}
+                        local key
+                        for key in ${(k)zplugs}
                         do
-                            if [[ $same =~ ^$arg ]] && (( max < $#same )); then
-                                 max=$#same
-                                 arg="${same}@"
+                            # Match existing key with optional @ characters at the end.
+                            if [[ $key =~ ^$arg@*$ ]] && (( max < $#key )); then
+                                 max=$#key
+                                 arg="${key}@"
                             fi
                         done
                     fi
