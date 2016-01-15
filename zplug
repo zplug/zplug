@@ -1593,7 +1593,7 @@ __zplug::clean()
 
     clean_deadlinks() {
         local link
-        for link in $ZPLUG_HOME/bin/*(@)
+        for link in $ZPLUG_HOME/bin/*(@N)
         do
             if [[ -L $link ]] && [[ ! -e $link ]]; then
                 command rm -f "$link"
