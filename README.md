@@ -81,7 +81,7 @@
 Download [zplug](https://git.io/zplug) and put it in `~/.zplug`
 
 ```console
-$ curl -fLo ~/.zplug/zplug --create-dirs https://git.io/zplug
+$ git clone https://github.com/b4b4r07/zplug ~/.zplug
 ```
 
 ## Usage
