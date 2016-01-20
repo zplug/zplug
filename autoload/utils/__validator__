@@ -1,0 +1,84 @@
+#!/bin/zsh
+
+local    line k
+local -i fail=0
+local -A zspec
+
+if [[ $ZPLUG_THREADS != <-> ]]; then
+    __die "\$ZPLUG_THREADS: must be an interger\n"
+    return 1
+fi
+if [[ ! $ZPLUG_PROTOCOL =~ ^(HTTPS|https|SSH|ssh)$ ]]; then
+    __die "\$ZPLUG_PROTOCOL: must be a secure protocol by HTTPS or SSH\n"
+    return 1
+fi
+if [[ ! $ZPLUG_SHALLOW =~ ^(true|false)$ ]]; then
+    __die "\$ZPLUG_SHALLOW: must be a boolean (true/false)\n"
+    return 1
+fi
+
+# Do not run in parallel this for loop
+# bacause it is cannot increment fail variable
+for line in ${(k)zplugs}
+do
+    zspec=( ${(@f)"$(__parser__ "$line")"} )
+    for k in ${(k)zspec}
+    do
+        if [[ $zspec[$k] == "-EMP-" ]]; then
+            zspec[$k]=""
+        fi
+    done
+
+    # as: must (default: plugin)
+    if [[ ! $zspec[as] =~ ^(command|plugin|none)$ ]]; then
+        __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'as:' takes ['command','plugin'] (zplug \"$zspec[name]\")\033[m\n"
+        # Remove that key and value
+        unset "zplugs[$zspec[name]]"
+        # Increments if it fails
+        let fail++
+    fi
+
+    # from: opt
+    if [[ -n $zspec[from] ]]; then
+        if [[ ! $zspec[from] =~ ^(gh-r|gist|oh-my-zsh|bitbucket|github|local)$ ]]; then
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'from:' takes ['gh-r','gist','oh-my-zsh','bitbucket','github','local'] (zplug \"$zspec[name]\")\033[m\n"
+            unset "zplugs[$zspec[name]]"; let fail++
+        fi
+        if [[ $zspec[from] == "oh-my-zsh" && ! $zspec[name] =~ ^(plugins|themes|lib) ]]; then
+            __die "\033[31m[$ZPLUG_NAME] #syntax error# 'plugin name' must be starting with ['plugins','themes','lib'] (zplug \"$zspec[name]\")\033[m\n"
+            unset "zplugs[$zspec[name]]"; let fail++
+        fi
+    fi
+
+    # frozen: must (default: 0)
+    if [[ ! $zspec[frozen] =~ ^(0|1)$ ]]; then
+        __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'frozen:' takes [0,1] (zplug \"$zspec[name]\")\033[m\n"
+
+        # Remove that key and value
+        unset "zplugs[$zspec[name]]"
+        # Increments if it fails
+        let fail++
+    fi
+
+    # commit: opt
+    if [[ -n $zspec[commit] ]] && (( $#zspec[commit] < 8 )); then
+        __die "\033[31m[$ZPLUG_NAME] #syntax error# the length of tag 'commit:' must be eight characters or more (zplug \"$zspec[name]\")\033[m\n"
+
+        # Remove that key and value
+        unset "zplugs[$zspec[name]]"
+        # Increments if it fails
+        let fail++
+    fi
+
+    # nice: must
+    if (( $zspec[nice] > 19 || $zspec[nice] < -20 )); then
+        __die "\033[31m[$ZPLUG_NAME] #syntax error# tag 'nice:' must be an interger between -20..19 (zplug \"$zspec[name]\")\033[m\n"
+
+        # Remove that key and value
+        unset "zplugs[$zspec[name]]"
+        # Increments if it fails
+        let fail++
+    fi
+done
+
+return $fail

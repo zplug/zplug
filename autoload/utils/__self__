@@ -1,0 +1,27 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local main
+main="b4b4r07/zplug"
+
+__put "$fg_bold[default] * zplug self management$reset_color\n"
+
+if __check__ "$main"; then
+    __update__ "$main"
+else
+    if ! __zpluged "$main"; then
+        __add__ "$main"
+    fi
+    ZPLUG_SHALLOW=false __install__ "$main"
+fi
+
+ln -snf "$ZPLUG_HOME/repos/$main/zplug.zsh" "$ZPLUG_HOME/zplug.zsh"
+if [[ $status -eq 0 && -d $ZPLUG_HOME/repos/$main ]]; then
+    __put "$fg[green]Everything is ready. "
+    __put "$fg_bold[default]($ZPLUG_HOME/zplug)$reset_color\n"
+else
+    __die "$fg[red]Error occured (see $_ZPLUG_URL)$reset_color\n"
+    return 1
+fi

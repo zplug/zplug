@@ -1,0 +1,114 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg
+local -i max=0 cnt=0
+local -a args
+local    stdin on_name
+local -a task on_args specs
+local    fd
+local    same
+
+case "$1" in
+    --debug)
+        shift; fd="$ZPLUG_HOME/error.log"
+        ;;
+    -*|--*)
+        __die "$1: Unknown option\n"
+        return 1
+        ;;
+    *)
+        fd="&2"
+        ;;
+esac
+
+args=( ${(s/, /)@:gs/,  */, } )
+arg="${args[1]}"
+args[1]=()
+task=("$arg")
+
+if __is_cli && __zpluged "$arg"; then
+    __die "$arg: already managed\n"
+    return 1
+fi
+
+if [[ -p /dev/stdin ]]; then
+    stdin="$(cat <&0)"
+    on_args=(${(s/, /)stdin:gs/,  */, })
+    on_name="${on_args[1]}"
+    on_args[1]=()
+    task=("$on_name" "$arg")
+    let cnt++
+fi
+if [[ -p /dev/stdout ]]; then
+    echo "$@"
+    let cnt++
+fi
+if (( cnt >= 2 )); then
+    __die "$on_name: cannot install (2 or less pipelines)\n" 2>"$fd"
+    return 1
+fi
+
+local i tag
+local is_oh_my_zsh is_local
+for arg in "${task[@]}"
+do
+    is_oh_my_zsh=false
+    is_local=false
+    if [[ $arg == $on_name ]]; then
+        specs=("${on_args[@]}")
+    else
+        specs=("${args[@]}")
+    fi
+
+    for i in ${==specs[@]}
+    do
+        if [[ ${i%%:*} =~ ^$_ZPLUG_TAG_PATTERN$ ]]; then
+            tag="${tag}${i%,}, "
+            if [[ $i == "from:oh-my-zsh" ]]; then
+                is_oh_my_zsh=true
+            elif [[ $i == "from:local" ]]; then
+                is_local=true
+            fi
+        else
+            __die "$i: invalid tag\n"
+            return 1
+        fi
+    done
+
+    tag="${tag%, }"
+    # Add to $zplugs(AA; key:"user/repo" => value:"tag:value")
+    if [[ -n ${zplugs[(I)${arg}]} ]]; then
+        for same in ${(k)zplugs}
+        do
+            if [[ $same =~ ^$arg@*$ ]] && (( max < $#same )); then
+                max=$#same
+                arg="${same}@"
+            fi
+        done
+    fi
+    zplugs+=("$arg" "${tag:-}")
+    # Add dir tag to $zplugs
+    if $is_oh_my_zsh; then
+        zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/${arg:gs:@::}"
+    elif $is_local; then
+        if [[ $arg[1] =~ [~$/] ]]; then
+            zplugs[$arg]+="${zplugs[$arg]:+, }dir:"${~arg:gs:@::}""
+        else
+            zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/${arg:gs:@::}"
+        fi
+    else
+        zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/repos/${arg:gs:@::}"
+    fi
+    if [[ $arg != $on_name && -n $on_name ]]; then
+        zplugs[$arg]+="${zplugs[$arg]:+, }on:$on_name"
+    fi
+
+    if __is_cli; then
+        __external__ "zplug ${arg}${tag:+, ${(q)tag}}" &>/dev/null
+    fi
+
+    tag=""
+done

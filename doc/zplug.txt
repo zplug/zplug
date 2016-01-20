@@ -1,0 +1,340 @@
+zplug(1)
+======
+Masaki Ishiyama (@b4b4r07) b4b4r07@gmail.com
+:man manual: ZPLUG Manual
+
+NAME
+----
+zplug - A next-generation plugin manager for zsh
+
+
+SYNOPSIS
+--------
+[verse]
+'zplug' ['"username/reponame"'[, 'tag:"value"'[,...]]]
+    [<command> [<options>] [<'package'>]]
+
+    The word of 'package' means that it consists of "username/reponame".
+
+
+DESCRIPTION
+-----------
+zplug is a super fast and next-generation plugin manager for zsh.
+zplug can manage everything, for example, zsh plugins, UNIX commands,
+Gist files, GitHub Releases, local plugins and so on.
+Unlike antigen, zplug requires no ZSH plugin file (`*.plugin.zsh`).
+It's so fantabulous manager.
+
+*   Can manage everything
+**  Zsh plugins/UNIX commands on https://github.com[GitHub]
+    and https://bitbucket.org[Bitbucket]
+**  Gist file (https://gist.github.com[gist.github.com])
+**  Externally managed plugins e.g., https://github.com/robbyrussell/oh-my-zsh[oh-my-zsh]
+    plugins/themes
+**  Birary artifacts on https://help.github.com/articles/about-releases[GitHub Releases]
+**  Local plugins
+**  etc.
+*   Super-fast parallel installation/update
+*   Branch/tag/commit support
+*   Post-update hooks
+*   Dependencies between plugins
+*   Unlike https://github.com/zsh-users/antigen[antigen], no ZSH plugin file (*.plugin.zsh) required
+*   Interactive interface (https://github.com/junegunn/fzf[fzf], https://github.com/peco/peco[peco],
+    https://github.com/zsh-users/zaw[zaw], and so on)
+*   Cache mechanism for reducing the startup time
+
+
+COMMANDS
+--------
+*help*::
+    Prints the synopsis and a list of all available commands.
+
+*version*::
+    Prints zplug version.
+
+*check* [--verbose] ['package']::
+    Check whether there is not installed item. If the 'package' name
+    (username/reponame) is passed, check if the package is installed.
+    If `--verbose` option is passed, print extra debugging information.
+
+*clean* [--force] [--select] ['package']::
+    Uninstall 'package' with yes/no prompt. If `--force` option is passed,
+    suppress that prompt and force to uninstall the 'package'.
+    If `--select` option is passed, by using one of the filter chosen by `$ZPLUG_FILTER`,
+    you can interactively select 'package' you want to uninstall.
+
+*clear* [--force]::
+    Refresh cache file. If `--force` option is passed,
+    it is the same with *clean* command.
+
+*install* [--verbose] [--select] ['package']::
+    Install 'package'.
+    If `--verbose` / `--select` option is passed, it is the same with the other command.
+
+*list* [--verbose] [--select] ['package']::
+    List all installed 'package'.
+    If `--verbose` / `--select` option is passed, it is the same with the other command.
+
+*load* [--verbose]::
+    Load 'package'. The all 'package' with 'as:plugin' are sourced into current zsh process
+    and add the directory of that 'package' to `$fpath`.
+    In addition, the all 'package' with 'as:command' are linked to `$ZPLUG_HOME/bin`
+    and the bin directory is added to `$PATH`.
+    If `--verbose` is passed, it is the same with the other command.
+
+*status* [--select]::
+    Fetch the newest version of the installed 'package' by zplug.
+    If `--select` is passed, it is the same with the other command.
+
+*update* [--self] [--select] ['package']::
+    Update 'package'.
+    If `--self` is passed, update your copy of zplug and create symbolic link to `$ZPLUG_HOME/zplug`
+    If `--select` is passed, it is the same with the other command.
+
+
+TAGS
+----
+
+.zplug available tag list
+[width="80%",cols="4,10,6,4",options="header"]
+|=========================================================
+|Tag |Description |Value (default) |Example
+
+|*as* | Specify whether to register as commands or to register as plugins
+| `plugin`,`command` (`plugin`) | `as:command`
+
+|*of* | Specify the pattern to source files (for `plugin`) or specify relative path
+to add to the `$PATH` (for `command`) / In case of `from:gh-r`, can specify `of:"*darwin*{amd,386}*"`
+and so on
+| *glob* (`of:"*.zsh"`)
+| `of:bin`,`of:"*.sh"`,
+`of:"*darwin*"`
+
+|*from* | Specify the services you use to install
+| `github`,`bitbucket`,`gh-r`,`gist`,
+`oh-my-zsh`,`local` (`github`) | `from:gh-r`
+
+|*at* | Support branch/tag installation | *branch/tag* (`master`) | `at:v1.5.6`
+
+|*file* | Specify filename you want to rename (only `as:plugin`) | *filename* (-) | `file:fzf`
+
+|*dir* | Installation directory which is managed by zplug | **READ ONLY** | `dir:/path/to/user/repo`
+
+|*if* | Specify the conditions under which to run `source` or add to `$PATH` | *boolean* (-) | `if:"[ -d ~/.zsh ]"`
+
+|*do* | Run commands after installation/update | *commands* (-) | `do:make install`
+
+|*frozen* | Do not update unless explicitly specified | 0,1 (0) | `frozen:1`
+
+|*commit* | Support commit installation (regardless of whether the `$ZPLUG_SHALLOW` is true or not) | *revision* (-) | `commit:4428d48`
+
+|*on* | Dependencies | **READ ONLY** | `on:user/repo`
+
+|*nice* | Priority of loading the plugins. If this tag is specified 10 or more,
+zplug will load plugins after `compinit` (see also https://github.com/b4b4r07/zplug/issues/26[#26])
+| -20..19 (0) | `nice:19`
+
+|*ignore* | Similar to `of` tag, specify exception pattern so as not to
+load the files you want to ignore (see also https://github.com/b4b4r07/zplug/issues/56[#56])
+| *glob* (-) | `ignore:"some_*.zsh"` |
+|=========================================================
+
+You can register plugins or commands to zplug on the command-line.
+If you use zplug on the command-line, it is possible to write more easily
+its settings by grace of the command-line completion.
+In this case, zplug spit out its settings to `$ZPLUG_EXTERNAL` instead of `.zshrc`.
+If you launch new zsh process, zplug load command automatically search this file and run source command.
+
+
+Environment Variables
+---------------------
+Various zplug commands use the following environment variables:
+
+'ZPLUG_HOME'::
+    Defaults to `~/.zplug`. zplug will store/load plugins in this directory. The directory structure is below.
+
+------------
+$ZPLUG_HOME
+|-- bin
+|   `-- some_command -> ../repos/username_A/reponame1/some_command
+`-- repos
+    |-- username_A
+    |   |-- reponame1
+    |   |   |-- README.md
+    |   |   `-- some_command
+    |   `-- reponame2
+    |       |-- README.md
+    |       `-- some_plugin.zsh
+    `-- username_B
+        `-- reponame1
+
+------------
+
+If you specify 'as:command' in zplug command, zplug will recognize the plugin
+as a command and create a symbolic link of the same name (if you want to rename it,
+set file: tag) within `$ZPLUG_HOME/bin`. Because zplug adds `$ZPLUG_HOME/bin` to
+the `$PATH`, you can run that command from any directories.
+
+'ZPLUG_THREADS'::
+    The number of threads zplug should use. The default value is 16.
+
+'ZPLUG_PROTOCOL'::
+    Defaults to HTTPS. Valid options for `$ZPLUG_PROTOCOL` are HTTPS or SSH.
+    Unless you have a specific reason, you should use the HTTPS protocol.
+    For more information, see also https://help.github.com/articles/which-remote-url-should-i-use/[Which remote URL should I use? - GitHub Help]
+
+'ZPLUG_SHALLOW'::
+    Defaults to `true`.
+    When cloning a Git repository, there is an option to limit the amount of history your clone will have.
+    If you set this environment variable to `true`, you get the least amount of history, and you create a shallow clone.
+
+'ZPLUG_FILTER'::
+    Defaults to `fzf-tmux:fzf:peco:percol:zaw`.
+    When `--select` option is specified, colon-separated first element that exists
+    in the `$PATH` will be used by zplug as the interactive filter.
+    The `ZPLUG_FILTER` also accepts the following values: `fzf-tmux -d "10%":/path/to/peco:my peco`.
+
+'ZPLUG_EXTERNAL'::
+    Defaults to `$ZPLUG_HOME/init.zsh`.
+    This file is used to add plugins from zplug on the command-line.
+
+'ZPLUG_USE_CACHE'::
+    Defaults to `true`.
+    If this variable is set, zplug comes to use a cache to speed up when it will load plugins after the first.
+    The cache file is located in `$ZPLUG_HOME/.cache`. 
+    If you want to clear the cache, please run `zplug clear` or do the following:
+
+------------
+$ ZPLUG_USE_CACHE=false zplug load
+------------
+
+
+External commands
+-----------------
+zplug, like 'git(1)', supports external commands.
+These are executable scripts that reside somewhere in the PATH, named zplug-cmdname,
+which can be invoked like zplug cmdname.
+This allows you to create your own commands without modifying zplug's internals.
+// Instructions for creating your own commands can be found in the docs:
+// https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/External-Commands.md
+
+
+Configuration Mechanism
+-----------------------
+
+Add a zplug section to your .zshrc:
+
+.   List the plugins/commands with zplug commands
+.   `zplug load` to source the plugins and add its commands to your `$PATH`
+
+------------
+source ~/.zplug/zplug
+
+# Make sure you use double quotes
+zplug "zsh-users/zsh-history-substring-search"
+
+# Can manage a plugin as a command
+# And accept glob patterns (e.g., brace, wildcard, ...)
+zplug "Jxck/dotfiles", as:command, of:"bin/{histuniq,color}"
+
+# Can manage everything e.g., other person's zshrc
+zplug "tcnksm/docker-alias", of:zshrc
+
+# Prohibit updates to a plugin by using the "frozen:" tag
+zplug "k4rthik/git-cal", as:command, frozen:1
+
+# Grab binaries from GitHub Releases
+# and rename to use "file:" tag
+zplug "junegunn/fzf-bin", \
+    as:command, \
+    from:gh-r, \
+    file:fzf, \
+    of:"*darwin*amd64*"
+
+# Support oh-my-zsh plugins and the like
+zplug "plugins/git",   from:oh-my-zsh, if:"which git"
+zplug "themes/duellj", from:oh-my-zsh
+zplug "lib/clipboard", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
+
+# Run a command after a plugin is installed/updated
+zplug "tj/n", do:"make install"
+
+# Support checking out a specific branch/tag/commit of a plugin
+zplug "b4b4r07/enhancd", at:v1
+zplug "mollifier/anyframe", commit:4c23cb60
+
+# Install if "if:" tag returns true
+zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
+
+# Can manage gist file just like other plugins
+zplug "b4b4r07/79ee61f7c140c63d2786", \
+    from:gist, \
+    as:command, \
+    of:get_last_pane_path.sh
+
+# Support bitbucket
+zplug "b4b4r07/hello_bitbucket", \
+    as:command, \
+    from:bitbucket, \
+    do:"chmod 755 *.sh", \
+    of:"*.sh"
+
+# Group dependencies, emoji-cli depends on jq in this example
+zplug "stedolan/jq", \
+    as:command, \
+    file:jq, \
+    from:gh-r \
+    | zplug "b4b4r07/emoji-cli"
+
+# Set priority to load command like a nice command
+# e.g., zsh-syntax-highlighting must be loaded
+# after executing compinit command and sourcing other plugins
+zplug "zsh-users/zsh-syntax-highlighting", nice:10
+
+# Can manage local plugins
+zplug "~/.zsh", from:local
+# A relative path is resolved with respect to the $ZPLUG_HOME
+zplug "repos/robbyrussell/oh-my-zsh/custom/plugins/my-plugin", from:local
+
+# Install plugins if there are plugins that have not been installed
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
+fi
+
+# Then, source plugins and add commands to $PATH
+zplug load --verbose
+
+------------
+
+Finally, use `zplug install` to install your plugins and reload `.zshrc`.
+
+
+Further Documentation
+---------------------
+
+See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+The following is probably more detail than necessary for a first-time user.
+
+
+Authors
+-------
+zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+Many people have contributed to it.
+
+
+Copying
+-------
+Copyright \(C) 2015-2016 Masaki Ishi
+
+MIT License
+
+
+Reporting Bugs
+--------------
+Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+
+
+// vim:ft=asciidoc

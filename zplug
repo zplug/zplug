@@ -1,0 +1,33 @@
+#!/bin/zsh
+
+# For compatibility zplug v1
+# This file will be deleted soon
+#
+logo() {
+    cat <<'EOLOGO'
+               _             
+     _____ __ | |_   _  __ _ 
+    |_  / '_ \| | | | |/ _` |
+     / /| |_) | | |_| | (_| |
+    /___| .__/|_|\__,_|\__, |
+        |_|            |___/ 
+EOLOGO
+    printf "\n(DEPRECATED)\n"
+    printf "  Please install zplug with 'git clone' instead of 'git.io/zplug'\n"
+    printf "  For more details, see also https://github.com/b4b4r07/zplug\n\n"
+}
+
+# Check if current zsh is interactive
+if [[ $- =~ i ]]; then
+    # source
+    zplug_main="${${(%):-%N}:A:h}/zplug.zsh"
+    if [[ -f $zplug_main ]]; then
+        source "$zplug_main"
+    else
+        logo >&2
+        return 1
+    fi
+else
+    logo >&2
+    exit 1
+fi

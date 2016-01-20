@@ -1,0 +1,158 @@
+#!/bin/zsh
+
+__import "print/print"
+
+local    repository
+local    shallow_clone
+local    tag_of tag_commit tag_from tag_at tag_do
+local    url_format
+local -i ret
+
+[[ -d $ZPLUG_HOME/repos ]] || mkdir -p "$ZPLUG_HOME/repos"
+builtin cd -q "$ZPLUG_HOME/repos"
+
+while (( $# > 0 ))
+do
+    case "$1" in
+        --of)
+            tag_of="$2"; shift
+            ;;
+        --commit)
+            tag_commit="$2"; shift
+            ;;
+        --from)
+            tag_from="$2"; shift
+            ;;
+        --at)
+            tag_at="$2"; shift
+            ;;
+        --do)
+            tag_do="$2"; shift
+            ;;
+        -*|--*)
+            __die "$1: Unknown option\n"
+            return 1
+            ;;
+        *)
+            repository="$1"
+            ;;
+    esac
+    shift
+done
+
+# Initialize
+{
+    case "$tag_from" in
+        oh-my-zsh)
+            repository="$_ZPLUG_OHMYZSH"
+            ;&
+
+        github)
+            if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
+                # Create the format of URL used to git clone
+                # When vim-plug clones a repository, it injects git::@ into the URL
+                # It's a little hack to avoid username/password prompt
+                # from git when the repository doesn't exist.
+                # Such thing can happen when there's a typo in the argument,
+                # or when the repository is removed from GitHub
+                # For more information, see also vim-plug wiki.
+                # HTTPS: "https://git::@github.com/%s.git"
+                url_format="https://git::@github.com/${repository}.git"
+
+                # However, Git 2.3.0 introduced $GIT_TERMINAL_PROMPT
+                # which can be used to suppress user prompt
+                if __git_version 2.3; then
+                    # HTTPS (git 2.3+): "https://github.com/%s.git"
+                    export GIT_TERMINAL_PROMPT=0
+                    url_format="https://github.com/${repository}.git"
+                fi
+            elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
+                # SSH: "git@github.com:%s.git"
+                url_format="git@github.com:${repository}.git"
+            fi
+            ;;
+
+        bitbucket)
+            if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
+                # HTTPS: "https://git::@bitbucket.org/%s.git"
+                url_format="https://git::@bitbucket.org/${repository}.git"
+            elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
+                # SSH: "git@bitbucket.org:%s.git"
+                url_format="git@bitbucket.org:${repository}.git"
+            fi
+            ;;
+
+        gist)
+            if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
+                # the same as github
+                #
+                # HTTPS: "https://git::@github.com/%s.git"
+                url_format="https://git::@gist.github.com/${repository}.git"
+
+                if __git_version 2.3; then
+                    # HTTPS (git 2.3+): "https://gist.github.com/%s.git"
+                    export GIT_TERMINAL_PROMPT=0
+                    url_format="https://gist.github.com/${repository}.git"
+                fi
+            elif [[ $ZPLUG_PROTOCOL =~ ^(SSH|ssh)$ ]]; then
+                # SSH: "git@github.com:%s.git"
+                url_format="git@gist.github.com:${repository}.git"
+            fi
+            ;;
+
+        gh-r)
+            __releases__ \
+                --of "${tag_of:-}" \
+                --do "${tag_do:-}" \
+                --at "${tag_at:#master}" \
+                "$repository" &>/dev/null
+
+            return $status
+            ;;
+
+        *)
+            __die "$tag_from: Unknown tag\n"
+            return 1
+            ;;
+    esac
+
+    if [[ ! $ZPLUG_PROTOCOL =~ ^(HTTPS|https|SSH|ssh)$ ]]; then
+        __die "$ZPLUG_PROTOCOL: Invalid protocol for cloning\n"
+        return 1
+    fi
+
+    if [[ -z $url_format ]]; then
+        __die "$repository: Invalid user/repo format\n"
+        return 1
+    fi
+
+    if $ZPLUG_SHALLOW && (( $#tag_commit < 9 )); then
+        shallow_clone="--depth=1"
+    fi
+}
+
+# git clone
+[[ $ret -eq 0 ]] &&
+    git clone $shallow_clone \
+    --recursive \
+    --quiet \
+    --branch $tag_at \
+    "$url_format" "$repository" >/dev/null 2>&1
+ret=$status
+
+(
+    # revision lock
+    if (( $#tag_commit >= 8 )); then
+        builtin cd -q "$ZPLUG_HOME/repos/$repository"
+        git checkout $tag_commit &>/dev/null
+    fi
+    # Post-installation hooks
+    if (( $ret == 0 )); then
+        builtin cd -q "$ZPLUG_HOME/repos/$repository" &>/dev/null
+        if [[ -n $tag_do ]]; then
+            eval "$tag_do"
+        fi
+    fi
+)
+
+return $ret

@@ -1,0 +1,176 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+__import "job/spinner"
+
+local    line job filter key
+local    is_verbose=false is_select=false
+local -a args check
+local    oh_my_line oh_my_count=0
+local -A zspec
+local -i cnt=0 max=0 fail=0
+local -F SECONDS=0
+local -F start finish
+local -a queue
+local -i queue_max=$ZPLUG_THREADS
+
+case "$1" in
+    --verbose)
+        is_verbose=true; shift
+        ;;
+    # --select)
+    #     is_select=true; shift
+    #     ;;
+    -*|--*)
+        __die "$1: Unknown option\n"
+        return 1
+        ;;
+esac
+
+# Initialize
+{
+    [[ -d $ZPLUG_HOME/repos ]] || mkdir -p "$ZPLUG_HOME/repos"
+    start=$SECONDS
+    filter="$(__get_filter "$ZPLUG_FILTER")"
+    if $is_select; then
+        args=(${(@f)"$(echo "${(F)@}" | eval "$filter")"})
+    else
+        args=(${(u)${@:gs:@::}})
+    fi
+
+    if (( $#args == 0 )); then
+        __list__
+        return $status
+    fi
+
+    for line in "${args[@]}"
+    do
+        (( $#line > $max )) && max=$#line
+    done
+}
+
+for line in "${args[@]}"
+do
+    zspec=( ${(@f)"$(__parser__ "$line")"} )
+    for key in ${(k)zspec}
+    do
+        if [[ $zspec[$key] == "-EMP-" ]]; then
+            zspec[$key]=""
+        fi
+    done
+
+    # Skip installed items
+    case "$zspec[from]" in
+        "local")
+            continue
+            ;;
+        "oh-my-zsh")
+            if [[ -d $ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/$line ]]; then
+                if $is_verbose; then
+                    __put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
+                fi
+                continue
+            fi
+            ;;
+        *)
+            if [[ -d $ZPLUG_HOME/repos/$line ]]; then
+                if $is_verbose; then
+                    __put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
+                fi
+                continue
+            fi
+            ;;
+    esac
+
+    # For checking
+    if [[ -n $zspec[dir] ]]; then
+        check+=("$zspec[dir]")
+    else
+        check+=("$ZPLUG_HOME/repos/$line")
+    fi
+
+    # Case of oh-my-zsh
+    oh_my_line=""
+    if [[ $zspec[from] == "oh-my-zsh" ]]; then
+        if (( oh_my_count++ > 0 )); then
+            continue
+        fi
+        if [[ -d $ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH ]]; then
+            continue
+        fi
+        oh_my_line="$_ZPLUG_OHMYZSH"
+    fi
+
+    __spin_lock
+    __spinner &
+    # Run installation in subprocess
+    {
+        trap '__spin_unlock; trap - SIGINT' SIGINT
+
+        # All variables are treated as local variable
+        # because of background job (subprocess)
+        local -i ret
+        local -F SECONDS=0
+
+        __spinner_echo "%-20s %s\n" \
+            "Installing..." \
+            "${oh_my_line:-$line}"
+
+        __clone__ \
+            --of     ${zspec[of]:-""} \
+            --commit ${zspec[commit]:-""} \
+            --from   ${zspec[from]:-""} \
+            --at     ${zspec[at]:-""} \
+            --do     ${zspec[do]:-""} \
+            "$line"
+        ret=$status
+
+        case "$ret" in
+            0)
+                __spinner_echo "$fg[green]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                    "Installed!" \
+                    "${oh_my_line:-$line}" \
+                    $SECONDS
+                ;;
+            1)
+                __spinner_echo "$fg[red]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                    "Failed to install" \
+                    "${oh_my_line:-$line}" \
+                    $SECONDS
+                ;;
+        esac
+    } &
+    queue+=($!)
+    if (( $#queue % queue_max == 0 )); then
+        wait $queue &>/dev/null
+        queue=()
+    fi
+done
+if (( $#queue > 0 )); then
+    wait $queue &>/dev/null
+fi
+queue=()
+
+__spin_unlock
+for line in "${check[@]}"
+do
+    [[ -d $line ]] || let fail++
+done
+
+# Skip footer prints
+if (( $#check == 0 )); then
+    __die "No package to install\n"
+    return $fail
+else
+    if (( $fail == 0 )); then
+        __put "$fg_bold[default] ==> Installed all plugins to $ZPLUG_HOME/repos, successfully!$reset_color\n"
+    else
+        __die "$fg_bold[red] ==> Installed to $ZPLUG_HOME/repos but failed.$reset_color\n"
+    fi
+
+    finish=$SECONDS
+    __put "zplug: total wall-time %f sec.\n" $(($finish - $start))
+
+    return $fail
+fi

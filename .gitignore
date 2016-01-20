@@ -1,0 +1,8 @@
+.DS_Store
+**/.DS_Store
+.ignore
+bin/zspec
+**/zcompdump
+**/*~
+**/*.swp
+test/_fixtures/.cache

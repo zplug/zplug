@@ -1,0 +1,166 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    index
+local    update=false
+local -i ret=0
+local -a candidates_list binaries
+local    repository
+local    tag_do tag_at tag_of
+local    bit one_uri artifact
+local    curl url_format
+local    curl2 url_format2
+local    repo command_name
+
+while (( $# > 0 ))
+do
+    case "$1" in
+        --of)
+            tag_of="$2"; shift
+            ;;
+        --at)
+            tag_at="$2"; shift
+            ;;
+        --do)
+            tag_do="$2"; shift
+            ;;
+        -*|--*)
+            __die "$1: Unknown option\n"
+            return 1
+            ;;
+        *)
+            repository="$1"
+            ;;
+    esac
+    shift
+done
+
+# Initialize
+{
+    if [[ ! $repository =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
+        __die "$repository: invalid repository type\n"
+        return 1
+    fi
+    if [[ $tag_at == master ]]; then
+        tag_at="latest"
+    fi
+    if [[ -n $tag_at && $tag_at != "latest" ]]; then
+        tag_at="tag/$tag_at"
+    else
+        tag_at="latest"
+    fi
+
+    url_format="https://github.com/$repository/releases/$tag_at"
+    if (( $+commands[curl] )); then
+        curl="curl -fsSL"
+        curl2="curl -L -O"
+    elif (( $+commands[wget] )); then
+        curl="wget -qO -"
+        curl2="wget"
+    fi
+
+    # Get machine information
+    is_64() { uname -m | grep -q "64$" }
+    if is_64; then
+        bit="64"
+    else
+        bit="386"
+    fi
+
+    if [[ -n $tag_of ]]; then
+        tag_of="$(__glob2regexp "$tag_of")"
+    else
+        tag_of="$(__get_os)"
+    fi
+}
+
+{
+    eval "$curl $url_format" 2>/dev/null \
+        | grep -o '/'"$repository"'/releases/download/[^"]*' \
+        | read -d '\n' -A candidates_list
+    if (( $#candidates_list == 0 )); then
+        __die "$repository: there are no available releases\n"
+        return 1
+    fi
+
+    echo "${(F)candidates_list}" \
+        | grep "${tag_of:-}" \
+        | grep "$bit" \
+        | head -n 1 \
+        | read one_uri
+    if [[ -z $one_uri ]]; then
+        __die "$repository: repository not found\n"
+        return 1
+    fi
+
+    # For updating
+    repo="$ZPLUG_HOME/repos/$repository"
+    command_name="${repo:t}"
+    if [[ -d $repo ]]; then
+        # Update
+        if [[ -f $repo/INDEX ]]; then
+            index="$(<"$repo/INDEX")"
+            if [[ $tag_at == "latest" ]]; then
+                if grep -q "$index" <<<"$one_uri"; then
+                    # up-to-date
+                    return 4
+                else
+                    :
+                fi
+            else
+                # up-to-date
+                return 1
+            fi
+        fi
+    else
+        # Not update
+        mkdir -p "$repo"
+    fi
+}
+
+# Finalize
+(
+    builtin cd -q "$repo"
+    url_format2="https://github.com$one_uri"
+    eval "$curl2 $url_format2" &>/dev/null
+    artifact="${one_uri:t}"
+
+    case "$artifact" in
+        *.zip)
+            unzip "$artifact" &>/dev/null
+            rm -f "$artifact"
+            ;;
+        *.tar.gz|*.tgz)
+            tar xvf "$artifact" &>/dev/null
+            rm -f "$artifact"
+            ;;
+        *)
+            __die "$artifact: Unknown format\n"
+            return 1
+    esac
+
+    file **/*(.) \
+        | awk -F: '$2 ~ /executable/{print $1}' \
+        | read -d '\n' -A binaries
+
+    mv -f "$binaries[1]" "$command_name"
+    chmod 755 "$command_name"
+    rm -rf *~"$command_name"(N)
+
+    if [[ -x $command_name ]]; then
+        __put "$command_name: Installed successfully\n"
+    else
+        __die "$command_name: Failed to install\n"
+        ret=1
+    fi
+    # builtin cd -q "$OLDPWD"
+    echo "${one_uri:h:t}" >"$repo/INDEX"
+
+    if [[ -n $tag_do ]]; then
+        eval "$tag_do"
+    fi
+)
+
+return $ret

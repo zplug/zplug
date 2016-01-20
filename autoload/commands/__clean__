@@ -1,0 +1,84 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg filter repo
+local    is_force is_select=false
+local -a repos args remove_args
+local -A zspec
+
+while (( $# > 0 ))
+do
+    arg="$1"
+    case "$arg" in
+        --force)
+            is_force=true
+            ;;
+        --select)
+            is_select=true
+            ;;
+        -*|--*)
+            __die "$arg: Unknown option\n"
+            return 1
+            ;;
+        *)
+            args+=("$arg")
+    esac
+    shift
+done
+
+filter="$(__get_filter "$ZPLUG_FILTER")"
+if $is_select; then
+    args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
+    if (( $#args == 0 )); then
+        return 0
+    fi
+fi
+
+if (( $#args == 0 )); then
+    repos=( $ZPLUG_HOME/repos/*/*(N-/) )
+    for repo in "${repos[@]}"
+    do
+        if ! __zpluged "${repo:h:t}/${repo:t}"; then
+            remove_args+=("$repo")
+        fi
+    done
+else
+    for arg in "${args[@]}"
+    do
+        zspec=( ${(@f)"$(__parser__ "$arg")"} )
+        if [[ -d $zspec[dir] ]]; then
+            case "$zspec[from]" in
+                "oh-my-zsh")
+                    remove_args+=("$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH")
+                    ;;
+                *)
+                    remove_args+=("$zspec[dir]")
+                    ;;
+            esac
+        else
+            __die "$arg: no such package\n"
+        fi
+    done
+fi
+
+# Remove packages from $ZPLUG_HOME/repos
+for repo in "${remove_args[@]}"
+do
+    __put "${${is_force:+Removed}:-Remove?} $repo "
+    if ${(z)is_force:-"read -q"}; then
+        rm -rf "$repo"
+        rmdir ${repo:h} &>/dev/null
+    fi
+    __put "\n"
+done
+
+# Remove packages from $zplugs
+for repo in ${(k)zplugs}
+do
+    zspec=( ${(@f)"$(__parser__ "$repo")"} )
+    if [[ ! -d $zspec[dir] ]]; then
+        unset "zplugs[$repo]"
+    fi
+done

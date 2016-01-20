@@ -1,0 +1,35 @@
+#!/bin/zsh
+
+return 0
+
+trap '__spin_unlock; trap - SIGINT' SIGINT
+
+local    line
+local -a queue
+local -i queue_max=$ZPLUG_THREADS
+local -F SECONDS=0
+
+__spin_lock
+__spinner &
+
+for line in "$@"
+do
+    {
+        __spinner_echo "$line: Start"
+        sleep 2
+        __spinner_echo "$fg[green]$line: Finished\n$reset_color"
+    } &
+    queue+=($!)
+
+    if (( $#queue % queue_max == 0 )); then
+        wait $queue
+        queue=()
+    fi
+done
+if (( $#queue > 0 )); then
+    wait $queue
+fi
+queue=()
+
+__spin_unlock
+__put "finished %.6f\n" $SECONDS
