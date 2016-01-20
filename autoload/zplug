@@ -36,7 +36,13 @@ case "$arg" in
         ;;
 
     *)
-        __die "$arg: no such command\n"
+        if (( $+commands[zplug-$arg] )); then
+            eval "$commands[zplug-$arg]"
+            return $status
+        else
+            __die "$arg: no such command\n"
+            return 1
+        fi
         return 1
         ;;
 esac
