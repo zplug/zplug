@@ -37,6 +37,7 @@ describe "__parser__"
         if        -EMP-
         frozen    0
         on        -EMP-
+        lazy      0
         )
         actuals=( ${(@f)"$(__parser__ "username/reponame")"} )
         assert.array_equals expects actuals
@@ -59,6 +60,7 @@ describe "__parser__"
         if        -EMP-
         frozen    0
         on        -EMP-
+        lazy      0
         )
         actuals=( ${(@f)"$(__parser__ "username/reponame")"} )
         assert.array_equals expects actuals
@@ -81,6 +83,7 @@ describe "__parser__"
         if        -EMP-
         frozen    0
         on        -EMP-
+        lazy      0
         )
         actuals=( ${(@f)"$(__parser__ "$_ZPLUG_OHMYZSH")"} )
         assert.array_equals expects actuals
@@ -103,6 +106,7 @@ describe "__parser__"
         if        -EMP-
         frozen    0
         on        -EMP-
+        lazy      0
         )
         actuals=( ${(@f)"$(__parser__ "$_ZPLUG_OHMYZSH")"} )
         assert.array_equals expects actuals
@@ -125,6 +129,7 @@ describe "__parser__"
         if        -EMP-
         frozen    0
         on        -EMP-
+        lazy      0
         )
         actuals=( ${(@f)"$(__parser__ "$_ZPLUG_OHMYZSH")"} )
         assert.array_equals expects actuals

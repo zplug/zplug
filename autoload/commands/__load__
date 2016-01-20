@@ -12,7 +12,7 @@ local    src dst
 local -a src_a
 local    ignore
 local -A load_commands
-local -a load_plugins load_fpaths
+local -a load_plugins load_fpaths lazy_plugins
 local -a load_ignores
 local -a temporary_array
 local -a themes_ext plugins_ext glob_patterns
@@ -191,7 +191,12 @@ do
                 if (( $zspec[nice] > 9 )); then
                     nice_plugins+=(${glob_patterns[@]})
                 else
-                    load_plugins+=(${glob_patterns[@]})
+                    if (( $zspec[lazy] == 1 )); then
+                        lazy_plugins+=(${glob_patterns[@]})
+                        load_fpaths+=($zspec[dir])
+                    else
+                        load_plugins+=(${glob_patterns[@]})
+                    fi
                 fi
             fi
             ;;
@@ -277,6 +282,14 @@ done
     done
 }
 
+# Plugins (Lazy)
+{
+    for f in ${lazy_plugins}
+    do
+        autoload -Uz "${f:t}"
+    done
+}
+
 # Cache
 if [[ -f $_ZPLUG_CACHE_FILE ]]; then
     chmod a+w $_ZPLUG_CACHE_FILE
@@ -310,6 +323,10 @@ fi
     if (( $#nice_plugins > 0 )); then
         __put '\n# Loading after compinit\n'
         __put 'source %s\n' "${(qqq)nice_plugins[@]}"
+    fi
+    if (( $#lazy_plugins > 0 )); then
+        __put '\n# Lazy loading plugins\n'
+        __put 'autoload -Uz %s\n' "${(qqq)lazy_plugins[@]:t}"
     fi
 } >|$_ZPLUG_CACHE_FILE
 

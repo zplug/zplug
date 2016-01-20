@@ -5,7 +5,7 @@ __import "print/print"
 local    arg key
 local -a parsed_zplugs
 local -A zplugs_tags
-local    name as of from if dir file at do frozen on commit nice ignore
+local    name as of from if dir file at do frozen on commit nice ignore lazy
 
 if [[ -z $1 ]]; then
     __die "$funcstack[1]: too few arguments\n"
@@ -29,6 +29,7 @@ on=${${${(M)parsed_zplugs:#on:*}#*:}:--EMP-}
 commit=${${${(M)parsed_zplugs:#commit:*}#*:}:--EMP-}
 nice=${${${(M)parsed_zplugs:#nice:*}#*:}:-0}
 ignore=${${${(M)parsed_zplugs:#ignore:*}#*:}:--EMP-}
+lazy=${${${(M)parsed_zplugs:#lazy:*}#*:}:-0}
 
 if [[ $name == $_ZPLUG_OHMYZSH ]] && [[ $nice -eq 0 ]]; then
     nice=-10
@@ -49,6 +50,7 @@ on      "$on"
 commit  "$commit"
 nice    "$nice"
 ignore  "$ignore"
+lazy    "$lazy"
 )
 
 # Output zplugs_tags

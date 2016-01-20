@@ -54,7 +54,7 @@ COMMANDS:
 For more information, see also $_ZPLUG_URL."
 
 typeset -g _ZPLUG_OHMYZSH="robbyrussell/oh-my-zsh"
-typeset -g _ZPLUG_TAG_PATTERN="(as|of|from|if|dir|file|at|do|frozen|on|commit|nice|ignore)"
+typeset -g _ZPLUG_TAG_PATTERN="(as|of|from|if|dir|file|at|do|frozen|on|commit|nice|ignore|lazy)"
 
 # Load external file
 if [[ -f $ZPLUG_EXTERNAL ]]; then
