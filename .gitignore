@@ -1,8 +1,9 @@
 .DS_Store
 **/.DS_Store
 .ignore
-bin/zspec
+bin/*
+!bin/zplug-env
 **/zcompdump
 **/*~
 **/*.swp
-test/_fixtures/.cache
+.cache
