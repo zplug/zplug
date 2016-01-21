@@ -16,7 +16,8 @@ local -F SECONDS=0
 
 local -i frozen_lock=0
 
-case "$1" in
+arg="$1"
+case "$arg" in
     --self)
         __self__
         return $status
@@ -25,7 +26,7 @@ case "$1" in
         is_select=true; shift
         ;;
     -*|--*)
-        __die "$1: Unknown option\n"
+        __die "$arg: Unknown option\n"
         return 1
         ;;
 esac

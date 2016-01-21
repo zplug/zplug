@@ -11,12 +11,13 @@ local -a task on_args specs
 local    fd
 local    same
 
-case "$1" in
+arg="$1"
+case "$arg" in
     --debug)
         shift; fd="$ZPLUG_HOME/error.log"
         ;;
     -*|--*)
-        __die "$1: Unknown option\n"
+        __die "$arg: Unknown option\n"
         return 1
         ;;
     *)

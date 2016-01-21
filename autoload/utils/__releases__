@@ -141,10 +141,14 @@ done
             return 1
     esac
 
-    file **/*(.) \
+    file **/*(N-.) \
         | awk -F: '$2 ~ /executable/{print $1}' \
         | read -d '\n' -A binaries
 
+    if (( $#binaries == 0 )); then
+        __die "$command_name: failed to grab binaries from GitHub Releases\n"
+        return 1
+    fi
     mv -f "$binaries[1]" "$command_name"
     chmod 755 "$command_name"
     rm -rf *~"$command_name"(N)

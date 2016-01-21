@@ -4,7 +4,7 @@ __import "core/core"
 __import "print/print"
 __import "job/spinner"
 
-local    line job filter key
+local    arg line job filter key
 local    is_verbose=false is_select=false
 local -a args check
 local    oh_my_line oh_my_count=0
@@ -15,7 +15,8 @@ local -F start finish
 local -a queue
 local -i queue_max=$ZPLUG_THREADS
 
-case "$1" in
+arg="$arg"
+case "$arg" in
     --verbose)
         is_verbose=true; shift
         ;;
@@ -23,7 +24,7 @@ case "$1" in
     #     is_select=true; shift
     #     ;;
     -*|--*)
-        __die "$1: Unknown option\n"
+        __die "$arg: Unknown option\n"
         return 1
         ;;
 esac

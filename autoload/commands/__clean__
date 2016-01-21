@@ -5,7 +5,7 @@ __import "print/print"
 
 local    arg filter repo
 local    is_force is_select=false
-local -a repos args remove_args
+local -a args repos remove_args
 local -A zspec
 
 while (( $# > 0 ))

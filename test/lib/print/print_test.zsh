@@ -9,8 +9,8 @@
 } &>/dev/null
 
 describe "lib/init.zsh"
-    it "ZPLUG_LIBS"
-        (( $+ZPLUG_LIBS ))
+    it "_ZPLUG_LIB_CALLED"
+        (( $+_ZPLUG_LIB_CALLED ))
         assert.true $status
     end
 

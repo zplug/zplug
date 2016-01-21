@@ -3,23 +3,28 @@
 __import "core/core"
 
 local    arg
-local -a cmds udcs
+local -a cmds user_cmds
+
+user_cmds=( ${^path}/zplug-*(N-.:t:gs:zplug-:) )
 
 arg="$1"
-if [[ -z $arg ]]; then
-    __die "too few arguments\n"
-    return 1
-fi
+case "$arg" in
+    "")
+        __die "too few arguments\n"
+        return 1
+        ;;
+esac
 
-udcs=( ${^path}/zplug-*(N-.:t:gs:zplug-:) )
-if  [[ -n ${(M)udcs:#$arg} ]]; then
+# User-defined command
+if [[ -n ${(M)user_cmds:#$arg} ]]; then
     eval "$commands[zplug-$arg]"
     return $status
 fi
 
+# Auto correct like git(1)
 __get_autoload_files \
     "$ZPLUG_ROOT/autoload/commands"
-reply+=("${udcs[@]}")
+reply+=("${user_cmds[@]}")
 cmds=(
 ${(@f)"$(awk \
     -f "$ZPLUG_ROOT/src/share/fuzzy.awk" \

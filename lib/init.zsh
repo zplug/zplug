@@ -3,12 +3,14 @@
 if (( $+functions[__import] )); then
     return 0
 fi
+source $ZPLUG_ROOT/lib/core/core.zsh
 
-typeset -gx -a ZPLUG_LIBS
-ZPLUG_LIBS=()
+typeset -gx -T _ZPLUG_LIB_CALLED _zplug_lib_called
+_zplug_lib_called=()
+local -a _zplug_lib_called
 
 __import() {
-    local f arg is_debug=false
+    local f arg lib is_debug=false
 
     while (( $# > 0 ))
     do
@@ -34,12 +36,13 @@ __import() {
         esac
     done
 
-    if (( ! $ZPLUG_LIBS[(I)$f] )); then
+    lib="${f:h:t}/${f:t:r}"
+    if (( ! $_zplug_lib_called[(I)$lib] )); then
         if $is_debug; then
             printf "$f\n"
         else
             source "$f"
         fi
-        ZPLUG_LIBS+=("$f")
+        _zplug_lib_called+=("$lib")
     fi
 }

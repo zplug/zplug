@@ -5,22 +5,23 @@ __import "print/print"
 __import "job/spinner"
 
 local    is_verbose=false
-local    line
+local    arg line
+local -a args fail
 local -A zspec
-local -a fail args
 
 while (( $# > 0 ))
 do
-    case "$1" in
+    arg="$1"
+    case "$arg" in
         --verbose)
             is_verbose=true
             ;;
         -*|--*)
-            __die "$1: Unknown option\n"
+            __die "$arg: Unknown option\n"
             return 1
             ;;
         *)
-            args+=("$1")
+            args+=("$arg")
             ;;
     esac
     shift

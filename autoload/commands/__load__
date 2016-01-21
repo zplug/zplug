@@ -4,7 +4,7 @@ __import "print/print"
 
 local    is_verbose=false is_debug=false
 local    loaded_omz=false
-local    key k
+local    arg key k
 local -A zspec
 local    f ext
 local    dirname basename
@@ -20,7 +20,8 @@ local -a args unsorted_nice nice_plugins
 
 while (( $# > 0 ))
 do
-    case "$1" in
+    arg="$1"
+    case "$arg" in
         --verbose)
             shift; is_verbose=true
             ;;
@@ -28,7 +29,7 @@ do
             shift; is_debug=true
             ;;
         -*|--*)
-            __die "$1: Unknown option\n"
+            __die "$arg: Unknown option\n"
             return 1
             ;;
     esac
