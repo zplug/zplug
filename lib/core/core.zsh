@@ -182,3 +182,11 @@ __remove_deadlinks() {
         fi
     done
 }
+
+__packaging() {
+    local fullpath="${1:?too few argument}"
+
+    if [[ $fullpath =~ ^$ZPLUG_HOME/repos ]]; then
+        echo "${fullpath:h:t}/${fullpath:t}"
+    fi
+}

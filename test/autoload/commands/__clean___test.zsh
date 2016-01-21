@@ -13,8 +13,7 @@
 } &>/dev/null
 
 before_each() {
-    source $ZPLUG_ROOT/test/_helpers/create_mock_repos.zsh
-    source $ZPLUG_ROOT/test/_helpers/init_mock_repos.zsh
+    source "$ZPLUG_ROOT/test/_helpers/mock.zsh"
     create_mock_plugin "foo/bar"
     init_mock_repos "foo/bar"
 }

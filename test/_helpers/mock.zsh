@@ -1,6 +1,21 @@
 #!/bin/zsh
 
-[[ -z $ZPLUG_ROOT ]] && return 1
+if [[ -z $ZPLUG_ROOT ]]; then
+    return 1
+fi
+
+init_mock_repos() {
+    local name
+    for name in "$@"
+    do
+        name="$ZPLUG_ROOT/test/_fixtures/repos/$name"
+        git -C "$name" init --quiet
+        git -C "$name" config user.email "git@zplug"
+        git -C "$name" config user.name "zplug"
+        git -C "$name" add -A >/dev/null
+        git -C "$name" commit -m "$name" >/dev/null
+    done
+}
 
 create_mock_repo() {
     local pkg dir
@@ -33,7 +48,6 @@ create_mock_repo() {
     user="${pkg:h}"
     repo="${pkg:t}"
 
-
     dir="$ZPLUG_ROOT/test/_fixtures/repos/$pkg"
     if [[ ! -d $dir ]]; then
         mkdir -p "$dir"
@@ -64,4 +78,21 @@ create_mock_omz() {
         "https://github.com/$_ZPLUG_OHMYZSH" \
         "$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH" \
         &>/dev/null
+}
+
+make_file() {
+    local entry="$1"
+    local dir="${entry:h}"
+
+    if [[ -z $entry || -e $entry ]]; then
+        return 1
+    fi
+
+    [[ -d $dir ]] || mkdir -p "$dir"
+    touch "$entry"
+}
+
+create_mock_lib() {
+    local arg="$1"
+    make_file "$ZPLUG_ROOT/lib/${arg}.zsh"
 }

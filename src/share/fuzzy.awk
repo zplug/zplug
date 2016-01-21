@@ -1,7 +1,3 @@
-BEGIN {
-    FS = "/";
-}
-
 {
     # calculates the degree of similarity
     if ( (1 - leven_dist($NF, search_string) / (length($NF) + length(search_string))) * 100 >= 70 ) {
