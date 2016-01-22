@@ -690,6 +690,14 @@ __zplug::install()
                 continue
             }
 
+        # if tag not satisfied
+        if [[ -n $zspec[if] ]]; then
+            if ! eval "$zspec[if]" >/dev/null 2>&1; then
+                __put "$line skipped due to if condition\n"
+                continue
+            fi
+        fi
+
         # Case of oh-my-zsh
         oh_my_line=""
         [[ $zspec[from] == "oh-my-zsh" ]] &&
