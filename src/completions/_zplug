@@ -1,6 +1,7 @@
 #compdef zplug
 
-local    curcontext="$curcontext" state line p
+local    curcontext="$curcontext" state line
+local    p desc
 local -i ret=1
 local -a zplug_cmds
 
@@ -23,7 +24,9 @@ zplug_cmds=(
 
 for p in ${^path}/zplug-*(N-.)
 do
-    zplug_cmds+=("${p:t:gs:zplug-:}[User-definded command]")
+    desc="$(sed -n '2p' "$p" | sed -E 's/^.*desc(ription)?: ?//')"
+    desc="${desc:+"\[User-definded\] $desc"}"
+    zplug_cmds+=("${p:t:gs:zplug-:}[${desc:-"User-definded command"}]")
 done
 
 case $state in

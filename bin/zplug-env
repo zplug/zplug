@@ -1,4 +1,6 @@
 #!/bin/zsh
+# description: The environment variables of zplug
+# ^-- This description is used as complete message
 
 # Sample zplug script
 # For more information, see man page of zplug(1)
