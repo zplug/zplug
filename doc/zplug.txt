@@ -215,8 +215,8 @@ zplug, like 'git(1)', supports external commands.
 These are executable scripts that reside somewhere in the PATH, named zplug-cmdname,
 which can be invoked like zplug cmdname.
 This allows you to create your own commands without modifying zplug's internals.
-// Instructions for creating your own commands can be found in the docs:
-// https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/External-Commands.md
+Instructions for creating your own commands can be found in the docs:
+https://github.com/b4b4r07/zplug2/blob/master/doc/zplug/External-Commands.md
 
 
 Configuration Mechanism
