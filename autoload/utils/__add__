@@ -4,12 +4,12 @@ __import "core/core"
 __import "print/print"
 
 local    arg
-local -i max=0 cnt=0
 local -a args
+local -i max=0 cnt=0
 local    stdin on_name
-local -a task on_args specs
-local    fd
-local    same
+local -a on_args
+local -a tasks specs
+local    fd key
 
 arg="$1"
 case "$arg" in
@@ -28,7 +28,7 @@ esac
 args=( ${(s/, /)@:gs/,  */, } )
 arg="${args[1]}"
 args[1]=()
-task=("$arg")
+tasks=("$arg")
 
 if __is_cli && __zpluged "$arg"; then
     __die "$arg: already managed\n"
@@ -40,7 +40,7 @@ if [[ -p /dev/stdin ]]; then
     on_args=(${(s/, /)stdin:gs/,  */, })
     on_name="${on_args[1]}"
     on_args[1]=()
-    task=("$on_name" "$arg")
+    tasks=("$on_name" "$arg")
     let cnt++
 fi
 if [[ -p /dev/stdout ]]; then
@@ -54,7 +54,7 @@ fi
 
 local i tag
 local is_oh_my_zsh is_local
-for arg in "${task[@]}"
+for arg in "${tasks[@]}"
 do
     is_oh_my_zsh=false
     is_local=false
@@ -82,11 +82,11 @@ do
     tag="${tag%, }"
     # Add to $zplugs(AA; key:"user/repo" => value:"tag:value")
     if [[ -n ${zplugs[(I)${arg}]} ]]; then
-        for same in ${(k)zplugs}
+        for key in ${(k)zplugs}
         do
-            if [[ $same =~ ^$arg@*$ ]] && (( max < $#same )); then
-                max=$#same
-                arg="${same}@"
+            if [[ $key =~ ^$arg@*$ ]] && (( max < $#key )); then
+                max=$#key
+                arg="${key}@"
             fi
         done
     fi

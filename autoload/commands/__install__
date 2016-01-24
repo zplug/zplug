@@ -4,12 +4,12 @@ __import "core/core"
 __import "print/print"
 __import "job/spinner"
 
-local    arg line job filter key
+local    arg line filter k
 local    is_verbose=false is_select=false
 local -a args check
 local    oh_my_line oh_my_count=0
 local -A zspec
-local -i cnt=0 max=0 fail=0
+local -i max=0 fail=0
 local -F SECONDS=0
 local -F start finish
 local -a queue
@@ -54,10 +54,10 @@ esac
 for line in "${args[@]}"
 do
     zspec=( ${(@f)"$(__parser__ "$line")"} )
-    for key in ${(k)zspec}
+    for k in ${(k)zspec}
     do
-        if [[ $zspec[$key] == "-EMP-" ]]; then
-            zspec[$key]=""
+        if [[ $zspec[$k] == "-EMP-" ]]; then
+            zspec[$k]=""
         fi
     done
 

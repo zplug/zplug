@@ -7,7 +7,7 @@ local    loaded_omz=false
 local    arg key k
 local -A zspec
 local    f ext
-local    dirname basename
+local    basename
 local    src dst
 local -a src_a
 local    ignore
@@ -90,8 +90,7 @@ do
         fi; fi
     }
 
-    dirname="${zspec[name]%*/}"
-    basename="${zspec[name]#*/}"
+    basename="${zspec[name]:t}"
 
     case $zspec[as] in
         "command")

@@ -8,13 +8,11 @@ __import "job/spinner"
 trap '__spin_unlock; trap - SIGINT' SIGINT
 
 local    line filter is_select=false
-local -i cnt=0 max=0 ret=0
+local -i max=0 ret=0
 local -a args
 local -a queue
 local -i queue_max=$ZPLUG_THREADS
 local -F SECONDS=0
-
-local -i frozen_lock=0
 
 arg="$1"
 case "$arg" in
@@ -74,14 +72,17 @@ do
                 zspec[$k]=""
             fi
         done
-        if [[ $zspec[from] == "local" ]]; then
-            continue
-        fi
+
+        case "$zspec[from]" in
+            "local")
+                continue
+                ;;
+        esac
 
         if [[ $# == 1 && $argv[1] == $zspec[name] ]]; then
             if (( $zspec[frozen] == 1 )); then
                 __spin_unlock
-                __put "$fg[green]$zspec[name]$reset_color: $fg[blue]frozen repo$reset_color. Update? [y/N]: "
+                __put "$fg[green]$zspec[name]: $fg[blue]frozen repo$reset_color. Update? [y/N]: "
                 if read -q; then
                     __put "\n"
                     __spin_lock
@@ -95,7 +96,7 @@ do
 
         __spinner_echo "%-20s %s\n" \
             "Updating..." \
-            $line
+            "$line"
 
         function () {
             if (( $zspec[frozen] == 1 )); then
@@ -121,13 +122,13 @@ do
                 if [[ -e $zspec[dir]/.git/shallow ]]; then
                     fetch_opt="--unshallow"
                 fi
-                git fetch $fetch_opt
-                git checkout -q $zspec[at]
+                git fetch "$fetch_opt"
+                git checkout -q "$zspec[at]"
 
                 local rev_local rev_remote rev_base
-                rev_local=$(git rev-parse HEAD)
-                rev_remote=$(git rev-parse "@{u}")
-                rev_base=$(git merge-base HEAD "@{u}")
+                rev_local="$(git rev-parse HEAD)"
+                rev_remote="$(git rev-parse "@{u}")"
+                rev_base="$(git merge-base HEAD "@{u}")"
 
                 if [[ $rev_local == $rev_remote ]]; then
                     # up-to-date

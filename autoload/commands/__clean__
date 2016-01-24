@@ -69,8 +69,8 @@ do
     __put "${${is_force:+Removed}:-Remove?} $repo "
     if ${(z)is_force:-"read -q"}; then
         rm -rf "$repo"
-        rmdir ${repo:h} &>/dev/null
-    fi
+        rmdir "${repo:h}"
+    fi &>/dev/null
     __put "\n"
 done
 
