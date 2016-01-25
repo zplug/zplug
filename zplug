@@ -1236,6 +1236,11 @@ __zplug::check()
     do
         zspec=( ${(@f)"$(__zplug::parser "$line")"} )
         [[ $zspec[from] == "local" ]] && continue
+
+        if [[ $zspec[if] != "-EMP-" ]] && ! eval "$zspec[if]" >/dev/null 2>&1; then
+            continue
+        fi
+
         if [[ $zspec[from] != "oh-my-zsh" && ! -e $zspec[dir] ]] || [[ $zspec[from] == "oh-my-zsh" && ! -d ${zspec[dir]:h} ]]; then
             fail+=("$zspec[name]")
         fi
