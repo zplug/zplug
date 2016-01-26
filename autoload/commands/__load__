@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 __import "print/print"
+__import "cache/cache"
 
 local    is_verbose=false is_debug=false
 local    loaded_omz=false
@@ -36,17 +37,8 @@ do
 done
 
 # Use cache file
-if (( $#funcstack[@] <= 6 )) && $ZPLUG_USE_CACHE; then
-    # If cache file does not exist,
-    # load plugins normaly
-    if [[ -f $_ZPLUG_CACHE_FILE ]]; then
-        if $is_debug; then
-            echo "$_ZPLUG_CACHE_FILE"
-        else
-            source "$_ZPLUG_CACHE_FILE"
-        fi
-        return $status
-    fi
+if __load_cache; then
+    return 0
 fi
 
 args=(${(k)zplugs})
@@ -302,23 +294,19 @@ fi
     __put '[[ $- =~ i ]] || exit\n'
     __put 'export PATH="%s:$PATH"\n' "$ZPLUG_HOME/bin"
     __put 'export ZSH=%s\n\n' "$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH"
-    __put '_zplug_repos=(${(kv)zplugs})\n'
-    __put '_zplug_saved=(%s)\n' "${(qqqkv)zplugs}"
-    __put 'if [[ $_zplug_repos != $_zplug_saved ]]; then\n'
-    if $is_verbose; then
-        __put '  ZPLUG_USE_CACHE=false zplug load --verbose\n  return $status\n'
-    else
-        __put '  ZPLUG_USE_CACHE=false zplug load\n  return $status\n'
-    fi
-    __put 'fi\n'
     __put 'if $is_verbose; then\n'
     __put '  echo "Static loading..." >&2\n'
     __put 'fi\n'
     if (( $#load_plugins > 0 )); then
         __put 'source %s\n' "${(qqq)load_plugins[@]}"
     fi
-    __put '\n# fpath\n'
-    __put 'fpath=(%s $fpath)\n' "${(u)load_fpaths}"
+    if (( $#load_fpaths > 0 )); then
+        __put '\n# fpath\n'
+        __put 'fpath=(\n'
+        __put '%s\n' ${(u)load_fpaths}
+        __put '$fpath\n'
+        __put ')\n'
+    fi
     __put 'compinit -C -d %s\n' "$ZPLUG_HOME/zcompdump"
     if (( $#nice_plugins > 0 )); then
         __put '\n# Loading after compinit\n'
@@ -328,6 +316,8 @@ fi
         __put '\n# Lazy loading plugins\n'
         __put 'autoload -Uz %s\n' "${(qqq)lazy_plugins[@]:t}"
     fi
+    __put '\nreturn 0\n'
+    __put '%s\n' "$(__tags_for_cache)"
 } >|$_ZPLUG_CACHE_FILE
 
 if [[ -f $_ZPLUG_CACHE_FILE ]]; then
