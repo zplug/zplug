@@ -38,6 +38,9 @@ done
 
 # Use cache file
 if __load_cache; then
+    if $is_debug; then
+        __put "$_ZPLUG_CACHE_FILE\n"
+    fi
     return 0
 fi
 
