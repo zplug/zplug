@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 __import "print/print"
-__import "cache/cache"
+__import "zplug/cache"
 
 local    is_verbose=false is_debug=false
 local    loaded_omz=false
