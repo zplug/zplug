@@ -4,7 +4,7 @@
 {
     source $ZPLUG_ROOT/autoload/init.zsh
     source $ZPLUG_ROOT/autoload/autoload.zsh
-    source $ZPLUG_ROOT/zplug.zsh
+    source $ZPLUG_ROOT/init.zsh
     export ZPLUG_HOME=$ZPLUG_ROOT/test/_fixtures
     export _ZPLUG_CACHE_FILE=$ZPLUG_HOME/.cache
     local -A zplugs

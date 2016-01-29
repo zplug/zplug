@@ -4,7 +4,7 @@
 {
     source $ZPLUG_ROOT/autoload/init.zsh
     source $ZPLUG_ROOT/autoload/autoload.zsh
-    source $ZPLUG_ROOT/zplug.zsh
+    source $ZPLUG_ROOT/init.zsh
     local -A zplugs
     local    expect actual
     local -a expects actuals

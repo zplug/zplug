@@ -3,7 +3,7 @@
 : before
 {
     source $ZPLUG_ROOT/autoload/autoload.zsh
-    source $ZPLUG_ROOT/zplug.zsh
+    source $ZPLUG_ROOT/init.zsh
     export ZPLUG_HOME=$ZPLUG_ROOT/test/_fixtures
     local -A zplugs
     local    expect actual

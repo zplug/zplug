@@ -4,7 +4,7 @@
 {
     export ZPLUG_HOME=$ZPLUG_ROOT/test/_fixtures
     source $ZPLUG_ROOT/lib/cli/getopts.zsh
-    source $ZPLUG_ROOT/zplug.zsh
+    source $ZPLUG_ROOT/init.zsh
     local -A zplugs
     local    expect actual
     local -a expects actuals
