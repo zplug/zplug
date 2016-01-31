@@ -130,7 +130,14 @@ describe "lib/core/core.zsh"
         assert.true $status
     end
 
-    it "__git_version"
+    it "__git_version 9999.9999"
+        __git_version 9999.9999
+        assert.false $status
+    end
+
+    it "__git_version 0.0"
+        __git_version 0.0
+        assert.true $status
     end
 
     it "__zsh_version"
