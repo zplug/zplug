@@ -164,16 +164,20 @@ do
                 plugins_ext=(plugin.zsh zsh zsh-theme)
                 for ext in ${plugins_ext[@]}
                 do
+                    glob_patterns=()
                     if [[ -n $zspec[of] ]]; then
-                        glob_patterns=( $zspec[dir]/${~zspec[of]}(-.N) )
+                        glob_patterns+=( $zspec[dir]/${~zspec[of]}(-.N) )
                         if (( $#glob_patterns == 0 )); then
                             glob_patterns+=( $zspec[dir]/${~zspec[of]}.$ext(-.N) )
                             glob_patterns+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*(*N.)"}" 2>/dev/null) )
                         fi
                     else
-                        glob_patterns=( $zspec[dir]/*.$ext(-.N) )
-                        # Support user/repo.ext
-                        glob_patterns+=( $zspec[dir].$ext(-.N) )
+                        if (( $zspec[lazy] == 1 )); then
+                            glob_patterns+=( $zspec[dir]/autoload/*(N-.) )
+                        else
+                            glob_patterns+=( $zspec[dir]/*.$ext(-.N) )
+                            glob_patterns+=( $zspec[dir].$ext(-.N) )
+                        fi
                     fi
                     if (( $#glob_patterns > 0 )); then
                         break
@@ -189,14 +193,12 @@ do
                     if (( $zspec[lazy] == 1 )); then
                         lazy_plugins+=(${glob_patterns[@]})
                         load_fpaths+=($zspec[dir])
+                        load_fpaths+=(${lazy_plugins[@]:h})
                     else
                         load_plugins+=(${glob_patterns[@]})
                     fi
                 fi
             fi
-            ;;
-
-        "none")
             ;;
 
         *)
