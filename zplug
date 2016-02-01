@@ -310,7 +310,7 @@ __version_requirement() {
 }
 
 __git_version() {
-    __version_requirement "${(M)${(z)"$(git --version)"}:#[0-9]*[0-9]} " "$@"
+    __version_requirement ${(M)${(z)"$(git --version)"}:#[0-9]*[0-9]} "$@"
     return $status
 }
 
