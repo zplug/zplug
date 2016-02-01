@@ -1012,6 +1012,9 @@ __zplug::load()
 
                     # Add files to fpath
                     load_fpaths+=(${zspec[dir]}/_*(N-.:h))
+                    if [[ -n $zspec[of] ]]; then
+                        load_fpaths+=(${zspec[dir]}/$zspec[of]/_*(N-.:h))
+                    fi
 
                     if (( $zspec[nice] > 9 )); then
                         nice_plugins+=(${glob_patterns[@]})
