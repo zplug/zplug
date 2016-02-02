@@ -28,7 +28,7 @@ describe "__parser__"
         ignore    -EMP-
         commit    -EMP-
         dir       -EMP-
-        use       -EMP-
+        use       "*.zsh"
         from      github
         do        -EMP-
         rename_to -EMP-
@@ -51,7 +51,7 @@ describe "__parser__"
         ignore    -EMP-
         commit    -EMP-
         dir       -EMP-
-        use       -EMP-
+        use       "*.zsh"
         from      github
         do        -EMP-
         rename_to -EMP-
@@ -74,7 +74,7 @@ describe "__parser__"
         ignore    -EMP-
         commit    -EMP-
         dir       -EMP-
-        use       -EMP-
+        use       "*.zsh"
         from      github
         do        -EMP-
         rename_to -EMP-
@@ -97,7 +97,7 @@ describe "__parser__"
         ignore    -EMP-
         commit    -EMP-
         dir       -EMP-
-        use       -EMP-
+        use       "*.zsh"
         from      github
         do        -EMP-
         rename_to -EMP-
@@ -120,7 +120,7 @@ describe "__parser__"
         ignore    -EMP-
         commit    -EMP-
         dir       -EMP-
-        use       -EMP-
+        use       "*.zsh"
         from      github
         do        -EMP-
         rename_to -EMP-

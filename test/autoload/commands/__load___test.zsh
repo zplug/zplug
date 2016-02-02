@@ -2,6 +2,7 @@
 
 : before
 {
+    return 0
     source $ZPLUG_ROOT/autoload/init.zsh
     source $ZPLUG_ROOT/autoload/autoload.zsh
     source $ZPLUG_ROOT/init.zsh

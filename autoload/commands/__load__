@@ -5,19 +5,17 @@ __import "zplug/cache"
 
 local    is_verbose=false is_debug=false
 local    loaded_omz=false
-local    arg key k
+local    arg key k f
 local -A zspec
-local    f ext
 local    basename
 local    src dst
-local -a src_a
+local -a sources
 local    ignore
 local -A load_commands
+local -a packages unsorted_nice nice_plugins
 local -a load_plugins load_fpaths lazy_plugins
-local -a load_ignores
-local -a temporary_array
-local -a themes_ext plugins_ext glob_patterns
-local -a args unsorted_nice nice_plugins
+local -a ignore_patterns load_patterns
+local -a temporary_array themes_ext
 
 while (( $# > 0 ))
 do
@@ -44,16 +42,21 @@ if __load_cache; then
     return 0
 fi
 
-args=(${(k)zplugs})
+packages=(
+    "${(k)zplugs[@]}"
+)
 
 # Order by nice value
-for key in ${args[@]}
+for key in "${packages[@]}"
 do
     zspec=( ${(@f)"$(__parser__ "$key")"} )
     unsorted_nice+=("$zspec[nice]:$zspec[name]")
 done
+unset key
 
-for key in ${${(OnM)unsorted_nice:#-*}#*:} ${${(on)unsorted_nice:#-*}#*:}
+for key in \
+    ${${(OnM)unsorted_nice:#-*}#*:} \
+    ${${(on)unsorted_nice:#-*}#*:}
 do
     zspec=( ${(@f)"$(__parser__ "$key")"} )
     for k in ${(k)zspec}
@@ -62,140 +65,187 @@ do
             zspec[$k]=""
         fi
     done
+    unset k
 
-    {   # Skip cases
-        if [[ $zspec[from] == "oh-my-zsh" ]]; then
-            # Check parent directory thus oh-my-zsh root dir
-            [[ -d ${zspec[dir]:h} ]] || continue
-        else
-            # Use -e flag bacause zspec[dir] returns directory and file
-            [[ -e $zspec[dir] ]] || continue
-        fi
+    {
+        # FROM tag
+        case $zspec[from] in
+            "oh-my-zsh")
+                if [[ ! -d $zspec[dir]:h ]]; then
+                    continue
+                fi
+                ;;
+            *)
+                if [[ ! -d $zspec[dir] ]]; then
+                    continue
+                fi
+        esac
+
+        # IF tag
         if [[ -n $zspec[if] ]]; then
-            if ! eval "$zspec[if]" >/dev/null 2>&1; then
+            if ! eval "$zspec[if]" &>/dev/null; then
                 $is_verbose && __die "$zspec[name]: (not loaded)\n"
                 continue
             fi
         fi
+
+        # ON tag
         if [[ -n $zspec[on] ]]; then
-            if [[ $zspec[from] != "local" && ! -e $ZPLUG_HOME/repos/${~zspec[on]} ]] ||
-                [[ $zspec[from] == "local" && ! -e ${~zspec[on]} ]]; then
-            $is_verbose && __die "$zspec[name]: (not loaded)\n"
-            continue
-        fi; fi
+            if [[ ! -d $ZPLUG_HOME/repos/${~zspec[on]} ]]; then
+                $is_verbose && __die "$zspec[name]: (not loaded)\n"
+                continue
+            fi
+        fi
     }
 
-    basename="${zspec[name]:t}"
-
+    # MAIN
     case $zspec[as] in
         "command")
-            [[ -d $ZPLUG_HOME/bin ]] || mkdir -p $ZPLUG_HOME/bin
+            if [[ ! -d $ZPLUG_HOME/bin ]]; then
+                mkdir -p "$ZPLUG_HOME/bin"
+            fi
+
+            basename="${zspec[name]:t}"
+            zspec[dir]="${zspec[dir]%/}"
+            dst=${${zspec[rename_to]:+$ZPLUG_HOME/bin/$zspec[rename_to]}:-"$ZPLUG_HOME/bin"}
+
             # Add parent directories to fpath if any files starting in _* exist
             load_fpaths+=(${zspec[dir]}{_*,/**/_*}(N-.:h))
-            dst=${${zspec[rename_to]:+$ZPLUG_HOME/bin/$zspec[rename_to]}:-$ZPLUG_HOME/bin}
 
-            zspec[dir]=${zspec[dir]%/}
+            # Mock (example): "b4b4r07/sample"
+            # sample
+            # |-- bin
+            # |   |-- sample
+            # |   `-- mycmd1
+            # `-- mycmd2
+            #
+            # 1 directory, 2 files
+            #
             if [[ -f $zspec[dir]${zspec[use]:+"/$zspec[use]"} ]]; then
-                load_commands+=($zspec[dir]${zspec[use]:+"/$zspec[use]"} $dst)
+                # case:
+                #   zplug "b4b4r07/sample", use:mycmd
+                load_commands+=(
+                    # expand to "$ZPLUG_HOME/repos/b4b4r07/sample/mycmd"
+                    "$zspec[dir]${zspec[use]:+"/$zspec[use]"}"
+                    "$dst"
+                )
             elif [[ -f $zspec[dir]${zspec[use]:+"/$zspec[use]"}/$basename ]]; then
-                load_commands+=($zspec[dir]${zspec[use]:+"/$zspec[use]"}/$basename $dst)
+                # case:
+                #   zplug "b4b4r07/sample", use:bin
+                load_commands+=(
+                    # expand to "$ZPLUG_HOME/repos/b4b4r07/sample/bin/sample"
+                    "$zspec[dir]${zspec[use]:+"/$zspec[use]"}/$basename"
+                    "$dst"
+                )
             elif [[ -f $zspec[dir]/$basename ]]; then
-                load_commands+=($zspec[dir]/$basename $dst)
-            elif [[ -f $zspec[dir] ]]; then
-                load_commands+=($zspec[dir] $dst)
+                # case:
+                #   zplug "b4b4r07/sample"
+                load_commands+=(
+                    # expand to "$ZPLUG_HOME/repos/b4b4r07/sample/sample"
+                    "$zspec[dir]/$basename"
+                    "$dst"
+                )
             else
                 # For brace
-                src_a=( $(zsh -c "echo ${zspec[dir]}/${zspec[use]:-"*(*N.)"}" 2>/dev/null) )
-                for src in $src_a
+                # case 1:
+                #   zplug "b4b4r07/sample", use:"bin/{mycmd1,sample}"
+                # case 2:
+                #   zplug "b4b4r07/sample", use:"bin/*"
+                sources=(
+                    # expand to "$ZPLUG_HOME/repos/b4b4r07/sample/mycmd1"
+                    #           "$ZPLUG_HOME/repos/b4b4r07/sample/sample"
+                    ${(@f)"$(zsh -c "echo ${zspec[dir]}/${zspec[use]}" 2>/dev/null)"}
+                )
+                for src in "${sources[@]}"
                 do
-                    load_commands+=($src $dst)
+                    load_commands+=("$src" "$dst")
                 done
             fi
             ;;
 
         "plugin")
             if [[ $zspec[from] == "oh-my-zsh" ]]; then
+                # oh-my-zsh
                 load_omz() {
                     if ! $loaded_omz; then
                         loaded_omz=true
-                        export ZSH=$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH
-                        # Insert to the top
-                        load_plugins=($ZSH/oh-my-zsh.sh ${load_plugins[@]})
+                        export ZSH="$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH"
+                        # Insert to the top of load_plugins
+                        load_plugins=(
+                            "$ZSH/oh-my-zsh.sh"
+                            "${load_plugins[@]}"
+                        )
                     fi
                 }
 
-                # oh-my-zsh
                 case $zspec[name] in
                     plugins/*)
                         load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
-                        temporary_array=( $zspec[dir]/${~zspec[use]:-"*.plugin.zsh(-.N)"} )
-                        if (( $zspec[nice] > 9 )); then
-                            nice_plugins+=( ${temporary_array[@]} )
-                        else
-                            load_plugins+=( ${temporary_array[@]} )
-                        fi
-                        (( $#temporary_array > 0 )) && load_omz
+                        temporary_array=( "$zspec[dir]"/${~zspec[use]:-"*.plugin.zsh(-.N)"} )
                         ;;
                     themes/*)
                         load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
                         themes_ext=(.zsh-theme .theme-zsh)
-                        temporary_array=( ${zspec[dir]}${zspec[use]:-${^themes_ext}(-.N)} )
-                        if (( $zspec[nice] > 9 )); then
-                            nice_plugins+=( ${temporary_array[@]} )
-                        else
-                            load_plugins+=( ${temporary_array[@]} )
-                        fi
-                        (( $#temporary_array > 0 )) && load_omz
+                        temporary_array=( "$zspec[dir]"${zspec[use]:-${^themes_ext}(-.N)} )
                         ;;
                     lib/*)
                         load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
-                        temporary_array=( $zspec[dir]${~zspec[use]:-".zsh(-.N)"} )
-                        if (( $zspec[nice] > 9 )); then
-                            nice_plugins+=( ${temporary_array[@]} )
-                        else
-                            load_plugins+=( ${temporary_array[@]} )
-                        fi
-                        (( $#temporary_array > 0 )) && load_omz
+                        temporary_array=( "$zspec[dir]"${~zspec[use]:-".zsh(-.N)"} )
                         ;;
                 esac
 
+                if (( $zspec[nice] > 9 )); then
+                    nice_plugins+=( "${temporary_array[@]}" )
+                else
+                    load_plugins+=( "${temporary_array[@]}" )
+                fi
+                if (( $#temporary_array > 0 )); then
+                    load_omz
+                fi
+
             else
                 # NOT oh-my-zsh
-                plugins_ext=(plugin.zsh zsh zsh-theme)
-                for ext in ${plugins_ext[@]}
-                do
-                    glob_patterns=()
-                    if [[ -n $zspec[use] ]]; then
-                        glob_patterns+=( $zspec[dir]/${~zspec[use]}(-.N) )
-                        if (( $#glob_patterns == 0 )); then
-                            glob_patterns+=( $zspec[dir]/${~zspec[use]}.$ext(-.N) )
-                            glob_patterns+=( $(zsh -c "echo ${zspec[dir]}/${zspec[use]:-"*(*N.)"}" 2>/dev/null) )
-                        fi
-                    else
-                        if (( $zspec[lazy] == 1 )); then
-                            glob_patterns+=( $zspec[dir]/autoload/*(N-.) )
-                        else
-                            glob_patterns+=( $zspec[dir]/*.$ext(-.N) )
-                            glob_patterns+=( $zspec[dir].$ext(-.N) )
-                        fi
-                    fi
-                    if (( $#glob_patterns > 0 )); then
-                        break
-                    fi
-                done
+                load_patterns=()
 
-                # Add files to fpath
-                load_fpaths+=(${zspec[dir]}/_*(N-.:h))
+                # NOTE:
+                # If $zspec[use] is a regular file,
+                # expect to expand to $zspec[dir]/*.zsh
+                load_patterns+=( "$zspec[dir]"/${~zspec[use]}(N.) )
+                if (( $#load_patterns == 0 )); then
+                    # For brace
+                    load_patterns+=( ${(@f)"$(zsh -c "echo $zspec[dir]/$zspec[use](N.)" 2>/dev/null)"} )
+                fi
+                # Add the parent directory to fpath
+                load_fpaths+=( $zspec[dir]/_*(N.:h) )
+
+                # NOTE:
+                # If $zspec[use] is a directory,
+                # expect to expand to $zspec[dir]/*.zsh
+                if (( $#load_patterns == 0 )); then
+                    load_patterns+=( "$zspec[dir]/$zspec[use]"/*.zsh(N.) )
+                    if (( $#load_patterns == 0 )); then
+                        # For brace
+                        load_patterns+=( ${(@f)"$(zsh -c "echo $zspec[dir]/$zspec[use]/*.zsh(N.)" 2>/dev/null)"} )
+                    fi
+                    # Add the parent directory to fpath
+                    load_fpaths+=( $zspec[dir]/$zspec[use]/_*(N.:h) )
+
+                    # If that is an autoload plugin
+                    if (( $zspec[lazy] == 1 )); then
+                        load_patterns+=( "$zspec[dir]/autoload"/*(N.) )
+                        load_fpaths+=( "$zspec[dir]/autoload"(N/) )
+                    fi
+                fi
 
                 if (( $zspec[nice] > 9 )); then
-                    nice_plugins+=(${glob_patterns[@]})
+                    # the order of loading of plugin files
+                    nice_plugins+=( "${load_patterns[@]}" )
                 else
+                    # autoload plugin / regular plugin
                     if (( $zspec[lazy] == 1 )); then
-                        lazy_plugins+=(${glob_patterns[@]})
-                        load_fpaths+=($zspec[dir])
-                        load_fpaths+=(${lazy_plugins[@]:h})
+                        lazy_plugins+=( "${load_patterns[@]}" )
                     else
-                        load_plugins+=(${glob_patterns[@]})
+                        load_plugins+=( "${load_patterns[@]}" )
                     fi
                 fi
             fi
@@ -208,32 +258,36 @@ do
     esac
 
     if [[ -n $zspec[ignore] ]]; then
+        # Make ignore patterns
         if [[ $zspec[from] == "oh-my-zsh" ]]; then
-            load_ignores=( $ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/${~zspec[ignore]}(N) )
+            ignore_patterns=( "$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH"/${~zspec[ignore]}(N) )
         else
-            load_ignores=( $zspec[dir]/${~zspec[ignore]}(N) )
+            ignore_patterns=( "$zspec[dir]"/${~zspec[ignore]}(N) )
         fi
 
-        for ignore in ${load_ignores[@]}
+        for ignore in "${ignore_patterns[@]}"
         do
             # Commands
             if [[ -n $load_commands[(i)$ignore] ]]; then
                 unset "load_commands[$ignore]"
             fi
             # Plugins
-            load_plugins=(${load_plugins#$ignore})
-            nice_plugins=(${nice_plugins#$ignore})
+            load_plugins=( "${(R)load_plugins[@]:#$ignore}" )
+            nice_plugins=( "${(R)nice_plugins[@]:#$ignore}" )
+            lazy_plugins=( "${(R)lazy_plugins[@]:#$ignore}" )
             # fpath
-            load_fpaths=(${load_fpaths#$ignore})
+            load_fpaths=( "${(R)load_fpaths[@]:#$ignore}" )
         done
     fi
 done
 
 # Commands
 {
-    for f in ${(k)load_commands}
+    for f in "${(k)load_commands[@]}"
     do
-        [[ -f $f ]] && ln -snf "$f" "$load_commands[$f]"
+        if [[ -f $f ]]; then
+            ln -snf "$f" "$load_commands[$f]"
+        fi
     done
     path=("$ZPLUG_HOME/bin" $path)
     typeset -gx -U path
@@ -241,15 +295,15 @@ done
 
 # Plugins
 {
-    for f in ${load_plugins[@]}
+    for f in "${load_plugins[@]}"
     do
         if [[ -f $f ]]; then
             if $is_debug; then
                 echo "$f"
             else
                 source "$f"
-                if [[ $status -eq 0 ]] && $is_verbose; then
-                    __put "$fg[green]  Loaded$reset_color ${f/$ZPLUG_HOME\/repos\//}\n"
+                if (( $status == 0 )) && $is_verbose; then
+                    __put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}\n"
                 fi
             fi
         fi
@@ -259,19 +313,19 @@ done
     if $is_debug; then
         echo ${(F)${(u)load_fpaths}}
     else
-        fpath=(${(u)load_fpaths} $fpath)
+        fpath=(${(u)load_fpaths[@]} $fpath)
         compinit -C -d "$ZPLUG_HOME/zcompdump"
     fi
 
-    for f in ${nice_plugins[@]}
+    for f in "${nice_plugins[@]}"
     do
         if [[ -f $f ]]; then
             if $is_debug; then
                 echo "$f"
             else
                 source "$f"
-                if [[ $status -eq 0 ]] && $is_verbose; then
-                    __put "$fg[green]  Loaded$reset_color ${f/$ZPLUG_HOME\/repos\//}"
+                if (( $status == 0 )) && $is_verbose; then
+                    __put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}"
                     __put "$fg[yellow] after compinit$reset_color\n"
                 fi
             fi
@@ -281,11 +335,12 @@ done
 
 # Plugins (Lazy)
 {
-    for f in ${lazy_plugins}
+    for f in "${lazy_plugins[@]}"
     do
         autoload -Uz "${f:t}"
     done
 }
+unset f
 
 # Cache
 __update_cache

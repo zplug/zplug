@@ -17,7 +17,7 @@ parsed_zplugs=(${(s/, /)arg:gs/,  */, })
 
 name="${parsed_zplugs[1]}"
 as=${${${(M)parsed_zplugs:#as:*}#*:}:-plugin}
-use=${${${(M)parsed_zplugs:#use:*}#*:}:--EMP-}
+use=${${${(M)parsed_zplugs:#use:*}#*:}:-"*.zsh"}
 from=${${${(M)parsed_zplugs:#from:*}#*:}:-github}
 if=${${${(M)parsed_zplugs:#if:*}#*:}:--EMP-}
 dir=${${${(M)parsed_zplugs:#dir:*}#*:}:--EMP-}
