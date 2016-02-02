@@ -20,7 +20,7 @@ EOLOGO
 # Check if current zsh is interactive
 if [[ $- =~ i ]]; then
     # source
-    zplug_main="${${(%):-%N}:A:h}/zplug.zsh"
+    zplug_main="${${(%):-%N}:A:h}/init.zsh"
     if [[ -f $zplug_main ]]; then
         source "$zplug_main"
     else
