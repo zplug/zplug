@@ -4,7 +4,7 @@ __import "print/print"
 
 local    repository
 local    shallow_clone
-local    tag_of tag_commit tag_from tag_at tag_do
+local    tag_use tag_commit tag_from tag_at tag_do
 local    url_format
 local -i ret
 
@@ -14,8 +14,8 @@ builtin cd -q "$ZPLUG_HOME/repos"
 while (( $# > 0 ))
 do
     case "$1" in
-        --of)
-            tag_of="$2"; shift
+        --use)
+            tag_use="$2"; shift
             ;;
         --commit)
             tag_commit="$2"; shift
@@ -102,9 +102,9 @@ done
 
         gh-r)
             __releases__ \
-                --of "${tag_of:-}" \
-                --do "${tag_do:-}" \
-                --at "${tag_at:#master}" \
+                --use "${tag_use:-}" \
+                --do  "${tag_do:-}" \
+                --at  "${tag_at:#master}" \
                 "$repository" &>/dev/null
 
             return $status

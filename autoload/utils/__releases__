@@ -8,7 +8,7 @@ local    update=false
 local -i ret=0
 local -a candidates_list binaries
 local    repository
-local    tag_do tag_at tag_of
+local    tag_do tag_at tag_use
 local    bit one_uri artifact
 local    curl url_format
 local    curl2 url_format2
@@ -17,8 +17,8 @@ local    repo command_name
 while (( $# > 0 ))
 do
     case "$1" in
-        --of)
-            tag_of="$2"; shift
+        --use)
+            tag_use="$2"; shift
             ;;
         --at)
             tag_at="$2"; shift
@@ -69,10 +69,10 @@ done
         bit="386"
     fi
 
-    if [[ -n $tag_of ]]; then
-        tag_of="$(__glob2regexp "$tag_of")"
+    if [[ -n $tag_use ]]; then
+        tag_use="$(__glob2regexp "$tag_use")"
     else
-        tag_of="$(__get_os)"
+        tag_use="$(__get_os)"
     fi
 }
 
@@ -86,7 +86,7 @@ done
     fi
 
     echo "${(F)candidates_list}" \
-        | grep "${tag_of:-}" \
+        | grep "${tag_use:-}" \
         | grep "$bit" \
         | head -n 1 \
         | read one_uri

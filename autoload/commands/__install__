@@ -119,7 +119,7 @@ do
             "${oh_my_line:-$line}"
 
         __clone__ \
-            --of     ${zspec[of]:-""} \
+            --use    ${zspec[use]:-""} \
             --commit ${zspec[commit]:-""} \
             --from   ${zspec[from]:-""} \
             --at     ${zspec[at]:-""} \

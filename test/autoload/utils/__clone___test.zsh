@@ -44,7 +44,7 @@ describe "__clone__"
         expect=""
         actual="$(
         __clone__ \
-            --of     "" \
+            --use    "" \
             --commit "" \
             --from  "oh-my-zsh" \
             --at    "master" \

@@ -5,7 +5,7 @@ __import "print/print"
 local    arg key
 local -a parsed_zplugs
 local -A zplugs_tags
-local    name as of from if dir file at do frozen on commit nice ignore lazy
+local    name as use from if dir rename_to at do frozen on commit nice ignore lazy
 
 if [[ -z $1 ]]; then
     __die "$funcstack[1]: too few arguments\n"
@@ -17,11 +17,11 @@ parsed_zplugs=(${(s/, /)arg:gs/,  */, })
 
 name="${parsed_zplugs[1]}"
 as=${${${(M)parsed_zplugs:#as:*}#*:}:-plugin}
-of=${${${(M)parsed_zplugs:#of:*}#*:}:--EMP-}
+use=${${${(M)parsed_zplugs:#use:*}#*:}:--EMP-}
 from=${${${(M)parsed_zplugs:#from:*}#*:}:-github}
 if=${${${(M)parsed_zplugs:#if:*}#*:}:--EMP-}
 dir=${${${(M)parsed_zplugs:#dir:*}#*:}:--EMP-}
-file=${${${(M)parsed_zplugs:#file:*}#*:}:--EMP-}
+rename_to=${${${(M)parsed_zplugs:#rename_to:*}#*:}:--EMP-}
 at=${${${(M)parsed_zplugs:#at:*}#*:}:-master}
 do=${${${(M)parsed_zplugs:#do:*}#*:}:--EMP-}
 frozen=${${${(M)parsed_zplugs:#frozen:*}#*:}:-0}
@@ -36,21 +36,21 @@ if [[ $name == $_ZPLUG_OHMYZSH ]] && [[ $nice -eq 0 ]]; then
 fi
 
 zplugs_tags=(
-name    "$name"
-as      "$as"
-of      "$of"
-from    "$from"
-if      "$if"
-dir     "$dir"
-file    "$file"
-at      "$at"
-do      "$do"
-frozen  "$frozen"
-on      "$on"
-commit  "$commit"
-nice    "$nice"
-ignore  "$ignore"
-lazy    "$lazy"
+name      "$name"
+as        "$as"
+use       "$use"
+from      "$from"
+if        "$if"
+dir       "$dir"
+rename_to "$rename_to"
+at        "$at"
+do        "$do"
+frozen    "$frozen"
+on        "$on"
+commit    "$commit"
+nice      "$nice"
+ignore    "$ignore"
+lazy      "$lazy"
 )
 
 # Output zplugs_tags

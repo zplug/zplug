@@ -113,9 +113,9 @@ do
             # or, git pull (case of normal plugin)
             if [[ $zspec[from] == "gh-r" ]]; then
                 __releases__ \
-                    --of "${zspec[of]:-}" \
-                    --do "${zspec[do]:-}" \
-                    --at "${zspec[at]:-}" \
+                    --use "${zspec[use]:-}" \
+                    --do  "${zspec[do]:-}" \
+                    --at  "${zspec[at]:-}" \
                     "$line" &>/dev/null
             else
                 local fetch_opt

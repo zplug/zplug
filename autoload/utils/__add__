@@ -16,8 +16,8 @@ tags[1]=()
 
 # DEPRECATED: pipe
 if [[ -p /dev/stdin ]]; then
-    __die "[zplug] $fg[red]WARNING$reset_color: pipe syntax is deprecated! "
-    __die "You should use '$fg[blue]on$reset_color' tag instead of it.\n"
+    __die "[zplug] $fg[red]WARNING$reset_color: pipe syntax is deprecated!\n"
+    __die "Please use '$fg[blue]on$reset_color' tag instead.\n"
     return 1
 fi
 
@@ -47,8 +47,18 @@ do
     key=${${(s.:.)tag}[1]}
     val=${${(s.:.)tag}[2]}
 
-    if [[ $key =~ ^$_ZPLUG_TAG_PATTERN$ ]]; then
+    if [[ $key =~ ^$_ZPLUG_TAG_PATTERN$ ]] || [[ $key =~ ^$_ZPLUG_OLDTAG_PATTERN$ ]]; then
         case $key in
+            "of")
+                key="use"
+                __die "[zplug] $fg[red]WARNING$reset_color: '$fg[blue]of$reset_color' tag is deprecated. "
+                __die "Please use '$fg[blue]use$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
+                ;;
+            "file")
+                key="rename_to"
+                __die "[zplug] $fg[red]WARNING$reset_color: '$fg[blue]file$reset_color' tag is deprecated. "
+                __die "Please use '$fg[blue]rename_to$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
+                ;;
             "from")
                 case $val in
                     "oh-my-zsh")

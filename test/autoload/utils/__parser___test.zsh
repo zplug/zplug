@@ -28,10 +28,10 @@ describe "__parser__"
         ignore    -EMP-
         commit    -EMP-
         dir       -EMP-
-        of        -EMP-
+        use       -EMP-
         from      github
         do        -EMP-
-        file      -EMP-
+        rename_to -EMP-
         name      username/reponame
         nice      0
         if        -EMP-
@@ -51,10 +51,10 @@ describe "__parser__"
         ignore    -EMP-
         commit    -EMP-
         dir       -EMP-
-        of        -EMP-
+        use       -EMP-
         from      github
         do        -EMP-
-        file      -EMP-
+        rename_to -EMP-
         name      username/reponame
         nice      0
         if        -EMP-
@@ -74,10 +74,10 @@ describe "__parser__"
         ignore    -EMP-
         commit    -EMP-
         dir       -EMP-
-        of        -EMP-
+        use       -EMP-
         from      github
         do        -EMP-
-        file      -EMP-
+        rename_to -EMP-
         name      "$_ZPLUG_OHMYZSH"
         nice      -10
         if        -EMP-
@@ -97,10 +97,10 @@ describe "__parser__"
         ignore    -EMP-
         commit    -EMP-
         dir       -EMP-
-        of        -EMP-
+        use       -EMP-
         from      github
         do        -EMP-
-        file      -EMP-
+        rename_to -EMP-
         name      "$_ZPLUG_OHMYZSH"
         nice      1
         if        -EMP-
@@ -120,10 +120,10 @@ describe "__parser__"
         ignore    -EMP-
         commit    -EMP-
         dir       -EMP-
-        of        -EMP-
+        use       -EMP-
         from      github
         do        -EMP-
-        file      -EMP-
+        rename_to -EMP-
         name      "$_ZPLUG_OHMYZSH"
         nice      -20
         if        -EMP-

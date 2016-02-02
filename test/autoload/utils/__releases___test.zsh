@@ -62,14 +62,14 @@ describe "__releases__"
         each_after
     end
 
-    it "--of option"
+    it "--use option"
         __get_os() { __put "linux\n" }
         repo="peco/peco"
         expect="${repo:t}: Installed successfully"
         actual="$(
         __releases__ \
-            --at "v0.3.5" \
-            --of "*darwin*" \
+            --at    "v0.3.5" \
+            --use   "*darwin*" \
             "$repo" 2>&1
         )"
         status_code=$status
@@ -90,9 +90,9 @@ describe "__releases__"
         expect="${repo:t}: Installed successfully"
         actual="$(
         __releases__ \
-            --at "v0.3.5" \
-            --of "*darwin*" \
-            --do "touch $ZPLUG_HOME/repos/$repo/DO" \
+            --at    "v0.3.5" \
+            --use   "*darwin*" \
+            --do    "touch $ZPLUG_HOME/repos/$repo/DO" \
             "$repo" 2>&1
         )"
         status_code=$status

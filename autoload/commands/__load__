@@ -92,20 +92,20 @@ do
             [[ -d $ZPLUG_HOME/bin ]] || mkdir -p $ZPLUG_HOME/bin
             # Add parent directories to fpath if any files starting in _* exist
             load_fpaths+=(${zspec[dir]}{_*,/**/_*}(N-.:h))
-            dst=${${zspec[file]:+$ZPLUG_HOME/bin/$zspec[file]}:-$ZPLUG_HOME/bin}
+            dst=${${zspec[rename_to]:+$ZPLUG_HOME/bin/$zspec[rename_to]}:-$ZPLUG_HOME/bin}
 
             zspec[dir]=${zspec[dir]%/}
-            if [[ -f $zspec[dir]${zspec[of]:+"/$zspec[of]"} ]]; then
-                load_commands+=($zspec[dir]${zspec[of]:+"/$zspec[of]"} $dst)
-            elif [[ -f $zspec[dir]${zspec[of]:+"/$zspec[of]"}/$basename ]]; then
-                load_commands+=($zspec[dir]${zspec[of]:+"/$zspec[of]"}/$basename $dst)
+            if [[ -f $zspec[dir]${zspec[use]:+"/$zspec[use]"} ]]; then
+                load_commands+=($zspec[dir]${zspec[use]:+"/$zspec[use]"} $dst)
+            elif [[ -f $zspec[dir]${zspec[use]:+"/$zspec[use]"}/$basename ]]; then
+                load_commands+=($zspec[dir]${zspec[use]:+"/$zspec[use]"}/$basename $dst)
             elif [[ -f $zspec[dir]/$basename ]]; then
                 load_commands+=($zspec[dir]/$basename $dst)
             elif [[ -f $zspec[dir] ]]; then
                 load_commands+=($zspec[dir] $dst)
             else
                 # For brace
-                src_a=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*(*N.)"}" 2>/dev/null) )
+                src_a=( $(zsh -c "echo ${zspec[dir]}/${zspec[use]:-"*(*N.)"}" 2>/dev/null) )
                 for src in $src_a
                 do
                     load_commands+=($src $dst)
@@ -128,7 +128,7 @@ do
                 case $zspec[name] in
                     plugins/*)
                         load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
-                        temporary_array=( $zspec[dir]/${~zspec[of]:-"*.plugin.zsh(-.N)"} )
+                        temporary_array=( $zspec[dir]/${~zspec[use]:-"*.plugin.zsh(-.N)"} )
                         if (( $zspec[nice] > 9 )); then
                             nice_plugins+=( ${temporary_array[@]} )
                         else
@@ -139,7 +139,7 @@ do
                     themes/*)
                         load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
                         themes_ext=(.zsh-theme .theme-zsh)
-                        temporary_array=( ${zspec[dir]}${zspec[of]:-${^themes_ext}(-.N)} )
+                        temporary_array=( ${zspec[dir]}${zspec[use]:-${^themes_ext}(-.N)} )
                         if (( $zspec[nice] > 9 )); then
                             nice_plugins+=( ${temporary_array[@]} )
                         else
@@ -149,7 +149,7 @@ do
                         ;;
                     lib/*)
                         load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
-                        temporary_array=( $zspec[dir]${~zspec[of]:-".zsh(-.N)"} )
+                        temporary_array=( $zspec[dir]${~zspec[use]:-".zsh(-.N)"} )
                         if (( $zspec[nice] > 9 )); then
                             nice_plugins+=( ${temporary_array[@]} )
                         else
@@ -165,11 +165,11 @@ do
                 for ext in ${plugins_ext[@]}
                 do
                     glob_patterns=()
-                    if [[ -n $zspec[of] ]]; then
-                        glob_patterns+=( $zspec[dir]/${~zspec[of]}(-.N) )
+                    if [[ -n $zspec[use] ]]; then
+                        glob_patterns+=( $zspec[dir]/${~zspec[use]}(-.N) )
                         if (( $#glob_patterns == 0 )); then
-                            glob_patterns+=( $zspec[dir]/${~zspec[of]}.$ext(-.N) )
-                            glob_patterns+=( $(zsh -c "echo ${zspec[dir]}/${zspec[of]:-"*(*N.)"}" 2>/dev/null) )
+                            glob_patterns+=( $zspec[dir]/${~zspec[use]}.$ext(-.N) )
+                            glob_patterns+=( $(zsh -c "echo ${zspec[dir]}/${zspec[use]:-"*(*N.)"}" 2>/dev/null) )
                         fi
                     else
                         if (( $zspec[lazy] == 1 )); then

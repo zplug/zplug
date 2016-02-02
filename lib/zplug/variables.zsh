@@ -31,4 +31,5 @@ COMMANDS:
 For more information, see also $_ZPLUG_URL."
 
 typeset -g _ZPLUG_OHMYZSH="robbyrussell/oh-my-zsh"
-typeset -g _ZPLUG_TAG_PATTERN="(as|of|from|if|dir|file|at|do|frozen|on|commit|nice|ignore|lazy)"
+typeset -g _ZPLUG_TAG_PATTERN="(as|use|from|if|dir|rename_to|at|do|frozen|on|commit|nice|ignore|lazy)"
+typeset -g _ZPLUG_OLDTAG_PATTERN="(of|file)"
