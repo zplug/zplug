@@ -3,113 +3,84 @@
 __import "core/core"
 __import "print/print"
 
-local    arg
-local -a args
-local -i max=0 cnt=0
-local    stdin on_name
-local -a on_args
-local -a tasks specs
-local    fd key
+local    name
+local    tag key val
+local -a tags
+local -i max=0
+local    is_oh_my_zsh=false is_local=false
+local -a re_tags
 
-arg="$1"
-case "$arg" in
-    --debug)
-        shift; fd="$ZPLUG_HOME/error.log"
-        ;;
-    -*|--*)
-        __die "$arg: Unknown option\n"
-        return 1
-        ;;
-    *)
-        fd="&2"
-        ;;
-esac
+tags=( ${(s/, /)@:gs/,  */, } )
+name="${tags[1]}"
+tags[1]=()
 
-args=( ${(s/, /)@:gs/,  */, } )
-arg="${args[1]}"
-args[1]=()
-tasks=("$arg")
-
-if __is_cli && __zpluged "$arg"; then
-    __die "$arg: already managed\n"
-    return 1
-fi
-
+# DEPRECATED: pipe
 if [[ -p /dev/stdin ]]; then
-    stdin="$(cat <&0)"
-    on_args=(${(s/, /)stdin:gs/,  */, })
-    on_name="${on_args[1]}"
-    on_args[1]=()
-    tasks=("$on_name" "$arg")
-    let cnt++
-fi
-if [[ -p /dev/stdout ]]; then
-    echo "$@"
-    let cnt++
-fi
-if (( cnt >= 2 )); then
-    __die "$on_name: cannot install (2 or less pipelines)\n" 2>"$fd"
+    __die "[zplug] $fg[red]WARNING$reset_color: pipe syntax is deprecated! "
+    __die "You should use '$fg[blue]on$reset_color' tag instead of it.\n"
     return 1
 fi
 
-local i tag
-local is_oh_my_zsh is_local
-for arg in "${tasks[@]}"
-do
-    is_oh_my_zsh=false
-    is_local=false
-    if [[ $arg == $on_name ]]; then
-        specs=("${on_args[@]}")
+if __is_cli; then
+    if __zpluged "$name"; then
+        __die "[zplug] $name: already managed\n"
+        return 1
     else
-        specs=("${args[@]}")
+        __external__ "zplug ${(qqq)name}, ${(j:, :)${(q)tags[@]}}"
+        return $status
     fi
+fi
 
-    for i in ${==specs[@]}
+if __zpluged; then
+    for key in ${(k)zplugs}
     do
-        if [[ ${i%%:*} =~ ^$_ZPLUG_TAG_PATTERN$ ]]; then
-            tag="${tag}${i%,}, "
-            if [[ $i == "from:oh-my-zsh" ]]; then
-                is_oh_my_zsh=true
-            elif [[ $i == "from:local" ]]; then
-                is_local=true
-            fi
-        else
-            __die "$i: invalid tag\n"
-            return 1
+        if [[ $key =~ ^$name@*$ ]] && (( max < $#key )); then
+            max=$#key
+            name="${key}@"
         fi
     done
+fi
 
-    tag="${tag%, }"
-    # Add to $zplugs(AA; key:"user/repo" => value:"tag:value")
-    if [[ -n ${zplugs[(I)${arg}]} ]]; then
-        for key in ${(k)zplugs}
-        do
-            if [[ $key =~ ^$arg@*$ ]] && (( max < $#key )); then
-                max=$#key
-                arg="${key}@"
-            fi
-        done
-    fi
-    zplugs+=("$arg" "${tag:-}")
-    # Add dir tag to $zplugs
-    if $is_oh_my_zsh; then
-        zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/${arg:gs:@::}"
-    elif $is_local; then
-        if [[ $arg[1] =~ [~$/] ]]; then
-            zplugs[$arg]+="${zplugs[$arg]:+, }dir:"${~arg:gs:@::}""
-        else
-            zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/${arg:gs:@::}"
-        fi
+# Reconstruct the tag information
+for tag in "${tags[@]}"
+do
+    key=${${(s.:.)tag}[1]}
+    val=${${(s.:.)tag}[2]}
+
+    if [[ $key =~ ^$_ZPLUG_TAG_PATTERN$ ]]; then
+        case $key in
+            "from")
+                case $val in
+                    "oh-my-zsh")
+                        is_oh_my_zsh=true
+                        ;;
+                    "local")
+                        is_local=true
+                        ;;
+                esac
+                ;;
+        esac
+
+        # reset
+        re_tags+=("$key:$val")
     else
-        zplugs[$arg]+="${zplugs[$arg]:+, }dir:$ZPLUG_HOME/repos/${arg:gs:@::}"
+        __die "[zplug] $tag: $key is invalid tag name\n"
+        return 1
     fi
-    if [[ $arg != $on_name && -n $on_name ]]; then
-        zplugs[$arg]+="${zplugs[$arg]:+, }on:$on_name"
-    fi
-
-    if __is_cli; then
-        __external__ "zplug ${arg}${tag:+, ${(q)tag}}" &>/dev/null
-    fi
-
-    tag=""
 done
+
+# Set the directory information
+if $is_oh_my_zsh; then
+    re_tags+=("dir:$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/${name:gs:@::}")
+elif $is_local; then
+    if [[ $name[1] =~ [~$/] ]]; then
+        re_tags+=(dir:${~name:gs:@::})
+    else
+        re_tags+=("dir:$ZPLUG_HOME/${name:gs:@::}")
+    fi
+else
+    re_tags+=("dir:$ZPLUG_HOME/repos/${name:gs:@::}")
+fi
+
+# Add to zplugs
+zplugs+=("$name" "${(j:, :)re_tags[@]:-}")

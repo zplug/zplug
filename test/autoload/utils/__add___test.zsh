@@ -25,32 +25,6 @@ after_each() {
 }
 
 describe "__add__"
-    it "already managed"
-        zplugs=("username/reponame" "")
-        expect="username/reponame: already managed"
-        actual="$(__add__ "username/reponame" 2>&1)"
-        status_code=$status
-        assert.equals "$expect" "$actual"
-        assert.false $status_code
-    end
-
-    it "pipe"
-        zplugs=()
-        expect="1/1: cannot install (2 or less pipelines)"
-        __add__ --debug "1/1" | __add__ --debug "2/2" | __add__ --debug "3/3"
-        actual="$(cat "$ZPLUG_HOME/error.log")"
-        assert.equals "$expect" "$actual"
-        after_each
-    end
-
-    it "invalid tag"
-        zplugs=()
-        expect="invalid tag"
-        actual="$(__add__ "username/reponame, tag:value" 2>&1)"
-        status_code=$status
-        assert.match "$expect" "$actual"
-        assert.false $status_code
-    end
 end
 
 : after
