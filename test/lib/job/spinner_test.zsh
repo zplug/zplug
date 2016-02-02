@@ -3,6 +3,8 @@
 : before
 {
     source $ZPLUG_ROOT/lib/job/spinner.zsh
+    source $ZPLUG_ROOT/lib/print/print.zsh
+    source $ZPLUG_ROOT/autoload/init.zsh
     local -A zplugs
     local    expect actual
     local -i status_code
