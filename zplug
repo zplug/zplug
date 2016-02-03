@@ -1,9 +1,15 @@
 #!/bin/zsh
 
-# For compatibility zplug v1
-# This file will be deleted soon
 #
-logo() {
+# For compatibility zplug v1
+#
+
+if [[ -z $ZSH_VERSION ]]; then
+    printf "error: this script must be run on ZSH" >&2
+    return 1 2>&- || exit 1
+fi
+
+__logo() {
     cat <<'EOLOGO'
                _             
      _____ __ | |_   _  __ _ 
@@ -12,22 +18,81 @@ logo() {
     /___| .__/|_|\__,_|\__, |
         |_|            |___/ 
 EOLOGO
-    printf "\n(DEPRECATED)\n"
-    printf "  Please install zplug with 'git clone' instead of 'git.io/zplug'\n"
-    printf "  For more details, see also https://github.com/b4b4r07/zplug\n\n"
 }
 
-# Check if current zsh is interactive
-if [[ $- =~ i ]]; then
-    # source
-    zplug_main="${${(%):-%N}:A:h}/init.zsh"
-    if [[ -f $zplug_main ]]; then
-        source "$zplug_main"
+__get_zplug() {
+    local url_plugin="b4b4r07/zplug2"
+    local url_github="https://github.com"
+    local url_latest="$url_github/$url_plugin/releases/latest"
+    local confirm_cmd download_cmd
+    local from archive
+
+    builtin cd -q /tmp
+    if (( $+commands[curl] )); then
+        confirm_cmd="curl -fsSL"
+        download_cmd="curl -L -O"
+    elif (( $+commands[wget] )); then
+        confirm_cmd="wget -qO -"
+        download_cmd="wget"
     else
-        logo >&2
+        printf "[zplug]: curl or wget: required\n" >&2
         return 1
     fi
-else
-    logo >&2
-    exit 1
-fi
+
+    eval "$confirm_cmd $url_latest" \
+        | grep -o "/$url_plugin"'/archive/[^"]*' \
+        | read archive
+
+    if [[ -n $archive ]]; then
+        eval \
+            "$download_cmd ${url_github}${archive}" \
+            &>/dev/null
+    else
+        printf "[zplug] There are no releases of zplug on GitHub\n"
+        printf "[zplug] For more details, see ${(%):-"%U$url_github/$url_plugin/issues%u"}\n"
+        return 1
+    fi
+
+    case "$archive:t" in
+        *.zip)
+            unzip "$archive:t"
+            ;;
+        *.tar.gz)
+            tar xfv "$archive:t"
+            ;;
+    esac
+
+    rm -f "$archive:t"
+    from=( /tmp/zplug*(N-/) )
+    if [[ -d $from[1] ]]; then
+        if [[ ! -d ${~ZPLUG_HOME:-"~/.zplug"} ]]; then
+            mv -f "$from[1]" "$ZPLUG_HOME"
+        fi
+    fi
+}
+
+function() {
+    local init_file="${${(%):-%N}:A:h}/init.zsh"
+
+    # Check if current zsh is interactive
+    if [[ $- =~ i ]]; then
+        # source
+        if [[ -f $init_file ]]; then
+            source "$init_file"
+        else
+            __logo >&2
+            return 1
+        fi
+    else
+        if ! (( $+ZPLUG_HOME )); then
+            __logo >&2
+            printf "\n(DEPRECATED)\n"
+            printf "  Please install zplug with 'git clone' instead of 'git.io/zplug'\n"
+            printf "  For more details, see also https://github.com/b4b4r07/zplug\n\n"
+            exit 1
+        else
+            (__get_zplug)
+            exit $status
+        fi
+    fi
+} "$@"
