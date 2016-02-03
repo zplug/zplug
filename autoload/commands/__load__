@@ -7,7 +7,7 @@ local    is_verbose=false is_debug=false
 local    loaded_omz=false
 local    arg key k f
 local -A zspec
-local    basename
+local    basename ext
 local    src dst
 local -a sources
 local    ignore
@@ -15,7 +15,7 @@ local -A load_commands
 local -a packages unsorted_nice nice_plugins
 local -a load_plugins load_fpaths lazy_plugins
 local -a ignore_patterns load_patterns
-local -a temporary_array themes_ext
+local -a temporary_array themes_ext plugins_ext
 
 while (( $# > 0 ))
 do
@@ -206,36 +206,51 @@ do
             else
                 # NOT oh-my-zsh
                 load_patterns=()
+                plugins_ext=("plugin.zsh")
 
-                # NOTE:
-                # If $zspec[use] is a regular file,
-                # expect to expand to $zspec[dir]/*.zsh
-                load_patterns+=( "$zspec[dir]"/${~zspec[use]}(N.) )
-                if (( $#load_patterns == 0 )); then
-                    # For brace
-                    load_patterns+=( ${(@f)"$(zsh -c "echo $zspec[dir]/$zspec[use](N.)" 2>/dev/null)"} )
-                fi
-                # Add the parent directory to fpath
-                load_fpaths+=( $zspec[dir]/_*(N.:h) )
-
-                # NOTE:
-                # If $zspec[use] is a directory,
-                # expect to expand to $zspec[dir]/*.zsh
-                if (( $#load_patterns == 0 )); then
-                    load_patterns+=( "$zspec[dir]/$zspec[use]"/*.zsh(N.) )
+                # In order to find main file of the plugin,
+                # narrow down the candidates in three stages
+                # 1. use $plugins_ext[@] ==> foo.plugin.zsh
+                # 2. use $zspec[use] as a file like "*.zsh" ==> bar.zsh
+                # 3. use in combination
+                #    - zspec[use] as a directory like "bin"
+                #    - and *.zsh files ==> bar.zsh
+                for ext in "${plugins_ext[@]}"
+                do
+                    # NOTE: step 1
+                    load_patterns+=( "$zspec[dir]"/*.$ext(N-.) )
                     if (( $#load_patterns == 0 )); then
-                        # For brace
-                        load_patterns+=( ${(@f)"$(zsh -c "echo $zspec[dir]/$zspec[use]/*.zsh(N.)" 2>/dev/null)"} )
-                    fi
-                    # Add the parent directory to fpath
-                    load_fpaths+=( $zspec[dir]/$zspec[use]/_*(N.:h) )
+                        # NOTE: step 2
+                        # If $zspec[use] is a regular file,
+                        # expect to expand to $zspec[dir]/*.zsh
+                        load_patterns+=( "$zspec[dir]"/${~zspec[use]}(N.) )
+                        if (( $#load_patterns == 0 )); then
+                            # For brace
+                            load_patterns+=( ${(@f)"$(zsh -c "echo $zspec[dir]/$zspec[use](N.)" 2>/dev/null)"} )
+                        fi
+                        # Add the parent directory to fpath
+                        load_fpaths+=( $zspec[dir]/_*(N.:h) )
 
-                    # If that is an autoload plugin
-                    if (( $zspec[lazy] == 1 )); then
-                        load_patterns+=( "$zspec[dir]/autoload"/*(N.) )
-                        load_fpaths+=( "$zspec[dir]/autoload"(N/) )
+                        # NOTE: step 3
+                        # If $zspec[use] is a directory,
+                        # expect to expand to $zspec[dir]/*.zsh
+                        if (( $#load_patterns == 0 )); then
+                            load_patterns+=( "$zspec[dir]/$zspec[use]"/*.zsh(N.) )
+                            if (( $#load_patterns == 0 )); then
+                                # For brace
+                                load_patterns+=( ${(@f)"$(zsh -c "echo $zspec[dir]/$zspec[use]/*.zsh(N.)" 2>/dev/null)"} )
+                            fi
+                            # Add the parent directory to fpath
+                            load_fpaths+=( $zspec[dir]/$zspec[use]/_*(N.:h) )
+
+                            # If that is an autoload plugin
+                            if (( $zspec[lazy] == 1 )); then
+                                load_patterns+=( "$zspec[dir]/autoload"/*(N.) )
+                                load_fpaths+=( "$zspec[dir]/autoload"(N/) )
+                            fi
+                        fi
                     fi
-                fi
+                done
 
                 if (( $zspec[nice] > 9 )); then
                     # the order of loading of plugin files
