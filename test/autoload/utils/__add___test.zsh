@@ -29,7 +29,6 @@ end
 
 : after
 {
-    rm -f "$ZPLUG_EXTERNAL"
     unset zplugs
     unset expect actual
     unset status_code
