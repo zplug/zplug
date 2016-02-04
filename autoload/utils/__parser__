@@ -8,7 +8,7 @@ local -A zplugs_tags
 local    name as use from if dir rename_to at do frozen on commit nice ignore lazy
 
 if [[ -z $1 ]]; then
-    __die "$funcstack[1]: too few arguments\n"
+    __die "[zplug] $funcstack[1]: too few arguments\n"
     return 1
 fi
 arg="$1"

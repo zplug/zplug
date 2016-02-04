@@ -24,7 +24,7 @@ after_each() {
 
 describe "__clean__"
     it "unknown option"
-        expect="--unknown: Unknown option"
+        expect="[zplug] --unknown: Unknown option"
         actual="$(zplug clean --unknown 2>&1)"
         status_code=$status
         assert.equals "$expect" "$actual"

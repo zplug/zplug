@@ -5,7 +5,7 @@
 #
 
 if [[ -z $ZSH_VERSION ]]; then
-    printf "error: this script must be run on ZSH" >&2
+    printf "[zplug] zplug must be run on ZSH" >&2
     return 1 2>&- || exit 1
 fi
 
@@ -35,7 +35,7 @@ __get_zplug() {
         confirm_cmd="wget -qO -"
         download_cmd="wget"
     else
-        printf "[zplug]: curl or wget: required\n" >&2
+        printf "[zplug] curl or wget: required\n" >&2
         return 1
     fi
 

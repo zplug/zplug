@@ -24,7 +24,7 @@ case "$arg" in
         is_select=true; shift
         ;;
     -*|--*)
-        __die "$arg: Unknown option\n"
+        __die "[zplug] $arg: Unknown option\n"
         return 1
         ;;
 esac
@@ -54,7 +54,7 @@ __spinner &
 for line in "${args[@]}"
 do
     if ! __zpluged "$line"; then
-        __die "$line: no such package\n"
+        __die "[zplug] $line: no such package\n"
         ret=1
         continue
     fi

@@ -22,7 +22,7 @@ after_each() {
 
 describe "__clone__"
     it "unknown option"
-        expect="--unknown: Unknown option"
+        expect="[zplug] --unknown: Unknown option"
         actual="$(__clone__ --unknown 2>&1)"
         status_code=$status
         assert.equals "$expect" "$actual"
@@ -30,7 +30,7 @@ describe "__clone__"
     end
 
     it "unknown tag"
-        expect="aaa: Unknown tag"
+        expect="[zplug] aaa: Unknown tag"
         actual="$(__clone__ --from "aaa" 2>&1)"
         status_code=$status
         assert.equals "$expect" "$actual"

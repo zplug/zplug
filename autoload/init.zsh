@@ -10,14 +10,14 @@ __import "zplug/variables"
 __import "core/core"
 
 if ! __zsh_version 4.3.9; then
-    __die "zplug does not work this version of zsh $ZSH_VERSION.\n"
-    __die "You must use zsh 4.3.9 or later.\n"
+    __die "[zplug] zplug does not work this version of zsh $ZSH_VERSION.\n"
+    __die "[zplug] You must use zsh 4.3.9 or later.\n"
     return 1
 fi
 
 if (( ! $+commands[git] )); then
-    __die "git: not found in \$PATH\n"
-    __die "zplug depends on git 1.7 or later.\n"
+    __die "[zplug] git command not found in \$PATH\n"
+    __die "[zplug] zplug depends on git 1.7 or later.\n"
     return 1
 fi
 

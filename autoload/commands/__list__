@@ -9,7 +9,7 @@ local -a args awk_args
 local -A copy_zplugs
 
 if (( $#zplugs == 0 )); then
-    __die "zplug: there are no available plugins\n"
+    __die "[zplug] zplug: there are no available plugins\n"
     return 1
 fi
 
@@ -21,7 +21,7 @@ do
             is_select=true
             ;;
         -*|--*)
-            __die "$arg: Unknown option\n"
+            __die "[zplug] $arg: Unknown option\n"
             return 1
             ;;
         *)

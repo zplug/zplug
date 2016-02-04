@@ -10,7 +10,7 @@ user_cmds=( ${^path}/zplug-*(N-.:t:gs:zplug-:) )
 arg="$1"
 case "$arg" in
     "")
-        __die "too few arguments\n"
+        __die "[zplug] too few arguments\n"
         return 1
         ;;
 esac
@@ -35,19 +35,19 @@ ${(@f)"$(awk \
 
 case $#cmds in
     0)
-        __die "$arg: no such command\n"
+        __die "[zplug] $arg: no such command\n"
         return 1
         ;;
     1)
-        __die "WARNING: You called a Git command named '%s', which does not exist.\n" "$arg"
-        __die "Continuing under the assumption that you meant '%s'\n" "$cmds"
+        __die "[zplug] WARNING: You called a Git command named '%s', which does not exist.\n" "$arg"
+        __die "[zplug] Continuing under the assumption that you meant '%s'\n" "$cmds"
         zplug "$cmds"
         return $status
         ;;
     *)
-        __die "zplug: '%s' is not a zplug command. See 'zplug help'.\n" "$arg"
-        __die "Did you mean one of these?\n"
-        __die "        %s\n" ${cmds}
+        __die "[zplug] '%s' is not a zplug command. See 'zplug help'.\n" "$arg"
+        __die "[zplug] Did you mean one of these?\n"
+        __die "[zplug]        %s\n" ${cmds}
         return 1
         ;;
 esac

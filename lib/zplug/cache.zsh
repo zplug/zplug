@@ -49,6 +49,7 @@ __load_cache() {
 __update_cache() {
     $ZPLUG_USE_CACHE || return 2
     if [[ $funcstack[2] != "__load__" ]]; then
+        printf "[zplug] __update_cache: this function must be called by __load__\n" >&2
         return 2
     fi
 

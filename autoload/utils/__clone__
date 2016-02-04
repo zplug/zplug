@@ -30,7 +30,7 @@ do
             tag_do="$2"; shift
             ;;
         -*|--*)
-            __die "$1: Unknown option\n"
+            __die "[zplug] $1: Unknown option\n"
             return 1
             ;;
         *)
@@ -111,18 +111,18 @@ done
             ;;
 
         *)
-            __die "$tag_from: Unknown tag\n"
+            __die "[zplug] $tag_from: Unknown tag\n"
             return 1
             ;;
     esac
 
     if [[ ! $ZPLUG_PROTOCOL =~ ^(HTTPS|https|SSH|ssh)$ ]]; then
-        __die "$ZPLUG_PROTOCOL: Invalid protocol for cloning\n"
+        __die "[zplug] $ZPLUG_PROTOCOL: Invalid protocol for cloning\n"
         return 1
     fi
 
     if [[ -z $url_format ]]; then
-        __die "$repository: Invalid user/repo format\n"
+        __die "[zplug] $repository: Invalid user/repo format\n"
         return 1
     fi
 

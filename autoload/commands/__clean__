@@ -19,7 +19,7 @@ do
             is_select=true
             ;;
         -*|--*)
-            __die "$arg: Unknown option\n"
+            __die "[zplug] $arg: Unknown option\n"
             return 1
             ;;
         *)
@@ -58,7 +58,7 @@ else
                     ;;
             esac
         else
-            __die "$arg: no such package\n"
+            __die "[zplug] $arg: no such package\n"
         fi
     done
 fi

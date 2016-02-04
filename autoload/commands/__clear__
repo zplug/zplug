@@ -12,7 +12,7 @@ do
             is_force=true
             ;;
         -*|--*)
-            __die "$arg: Unknown option\n"
+            __die "[zplug] $arg: Unknown option\n"
             return 1
             ;;
     esac

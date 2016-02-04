@@ -24,7 +24,7 @@ case "$arg" in
     #     is_select=true; shift
     #     ;;
     -*|--*)
-        __die "$arg: Unknown option\n"
+        __die "[zplug] $arg: Unknown option\n"
         return 1
         ;;
 esac
@@ -161,13 +161,13 @@ done
 
 # Skip footer prints
 if (( $#check == 0 )); then
-    __die "No package to install\n"
+    __die "[zplug] No package to install\n"
     return $fail
 else
     if (( $fail == 0 )); then
-        __put "$fg_bold[default] ==> Installed all plugins to $ZPLUG_HOME/repos, successfully!$reset_color\n"
+        __put "[zplug] $fg_bold[default] ==> Installed all plugins to $ZPLUG_HOME/repos, successfully!$reset_color\n"
     else
-        __die "$fg_bold[red] ==> Installed to $ZPLUG_HOME/repos but failed.$reset_color\n"
+        __die "[zplug] $fg_bold[red] ==> Installed to $ZPLUG_HOME/repos but failed.$reset_color\n"
     fi
 
     finish=$SECONDS
