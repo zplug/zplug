@@ -2,6 +2,7 @@
 
 __import "print/print"
 __import "zplug/cache"
+__import "support/omz"
 
 local    is_verbose=false is_debug=false
 local    loaded_omz=false
@@ -15,7 +16,7 @@ local -A load_commands
 local -a packages unsorted_nice nice_plugins
 local -a load_plugins load_fpaths lazy_plugins
 local -a ignore_patterns load_patterns
-local -a temporary_array themes_ext plugins_ext
+local -a themes_ext plugins_ext
 
 while (( $# > 0 ))
 do
@@ -165,43 +166,62 @@ do
 
         "plugin")
             if [[ $zspec[from] == "oh-my-zsh" ]]; then
-                # oh-my-zsh
+                load_patterns=()
+                # Themes' extensions for Oh-My-Zsh
+                themes_ext=("zsh-theme" "theme-zsh")
+
+                # Check if omz is loaded and set some necessary settings
                 load_omz() {
                     if ! $loaded_omz; then
                         loaded_omz=true
                         export ZSH="$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH"
                         # Insert to the top of load_plugins
-                        load_plugins=(
-                            "$ZSH/oh-my-zsh.sh"
-                            "${load_plugins[@]}"
-                        )
+                        # load_plugins=(
+                        #     "$ZSH/oh-my-zsh.sh"
+                        #     "${load_plugins[@]}"
+                        # )
+                        if [[ $zspec[name] =~ ^lib ]]; then
+                            __omz_themes
+                        fi
                     fi
                 }
 
                 case $zspec[name] in
                     plugins/*)
-                        load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
-                        temporary_array=( "$zspec[dir]"/${~zspec[use]:-"*.plugin.zsh(-.N)"} )
+                        # TODO: use tag
+                        load_patterns=(
+                            ${(@f)"$(__omz_depends "$zspec[name]")"}
+                            "$zspec[dir]"/*.plugin.zsh(N-.)
+                        )
                         ;;
                     themes/*)
-                        load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
-                        themes_ext=(.zsh-theme .theme-zsh)
-                        temporary_array=( "$zspec[dir]"${zspec[use]:-${^themes_ext}(-.N)} )
+                        # TODO: use tag
+                        load_patterns=(
+                            ${(@f)"$(__omz_depends "$zspec[name]")"}
+                            "$zspec[dir]".${^themes_ext}(N-.)
+                        )
                         ;;
                     lib/*)
-                        load_fpaths+=(${zspec[dir]}/{_*,**/_*}(N-.:h))
-                        temporary_array=( "$zspec[dir]"${~zspec[use]:-".zsh(-.N)"} )
+                        load_patterns=(
+                            "$zspec[dir]"${~zspec[use]}
+                        )
                         ;;
                 esac
+                load_fpaths+=(
+                    ${zspec[dir]}/{_*,**/_*}(N-.:h)
+                )
 
-                if (( $zspec[nice] > 9 )); then
-                    nice_plugins+=( "${temporary_array[@]}" )
-                else
-                    load_plugins+=( "${temporary_array[@]}" )
-                fi
-                if (( $#temporary_array > 0 )); then
+                if (( $#load_patterns > 0 )); then
+                    # nice plugin or not
+                    if (( $zspec[nice] > 9 )); then
+                        nice_plugins+=( "${load_patterns[@]}" )
+                    else
+                        load_plugins+=( "${load_patterns[@]}" )
+                    fi
                     load_omz
                 fi
+                # Remove these function from current shell process
+                unfunction load_omz
 
             else
                 # NOT oh-my-zsh
