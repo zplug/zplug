@@ -3,9 +3,11 @@
 if (( $+functions[__import] )); then
     return 0
 fi
-source $ZPLUG_ROOT/lib/core/core.zsh
 
-typeset -gx -T _ZPLUG_LIB_CALLED _zplug_lib_called
+typeset -gx -T \
+    _ZPLUG_LIB_CALLED \
+    _zplug_lib_called
+
 _zplug_lib_called=()
 
 __import() {
@@ -46,7 +48,12 @@ __import() {
         if $is_debug; then
             printf "$f\n"
         else
-            source "$f"
+            fpath=(
+            "${f:h}"
+            "${fpath[@]}"
+            )
+            autoload -Uz "${f:t}" && eval "${f:t}"
+            unfunction "${f:t}"
         fi
         _zplug_lib_called+=("$lib")
     fi
