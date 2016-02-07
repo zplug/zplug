@@ -52,12 +52,12 @@ do
             "of")
                 key="use"
                 __die "[zplug] $fg[red]WARNING$reset_color: '$fg[blue]of$reset_color' tag is deprecated. "
-                __die "[zplug] Please use '$fg[blue]use$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
+                __die "Please use '$fg[blue]use$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
                 ;;
             "file")
                 key="rename_to"
                 __die "[zplug] $fg[red]WARNING$reset_color: '$fg[blue]file$reset_color' tag is deprecated. "
-                __die "[zplug] Please use '$fg[blue]rename_to$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
+                __die "Please use '$fg[blue]rename_to$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
                 ;;
             "from")
                 case $val in

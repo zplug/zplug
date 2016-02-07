@@ -8,7 +8,7 @@ BEGIN {
 }
 
 END {
-    if (get_tag(arr, "junegunn/fzf-bin") != 0)
+    if (get_tag(arr, package) != 0)
         exit 1;
 }
 

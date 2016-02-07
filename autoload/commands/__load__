@@ -324,7 +324,10 @@ done
             ln -snf "$f" "$load_commands[$f]"
         fi
     done
-    path=("$ZPLUG_HOME/bin" $path)
+    path=(
+        "$ZPLUG_HOME/bin"
+        "${path[@]}"
+    )
     typeset -gx -U path
 }
 
@@ -340,15 +343,21 @@ done
                 if (( $status == 0 )) && $is_verbose; then
                     __put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}\n"
                 fi
+                if (( $themes_ext[(I)${f:e}] )); then
+                    __omz_themes
+                fi
             fi
         fi
     done
 
     # NOTE: set fpath before compinit
     if $is_debug; then
-        echo ${(F)${(u)load_fpaths}}
+        echo ${(F)${(u)load_fpaths[@]}}
     else
-        fpath=(${(u)load_fpaths[@]} $fpath)
+        fpath=(
+            "${(u)load_fpaths[@]}"
+            "${fpath[@]}"
+        )
         compinit -C -d "$ZPLUG_HOME/zcompdump"
     fi
 

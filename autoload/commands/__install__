@@ -15,14 +15,11 @@ local -F start finish
 local -a queue
 local -i queue_max=$ZPLUG_THREADS
 
-arg="$arg"
+arg="$1"
 case "$arg" in
     --verbose)
         is_verbose=true; shift
         ;;
-    # --select)
-    #     is_select=true; shift
-    #     ;;
     -*|--*)
         __die "[zplug] $arg: Unknown option\n"
         return 1
@@ -165,9 +162,9 @@ if (( $#check == 0 )); then
     return $fail
 else
     if (( $fail == 0 )); then
-        __put "[zplug] $fg_bold[default] ==> Installed all plugins to $ZPLUG_HOME/repos, successfully!$reset_color\n"
+        __put "$fg_bold[default] ==> Installed all plugins to $ZPLUG_HOME/repos, successfully!$reset_color\n"
     else
-        __die "[zplug] $fg_bold[red] ==> Installed to $ZPLUG_HOME/repos but failed.$reset_color\n"
+        __die "$fg_bold[red] ==> Installed to $ZPLUG_HOME/repos but failed.$reset_color\n"
     fi
 
     finish=$SECONDS

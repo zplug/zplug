@@ -43,6 +43,8 @@ __load_cache() {
         esac
     fi
 
+    # if cache file doesn't find,
+    # returns non-zero exit code
     return 1
 }
 
