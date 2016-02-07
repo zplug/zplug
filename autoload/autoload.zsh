@@ -22,3 +22,8 @@ for cmd in "${autoload_files[@]}"
 do
     autoload -Uz "$cmd"
 done
+
+# Load external file
+if [[ -f $ZPLUG_EXTERNAL ]]; then
+    source "$ZPLUG_EXTERNAL"
+fi

@@ -24,8 +24,3 @@ fi
 autoload -Uz add-zsh-hook
 autoload -Uz colors; colors
 autoload -Uz compinit
-
-# Load external file
-if [[ -f $ZPLUG_EXTERNAL ]]; then
-    source "$ZPLUG_EXTERNAL"
-fi

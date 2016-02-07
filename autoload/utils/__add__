@@ -26,7 +26,7 @@ if __is_cli; then
         __die "[zplug] $name: already managed\n"
         return 1
     else
-        __external__ "zplug ${(qqq)name}, ${(j:, :)${(q)tags[@]}}"
+        __external__ "zplug ${(qqq)name}${tags[@]:+", ${(j:, :)${(q)tags[@]}}"}"
         return $status
     fi
 fi
