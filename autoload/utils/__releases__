@@ -19,6 +19,9 @@ do
     case "$1" in
         --use)
             tag_use="$2"; shift
+            if [[ $tag_use == '*.zsh' ]]; then
+                tag_use=
+            fi
             ;;
         --at)
             tag_at="$2"; shift
