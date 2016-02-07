@@ -4,11 +4,6 @@
 # For compatibility zplug v1
 #
 
-if [[ -z $ZSH_VERSION ]]; then
-    printf "[zplug] zplug must be run on ZSH" >&2
-    return 1 2>&- || exit 1
-fi
-
 __logo() {
     cat <<'EOLOGO'
                _             
@@ -21,78 +16,73 @@ EOLOGO
 }
 
 __get_zplug() {
-    local url_plugin="b4b4r07/zplug2"
-    local url_github="https://github.com"
-    local url_latest="$url_github/$url_plugin/releases/latest"
-    local confirm_cmd download_cmd
-    local from archive
+    local i
+    local url="https://github.com/b4b4r07/zplug"
 
-    builtin cd -q /tmp
-    if (( $+commands[curl] )); then
-        confirm_cmd="curl -fsSL"
-        download_cmd="curl -L -O"
-    elif (( $+commands[wget] )); then
-        confirm_cmd="wget -qO -"
-        download_cmd="wget"
-    else
-        printf "[zplug] curl or wget: required\n" >&2
+    : ${ZPLUG_HOME:=$1}
+    if [[ -z $ZPLUG_HOME ]]; then
+        printf '[zplug] $ZPLUG_HOME is empty\n' >&2
         return 1
     fi
 
-    eval "$confirm_cmd $url_latest" \
-        | grep -o "/$url_plugin"'/archive/[^"]*' \
-        | read archive
-
-    if [[ -n $archive ]]; then
-        eval \
-            "$download_cmd ${url_github}${archive}" \
-            &>/dev/null
-    else
-        printf "[zplug] There are no releases of zplug on GitHub\n"
-        printf "[zplug] For more details, see ${(%):-"%U$url_github/$url_plugin/issues%u"}\n"
+    if [[ -d $ZPLUG_HOME ]]; then
+        printf "[zplug] zplug is already installed\n" >&2
         return 1
     fi
 
-    case "$archive:t" in
-        *.zip)
-            unzip "$archive:t"
-            ;;
-        *.tar.gz)
-            tar xfv "$archive:t"
-            ;;
-    esac
+    if (( ! $+commands[git] )); then
+        printf "[zplug] zplug requires git command\n" >&2
+        return 1
+    fi
 
-    rm -f "$archive:t"
-    from=( /tmp/zplug*(N-/) )
-    if [[ -d $from[1] ]]; then
-        if [[ ! -d ${~ZPLUG_HOME:-"~/.zplug"} ]]; then
-            mv -f "$from[1]" "$ZPLUG_HOME"
+    git clone \
+        "$url" \
+        "$ZPLUG_HOME" \
+        &>/dev/null &
+
+    while true
+    do
+        for i in ⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏
+        do
+            print -P -n " $i Downloading %Bzplug%b to $ZPLUG_HOME\r"
+            sleep 0.02
+        done
+        if [[ -z ${${(v)jobstates##*:*:}%"="*} ]]; then
+            break
         fi
+    done
+
+    printf "\r\033[0K"
+    if [[ -d $ZPLUG_HOME ]]; then
+        printf "[zplug] Welcome to zplug world...\U1F33A\n"
+    else
+        printf "[zplug] Oops! Failed to install...\n" >&2
+        print -P -n "[zplug] For more details, see also %U$url%u\n" >&2
+        return 1
     fi
 }
 
 function() {
     local init_file="${${(%):-%N}:A:h}/init.zsh"
 
+    if [[ -z $ZSH_VERSION ]]; then
+        printf "[zplug] zplug must be run on ZSH\n" >&2
+        return 1 2>&- || exit 1
+    fi
+
     # Check if current zsh is interactive
     if [[ $- =~ i ]]; then
         # source
         if [[ -f $init_file ]]; then
             source "$init_file"
+            return $status
         else
             __logo >&2
+            printf "[zplug] cannot find $init_file\n" >&2
             return 1
         fi
     else
-        if ! (( $+ZPLUG_HOME )); then
-            __logo >&2
-            printf "\n(DEPRECATED)\n"
-            printf "  Please install zplug with 'git clone' instead of 'git.io/zplug'\n"
-            printf "  For more details, see also https://github.com/b4b4r07/zplug\n\n"
-            exit 1
-        else
-            (__get_zplug)
-            exit $status
-        fi
+        __get_zplug "$@"
+        exit $status
     fi
 } "$@"
