@@ -159,7 +159,7 @@ done
 # Skip footer prints
 if (( $#check == 0 )); then
     __die "[zplug] No package to install\n"
-    return $fail
+    return 1
 else
     if (( $fail == 0 )); then
         __put "$fg_bold[default] ==> Installed all plugins to $ZPLUG_HOME/repos, successfully!$reset_color\n"

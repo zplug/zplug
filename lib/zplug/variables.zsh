@@ -10,10 +10,10 @@ typeset -gx ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:zaw"}
 typeset -gx ZPLUG_EXTERNAL=${ZPLUG_EXTERNAL:-$ZPLUG_HOME/init.zsh}
 typeset -gx ZPLUG_USE_CACHE=true
 
-typeset -g _ZPLUG_VERSION="2.0.0"
-typeset -g _ZPLUG_CACHE_FILE="$ZPLUG_HOME/.cache"
-typeset -g _ZPLUG_URL="https://github.com/b4b4r07/zplug"
-typeset -g _ZPLUG_HELP="usage: zplug [COMMANDS] [OPTIONS]
+typeset -gx -r _ZPLUG_VERSION="2.0.0"
+typeset -gx -r _ZPLUG_CACHE_FILE="$ZPLUG_HOME/.cache"
+typeset -gx -r _ZPLUG_URL="https://github.com/b4b4r07/zplug"
+typeset -gx -r _ZPLUG_HELP="usage: zplug [COMMANDS] [OPTIONS]
   zplug is a next-generation plugin manager for zsh 
 
 COMMANDS:
@@ -30,6 +30,6 @@ COMMANDS:
 
 For more information, see also $_ZPLUG_URL."
 
-typeset -g _ZPLUG_OHMYZSH="robbyrussell/oh-my-zsh"
-typeset -g _ZPLUG_TAG_PATTERN="(as|use|from|if|dir|rename_to|at|do|frozen|on|commit|nice|ignore|lazy)"
-typeset -g _ZPLUG_OLDTAG_PATTERN="(of|file)"
+typeset -g -r _ZPLUG_OHMYZSH="robbyrussell/oh-my-zsh"
+typeset -g -r _ZPLUG_TAG_PATTERN="(as|use|from|if|dir|rename_to|at|do|frozen|on|commit|nice|ignore|lazy)"
+typeset -g -r _ZPLUG_OLDTAG_PATTERN="(of|file)"

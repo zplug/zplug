@@ -24,7 +24,8 @@ __spinner() {
     local -F latency
     local -a spinners
 
-    spinners=("⠄" "⠆" "⠇" "⠋" "⠙" "⠸" "⠰" "⠠" "⠰" "⠸" "⠙" "⠋" "⠇" "⠆")
+    # spinners=("⠄" "⠆" "⠇" "⠋" "⠙" "⠸" "⠰" "⠠" "⠰" "⠸" "⠙" "⠋" "⠇" "⠆")
+    spinners=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
     format="@\r"
     latency=0.03
 
@@ -44,8 +45,10 @@ __spinner() {
             ' >/dev/stderr
         done
     done
+
     tput cnorm
     awk 'END { fflush() }'
+    printf "\r\033[0K"
     set -m
 }
 

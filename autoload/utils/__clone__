@@ -106,7 +106,6 @@ done
                 --do  "${tag_do:-}" \
                 --at  "${tag_at:#master}" \
                 "$repository" &>/dev/null
-
             return $status
             ;;
 
