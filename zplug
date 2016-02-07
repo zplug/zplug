@@ -1077,7 +1077,7 @@ __zplug::load()
     done
     # NOTE: set fpath before compinit
     fpath=(${(u)load_fpaths} $fpath)
-    compinit -C -d "$ZPLUG_HOME/zcompdump"
+    compinit -i -d "$ZPLUG_HOME/zcompdump"
 
     for f in ${nice_plugins[@]}
     do
@@ -1115,7 +1115,7 @@ __zplug::load()
         fi
         __put '\n# fpath\n'
         __put 'fpath=(%s $fpath)\n' "${(u)load_fpaths}"
-        __put 'compinit -C -d %s\n' "$ZPLUG_HOME/zcompdump"
+        __put 'compinit -i -d %s\n' "$ZPLUG_HOME/zcompdump"
         if (( $#nice_plugins > 0 )); then
             __put '\n# Loading after compinit\n'
             __put 'source %s\n' "${(qqq)nice_plugins[@]}"
