@@ -462,6 +462,29 @@ __zplug::self_update()
     fi
 }
 
+__zplug::v2()
+{
+    local -i ret=0
+
+    if [[ -d $ZPLUG_HOME ]]; then
+        command mv -f \
+            "$ZPLUG_HOME" \
+            "${ZPLUG_HOME}_v1"
+    fi
+
+    if (( $+commands[curl] )); then
+        zsh -c "$(curl -fsSL "$ZPLUG_RAWURL" 2>/dev/null)" ${1:+"-s $@"}
+        ret=$status
+
+    elif (( $+commands[wget] )); then
+        zsh -c "$(wget -qO - "$ZPLUG_RAWURL" 2>/dev/null)" ${1:+"-s $@"}
+        ret=$status
+
+    fi
+
+    return $ret
+}
+
 __zplug::update()
 {
     local line cnt=0 filter is_select=false
@@ -470,7 +493,10 @@ __zplug::update()
     case "$1" in
         --self)
             __zplug::self_update
-            shift
+            return $status
+            ;;
+        --self-v2)
+            __zplug::v2
             return $status
             ;;
         --select)
@@ -2089,6 +2115,7 @@ __zplug::reset()
         __zplug::releases \
         __zplug::list \
         __zplug::self_update \
+        __zplug::v2 \
         __zplug::update \
         __zplug::install \
         __zplug::parser \
