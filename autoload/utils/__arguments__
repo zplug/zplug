@@ -39,9 +39,10 @@ case $#cmds in
         return 1
         ;;
     1)
-        __die "[zplug] WARNING: You called a Git command named '%s', which does not exist.\n" "$arg"
-        __die "[zplug] Continuing under the assumption that you meant '%s'\n" "$cmds"
-        zplug "$cmds"
+        __die "[zplug] $fg[red]WARNING$reset_color: You called a Git command named '%s', which does not exist.\n" "$arg"
+        __die "[zplug] Continuing under the assumption that you meant '$fg[green]%s$reset_color'.\n" "$cmds"
+        shift
+        zplug "$cmds" ${1:+"$@"}
         return $status
         ;;
     *)
