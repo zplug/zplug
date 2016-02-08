@@ -1,35 +1,112 @@
 #!/bin/zsh
 
-return 0
+__import "core/git"
+__import "support/gh-r"
+__import "job/spinner"
+__import "print/print"
 
-trap '__spin_unlock; trap - SIGINT' SIGINT
-
-local    line
 local -a queue
 local -i queue_max=$ZPLUG_THREADS
 local -F SECONDS=0
+local -A zspec
+local -i max=0 dif=0
+local    is_releases=false is_select=false
+local    state arg filter
+local -a args
 
-__spin_lock
-__spinner &
+arg="$1"
+case "$arg" in
+    --select)
+        is_select=true; shift
+        ;;
+    -*|--*)
+        __die "[zplug] $arg: Unknown option\n"
+        return 1
+        ;;
+esac
 
-for line in "$@"
+# Initialize
+{
+    filter="$(__get_filter "$ZPLUG_FILTER")"
+    if $is_select; then
+        args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
+    else
+        args=(${(u)${@:gs:@::}})
+    fi
+
+    if (( $#args > 0 )); then
+        for line in "${args[@]}"
+        do
+            (( $#line > $max )) && max=$#line
+        done
+        __put "Fetching the status of packages ...\n"
+        __put "The packages which have from:'local' tag are skipped.\n"
+        __put "===\n"
+        __spin_lock
+        __spinner &
+    else
+        __die "[zplug] No package to get the status"
+        return 1
+    fi
+}
+
+for line in "${args[@]}"
 do
+    zspec=( ${(@f)"$(__parser__ "$line")"} )
+    for k in "${(k)zspec[@]}"
+    do
+        if [[ $zspec[$k] == "-EMP-" ]]; then
+            zspec[$k]=""
+        fi
+    done
+    case "$zspec[from]" in
+        "local")
+            is_releases=false
+            continue
+            ;;
+        "gh-r")
+            is_releases=true
+            ;;
+        *)
+            is_releases=false
+            ;;
+    esac
+
+    # Get package status in subprocess
     {
-        __spinner_echo "$line: Start"
-        sleep 2
-        __spinner_echo "$fg[green]$line: Finished\n$reset_color"
+        trap '__spin_unlock; trap - SIGINT' SIGINT
+
+        # Change directory to get the remote status
+        builtin cd -q \
+            "$zspec[dir]" \
+            &>/dev/null
+
+        if (( $status == 0 )); then
+            if $is_releases; then
+                state="$(__get_state_releases "$zspec[name]" "$zspec[dir]")"
+            else
+                state="$(__get_state)"
+            fi
+            # space size
+            dif=$(($max - $#line))
+            __spinner_echo "${(%):-"%U"}%-${#line}s${(%):-"%u"}%${dif}s %s\n" \
+                "$line" \
+                "" \
+                "$state"
+        fi
     } &
     queue+=($!)
 
     if (( $#queue % queue_max == 0 )); then
-        wait $queue
+        wait $queue &>/dev/null
         queue=()
     fi
 done
 if (( $#queue > 0 )); then
-    wait $queue
+    wait $queue &>/dev/null
 fi
 queue=()
 
 __spin_unlock
-__put "finished %.6f\n" $SECONDS
+__put "===\n"
+__put "Finished %.6f\n" $SECONDS
