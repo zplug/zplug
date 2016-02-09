@@ -17,11 +17,14 @@ else
     ZPLUG_SHALLOW=false __install__ "$main"
 fi
 
-ln -snf "$ZPLUG_HOME/repos/$main/init.zsh" "$ZPLUG_HOME/init.zsh"
-if [[ $status -eq 0 && -d $ZPLUG_HOME/repos/$main ]]; then
+ln -snf \
+    "$ZPLUG_HOME/repos/$main/init.zsh" \
+    "$ZPLUG_HOME/init.zsh"
+
+if (( $status == 0)) && [[ -d $ZPLUG_HOME/repos/$main ]]; then
     __put "$fg[green]Everything is ready. "
     __put "$fg_bold[default]($ZPLUG_HOME/zplug)$reset_color\n"
 else
-    __die "$fg[red]Error occured (see $_ZPLUG_URL)$reset_color\n"
+    __die "$fg[red]Error occured (see ${(%):-"%U"}$_ZPLUG_URL${(%):-"%u"})$reset_color\n"
     return 1
 fi

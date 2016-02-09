@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+__import "print/print"
+
 typeset -g spin_file=/tmp/.spin.$$$RANDOM
 
 __is_spin() {

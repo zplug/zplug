@@ -53,6 +53,7 @@ __spin_lock
 __spinner &
 for line in "${args[@]}"
 do
+    line="$(__packaging "$line")"
     if ! __zpluged "$line"; then
         __die "[zplug] $line: no such package\n"
         ret=1

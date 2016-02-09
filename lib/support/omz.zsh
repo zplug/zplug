@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 __omz_depends() {
     local    lib_f func_name dep
     local -a target

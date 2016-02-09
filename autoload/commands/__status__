@@ -37,6 +37,7 @@ esac
     if (( $#args > 0 )); then
         for line in "${args[@]}"
         do
+            line="$(__packaging "$line")"
             (( $#line > $max )) && max=$#line
         done
         __put "Fetching the status of packages ...\n"
@@ -52,6 +53,7 @@ esac
 
 for line in "${args[@]}"
 do
+    line="$(__packaging "$line")"
     zspec=( ${(@f)"$(__parser__ "$line")"} )
     for k in "${(k)zspec[@]}"
     do
@@ -71,6 +73,10 @@ do
             is_releases=false
             ;;
     esac
+    if [[ ! -d $zspec[dir] ]]; then
+        shift args
+        continue
+    fi
 
     # Get package status in subprocess
     {
@@ -108,5 +114,7 @@ fi
 queue=()
 
 __spin_unlock
-__put "===\n"
-__put "Finished %.6f\n" $SECONDS
+if (( $#args > 0 )); then
+    __put "===\n"
+    __put "Finished %.6f\n" $SECONDS
+fi

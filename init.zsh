@@ -1,4 +1,6 @@
 #!/bin/zsh
+# init.zsh:
+#   This file is called only once
 
 # It is desirable that the ZPLUG_ROOT and the ZPLUG_HOME is the same
 # because zplug should be installed with git clone URL /path/to/local_dir

@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+__import "print/print"
+
 __tags_for_cache() {
     local key
 

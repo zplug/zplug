@@ -16,7 +16,7 @@ tags[1]=()
 
 # DEPRECATED: pipe
 if [[ -p /dev/stdin ]]; then
-    __die "[zplug] $fg[red]WARNING$reset_color: pipe syntax is deprecated!\n"
+    __die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: pipe syntax is deprecated!\n"
     __die "[zplug] Please use '$fg[blue]on$reset_color' tag instead.\n"
     return 1
 fi
@@ -26,15 +26,17 @@ if __is_cli; then
         __die "[zplug] $name: already managed\n"
         return 1
     else
+        # Add to the external file
         __external__ "zplug ${(qqq)name}${tags[@]:+", ${(j:, :)${(q)tags[@]}}"}"
         return $status
     fi
 fi
 
+# Process the duplication of key
 if __zpluged; then
-    for key in ${(k)zplugs}
+    for key in "${(k)zplugs[@]}"
     do
-        if [[ $key =~ ^$name@*$ ]] && (( max < $#key )); then
+        if [[ $key =~ ^$name@*$ ]] && (( $max < $#key )); then
             max=$#key
             name="${key}@"
         fi
@@ -48,15 +50,15 @@ do
     val=${${(s.:.)tag}[2]}
 
     if [[ $key =~ ^$_ZPLUG_TAG_PATTERN$ ]] || [[ $key =~ ^$_ZPLUG_OLDTAG_PATTERN$ ]]; then
-        case $key in
+        case "$key" in
             "of")
                 key="use"
-                __die "[zplug] $fg[red]WARNING$reset_color: '$fg[blue]of$reset_color' tag is deprecated. "
+                __die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]of$reset_color' tag is deprecated. "
                 __die "Please use '$fg[blue]use$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
                 ;;
             "file")
                 key="rename_to"
-                __die "[zplug] $fg[red]WARNING$reset_color: '$fg[blue]file$reset_color' tag is deprecated. "
+                __die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]file$reset_color' tag is deprecated. "
                 __die "Please use '$fg[blue]rename_to$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
                 ;;
             "from")
@@ -71,7 +73,7 @@ do
                 ;;
         esac
 
-        # reset
+        # Reconstruct
         re_tags+=("$key:$val")
     else
         __die "[zplug] $tag: $key is invalid tag name\n"

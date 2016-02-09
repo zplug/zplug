@@ -1,9 +1,10 @@
 #!/bin/zsh
 
 __import "core/git"
+__import "print/print"
 
 __get_latest_releases() {
-    local repo curl curl2
+    local repo curl
     local url_format
 
     repo="${1:?}"
@@ -11,10 +12,8 @@ __get_latest_releases() {
     url_format="https://github.com/$repo/releases/latest"
     if (( $+commands[curl] )); then
         curl="curl -fsSL"
-        curl2="curl -L -O"
     elif (( $+commands[wget] )); then
         curl="wget -qO -"
-        curl2="wget"
     fi
 
     eval "$curl $url_format" 2>/dev/null \

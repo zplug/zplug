@@ -16,10 +16,10 @@ __zpluged() {
         return $status
     else
         if [[ $arg == $_ZPLUG_OHMYZSH ]]; then
-            for zplug in ${(k)zplugs}
+            for zplug in "${(k)zplugs[@]}"
             do
                 zspec=( ${(@f)"$(__parser__ "$zplug")"} )
-                case $zspec[from] in
+                case "$zspec[from]" in
                     "oh-my-zsh")
                         return 0
                         ;;
@@ -54,15 +54,6 @@ __get_autoload_paths() {
 __get_autoload_files() {
     __get_autoload_paths "$@"
     (( $#reply > 0 )) && reply=( "${reply[@]:t}" )
-}
-
-__in_array() {
-    local e="$1"
-    local -a arr
-    shift
-
-    arr=( "${@}" )
-    (( $arr[(i)$e] != ${#arr} + 1 ))
 }
 
 __get_filter() {
@@ -105,12 +96,12 @@ __version_requirement() {
 }
 
 __git_version() {
-    __version_requirement ${(M)${(z)"$(git --version)"}:#[0-9]*[0-9]} "$@"
+    __version_requirement ${(M)${(z)"$(git --version)"}:#[0-9]*[0-9]} "${@:?}"
     return $status
 }
 
 __zsh_version() {
-    __version_requirement "$ZSH_VERSION" "$@"
+    __version_requirement "$ZSH_VERSION" "${@:?}"
     return $status
 }
 
@@ -131,18 +122,13 @@ __get_os() {
 
 __glob2regexp() {
     local -i i=0
-    local    glob char
-
-    glob="$1"
-    if [[ -z $glob ]]; then
-        return 1
-    fi
+    local    glob="${1:?}" char
 
     printf "^"
-    for ((; i < ${#glob}; i++))
+    for ((; i < $#glob; i++))
     do
         char="${glob:$i:1}"
-        case $char in
+        case "$char" in
             \*)
                 printf '.*'
                 ;;
@@ -178,15 +164,19 @@ __remove_deadlinks() {
     for link in "$@"
     do
         if [[ -L $link ]] && [[ ! -e $link ]]; then
-            command rm -f "$link"
+            rm -f "$link"
         fi
     done
 }
 
 __packaging() {
-    local fullpath="${1:?too few argument}"
+    local k
 
-    if [[ $fullpath =~ ^$ZPLUG_HOME/repos ]]; then
-        echo "${fullpath:h:t}/${fullpath:t}"
-    fi
+    for k in "${(k)zplugs[@]}"
+    do
+        echo "$k"
+    done \
+        | awk \
+        -f "$ZPLUG_ROOT/src/share/shorten.awk" \
+        -v pkg="${1:?}"
 }

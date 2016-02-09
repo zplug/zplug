@@ -1,7 +1,10 @@
 #!/bin/zsh
 
+__import "print/print"
+
 __ink() {
-    local color tty=1 is_bold=false
+    local    color is_bold=false
+    local -i tty=1
     local -a text
 
     while (( $# > 0 ))
@@ -48,11 +51,9 @@ __ink() {
 }
 
 __log() {
-    local state text
-    state="$1"
-    text="$2"
-
-    local bold tty=1
+    local    state="$1" text="$2"
+    local    bold
+    local -i tty=1
 
     case "$state" in
         TITLE)

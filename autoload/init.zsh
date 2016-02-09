@@ -1,4 +1,6 @@
 #!/bin/zsh
+# init.zsh:
+#   This file is called only once
 
 if (( $+functions[__import] )); then
     return 0

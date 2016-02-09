@@ -1,6 +1,10 @@
+#!/bin/zsh
+
+__import "core/core"
+
 __osx_version() {
     (( $+commands[sw_vers] )) || return 1
-    __version_requirement ${${(M)${(@f)"$(sw_vers)"}:#ProductVersion*}[2]} "$@"
+    __version_requirement ${${(M)${(@f)"$(sw_vers)"}:#ProductVersion*}[2]} "${@:?}"
     return $status
 }
 
