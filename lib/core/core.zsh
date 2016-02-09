@@ -177,6 +177,6 @@ __packaging() {
         echo "$k"
     done \
         | awk \
-        -f "$ZPLUG_ROOT/src/share/shorten.awk" \
+        -f "$ZPLUG_ROOT/src/share/packaging.awk" \
         -v pkg="${1:?}"
 }
