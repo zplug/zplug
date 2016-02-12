@@ -10,6 +10,7 @@ source "$ZPLUG_ROOT/lib/init.zsh"
 
 __import "zplug/variables"
 __import "core/core"
+__import "job/notify"
 
 if ! __zsh_version 4.3.9; then
     __die "[zplug] zplug does not work this version of zsh $ZSH_VERSION.\n"
@@ -26,3 +27,7 @@ fi
 autoload -Uz add-zsh-hook
 autoload -Uz colors; colors
 autoload -Uz compinit
+
+if ${ZPLUG_CHECK_UPDATE:-false}; then
+    __check_zplug_update
+fi

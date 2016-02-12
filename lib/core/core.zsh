@@ -105,6 +105,12 @@ __zsh_version() {
     return $status
 }
 
+__osx_version() {
+    (( $+commands[sw_vers] )) || return 1
+    __version_requirement ${${(M)${(@f)"$(sw_vers)"}:#ProductVersion*}[2]} "${@:?}"
+    return $status
+}
+
 __get_os() {
     typeset -gx PLATFORM
     local os
@@ -118,6 +124,14 @@ __get_os() {
     esac
 
     echo "$PLATFORM"
+}
+
+__is_osx() {
+    [[ ${(L)OSTYPE:-"$(uname)"} == *darwin* ]]
+}
+
+__is_linux() {
+    [[ ${(L)OSTYPE:-"$(uname)"} == *linux* ]]
 }
 
 __glob2regexp() {
