@@ -68,7 +68,7 @@ fi
 # Remove packages from $ZPLUG_HOME/repos
 for repo in "${remove_args[@]}"
 do
-    __put "${${is_force:+Removed}:-Remove?} $repo"
+    __put "${${is_force:+"Removed"}:-"Remove? (y/N)"} ${(qq)repo} "
     if ${(z)is_force:-"read -q"}; then
         rm -rf "$repo"
         rmdir "${repo:h}"

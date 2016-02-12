@@ -27,7 +27,7 @@ do
     shift
 done
 
-for line in ${(u)${args[@]:gs:@::}}
+for line in ${${args[@]:-${(k)zplugs[@]}}:gs:@::}
 do
     zspec=( ${(@f)"$(__parser__ "$line")"} )
     case "$zspec[from]" in
