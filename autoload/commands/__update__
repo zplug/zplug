@@ -107,7 +107,9 @@ do
             # Change directory to fullpath of zspec dir
             # or parent directory of zspec dir
             # If it fails, return this unnamed function with error code 2
-            builtin cd -q $zspec[dir] || builtin cd -q ${zspec[dir]:h} || return 1
+            builtin cd -q $zspec[dir] || \
+                builtin cd -q ${zspec[dir]:h} || \
+                return 1
 
             # If zspec from is gh-r (GitHub Releases),
             # send a http request to git.io/releases with os argument
@@ -117,7 +119,7 @@ do
                     --use "${zspec[use]:-}" \
                     --do  "${zspec[do]:-}" \
                     --at  "${zspec[at]:-}" \
-                    "$line" &>/dev/null
+                    "$line"
             else
                 local fetch_opt
                 if [[ -e $zspec[dir]/.git/shallow ]]; then

@@ -4,7 +4,7 @@ typeset -gx -A zplugs
 
 typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
 typeset -gx ZPLUG_THREADS=${ZPLUG_THREADS:-16}
-typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-true}
+typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-false}
 typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
 typeset -gx ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:zaw"}
 typeset -gx ZPLUG_EXTERNAL=${ZPLUG_EXTERNAL:-$ZPLUG_HOME/init.zsh}
@@ -31,5 +31,5 @@ COMMANDS:
 For more information, see also $_ZPLUG_URL."
 
 typeset -g -r _ZPLUG_OHMYZSH="robbyrussell/oh-my-zsh"
-typeset -g -r _ZPLUG_TAG_PATTERN="(as|use|from|if|dir|rename_to|at|do|frozen|on|commit|nice|ignore|lazy)"
-typeset -g -r _ZPLUG_OLDTAG_PATTERN="(of|file)"
+typeset -g -r _ZPLUG_TAG_PATTERN="(as|use|from|if|dir|rename_to|at|do|frozen|on|nice|ignore|lazy|depth)"
+typeset -g -r _ZPLUG_OLDTAG_PATTERN="(of|file|commit)"

@@ -61,6 +61,11 @@ do
                 __die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]file$reset_color' tag is deprecated. "
                 __die "Please use '$fg[blue]rename_to$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
                 ;;
+            "commit")
+                key="at"
+                __die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]commit$reset_color' tag is deprecated. "
+                __die "Please use '$fg[blue]at$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
+                ;;
             "from")
                 case $val in
                     "oh-my-zsh")

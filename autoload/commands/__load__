@@ -99,6 +99,14 @@ do
         fi
     }
 
+    (
+        builtin cd -q "$zspec[dir]"
+        git checkout -q "$zspec[at]" &>/dev/null
+        if (( $status != 0 )); then
+            __die "[zplug] $fg[red]ERROR$reset_color: pathspec '$zspec[at]' (at tag) did not match ($zspec[name])\n"
+        fi
+    )
+
     # MAIN
     case $zspec[as] in
         "command")

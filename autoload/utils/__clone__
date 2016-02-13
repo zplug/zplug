@@ -3,8 +3,8 @@
 __import "print/print"
 
 local    repository
-local    shallow_clone
-local    tag_use tag_commit tag_from tag_at tag_do
+local    tag_use tag_from tag_at tag_do tag_depth
+local    depth_option
 local    url_format
 local -i ret
 
@@ -14,9 +14,6 @@ do
         --use)
             tag_use="$2"; shift
             ;;
-        --commit)
-            tag_commit="$2"; shift
-            ;;
         --from)
             tag_from="$2"; shift
             ;;
@@ -25,6 +22,22 @@ do
             ;;
         --do)
             tag_do="$2"; shift
+            ;;
+        --depth)
+            tag_depth="$2"; shift
+            if [[ $tag_depth != <-> ]]; then
+                __die "[zplug] $fg[red]ERROR$reset_color: depth tag must be a positive number\n"
+                __die "        bug, if zero, no shallow clone\n"
+                return 1
+            fi
+            if (( $tag_depth > 0 )); then
+                depth_option="--depth=$tag_depth"
+            else
+                # tag_depth is zero
+                if $ZPLUG_SHALLOW; then
+                    depth_option="--depth=1"
+                fi
+            fi
             ;;
         -*|--*)
             __die "[zplug] $1: Unknown option\n"
@@ -124,27 +137,26 @@ done
         __die "[zplug] $repository: Invalid user/repo format\n"
         return 1
     fi
-
-    if $ZPLUG_SHALLOW && (( $#tag_commit < 9 )); then
-        shallow_clone="--depth=1"
-    fi
 }
 
 # git clone
 (( $ret == 0 )) &&
-    git clone $shallow_clone \
+    git clone \
+    $depth_option \
     --recursive \
     --quiet \
-    --branch $tag_at \
     "$url_format" "$repository" &>/dev/null
 ret=$status
 
 (
-    # revision lock
-    if (( $#tag_commit >= 8 )); then
-        builtin cd -q "$ZPLUG_HOME/repos/$repository"
-        git checkout $tag_commit &>/dev/null
+    # revision/branch/tag lock
+    builtin cd -q "$ZPLUG_HOME/repos/$repository"
+    git checkout -q "$tag_at" &>/dev/null
+    if (( $status != 0 )); then
+        __die "[zplug] $fg[red]ERROR$reset_color: pathspec '$tag_at' (at tag) did not match ($repository)\n"
+        ret=1
     fi
+
     # Post-installation hooks
     if (( $ret == 0 )); then
         builtin cd -q "$ZPLUG_HOME/repos/$repository" &>/dev/null

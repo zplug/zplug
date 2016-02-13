@@ -117,10 +117,10 @@ do
 
         __clone__ \
             --use    ${zspec[use]:-""} \
-            --commit ${zspec[commit]:-""} \
             --from   ${zspec[from]:-""} \
             --at     ${zspec[at]:-""} \
             --do     ${zspec[do]:-""} \
+            --depth  ${zspec[depth]:-""} \
             "$line"
         ret=$status
 
