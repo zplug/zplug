@@ -14,7 +14,7 @@ else
     if ! __zpluged "$main"; then
         __add__ "$main"
     fi
-    ZPLUG_SHALLOW=false __install__ "$main"
+    __install__ "$main"
 fi
 
 ln -snf \

@@ -25,19 +25,28 @@ do
             ;;
         --depth)
             tag_depth="$2"; shift
-            if [[ $tag_depth != <-> ]]; then
-                __die "[zplug] $fg[red]ERROR$reset_color: depth tag must be a positive number\n"
-                __die "        bug, if zero, no shallow clone\n"
-                return 1
-            fi
-            if (( $tag_depth > 0 )); then
-                depth_option="--depth=$tag_depth"
-            else
-                # tag_depth is zero
-                if $ZPLUG_SHALLOW; then
-                    depth_option="--depth=1"
-                fi
-            fi
+            case $tag_depth in
+                0)
+                    case "$ZPLUG_CLONE_DEPTH" in
+                        <->)
+                            depth_option="--depth=$ZPLUG_CLONE_DEPTH"
+                            ;;
+                        *)
+                            __die "[zplug] $fg[red]ERROR$reset_color: ZPLUG_CLONE_DEPTH must be a positive number.\n"
+                            return 1
+                            ;;
+                    esac
+                    ;;
+                <->)
+                    depth_option="--depth=$tag_depth"
+                    ;;
+                *)
+                    # not integer
+                    __die "[zplug] $fg[red]ERROR$reset_color: depth tag must be a positive number\n"
+                    __die "        but, if zero, no shallow clone.\n"
+                    return 1
+                    ;;
+            esac
             ;;
         -*|--*)
             __die "[zplug] $1: Unknown option\n"
@@ -129,12 +138,12 @@ done
     esac
 
     if [[ ! $ZPLUG_PROTOCOL =~ ^(HTTPS|https|SSH|ssh)$ ]]; then
-        __die "[zplug] $ZPLUG_PROTOCOL: Invalid protocol for cloning\n"
+        __die "[zplug] $fg[red]ERROR$reset_color: $ZPLUG_PROTOCOL is an invalid protocol.\n"
         return 1
     fi
 
     if [[ -z $url_format ]]; then
-        __die "[zplug] $repository: Invalid user/repo format\n"
+        __die "[zplug] $fg[red]ERROR$reset_color: $repository is an invalid 'user/repo' format.\n"
         return 1
     fi
 }

@@ -11,6 +11,7 @@ source "$ZPLUG_ROOT/lib/init.zsh"
 __import "zplug/variables"
 __import "core/core"
 __import "job/notify"
+__import "print/print"
 
 if ! __zsh_version 4.3.9; then
     __die "[zplug] zplug does not work this version of zsh $ZSH_VERSION.\n"

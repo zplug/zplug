@@ -1,10 +1,12 @@
 #!/bin/zsh
 
+__import "print/print"
+
 typeset -gx -A zplugs
 
 typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
 typeset -gx ZPLUG_THREADS=${ZPLUG_THREADS:-16}
-typeset -gx ZPLUG_SHALLOW=${ZPLUG_SHALLOW:-false}
+typeset -gx ZPLUG_CLONE_DEPTH=${ZPLUG_CLONE_DEPTH:-0}
 typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
 typeset -gx ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:zaw"}
 typeset -gx ZPLUG_EXTERNAL=${ZPLUG_EXTERNAL:-$ZPLUG_HOME/init.zsh}
@@ -33,3 +35,8 @@ For more information, see also $_ZPLUG_URL."
 typeset -g -r _ZPLUG_OHMYZSH="robbyrussell/oh-my-zsh"
 typeset -g -r _ZPLUG_TAG_PATTERN="(as|use|from|if|dir|rename_to|at|do|frozen|on|nice|ignore|lazy|depth)"
 typeset -g -r _ZPLUG_OLDTAG_PATTERN="(of|file|commit)"
+
+if (( $+ZPLUG_SHALLOW )); then
+    __die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: ZPLUG_SHALLOW is deprecated. "
+    __die "Please use 'export ZPLUG_CLONE_DEPTH=1' instead.\n"
+fi
