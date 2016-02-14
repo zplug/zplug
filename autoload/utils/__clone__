@@ -56,10 +56,6 @@ done
     builtin cd -q "$ZPLUG_HOME/repos"
 
     case "$tag_from" in
-        oh-my-zsh)
-            repository="$_ZPLUG_OHMYZSH"
-            ;&
-
         github)
             if [[ $ZPLUG_PROTOCOL =~ ^(HTTPS|https)$ ]]; then
                 # Create the format of URL used to git clone

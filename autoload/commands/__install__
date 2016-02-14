@@ -59,27 +59,25 @@ do
     done
 
     # Skip installed items
-    case "$zspec[from]" in
-        "local")
+    if [[ $zspec[from] == "local" ]]; then
+        continue
+    fi
+
+    if __is_handler_defined check "$line"; then
+        if __use_handler check "$zspec[from]" "$line"; then
+            if $is_verbose; then
+                __put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
+            fi
             continue
-            ;;
-        "oh-my-zsh")
-            if [[ -d $ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/$line ]]; then
-                if $is_verbose; then
-                    __put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
-                fi
-                continue
+        fi
+    else
+        if [[ -d $ZPLUG_HOME/repos/$line ]]; then
+            if $is_verbose; then
+                __put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
             fi
-            ;;
-        *)
-            if [[ -d $ZPLUG_HOME/repos/$line ]]; then
-                if $is_verbose; then
-                    __put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
-                fi
-                continue
-            fi
-            ;;
-    esac
+            continue
+        fi
+    fi
 
     # For checking
     if [[ -n $zspec[dir] ]]; then
