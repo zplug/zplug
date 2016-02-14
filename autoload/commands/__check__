@@ -40,8 +40,16 @@ do
             fi
             ;;
         *)
-            if [[ ! -d $zspec[dir] ]]; then
-                fail+=("$zspec[name]")
+            if __is_callback_defined "$zspec[from]" check; then
+                __use_external_source "$zspec[from]" check "$line"
+
+                if (( $status )); then
+                    fail+=("$zspec[name]")
+                fi
+            else
+                if [[ ! -d $zspec[dir] ]]; then
+                    fail+=("$zspec[name]")
+                fi
             fi
             ;;
     esac
