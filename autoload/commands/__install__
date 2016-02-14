@@ -115,13 +115,17 @@ do
             "Installing..." \
             "${oh_my_line:-$line}"
 
-        __clone__ \
-            --use    ${zspec[use]:-""} \
-            --from   ${zspec[from]:-""} \
-            --at     ${zspec[at]:-""} \
-            --do     ${zspec[do]:-""} \
-            --depth  ${zspec[depth]:-""} \
-            "$line"
+        if __is_callback_defined "$zspec[from]" install; then
+            __use_external_source "$zspec[from]" install "$line"
+        else
+            __clone__ \
+                --use    ${zspec[use]:-""} \
+                --from   ${zspec[from]:-""} \
+                --at     ${zspec[at]:-""} \
+                --do     ${zspec[do]:-""} \
+                --depth  ${zspec[depth]:-""} \
+                "$line"
+        fi
         ret=$status
 
         case "$ret" in
