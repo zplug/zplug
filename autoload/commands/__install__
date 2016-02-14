@@ -115,8 +115,8 @@ do
             "Installing..." \
             "${oh_my_line:-$line}"
 
-        if __is_callback_defined "$zspec[from]" install; then
-            __use_external_source "$zspec[from]" install "$line"
+        if __is_handler_defined install "$zspec[from]"; then
+            __use_handler install "$zspec[from]" "$line"
         else
             __clone__ \
                 --use    ${zspec[use]:-""} \

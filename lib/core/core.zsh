@@ -11,18 +11,20 @@ __is_external() {
     [[ -f $ZPLUG_ROOT/src/ext/$source_name.zsh ]]
 }
 
-__is_callback_defined() {
+__is_handler_defined() {
+    local subcommand
     local source_name
-    local callback_name
+    local handler_name
 
-    source_name="$1"
-    callback_name="__zplug::$source_name::$2"
+    subcommand="$1"
+    source_name="$2"
+    handler_name="__zplug::$source_name::$subcommand"
 
     if ! __is_external "$source_name"; then
         return 1
     fi
 
-    (( $+functions[$callback_name] ))
+    (( $+functions[$handler_name] ))
 }
 
 __zpluged() {
@@ -216,24 +218,24 @@ __packaging() {
         -v pkg="${1:?}"
 }
 
-# Call the callback function of an external source if defined
-__use_external_source() {
-    local source_name
+# Call the handler of the external source if defined
+__use_handler() {
     local subcommand
-    local callback_name
+    local source_name
+    local handler_name
     local line
 
-    source_name="$1"
-    subcommand="$2"
-    callback_name="__zplug::$source_name::$subcommand"
+    subcommand="$1"
+    source_name="$2"
+    handler_name="__zplug::$source_name::$subcommand"
     line="$3"
 
-    if ! __is_callback_defined "$source_name" "$subcommand"; then
+    if ! __is_handler_defined "$subcommand" "$source_name"; then
         # Callback function undefined
         return 0
     fi
 
-    eval "$callback_name '$line'"
+    eval "$handler_name '$line'"
 
     return $status
 }
