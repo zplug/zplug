@@ -34,11 +34,6 @@ do
         "local")
             continue
             ;;
-        "oh-my-zsh")
-            if [[ ! -d ${zspec[dir]:h} ]]; then
-                fail+=("$zspec[name]")
-            fi
-            ;;
         *)
             if __is_callback_defined "$zspec[from]" check; then
                 __use_external_source "$zspec[from]" check "$line"
