@@ -30,24 +30,21 @@ done
 for line in ${${args[@]:-${(k)zplugs[@]}}:gs:@::}
 do
     zspec=( ${(@f)"$(__parser__ "$line")"} )
-    case "$zspec[from]" in
-        "local")
-            continue
-            ;;
-        *)
-            if __is_callback_defined "$zspec[from]" check; then
-                __use_external_source "$zspec[from]" check "$line"
+    if [[ $zspec[from] == local ]]; then
+        continue
+    fi
 
-                if (( $status )); then
-                    fail+=("$zspec[name]")
-                fi
-            else
-                if [[ ! -d $zspec[dir] ]]; then
-                    fail+=("$zspec[name]")
-                fi
-            fi
-            ;;
-    esac
+    if __is_callback_defined "$zspec[from]" check; then
+        __use_external_source "$zspec[from]" check "$line"
+
+        if (( $status )); then
+            fail+=("$zspec[name]")
+        fi
+    else
+        if [[ ! -d $zspec[dir] ]]; then
+            fail+=("$zspec[name]")
+        fi
+    fi
 done
 
 if (( $#fail > 0 )); then
