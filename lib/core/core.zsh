@@ -4,6 +4,27 @@ __is_cli() {
     [[ $- =~ s ]]
 }
 
+__is_external() {
+    local source_name
+
+    source_name="$1"
+    [[ -f $ZPLUG_ROOT/src/ext/$source_name.zsh ]]
+}
+
+__is_callback_defined() {
+    local source_name
+    local callback_name
+
+    source_name="$1"
+    callback_name="__zplug::$source_name::$2"
+
+    if ! __is_external "$source_name"; then
+        return 1
+    fi
+
+    (( $+functions[$callback_name] ))
+}
+
 __zpluged() {
     local    arg zplug repo
     local -A zspec
@@ -193,4 +214,26 @@ __packaging() {
         | awk \
         -f "$ZPLUG_ROOT/src/share/packaging.awk" \
         -v pkg="${1:?}"
+}
+
+# Call the callback function of an external source if defined
+__use_external_source() {
+    local source_name
+    local subcommand
+    local callback_name
+    local line
+
+    source_name="$1"
+    subcommand="$2"
+    callback_name="__zplug::$source_name::$subcommand"
+    line="$3"
+
+    if ! __is_callback_defined "$source_name" "$subcommand"; then
+        # Callback function undefined
+        return 0
+    fi
+
+    eval "$callback_name '$line'"
+
+    return $status
 }
