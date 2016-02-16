@@ -5,7 +5,7 @@ __import "print/print"
 __tags_for_cache() {
     local key
 
-    for key in ${(k)zplugs}
+    for key in "${(k)zplugs[@]}"
     do
         echo "name:$key, $zplugs[$key]"
     done \

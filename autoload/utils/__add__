@@ -2,6 +2,7 @@
 
 __import "core/core"
 __import "print/print"
+__import "zplug/external"
 
 local    name
 local    tag key val
@@ -27,8 +28,8 @@ if __is_cli; then
         return 1
     else
         # Add to the external file
-        __external__ "zplug ${(qqq)name}${tags[@]:+", ${(j:, :)${(q)tags[@]}}"}"
-        return $status
+        __generate_external \
+            "zplug ${(qqq)name}${tags[@]:+", ${(j:, :)${(q)tags[@]}}"}"
     fi
 fi
 
