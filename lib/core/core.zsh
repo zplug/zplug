@@ -232,7 +232,7 @@ __use_handler() {
 
     if ! __is_handler_defined "$subcommand" "$source_name"; then
         # Callback function undefined
-        return 0
+        return 1
     fi
 
     eval "$handler_name '$line'"

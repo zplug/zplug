@@ -119,5 +119,5 @@ __zplug::oh-my-zsh::load_plugin() {
         plugins_ext "${(F)plugins_ext}"
     )
 
-    return $status
+    return 0
 }
