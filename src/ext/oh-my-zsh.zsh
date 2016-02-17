@@ -18,6 +18,12 @@ __zplug::oh-my-zsh::install() {
 
     line="$1"
     zspec=( ${(@f)"$(__parser__ "$line")"} )
+    for k in ${(k)zspec}
+    do
+        if [[ $zspec[$k] == "-EMP-" ]]; then
+            zspec[$k]=""
+        fi
+    done
 
     __clone__ \
         --use    ${zspec[use]:-""} \
