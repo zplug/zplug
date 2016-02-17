@@ -2,6 +2,6 @@
 
 __import "print/print"
 
-__put "$_ZPLUG_VERSION\n"
+__zplug::print::print::put "$_ZPLUG_VERSION\n"
 
 return 0

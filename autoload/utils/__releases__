@@ -30,7 +30,7 @@ do
             tag_do="$2"; shift
             ;;
         -*|--*)
-            __die "$1: Unknown option\n"
+            __zplug::print::print::die "$1: Unknown option\n"
             return 1
             ;;
         *)
@@ -43,7 +43,7 @@ done
 # Initialize
 {
     if [[ ! $repository =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
-        __die "$repository: invalid repository type\n"
+        __zplug::print::print::die "$repository: invalid repository type\n"
         return 1
     fi
     if [[ $tag_at == master ]]; then
@@ -73,9 +73,9 @@ done
     fi
 
     if [[ -n $tag_use ]]; then
-        tag_use="$(__glob2regexp "$tag_use")"
+        tag_use="$(__zplug::core::core::glob2regexp "$tag_use")"
     else
-        tag_use="$(__get_os)"
+        tag_use="$(__zplug::core::core::get_os)"
     fi
 }
 
@@ -84,7 +84,7 @@ done
         | grep -o '/'"$repository"'/releases/download/[^"]*' \
         | read -d '\n' -A candidates_list
     if (( $#candidates_list == 0 )); then
-        __die "$repository: there are no available releases\n"
+        __zplug::print::print::die "$repository: there are no available releases\n"
         return 1
     fi
 
@@ -94,7 +94,7 @@ done
         | head -n 1 \
         | read one_uri
     if [[ -z $one_uri ]]; then
-        __die "$repository: repository not found\n"
+        __zplug::print::print::die "$repository: repository not found\n"
         return 1
     fi
 
@@ -140,7 +140,7 @@ done
             rm -f "$artifact"
             ;;
         *)
-            __die "$artifact: Unknown format\n"
+            __zplug::print::print::die "$artifact: Unknown format\n"
             return 1
     esac
 
@@ -149,7 +149,7 @@ done
         | read -d '\n' -A binaries
 
     if (( $#binaries == 0 )); then
-        __die "$command_name: failed to grab binaries from GitHub Releases\n"
+        __zplug::print::print::die "$command_name: failed to grab binaries from GitHub Releases\n"
         return 1
     fi
     mv -f "$binaries[1]" "$command_name"
@@ -157,9 +157,9 @@ done
     rm -rf *~"$command_name"(N)
 
     if [[ -x $command_name ]]; then
-        __put "$command_name: Installed successfully\n"
+        __zplug::print::print::put "$command_name: Installed successfully\n"
     else
-        __die "$command_name: Failed to install\n"
+        __zplug::print::print::die "$command_name: Failed to install\n"
         ret=1
     fi
     # builtin cd -q "$OLDPWD"

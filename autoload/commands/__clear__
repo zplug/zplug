@@ -12,16 +12,16 @@ do
             is_force=true
             ;;
         -*|--*)
-            __die "[zplug] $arg: Unknown option\n"
+            __zplug::print::print::die "[zplug] $arg: Unknown option\n"
             return 1
             ;;
     esac
     shift
 done
 
-if eval ${is_force:-"__put 'Remove cache file? ';read -q;__put '\n'"}; then
+if eval ${is_force:-"__zplug::print::print::put 'Remove cache file? ';read -q;__zplug::print::print::put '\n'"}; then
     rm -f "$_ZPLUG_CACHE_FILE"
-    __put "Removed\n"
+    __zplug::print::print::put "Removed\n"
 else
-    __put "Canceled\n"
+    __zplug::print::print::put "Canceled\n"
 fi

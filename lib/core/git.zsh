@@ -3,10 +3,10 @@
 __import "core/core"
 __import "print/print"
 
-get_head_branch_name() {
+__zplug::core::git::get_head_branch_name() {
     local head_branch
 
-    if __git_version 1.7.10; then
+    if __zplug::core::core::git_version 1.7.10; then
         head_branch="$(git symbolic-ref -q --short HEAD)"
     else
         head_branch="${$(git symbolic-ref -q HEAD)#refs/heads/}"
@@ -16,27 +16,28 @@ get_head_branch_name() {
         git rev-parse --short HEAD
         return 1
     fi
-    __put "$head_branch\n"
+    __zplug::print::print::put "$head_branch\n"
 }
-get_remote_name() {
+
+__zplug::core::git::get_remote_name() {
     local branch remote_name
     branch="$1"
 
     if [[ -z $branch ]]; then
-        __die "too few arguments\n"
+        __zplug::print::print::die "too few arguments\n"
         return 1
     fi
 
     remote_name="$(git config branch.${branch}.remote)"
     if [[ -z $remote_name ]]; then
-        __die "no remote repository\n"
+        __zplug::print::print::die "no remote repository\n"
         return 1
     fi
 
-    __put "$remote_name\n"
+    __zplug::print::print::put "$remote_name\n"
 }
 
-__get_remote_state() {
+__zplug::core::git::get_remote_state() {
     local    remote_name branch
     local    merge_branch remote_show
     local    state url
@@ -44,7 +45,7 @@ __get_remote_state() {
     local -i behind ahead
 
     branch="$1"
-    remote_name="$(get_remote_name "$branch")"
+    remote_name="$(__zplug::core::git::get_remote_name "$branch")"
 
     if (( $status == 0 )); then
         merge_branch="${$(git config branch.${branch}.merge)#refs/heads/}"
@@ -82,7 +83,7 @@ __get_remote_state() {
     echo "$url"
 }
 
-__get_state() {
+__zplug::core::git::get_state() {
     local    branch
     local -a res
     local    state url
@@ -91,9 +92,9 @@ __get_state() {
         state="not git repo"
     fi
 
-    branch="$(get_head_branch_name)"
+    branch="$(__zplug::core::git::get_head_branch_name)"
     if (( $status == 0 )); then
-        res=( ${(@f)"$(__get_remote_state "$branch")"} )
+        res=( ${(@f)"$(__zplug::core::git::get_remote_state "$branch")"} )
         state="$res[1]"
         url="$res[2]"
     else
@@ -108,5 +109,5 @@ __get_state() {
             state="${fg[green]}${state}${reset_color}"
             ;;
     esac
-    __put "($state) '${url:-?}'\n"
+    __zplug::print::print::put "($state) '${url:-?}'\n"
 }

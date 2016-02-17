@@ -1,9 +1,9 @@
 #!/bin/zsh
 
-__put() {
+__zplug::print::print::put() {
     command printf -- "$@"
 }
 
-__die() {
+__zplug::print::print::die() {
     command printf -- "$@" >&2
 }

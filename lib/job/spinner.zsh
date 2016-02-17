@@ -4,24 +4,24 @@ __import "print/print"
 
 typeset -g spin_file=/tmp/.spin.$$$RANDOM
 
-__is_spin() {
+__zplug::job::spinner::is_spin() {
     [[ -f $spin_file ]]
 }
 
-__spin_lock() {
-    if ! __is_spin; then
+__zplug::job::spinner::lock() {
+    if ! __zplug::job::spinner::is_spin; then
         set +m
         touch $spin_file &>/dev/null
     fi
 }
 
-__spin_unlock() {
-    if __is_spin; then
+__zplug::job::spinner::unlock() {
+    if __zplug::job::spinner::is_spin; then
         rm -f $spin_file &>/dev/null
     fi
 }
 
-__spinner() {
+__zplug::job::spinner::spinner() {
     local    spin format
     local -F latency
     local -a spinners
@@ -31,12 +31,12 @@ __spinner() {
     format="@\r"
     latency=0.03
 
-    while __is_spin
+    while __zplug::job::spinner::is_spin
     do
         for spin in $spinners
         do
-            __is_spin || break
-            __put "$format" | awk -v t=$latency -v i=$(__put "$spin" | sed 's/=/\\\=/') '
+            __zplug::job::spinner::is_spin || break
+            __zplug::print::print::put "$format" | awk -v t=$latency -v i=$(__zplug::print::print::put "$spin" | sed 's/=/\\\=/') '
             {
                 system("tput civis")
                 gsub("@", i)
@@ -54,9 +54,9 @@ __spinner() {
     set -m
 }
 
-__spinner_echo() {
-    if __is_spin; then
-        __put "$@"
+__zplug::job::spinner::echo() {
+    if __zplug::job::spinner::is_spin; then
+        __zplug::print::print::put "$@"
         return 0
     else
         return 1

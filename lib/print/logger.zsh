@@ -2,7 +2,7 @@
 
 __import "print/print"
 
-__ink() {
+__zplug::print::log::ink() {
     local    color is_bold=false
     local -i tty=1
     local -a text
@@ -12,7 +12,7 @@ __ink() {
         case "$1" in
             --color)
                 if [[ ! $2 =~ ^(black|blue|cyan|default|green|grey|magenta|red|white|yellow)$ ]]; then
-                    __die "$2: must be a color\n"
+                    __zplug::print::print::die "$2: must be a color\n"
                     return 1
                 fi
                 color="$2"; shift
@@ -22,7 +22,7 @@ __ink() {
                 ;;
             --tty)
                 if [[ $2 != <-> ]]; then
-                    __die "$2: must be an interger\n"
+                    __zplug::print::print::die "$2: must be an interger\n"
                     return 1
                 fi
                 tty="$2"; shift
@@ -42,15 +42,15 @@ __ink() {
 
     case $tty in
         1)
-            __put "${color}${text}${reset_color}"
+            __zplug::print::print::put "${color}${text}${reset_color}"
             ;;
         2)
-            __die "${color}${text}${reset_color}"
+            __zplug::print::print::die "${color}${text}${reset_color}"
             ;;
     esac
 }
 
-__log() {
+__zplug::print::log::log() {
     local    state="$1" text="$2"
     local    bold
     local -i tty=1
@@ -83,8 +83,8 @@ __log() {
             ;;
     esac
 
-    __ink --color white "["
-    __ink --color magenta --bold "$(date +%H:%M:%S)"
-    __ink --color white "]"
-    __ink --color "$color" --tty "$tty" $bold " $text"
+    __zplug::print::log::ink --color white "["
+    __zplug::print::log::ink --color magenta --bold "$(date +%H:%M:%S)"
+    __zplug::print::log::ink --color white "]"
+    __zplug::print::log::ink --color "$color" --tty "$tty" $bold " $text"
 }
