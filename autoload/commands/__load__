@@ -116,9 +116,9 @@ do
             if __is_handler_defined load_command "$zspec[from]"; then
                 __use_handler load_command "$zspec[from]" "$key"
 
-                reply_hash=($reply)
-                load_fpaths+=($reply_hash[load_fpaths])
-                load_commands+=($reply_hash[load_commands])
+                reply_hash=( ${(@f)reply} )
+                load_fpaths+=( ${(@f)reply_hash[load_fpaths]} )
+                load_commands+=( ${(@f)reply_hash[load_commands]} )
             else
                 basename="${zspec[name]:t}"
                 zspec[dir]="${zspec[dir]%/}"
@@ -185,12 +185,12 @@ do
                 __use_handler load_command "$zspec[from]" "$key"
                 reply_hash=( $reply )
 
-                load_fpaths+=( $reply_hash[load_fpaths] )
-                load_patterns+=( $reply_hash[load_patterns] )
-                load_plugins+=( $reply_hash[load_plugins] )
-                nice_plugins+=( $reply_hash[nice_plugins] )
-                themes_ext+=( $reply_hash[themes_ext] )
-                plugins_ext+=( $reply_hash[plugins_ext] )
+                load_fpaths+=( ${(@f)reply_hash[load_fpaths]} )
+                load_patterns+=( ${(@f)reply_hash[load_patterns]} )
+                load_plugins+=( ${(@f)reply_hash[load_plugins]} )
+                nice_plugins+=( ${(@f)reply_hash[nice_plugins]} )
+                themes_ext+=( ${(@f)reply_hash[themes_ext]} )
+                plugins_ext+=( ${(@f)reply_hash[plugins_ext]} )
             else
                 # Default load behavior for plugins
                 load_patterns=()
