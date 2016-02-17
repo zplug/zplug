@@ -39,7 +39,6 @@ __zplug::oh-my-zsh::install() {
 __zplug::oh-my-zsh::load_plugin() {
     local    line
     local -A zspec
-    local -a load_patterns
 
     line="$1"
     zspec=( ${(@f)"$(__parser__ "$line")"} )
@@ -119,4 +118,6 @@ __zplug::oh-my-zsh::load_plugin() {
         themes_ext "${(F)themes_ext}"
         plugins_ext "${(F)plugins_ext}"
     )
+
+    return $status
 }
