@@ -182,9 +182,9 @@ do
             ;;
 
         "plugin")
-            if __is_handler_defined load_command "$zspec[from]"; then
+            if __is_handler_defined load_plugin "$zspec[from]"; then
                 # Custom handler for loading
-                __use_handler load_command "$zspec[from]" "$key"
+                __use_handler load_plugin "$zspec[from]" "$key"
                 reply_hash=( $reply )
 
                 load_fpaths+=( ${(@f)reply_hash[load_fpaths]} )
