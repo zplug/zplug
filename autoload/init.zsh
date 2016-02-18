@@ -14,15 +14,15 @@ __import "core/core"
 __import "job/notify"
 __import "print/print"
 
-if ! __zsh_version 4.3.9; then
-    __die "[zplug] zplug does not work this version of zsh $ZSH_VERSION.\n"
-    __die "        You must use zsh 4.3.9 or later.\n"
+if ! __zplug::core::core::zsh_version 4.3.9; then
+    __zplug::print::print::die "[zplug] zplug does not work this version of zsh $ZSH_VERSION.\n"
+    __zplug::print::print::die "        You must use zsh 4.3.9 or later.\n"
     return 1
 fi
 
 if (( ! $+commands[git] )); then
-    __die "[zplug] git command not found in \$PATH\n"
-    __die "        zplug depends on git 1.7 or later.\n"
+    __zplug::print::print::die "[zplug] git command not found in \$PATH\n"
+    __zplug::print::print::die "        zplug depends on git 1.7 or later.\n"
     return 1
 fi
 
@@ -31,7 +31,7 @@ autoload -Uz colors; colors
 autoload -Uz compinit
 
 if ${ZPLUG_CHECK_UPDATE:-false}; then
-    __check_zplug_update
+    __zplug::job::notify::check_update
 fi
 
-__load_external
+__zplug::zplug::external::load

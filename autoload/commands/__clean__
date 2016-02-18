@@ -20,7 +20,7 @@ do
             is_select=true
             ;;
         -*|--*)
-            __die "[zplug] $arg: Unknown option\n"
+            __zplug::print::print::die "[zplug] $arg: Unknown option\n"
             return 1
             ;;
         *)
@@ -29,7 +29,7 @@ do
     shift
 done
 
-filter="$(__get_filter "$ZPLUG_FILTER")"
+filter="$(__zplug::core::core::get_filter "$ZPLUG_FILTER")"
 if $is_select; then
     args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
     if (( $#args == 0 )); then
@@ -41,7 +41,7 @@ if (( $#args == 0 )); then
     repos=( "$ZPLUG_HOME"/repos/*/*(N-/) )
     for repo in "${repos[@]}"
     do
-        if ! __zpluged "${repo:h:t}/${repo:t}"; then
+        if ! __zplug::core::core::zpluged "${repo:h:t}/${repo:t}"; then
             remove_args+=("$repo")
         fi
     done
@@ -59,7 +59,7 @@ else
                     ;;
             esac
         else
-            __die "[zplug] $arg: no such package\n"
+            __zplug::print::print::die "[zplug] $arg: no such package\n"
             ret=1
         fi
     done
@@ -68,12 +68,12 @@ fi
 # Remove packages from $ZPLUG_HOME/repos
 for repo in "${remove_args[@]}"
 do
-    __put "${${is_force:+"Removed"}:-"Remove? (y/N)"} ${(qq)repo} "
+    __zplug::print::print::put "${${is_force:+"Removed"}:-"Remove? (y/N)"} ${(qq)repo} "
     if ${(z)is_force:-"read -q"}; then
         rm -rf "$repo"
         rmdir "${repo:h}"
     fi &>/dev/null
-    __put "\n"
+    __zplug::print::print::put "\n"
 done
 
 # Remove packages from $zplugs

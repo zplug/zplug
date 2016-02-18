@@ -9,7 +9,7 @@ local -a args awk_args
 local -A copy_zplugs
 
 if (( $#zplugs == 0 )); then
-    __die "[zplug] there are no available plugins\n"
+    __zplug::print::print::die "[zplug] there are no available plugins\n"
     return 1
 fi
 
@@ -21,7 +21,7 @@ do
             is_select=true
             ;;
         -*|--*)
-            __die "[zplug] $arg: Unknown option\n"
+            __zplug::print::print::die "[zplug] $arg: Unknown option\n"
             return 1
             ;;
         *)
@@ -31,7 +31,7 @@ do
     shift
 done
 
-filter="$(__get_filter "$ZPLUG_FILTER")"
+filter="$(__zplug::core::core::get_filter "$ZPLUG_FILTER")"
 if $is_select; then
     args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
     if (( $#args == 0 )); then
@@ -43,7 +43,7 @@ if (( $#args > 0 )); then
     copy_zplugs=()
     for arg in "${args[@]}"
     do
-        if __zpluged "$arg"; then
+        if __zplug::core::core::zpluged "$arg"; then
             # This is compelte match
             copy_zplugs+=("$arg" "${zplugs[$arg]}")
         else
@@ -55,7 +55,7 @@ if (( $#args > 0 )); then
             fi
             for arg in ${awk_args[@]}
             do
-                if __zpluged "$arg"; then
+                if __zplug::core::core::zpluged "$arg"; then
                     copy_zplugs+=("$arg" "${zplugs[$arg]}")
                 fi
             done
@@ -65,7 +65,7 @@ else
     copy_zplugs=( ${(@kv)zplugs} )
 fi
 
-__put '%s  =>  %s\n' "${(@kv)copy_zplugs:gs:@::}" \
+__zplug::print::print::put '%s  =>  %s\n' "${(@kv)copy_zplugs:gs:@::}" \
     | sed -e 's/-EMP-/""/g' \
     | perl -pe 's/^(.*)( *=>.*)$/\033[32m$1\033[m$2/g' \
     | perl -pe 's/'"$_ZPLUG_TAG_PATTERN"'(:)/\033[34m$1\033[m$2/g' \

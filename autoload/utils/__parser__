@@ -8,7 +8,7 @@ local -A zplugs_tags
 local    name as use from if dir rename_to at do frozen on nice ignore lazy depth
 
 if [[ -z $1 ]]; then
-    __die "[zplug] $funcstack[1]: too few arguments\n"
+    __zplug::print::print::die "[zplug] $funcstack[1]: too few arguments\n"
     return 1
 fi
 arg="$1"
@@ -58,5 +58,5 @@ depth     "$depth"
 # because it is used by parameter expansion flags (@f)
 for key in ${(k)zplugs_tags}
 do
-    __put "${key}\n${zplugs_tags[$key]}\n"
+    __zplug::print::print::put "${key}\n${zplugs_tags[$key]}\n"
 done

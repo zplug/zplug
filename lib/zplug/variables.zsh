@@ -37,6 +37,6 @@ typeset -g -r _ZPLUG_TAG_PATTERN="(as|use|from|if|dir|rename_to|at|do|frozen|on|
 typeset -g -r _ZPLUG_OLDTAG_PATTERN="(of|file|commit)"
 
 if (( $+ZPLUG_SHALLOW )); then
-    __die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: ZPLUG_SHALLOW is deprecated. "
-    __die "Please use 'export ZPLUG_CLONE_DEPTH=1' instead.\n"
+    __zplug::print::print::die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: ZPLUG_SHALLOW is deprecated. "
+    __zplug::print::print::die "Please use 'export ZPLUG_CLONE_DEPTH=1' instead.\n"
 fi

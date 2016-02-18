@@ -2,13 +2,13 @@
 
 __import "print/print"
 
-__load_external() {
+__zplug::zplug::external::load() {
     if [[ -f $ZPLUG_EXTERNAL ]]; then
         source "$ZPLUG_EXTERNAL"
     fi
 }
 
-__generate_external() {
+__zplug::zplug::external::generate() {
     if [[ ! -f $ZPLUG_EXTERNAL ]]; then
         cat <<-TEMPLATE >$ZPLUG_EXTERNAL
 	#!/bin/zsh
@@ -34,6 +34,6 @@ TEMPLATE
     fi
 
     if [[ -n $1 ]]; then
-        __put "$@\n" >>|$ZPLUG_EXTERNAL
+        __zplug::print::print::put "$@\n" >>|$ZPLUG_EXTERNAL
     fi
 }

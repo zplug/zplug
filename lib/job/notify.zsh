@@ -3,18 +3,18 @@
 __import "core/core"
 __import "print/print"
 
-__notifier_for_linux() {
+__zplug::job::notify::for_linux() {
     return 1
 }
 
-__notifier_for_osx() {
+__zplug::job::notify::for_osx() {
     local text title sound
 
     text="${1:?}"
     title="${2:-zplug}"
     sound="${3:-default}"
 
-    if (( $+commands[osascript] )) && __osx_version 10.9; then
+    if (( $+commands[osascript] )) && __zplug::core::core::osx_version 10.9; then
         osascript -e \
             "display notification "${(qqq)text}" with title "${(qqq)title}" sound name \"$sound\""
     elif (( $+commands[terminal-notifier] )); then
@@ -23,23 +23,23 @@ __notifier_for_osx() {
             -message "$text" \
             -sound "$sound"
     else
-        __die "[zplug] A notifier is not available on this system.\n"
-        __die "        Please install terminal-notifier or upgrade your OS X.\n"
+        __zplug::print::print::die "[zplug] A notifier is not available on this system.\n"
+        __zplug::print::print::die "        Please install terminal-notifier or upgrade your OS X.\n"
         return 1
     fi
 }
 
-__notifier() {
-    if __is_osx; then
-        __notifier_for_osx "$@"
+__zplug::job::notify::notifier() {
+    if __zplug::core::core::is_osx; then
+        __zplug::job::notify::for_osx "$@"
         return $status
-    elif __is_linux; then
-        __notifier_for_linux "$@"
+    elif __zplug::core::core::is_linux; then
+        __zplug::job::notify::for_linux "$@"
         return $status
     fi
 }
 
-__check_zplug_update() (
+__zplug::job::notify::check_update() (
     local -i cnt
     local    msg rev state commit
 
@@ -64,7 +64,7 @@ __check_zplug_update() (
             commit="commit"
             ;&
         *)
-            __notifier \
+            __zplug::job::notify::notifier \
                 "[$rev] \"$msg\" ($state $cnt ${commit:-commits})" \
                 'Update "b4b4r07/zplug"'
             ;;
