@@ -113,14 +113,13 @@ __zplug::oh-my-zsh::load_plugin() {
     # Remove these function from current shell process
     unfunction load_omz
 
-    reply=(
-        load_fpaths "${(F)load_fpaths}"
-        load_patterns "${(F)load_patterns}"
-        load_plugins "${(F)load_plugins}"
-        nice_plugins "${(F)nice_plugins}"
-        themes_ext "${(F)themes_ext}"
-        plugins_ext "${(F)plugins_ext}"
-    )
+    reply=()
+    [[ $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
+    [[ $load_patterns ]] && reply+=( load_patterns "${(F)load_patterns}" )
+    [[ $load_plugins ]] && reply+=( load_plugins "${(F)load_plugins}" )
+    [[ $nice_plugins ]] && reply+=( nice_plugins "${(F)nice_plugins}" )
+    [[ $themes_ext ]] && reply+=( themes_ext "${(F)themes_ext}" )
+    [[ $plugins_ext ]] && reply+=( plugins_ext "${(F)plugins_ext}" )
 
     return 0
 }
