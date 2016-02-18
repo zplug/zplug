@@ -52,6 +52,9 @@ __zplug::oh-my-zsh::load_plugin() {
     local -a load_plugins load_fpaths lazy_plugins
     local -a load_patterns
     local -a themes_ext plugins_ext
+    # TODO
+    local loaded_omz
+    loaded_omz=false
 
     load_patterns=()
     # Themes' extensions for Oh-My-Zsh
