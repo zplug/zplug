@@ -28,6 +28,9 @@ do
             case $tag_depth in
                 0)
                     case "$ZPLUG_CLONE_DEPTH" in
+                        0)
+                            depth_option=""
+                            ;;
                         <->)
                             depth_option="--depth=$ZPLUG_CLONE_DEPTH"
                             ;;
