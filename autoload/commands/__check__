@@ -17,7 +17,7 @@ do
             is_verbose=true
             ;;
         -*|--*)
-            __die "[zplug] $arg: Unknown option\n"
+            __zplug::print::print::die "[zplug] $arg: Unknown option\n"
             return 1
             ;;
         *)
@@ -49,7 +49,7 @@ done
 
 if (( $#fail > 0 )); then
     if $is_verbose; then
-        __put "- $fg[red]%s$reset_color: not installed\n" "${(@nO)fail}"
+        __zplug::print::print::put "- $fg[red]%s$reset_color: not installed\n" "${(@nO)fail}"
     fi
     return 1
 else

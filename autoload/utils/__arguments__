@@ -10,7 +10,7 @@ user_cmds=( ${^path}/zplug-*(N-.:t:gs:zplug-:) )
 arg="$1"
 case "$arg" in
     "")
-        __die "[zplug] too few arguments\n"
+        __zplug::print::print::die "[zplug] too few arguments\n"
         return 1
         ;;
 esac
@@ -22,7 +22,7 @@ if [[ -n ${(M)user_cmds:#$arg} ]]; then
 fi
 
 # Auto correct like git(1)
-__get_autoload_files \
+__zplug::core::core::get_autoload_files \
     "$ZPLUG_ROOT/autoload/commands"
 reply+=("${user_cmds[@]}")
 
@@ -36,20 +36,20 @@ ${(@f)"$(awk \
 
 case $#cmds in
     0)
-        __die "[zplug] $arg: no such command\n"
+        __zplug::print::print::die "[zplug] $arg: no such command\n"
         return 1
         ;;
     1)
-        __die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: You called a Git command named '%s', which does not exist.\n" "$arg"
-        __die "        Continuing under the assumption that you meant '$fg[green]%s$reset_color'.\n" "$cmds"
+        __zplug::print::print::die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: You called a Git command named '%s', which does not exist.\n" "$arg"
+        __zplug::print::print::die "        Continuing under the assumption that you meant '$fg[green]%s$reset_color'.\n" "$cmds"
         shift
         zplug "$cmds" ${1:+"$@"}
         return $status
         ;;
     *)
-        __die "[zplug] '%s' is not a zplug command. See 'zplug help'.\n" "$arg"
-        __die "        Did you mean one of these?\n"
-        __die "               %s\n" ${cmds}
+        __zplug::print::print::die "[zplug] '%s' is not a zplug command. See 'zplug help'.\n" "$arg"
+        __zplug::print::print::die "        Did you mean one of these?\n"
+        __zplug::print::print::die "               %s\n" ${cmds}
         return 1
         ;;
 esac

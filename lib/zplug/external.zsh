@@ -2,8 +2,15 @@
 
 __import "print/print"
 
-if [[ ! -f $ZPLUG_EXTERNAL ]]; then
-    cat <<-TEMPLATE >$ZPLUG_EXTERNAL
+__zplug::zplug::external::load() {
+    if [[ -f $ZPLUG_EXTERNAL ]]; then
+        source "$ZPLUG_EXTERNAL"
+    fi
+}
+
+__zplug::zplug::external::generate() {
+    if [[ ! -f $ZPLUG_EXTERNAL ]]; then
+        cat <<-TEMPLATE >$ZPLUG_EXTERNAL
 	#!/bin/zsh
 	# -*- mode: zsh -*-
 	# vim:ft=zsh
@@ -24,8 +31,9 @@ if [[ ! -f $ZPLUG_EXTERNAL ]]; then
 	# zplug "rupa/z",          as:plugin, of:"*.sh"
 	#
 TEMPLATE
-fi
+    fi
 
-if [[ -n $1 ]]; then
-    __put "$@\n" >>|$ZPLUG_EXTERNAL
-fi
+    if [[ -n $1 ]]; then
+        __zplug::print::print::put "$@\n" >>|$ZPLUG_EXTERNAL
+    fi
+}

@@ -5,7 +5,7 @@ __import "print/print"
 __import "print/logger"
 __import "job/spinner"
 
-trap '__spin_unlock; trap - SIGINT' SIGINT
+trap '__zplug::job::spinner::unlock; trap - SIGINT' SIGINT
 
 local    line filter is_select=false
 local -i max=0 ret=0
@@ -24,14 +24,14 @@ case "$arg" in
         is_select=true; shift
         ;;
     -*|--*)
-        __die "[zplug] $arg: Unknown option\n"
+        __zplug::print::print::die "[zplug] $arg: Unknown option\n"
         return 1
         ;;
 esac
 
 # Initialize
 {
-    filter="$(__get_filter "$ZPLUG_FILTER")"
+    filter="$(__zplug::core::core::get_filter "$ZPLUG_FILTER")"
     if $is_select; then
         args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
     else
@@ -49,13 +49,13 @@ esac
     done
 }
 
-__spin_lock
-__spinner &
+__zplug::job::spinner::lock
+__zplug::job::spinner::spinner &
 for line in "${args[@]}"
 do
-    line="$(__packaging "$line")"
-    if ! __zpluged "$line"; then
-        __die "[zplug] $line: no such package\n"
+    line="$(__zplug::core::core::packaging "$line")"
+    if ! __zplug::core::core::zpluged "$line"; then
+        __zplug::print::print::die "[zplug] $line: no such package\n"
         ret=1
         continue
     fi
@@ -82,12 +82,12 @@ do
 
         if [[ $# == 1 && $argv[1] == $zspec[name] ]]; then
             if (( $zspec[frozen] == 1 )); then
-                __spin_unlock
-                __put "$fg[green]$zspec[name]: $fg[blue]frozen repo$reset_color. Update? [y/N]: "
+                __zplug::job::spinner::unlock
+                __zplug::print::print::put "$fg[green]$zspec[name]: $fg[blue]frozen repo$reset_color. Update? [y/N]: "
                 if read -q; then
-                    __put "\n"
-                    __spin_lock
-                    __spinner &
+                    __zplug::print::print::put "\n"
+                    __zplug::job::spinner::lock
+                    __zplug::job::spinner::spinner &
                     SECONDS=0
                 else
                     continue
@@ -95,7 +95,7 @@ do
             fi
         fi
 
-        __spinner_echo "%-20s %s\n" \
+        __zplug::job::spinner::echo "%-20s %s\n" \
             "Updating..." \
             "$line"
 
@@ -156,7 +156,7 @@ do
 
         case "$ret" in
             0)
-                __spinner_echo "$fg[green]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                __zplug::job::spinner::echo "$fg[green]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
                     "Updated!" \
                     "$line" \
                     $SECONDS
@@ -167,27 +167,27 @@ do
                 fi
                 ;;
             1)
-                __spinner_echo "$fg[red]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                __zplug::job::spinner::echo "$fg[red]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
                     "Failed to update" \
                     "$line" \
                     $SECONDS
                 ;;
             2)
                 sleep 1
-                __spinner_echo "$fg[magenta]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                __zplug::job::spinner::echo "$fg[magenta]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
                     "Not found repo" \
                     "$line" \
                     $(( SECONDS - 1 ))
                 ;;
             3)
                 sleep 1
-                __spinner_echo "$fg[blue]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                __zplug::job::spinner::echo "$fg[blue]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
                     "Frozen repo" \
                     "$line" \
                     $(( SECONDS - 1 ))
                 ;;
             4)
-                __spinner_echo "$fg[white]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                __zplug::job::spinner::echo "$fg[white]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
                     "Up-to-date" \
                     "$line" \
                     $SECONDS
@@ -205,5 +205,5 @@ if (( $#queue > 0 )); then
 fi
 queue=()
 
-__spin_unlock
+__zplug::job::spinner::unlock
 return $ret

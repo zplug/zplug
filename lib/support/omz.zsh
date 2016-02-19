@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-__omz_depends() {
+__zplug::support::omz::depends() {
     local    lib_f func_name dep
     local -a target
     local -a -U depends
@@ -46,6 +46,6 @@ __omz_depends() {
     done
 }
 
-__omz_themes() {
+__zplug::support::omz::theme() {
     setopt prompt_subst
 }

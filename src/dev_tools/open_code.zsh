@@ -10,7 +10,7 @@ local    filter
 local    dir
 local -a wc_files
 
-filter="$(__get_filter "${ZPLUG_FILTER:-"fzf --tac:peco:percol:zaw"}")"
+filter="$(__zplug::core::core::get_filter "${ZPLUG_FILTER:-"fzf --tac:peco:percol:zaw"}")"
 if [[ -z $filter ]]; then
     exit
 fi

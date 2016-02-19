@@ -3,7 +3,7 @@
 __import "core/git"
 __import "print/print"
 
-__get_latest_releases() {
+__zplug::support::gh-r::get_latest() {
     local repo curl
     local url_format
 
@@ -23,13 +23,13 @@ __get_latest_releases() {
         | uniq
 }
 
-__get_state_releases() {
+__zplug::support::gh-r::get_state() {
     local state
     local name="${1:?}"
     local dir="${2:?}"
     local url="https://github.com/$name/releases"
 
-    if [[ "$(__get_latest_releases "$name")" == "$(cat "$dir/INDEX")" ]]; then
+    if [[ "$(__zplug::support::gh-r::get_latest "$name")" == "$(cat "$dir/INDEX")" ]]; then
         state="up to date"
     else
         state="local out of date"
@@ -43,5 +43,5 @@ __get_state_releases() {
             state="${fg[green]}${state}${reset_color}"
             ;;
     esac
-    __put "($state) '${url:-?}'\n"
+    __zplug::print::print::put "($state) '${url:-?}'\n"
 }

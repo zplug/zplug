@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-__is_cli() {
+__zplug::core::core::is_cli() {
     [[ $- =~ s ]]
 }
 
@@ -27,7 +27,7 @@ __is_handler_defined() {
     (( $+functions[$handler_name] ))
 }
 
-__zpluged() {
+__zplug::core::core::zpluged() {
     local    arg zplug repo
     local -A zspec
 
@@ -56,7 +56,7 @@ __zpluged() {
     fi
 }
 
-__get_autoload_dirs() {
+__zplug::core::core::get_autoload_dirs() {
     if (( $# > 0 )); then
         reply=("$@")
     else
@@ -67,19 +67,19 @@ __get_autoload_dirs() {
     fi
 }
 
-__get_autoload_paths() {
+__zplug::core::core::get_autoload_paths() {
     local -a fs
-    __get_autoload_dirs "$@"
+    __zplug::core::core::get_autoload_dirs "$@"
     fs=( "${^reply[@]}"/__*(N-.) )
     (( $#fs > 0 )) && reply=( "${fs[@]}" )
 }
 
-__get_autoload_files() {
-    __get_autoload_paths "$@"
+__zplug::core::core::get_autoload_files() {
+    __zplug::core::core::get_autoload_paths "$@"
     (( $#reply > 0 )) && reply=( "${reply[@]:t}" )
 }
 
-__get_filter() {
+__zplug::core::core::get_filter() {
     local item x
 
     for item in "${(s.:.)1}"
@@ -97,7 +97,7 @@ __get_filter() {
     return 1
 }
 
-__version_requirement() {
+__zplug::core::core::version_requirement() {
     local -i idx
     local -a min val
 
@@ -118,23 +118,29 @@ __version_requirement() {
     return 1
 }
 
-__git_version() {
-    __version_requirement ${(M)${(z)"$(git --version)"}:#[0-9]*[0-9]} "${@:?}"
+__zplug::core::core::git_version() {
+    __zplug::core::core::version_requirement \
+        ${(M)${(z)"$(git --version)"}:#[0-9]*[0-9]} \
+        "${@:?}"
     return $status
 }
 
-__zsh_version() {
-    __version_requirement "$ZSH_VERSION" "${@:?}"
+__zplug::core::core::zsh_version() {
+    __zplug::core::core::version_requirement \
+        "$ZSH_VERSION" \
+        "${@:?}"
     return $status
 }
 
-__osx_version() {
+__zplug::core::core::osx_version() {
     (( $+commands[sw_vers] )) || return 1
-    __version_requirement ${${(M)${(@f)"$(sw_vers)"}:#ProductVersion*}[2]} "${@:?}"
+    __zplug::core::core::version_requirement \
+        ${${(M)${(@f)"$(sw_vers)"}:#ProductVersion*}[2]} \
+        "${@:?}"
     return $status
 }
 
-__get_os() {
+__zplug::core::core::get_os() {
     typeset -gx PLATFORM
     local os
 
@@ -149,15 +155,15 @@ __get_os() {
     echo "$PLATFORM"
 }
 
-__is_osx() {
+__zplug::core::core::is_osx() {
     [[ ${(L)OSTYPE:-"$(uname)"} == *darwin* ]]
 }
 
-__is_linux() {
+__zplug::core::core::is_linux() {
     [[ ${(L)OSTYPE:-"$(uname)"} == *linux* ]]
 }
 
-__glob2regexp() {
+__zplug::core::core::glob2regexp() {
     local -i i=0
     local    glob="${1:?}" char
 
@@ -195,7 +201,7 @@ __glob2regexp() {
     printf "$\n"
 }
 
-__remove_deadlinks() {
+__zplug::core::core::remove_deadlinks() {
     local link
 
     for link in "$@"
@@ -206,7 +212,7 @@ __remove_deadlinks() {
     done
 }
 
-__packaging() {
+__zplug::core::core::packaging() {
     local k
 
     for k in "${(k)zplugs[@]}"

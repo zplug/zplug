@@ -30,16 +30,16 @@ do
             shift; is_debug=true
             ;;
         -*|--*)
-            __die "$arg: Unknown option\n"
+            __zplug::print::print::die "$arg: Unknown option\n"
             return 1
             ;;
     esac
 done
 
 # Use cache file
-if __load_cache; then
+if __zplug::zplug::cache::load; then
     if $is_debug; then
-        __put "$_ZPLUG_CACHE_FILE\n"
+        __zplug::print::print::put "$_ZPLUG_CACHE_FILE\n"
     fi
     return 0
 fi
@@ -84,7 +84,7 @@ do
         # IF tag
         if [[ -n $zspec[if] ]]; then
             if ! eval "$zspec[if]" &>/dev/null; then
-                $is_verbose && __die "$zspec[name]: (not loaded)\n"
+                $is_verbose && __zplug::print::print::die "$zspec[name]: (not loaded)\n"
                 continue
             fi
         fi
@@ -92,7 +92,7 @@ do
         # ON tag
         if [[ -n $zspec[on] ]]; then
             if [[ ! -d $ZPLUG_HOME/repos/${~zspec[on]} ]]; then
-                $is_verbose && __die "$zspec[name]: (not loaded)\n"
+                $is_verbose && __zplug::print::print::die "$zspec[name]: (not loaded)\n"
                 continue
             fi
         fi
@@ -104,7 +104,7 @@ do
             __zplug::print::print::die "[zplug] $fg[red]ERROR$reset_color: no such directory '$zspec[dir]' ($zspec[name])\n"
         git checkout -q "$zspec[at]" &>/dev/null
         if (( $status != 0 )); then
-            __die "[zplug] $fg[red]ERROR$reset_color: pathspec '$zspec[at]' (at tag) did not match ($zspec[name])\n"
+            __zplug::print::print::die "[zplug] $fg[red]ERROR$reset_color: pathspec '$zspec[at]' (at tag) did not match ($zspec[name])\n"
         fi
     )
 
@@ -257,7 +257,7 @@ do
             ;;
 
         *)
-            __die "$zspec[as]: as tag must be command or plugin\n"
+            __zplug::print::print::die "$zspec[as]: as tag must be command or plugin\n"
             return 1
             ;;
     esac
@@ -311,10 +311,10 @@ done
             else
                 source "$f"
                 if (( $status == 0 )) && $is_verbose; then
-                    __put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}\n"
+                    __zplug::print::print::put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}\n"
                 fi
                 if (( $themes_ext[(I)${f:e}] )); then
-                    __omz_themes
+                    __zplug::support::omz::theme
                 fi
             fi
         fi
@@ -339,8 +339,8 @@ done
             else
                 source "$f"
                 if (( $status == 0 )) && $is_verbose; then
-                    __put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}"
-                    __put "$fg[yellow] after compinit$reset_color\n"
+                    __zplug::print::print::put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}"
+                    __zplug::print::print::put "$fg[yellow] after compinit$reset_color\n"
                 fi
             fi
         fi
@@ -357,4 +357,4 @@ done
 unset f
 
 # Cache
-__update_cache
+__zplug::zplug::cache::update

@@ -2,6 +2,7 @@
 
 __import "core/core"
 __import "print/print"
+__import "zplug/external"
 
 local    name
 local    tag key val
@@ -16,24 +17,24 @@ tags[1]=()
 
 # DEPRECATED: pipe
 if [[ -p /dev/stdin ]]; then
-    __die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: pipe syntax is deprecated!\n"
-    __die "[zplug] Please use '$fg[blue]on$reset_color' tag instead.\n"
+    __zplug::print::print::die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: pipe syntax is deprecated!\n"
+    __zplug::print::print::die "[zplug] Please use '$fg[blue]on$reset_color' tag instead.\n"
     return 1
 fi
 
-if __is_cli; then
-    if __zpluged "$name"; then
-        __die "[zplug] $name: already managed\n"
+if __zplug::core::core::is_cli; then
+    if __zplug::core::core::zpluged "$name"; then
+        __zplug::print::print::die "[zplug] $name: already managed\n"
         return 1
     else
         # Add to the external file
-        __external__ "zplug ${(qqq)name}${tags[@]:+", ${(j:, :)${(q)tags[@]}}"}"
-        return $status
+        __zplug::zplug::external::generate \
+            "zplug ${(qqq)name}${tags[@]:+", ${(j:, :)${(q)tags[@]}}"}"
     fi
 fi
 
 # Process the duplication of key
-if __zpluged; then
+if __zplug::core::core::zpluged; then
     for key in "${(k)zplugs[@]}"
     do
         if [[ $key =~ ^$name@*$ ]] && (( $max < $#key )); then
@@ -53,18 +54,18 @@ do
         case "$key" in
             "of")
                 key="use"
-                __die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]of$reset_color' tag is deprecated. "
-                __die "Please use '$fg[blue]use$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
+                __zplug::print::print::die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]of$reset_color' tag is deprecated. "
+                __zplug::print::print::die "Please use '$fg[blue]use$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
                 ;;
             "file")
                 key="rename_to"
-                __die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]file$reset_color' tag is deprecated. "
-                __die "Please use '$fg[blue]rename_to$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
+                __zplug::print::print::die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]file$reset_color' tag is deprecated. "
+                __zplug::print::print::die "Please use '$fg[blue]rename_to$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
                 ;;
             "commit")
                 key="at"
-                __die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]commit$reset_color' tag is deprecated. "
-                __die "Please use '$fg[blue]at$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
+                __zplug::print::print::die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]commit$reset_color' tag is deprecated. "
+                __zplug::print::print::die "Please use '$fg[blue]at$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
                 ;;
             "from")
                 case $val in
@@ -85,7 +86,7 @@ do
         # Reconstruct
         re_tags+=("$key:$val")
     else
-        __die "[zplug] $tag: $key is invalid tag name\n"
+        __zplug::print::print::die "[zplug] $tag: $key is invalid tag name\n"
         return 1
     fi
 done

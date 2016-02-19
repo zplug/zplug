@@ -2,6 +2,6 @@
 
 __import "print/print"
 
-__die "$_ZPLUG_HELP\n"
+__zplug::print::print::die "$_ZPLUG_HELP\n"
 
 return 1

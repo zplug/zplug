@@ -21,7 +21,7 @@ case "$arg" in
         is_verbose=true; shift
         ;;
     -*|--*)
-        __die "[zplug] $arg: Unknown option\n"
+        __zplug::print::print::die "[zplug] $arg: Unknown option\n"
         return 1
         ;;
 esac
@@ -30,7 +30,7 @@ esac
 {
     [[ -d $ZPLUG_HOME/repos ]] || mkdir -p "$ZPLUG_HOME/repos"
     start=$SECONDS
-    filter="$(__get_filter "$ZPLUG_FILTER")"
+    filter="$(__zplug::core::core::get_filter "$ZPLUG_FILTER")"
     if $is_select; then
         args=(${(@f)"$(echo "${(F)@}" | eval "$filter")"})
     else
@@ -66,14 +66,14 @@ do
     if __is_handler_defined check "$line"; then
         if __use_handler check "$zspec[from]" "$line"; then
             if $is_verbose; then
-                __put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
+                __zplug::print::print::put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
             fi
             continue
         fi
     else
         if [[ -d $ZPLUG_HOME/repos/$line ]]; then
             if $is_verbose; then
-                __put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
+                __zplug::print::print::put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
             fi
             continue
         fi
@@ -98,18 +98,18 @@ do
         oh_my_line="$_ZPLUG_OHMYZSH"
     fi
 
-    __spin_lock
-    __spinner &
+    __zplug::job::spinner::lock
+    __zplug::job::spinner::spinner &
     # Run installation in subprocess
     {
-        trap '__spin_unlock; trap - SIGINT' SIGINT
+        trap '__zplug::job::spinner::unlock; trap - SIGINT' SIGINT
 
         # All variables are treated as local variable
         # because of background job (subprocess)
         local -i ret
         local -F SECONDS=0
 
-        __spinner_echo "%-20s %s\n" \
+        __zplug::job::spinner::echo "%-20s %s\n" \
             "Installing..." \
             "${oh_my_line:-$line}"
 
@@ -128,13 +128,13 @@ do
 
         case "$ret" in
             0)
-                __spinner_echo "$fg[green]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                __zplug::job::spinner::echo "$fg[green]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
                     "Installed!" \
                     "${oh_my_line:-$line}" \
                     $SECONDS
                 ;;
             1)
-                __spinner_echo "$fg[red]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                __zplug::job::spinner::echo "$fg[red]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
                     "Failed to install" \
                     "${oh_my_line:-$line}" \
                     $SECONDS
@@ -152,7 +152,7 @@ if (( $#queue > 0 )); then
 fi
 queue=()
 
-__spin_unlock
+__zplug::job::spinner::unlock
 for line in "${check[@]}"
 do
     [[ -d $line ]] || let fail++
@@ -160,17 +160,17 @@ done
 
 # Skip footer prints
 if (( $#check == 0 )); then
-    __die "[zplug] No package to install\n"
+    __zplug::print::print::die "[zplug] No package to install\n"
     return 1
 else
     if (( $fail == 0 )); then
-        __put "$fg_bold[default] ==> Installed all plugins to $ZPLUG_HOME/repos, successfully!$reset_color\n"
+        __zplug::print::print::put "$fg_bold[default] ==> Installed all plugins to $ZPLUG_HOME/repos, successfully!$reset_color\n"
     else
-        __die "$fg_bold[red] ==> Installed to $ZPLUG_HOME/repos but failed.$reset_color\n"
+        __zplug::print::print::die "$fg_bold[red] ==> Installed to $ZPLUG_HOME/repos but failed.$reset_color\n"
     fi
 
     finish=$SECONDS
-    __put "zplug: total wall-time %f sec.\n" $(($finish - $start))
+    __zplug::print::print::put "zplug: total wall-time %f sec.\n" $(($finish - $start))
 
     return $fail
 fi
