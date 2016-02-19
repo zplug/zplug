@@ -100,7 +100,9 @@ do
     }
 
     (
-        builtin cd -q "$zspec[dir]"
+        builtin cd -q "$zspec[dir]" &>/dev/null || \
+            builtin cd -q "$zspec[dir]:h" &>/dev/null || \
+            __zplug::print::print::die "[zplug] $fg[red]ERROR$reset_color: no such directory '$zspec[dir]' ($zspec[name])\n"
         git checkout -q "$zspec[at]" &>/dev/null
         if (( $status != 0 )); then
             __zplug::print::print::die "[zplug] $fg[red]ERROR$reset_color: pathspec '$zspec[at]' (at tag) did not match ($zspec[name])\n"
