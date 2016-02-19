@@ -76,6 +76,10 @@ do
                         is_local=true
                         ;;
                 esac
+
+                if __is_external "$val"; then
+                    source $ZPLUG_ROOT/src/ext/$val.zsh
+                fi
                 ;;
         esac
 
