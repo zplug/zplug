@@ -71,7 +71,7 @@ __zplug::oh-my-zsh::load_plugin() {
             #     "${load_plugins[@]}"
             # )
             if [[ $zspec[name] =~ ^lib ]]; then
-                __omz_themes
+                __zplug::support::omz::theme
             fi
         fi
     }
@@ -80,14 +80,14 @@ __zplug::oh-my-zsh::load_plugin() {
         plugins/*)
             # TODO: use tag
             load_patterns=(
-                ${(@f)"$(__omz_depends "$zspec[name]")"}
+                ${(@f)"$(__zplug::support::omz::depends "$zspec[name]")"}
                 "$zspec[dir]"/*.plugin.zsh(N-.)
             )
             ;;
         themes/*)
             # TODO: use tag
             load_patterns=(
-                ${(@f)"$(__omz_depends "$zspec[name]")"}
+                ${(@f)"$(__zplug::support::omz::depends "$zspec[name]")"}
                 "$zspec[dir]".${^themes_ext}(N-.)
             )
             ;;

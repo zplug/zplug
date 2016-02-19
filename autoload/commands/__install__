@@ -63,8 +63,8 @@ do
         continue
     fi
 
-    if __is_handler_defined check "$line"; then
-        if __use_handler check "$zspec[from]" "$line"; then
+    if __zplug::core::core::is_handler_defined check "$line"; then
+        if __zplug::core::core::use_handler check "$zspec[from]" "$line"; then
             if $is_verbose; then
                 __zplug::print::print::put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
             fi
@@ -113,8 +113,8 @@ do
             "Installing..." \
             "${oh_my_line:-$line}"
 
-        if __is_handler_defined install "$zspec[from]"; then
-            __use_handler install "$zspec[from]" "$line"
+        if __zplug::core::core::is_handler_defined install "$zspec[from]"; then
+            __zplug::core::core::use_handler install "$zspec[from]" "$line"
         else
             __clone__ \
                 --use    ${zspec[use]:-""} \

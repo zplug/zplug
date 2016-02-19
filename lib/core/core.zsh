@@ -11,7 +11,7 @@ __is_external() {
     [[ -f $ZPLUG_ROOT/src/ext/$source_name.zsh ]]
 }
 
-__is_handler_defined() {
+__zplug::core::core::is_handler_defined() {
     local subcommand
     local source_name
     local handler_name
@@ -225,7 +225,7 @@ __zplug::core::core::packaging() {
 }
 
 # Call the handler of the external source if defined
-__use_handler() {
+__zplug::core::core::use_handler() {
     local subcommand
     local source_name
     local handler_name
@@ -236,7 +236,7 @@ __use_handler() {
     handler_name="__zplug::$source_name::$subcommand"
     line="$3"
 
-    if ! __is_handler_defined "$subcommand" "$source_name"; then
+    if ! __zplug::core::core::is_handler_defined "$subcommand" "$source_name"; then
         # Callback function undefined
         return 1
     fi

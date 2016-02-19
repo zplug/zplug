@@ -34,8 +34,8 @@ do
         continue
     fi
 
-    if __is_handler_defined check "$zspec[from]"; then
-        __use_handler check "$zspec[from]" "$line"
+    if __zplug::core::core::is_handler_defined check "$zspec[from]"; then
+        __zplug::core::core::use_handler check "$zspec[from]" "$line"
 
         if (( $status )); then
             fail+=("$zspec[name]")
