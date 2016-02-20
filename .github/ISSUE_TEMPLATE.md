@@ -7,7 +7,7 @@ To make sure we can quickly assist you with any bugs, we have two requests:
 Remove as many lines in your **.zshrc** as possible, for example, if theres a problem with zsh-syntax-highlighting, try something like:
 
 ```zsh
-  # Example , minimal zshrc
+  # Example minimal zshrc
   source ~/.zplug/init.zsh
   zplug "jimmijj/zsh-syntax-highlighting"
   zplug load
