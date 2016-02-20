@@ -9,7 +9,7 @@ Remove as many lines in your **.zshrc** as possible, for example, if theres a pr
 ```zsh
   # Example minimal zshrc
   source ~/.zplug/init.zsh
-  zplug "jimmijj/zsh-syntax-highlighting"
+  zplug "zsh-users/zsh-syntax-highlighting"
   zplug load
 ```
 
