@@ -18,6 +18,8 @@ local -a load_plugins load_fpaths lazy_plugins
 local -a ignore_patterns load_patterns
 local -a themes_ext plugins_ext
 local -A reply_hash
+local -A hook_load
+local -a failed_packages hook_load_cmds
 
 while (( $# > 0 ))
 do
@@ -61,7 +63,7 @@ for key in \
     ${${(on)unsorted_nice:#-*}#*:}
 do
     zspec=( ${(@f)"$(__parser__ "$key")"} )
-    for k in ${(k)zspec}
+    for k in "${(k)zspec[@]}"
     do
         if [[ $zspec[$k] == "-EMP-" ]]; then
             zspec[$k]=""
@@ -284,6 +286,14 @@ do
             load_fpaths=( "${(R)load_fpaths[@]:#$ignore}" )
         done
     fi
+
+    # hook after load
+    if [[ -n $zspec[hook_load] ]]; then
+        hook_load+=(
+            "$zspec[name]"
+            "$zspec[hook_load]"
+        )
+    fi
 done
 
 # Commands
@@ -292,6 +302,9 @@ done
     do
         if [[ -f $f ]]; then
             ln -snf "$f" "$load_commands[$f]"
+            if (( $status != 0 )); then
+                failed_packages+=("$f")
+            fi
         fi
     done
     path=(
@@ -303,6 +316,7 @@ done
 
 # Plugins
 {
+    # Normal plugins
     for f in "${load_plugins[@]}"
     do
         if [[ -f $f ]]; then
@@ -310,12 +324,15 @@ done
                 echo "$f"
             else
                 source "$f"
-                if (( $status == 0 )) && $is_verbose; then
-                    __zplug::print::print::put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}\n"
+                if (( $status == 0 )); then
+                    $is_verbose && \
+                        __zplug::print::print::put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}\n"
+                else
+                    failed_packages+=("$f")
                 fi
-                if (( $themes_ext[(I)${f:e}] )); then
-                    __zplug::support::omz::theme
-                fi
+            fi
+            if (( $themes_ext[(I)${f:e}] )); then
+                __zplug::support::omz::theme
             fi
         fi
     done
@@ -331,6 +348,7 @@ done
         compinit -C -d "$ZPLUG_HOME/zcompdump"
     fi
 
+    # Nice plugins
     for f in "${nice_plugins[@]}"
     do
         if [[ -f $f ]]; then
@@ -338,23 +356,36 @@ done
                 echo "$f"
             else
                 source "$f"
-                if (( $status == 0 )) && $is_verbose; then
-                    __zplug::print::print::put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}"
-                    __zplug::print::print::put "$fg[yellow] after compinit$reset_color\n"
+                if (( $status == 0 )); then
+                    if $is_verbose; then
+                        __zplug::print::print::put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}"
+                        __zplug::print::print::put "$fg[yellow] after compinit$reset_color\n"
+                    fi
+                else
+                    failed_packages+=("$f")
                 fi
             fi
         fi
     done
-}
 
-# Plugins (Lazy)
-{
+    # Lazy plugins
     for f in "${lazy_plugins[@]}"
     do
         autoload -Uz "${f:t}"
     done
+    unset f
 }
-unset f
+
+
+# Hooks after load
+for k in "${(k)hook_load[@]}"
+do
+    # execute the hook_load command if the package successfully loads
+    if (( ! $failed_packages[(I)$k] )); then
+        eval "$hook_load[$k]"
+        hook_load_cmds+=("$hook_load[$k]")
+    fi
+done
 
 # Cache
 __zplug::zplug::cache::update

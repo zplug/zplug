@@ -5,7 +5,25 @@ __import "print/print"
 local    arg key
 local -a parsed_zplugs
 local -A zplugs_tags
-local    name as use from if dir rename_to at do frozen on nice ignore lazy depth
+
+# tag name
+local \
+    name \
+    as \
+    use \
+    from \
+    if \
+    dir \
+    rename_to \
+    at \
+    do \
+    frozen \
+    on \
+    nice \
+    ignore \
+    lazy \
+    depth \
+    hook_load
 
 if [[ -z $1 ]]; then
     __zplug::print::print::die "[zplug] $funcstack[1]: too few arguments\n"
@@ -30,6 +48,7 @@ nice=${${${(M)parsed_zplugs:#nice:*}#*:}:-0}
 ignore=${${${(M)parsed_zplugs:#ignore:*}#*:}:--EMP-}
 lazy=${${${(M)parsed_zplugs:#lazy:*}#*:}:-0}
 depth=${${${(M)parsed_zplugs:#depth:*}#*:}:-0}
+hook_load=${${${(M)parsed_zplugs:#hook-load*}#*:}:--EMP-}
 
 if [[ $name == $_ZPLUG_OHMYZSH ]] && [[ $nice -eq 0 ]]; then
     nice=-10
@@ -51,12 +70,13 @@ nice      "$nice"
 ignore    "$ignore"
 lazy      "$lazy"
 depth     "$depth"
+hook_load "$hook_load"
 )
 
 # Output zplugs_tags
 # Separated by newline
 # because it is used by parameter expansion flags (@f)
-for key in ${(k)zplugs_tags}
+for key in "${(k)zplugs_tags[@]}"
 do
     __zplug::print::print::put "${key}\n${zplugs_tags[$key]}\n"
 done

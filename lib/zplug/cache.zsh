@@ -38,6 +38,7 @@ __zplug::zplug::cache::load() {
                 ;;
             1)
                 # differ
+                return $status
                 ;;
             2)
                 # error
@@ -91,6 +92,7 @@ __zplug::zplug::cache::update() {
             __zplug::print::print::put '\n# Lazy loading plugins\n'
             __zplug::print::print::put 'autoload -Uz %s\n' "${(qqq)lazy_plugins[@]:t}"
         fi
+        __zplug::print::print::put '\n# Hooks after load\n%s\n' "${hook_load_cmds[@]}"
         __zplug::print::print::put '\nreturn 0\n'
         __zplug::print::print::put '%s\n' "$(__zplug::zplug::cache::tags)"
     } >|"$_ZPLUG_CACHE_FILE"
