@@ -77,7 +77,7 @@ do
                         ;;
                 esac
 
-                if __is_external "$val"; then
+                if __zplug::core::core::is_external "$val"; then
                     source $ZPLUG_ROOT/src/ext/$val.zsh
                 fi
                 ;;

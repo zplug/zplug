@@ -114,12 +114,12 @@ __zplug::oh-my-zsh::load_plugin() {
     unfunction load_omz
 
     reply=()
-    [[ $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
-    [[ $load_patterns ]] && reply+=( load_patterns "${(F)load_patterns}" )
-    [[ $load_plugins ]] && reply+=( load_plugins "${(F)load_plugins}" )
-    [[ $nice_plugins ]] && reply+=( nice_plugins "${(F)nice_plugins}" )
-    [[ $themes_ext ]] && reply+=( themes_ext "${(F)themes_ext}" )
-    [[ $plugins_ext ]] && reply+=( plugins_ext "${(F)plugins_ext}" )
+    [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
+    [[ -n $load_patterns ]] && reply+=( load_patterns "${(F)load_patterns}" )
+    [[ -n $load_plugins ]] && reply+=( load_plugins "${(F)load_plugins}" )
+    [[ -n $nice_plugins ]] && reply+=( nice_plugins "${(F)nice_plugins}" )
+    [[ -n $themes_ext ]] && reply+=( themes_ext "${(F)themes_ext}" )
+    [[ -n $plugins_ext ]] && reply+=( plugins_ext "${(F)plugins_ext}" )
 
     return 0
 }

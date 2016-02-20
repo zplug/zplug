@@ -29,7 +29,7 @@ esac
 {
     filter="$(__zplug::core::core::get_filter "$ZPLUG_FILTER")"
     if $is_select; then
-        args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
+        args=(${(@f)"$(echo "${(Fk)zplugs[@]}" | eval "$filter")"})
     else
         args=(${(u)${@:gs:@::}})
     fi

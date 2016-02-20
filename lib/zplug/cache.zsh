@@ -23,7 +23,8 @@ __zplug::zplug::cache::load() {
             "$_ZPLUG_CACHE_FILE" \
             ) \
             <( \
-            for key in ${(k)zplugs}; do \
+            for key in "${(k)zplugs[@]}"
+            do \
                 echo "name:$key, $zplugs[$key]"; \
             done \
             | awk -f "$ZPLUG_ROOT/src/share/cache.awk"

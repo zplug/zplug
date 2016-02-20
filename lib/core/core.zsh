@@ -4,10 +4,10 @@ __zplug::core::core::is_cli() {
     [[ $- =~ s ]]
 }
 
-__is_external() {
+__zplug::core::core::is_external() {
     local source_name
 
-    source_name="$1"
+    source_name="${1:?}"
     [[ -f $ZPLUG_ROOT/src/ext/$source_name.zsh ]]
 }
 
@@ -16,11 +16,11 @@ __zplug::core::core::is_handler_defined() {
     local source_name
     local handler_name
 
-    subcommand="$1"
-    source_name="$2"
+    subcommand="${1:?}"
+    source_name="${2:?}"
     handler_name="__zplug::$source_name::$subcommand"
 
-    if ! __is_external "$source_name"; then
+    if ! __zplug::core::core::is_external "$source_name"; then
         return 1
     fi
 
@@ -231,10 +231,10 @@ __zplug::core::core::use_handler() {
     local handler_name
     local line
 
-    subcommand="$1"
-    source_name="$2"
+    subcommand="${1:?}"
+    source_name="${2:?}"
     handler_name="__zplug::$source_name::$subcommand"
-    line="$3"
+    line="${3:?}"
 
     if ! __zplug::core::core::is_handler_defined "$subcommand" "$source_name"; then
         # Callback function undefined

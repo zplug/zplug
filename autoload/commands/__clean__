@@ -31,7 +31,7 @@ done
 
 filter="$(__zplug::core::core::get_filter "$ZPLUG_FILTER")"
 if $is_select; then
-    args=(${(@f)"$(echo "${(Fk)zplugs}" | eval "$filter")"})
+    args=(${(@f)"$(echo "${(Fk)zplugs[@]}" | eval "$filter")"})
     if (( $#args == 0 )); then
         return 0
     fi
@@ -77,7 +77,7 @@ do
 done
 
 # Remove packages from $zplugs
-for repo in ${(k)zplugs}
+for repo in "${(k)zplugs[@]}"
 do
     zspec=( ${(@f)"$(__parser__ "$repo")"} )
     if [[ ! -d $zspec[dir] ]]; then

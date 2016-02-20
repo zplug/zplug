@@ -39,16 +39,14 @@ case $state in
             check)
                 _arguments \
                     '(--verbose)--verbose[show non-installed items in output]' \
-                    '*:: :( ${(k)zplugs} )'
-                    # '*:: :_files -W $ZPLUG_HOME/repos'
+                    '*:: :( "${(k)zplugs[@]}" )'
                 ret=0
                 ;;
             update)
                 _arguments \
                     '(- 1 *)--self[update zplug by itself]' \
                     '(--select)--select[select items with interactive filters]' \
-                    '*:: :( ${(k)zplugs} )'
-                    # '*:: :_files -W $ZPLUG_HOME/repos'
+                    '*:: :( "${(k)zplugs[@]}" )'
                 ret=0
                 ;;
             install)
@@ -66,16 +64,14 @@ case $state in
             status|list)
                 _arguments \
                     '(--select)--select[select items with interactive filters]' \
-                    '*:: :( ${(k)zplugs} )'
-                    # '*:: :_files -W $ZPLUG_HOME/repos'
+                    '*:: :( "${(k)zplugs[@]}" )'
                 ret=0
                 ;;
             clean)
                 _arguments \
                     '(--force --select)--force[force the removing activity]' \
                     '(--select --force)--select[select items with interactive filters]' \
-                    '*:: :( ${(k)zplugs} )'
-                    # '*:: :_files -W $ZPLUG_HOME/repos'
+                    '*:: :( "${(k)zplugs[@]}" )'
                 ret=0
                 ;;
             clear)
@@ -90,22 +86,24 @@ case $state in
             */*)
                 _values -S : -s , "zplug tags" \
                     "as[Specify whether to register as commands or to register as plugins]:as:(plugin command)" \
-                    "of[Specify the pattern to source (for plugin) or relative path to export (for command)]:of:->of" \
+                    "use[Specify the pattern to source (for plugin) or relative path to export (for command)]:use:->use" \
                     "from[Specify the services you use to install]:from:(gh-r gist oh-my-zsh github bitbucket local)" \
                     "at[Support branch/tag installation]:at:" \
-                    "file[Specify filename you want to rename]:file:" \
+                    "rename_to[Specify filename you want to rename]:rename_to:" \
                     "dir[Installation directory (RO)]:dir:->dir" \
                     "if[Specify the conditions under which to source or add to \$PATH]:if:" \
                     "do[Run commands after installation/update]:do:" \
                     "frozen[Do not update unless explicitly specified]:frozen:(0 1)" \
-                    "commit[Support commit installation]:commit:" \
                     "on[Dependencies (RO)]:on:->on" \
-                    "nice[Priority of loading the plugins]:nice:->nice" && ret=0
+                    "nice[Priority of loading the plugins]:nice:->nice" \
+                    "ignore[Specify exception pattern so as not to load the files]:ignore:" \
+                    "lazy[Lazy loading]:lazy:(0 1)" \
+                    "depth[Clone depth]:depth:({0..10})" && ret=0
                 case $state in
                     on|dir)
                         compadd -x "%F{green}READ ONLY%f %Bno arguments%b"
                         ;;
-                    of)
+                    use)
                         compadd -J 'command/plugin' -x "%F{yellow}Completing%f %BExample patterns%b" \
                             '*.zsh' \
                             '*.sh' \
