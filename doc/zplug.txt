@@ -142,7 +142,7 @@ load the files you want to ignore (see also https://github.com/b4b4r07/zplug/iss
 You can register plugins or commands to zplug on the command-line.
 If you use zplug on the command-line, it is possible to write more easily
 its settings by grace of the command-line completion.
-In this case, zplug spit out its settings to `$ZPLUG_EXTERNAL` instead of `.zshrc`.
+In this case, zplug spit out its settings to `$ZPLUG_LOADFILE` instead of `.zshrc`.
 If you launch new zsh process, zplug load command automatically search this file and run source command.
 
 
@@ -194,7 +194,7 @@ the `$PATH`, you can run that command from any directories.
     in the `$PATH` will be used by zplug as the interactive filter.
     The `ZPLUG_FILTER` also accepts the following values: `fzf-tmux -d "10%":/path/to/peco:my peco`.
 
-'ZPLUG_EXTERNAL'::
+'ZPLUG_LOADFILE'::
     Defaults to `$ZPLUG_HOME/init.zsh`.
     This file is used to add plugins from zplug on the command-line.
 

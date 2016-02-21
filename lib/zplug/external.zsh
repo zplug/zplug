@@ -3,14 +3,14 @@
 __import "print/print"
 
 __zplug::zplug::external::load() {
-    if [[ -f $ZPLUG_EXTERNAL ]]; then
-        source "$ZPLUG_EXTERNAL"
+    if [[ -f $ZPLUG_LOADFILE ]]; then
+        source "$ZPLUG_LOADFILE"
     fi
 }
 
 __zplug::zplug::external::generate() {
-    if [[ ! -f $ZPLUG_EXTERNAL ]]; then
-        cat <<-TEMPLATE >$ZPLUG_EXTERNAL
+    if [[ ! -f $ZPLUG_LOADFILE ]]; then
+        cat <<-TEMPLATE >$ZPLUG_LOADFILE
 	#!/bin/zsh
 	# -*- mode: zsh -*-
 	# vim:ft=zsh
@@ -21,7 +21,7 @@ __zplug::zplug::external::generate() {
 	# it is possible to write more easily its settings
 	# by grace of the command-line completion.
 	# In this case, zplug spit out its settings to
-	# $ZPLUG_EXTERNAL instead of .zshrc.
+	# $ZPLUG_LOADFILE instead of .zshrc.
 	# If you launch new zsh process, zplug load command
 	# automatically search this file and run source command.
 	#
@@ -34,6 +34,6 @@ TEMPLATE
     fi
 
     if [[ -n $1 ]]; then
-        __zplug::print::print::put "$@\n" >>|$ZPLUG_EXTERNAL
+        __zplug::print::print::put "$@\n" >>|$ZPLUG_LOADFILE
     fi
 }

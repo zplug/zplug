@@ -508,7 +508,7 @@ T}
 .TE
 .sp 1
 .sp
-You can register plugins or commands to zplug on the command\-line\&. If you use zplug on the command\-line, it is possible to write more easily its settings by grace of the command\-line completion\&. In this case, zplug spit out its settings to $ZPLUG_EXTERNAL instead of \&.zshrc\&. If you launch new zsh process, zplug load command automatically search this file and run source command\&.
+You can register plugins or commands to zplug on the command\-line\&. If you use zplug on the command\-line, it is possible to write more easily its settings by grace of the command\-line completion\&. In this case, zplug spit out its settings to $ZPLUG_LOADFILE instead of \&.zshrc\&. If you launch new zsh process, zplug load command automatically search this file and run source command\&.
 .SH "ENVIRONMENT VARIABLES"
 .sp
 Various zplug commands use the following environment variables:
@@ -576,7 +576,7 @@ also accepts the following values:
 fzf\-tmux \-d "10%":/path/to/peco:my peco\&.
 .RE
 .PP
-\fIZPLUG_EXTERNAL\fR
+\fIZPLUG_LOADFILE\fR
 .RS 4
 Defaults to
 $ZPLUG_HOME/init\&.zsh\&. This file is used to add plugins from zplug on the command\-line\&.
