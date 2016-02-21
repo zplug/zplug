@@ -38,7 +38,6 @@ __zplug::zplug::cache::load() {
                 ;;
             1)
                 # differ
-                return $status
                 ;;
             2)
                 # error
