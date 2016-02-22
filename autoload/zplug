@@ -3,36 +3,28 @@
 source "$ZPLUG_ROOT/autoload/init.zsh"
 source "$ZPLUG_ROOT/autoload/autoload.zsh"
 
-__import "print/print"
+local arg="$1"
 
-local arg
-
-arg="$1"
 case "$arg" in
-    --help | --version)
-        __"${arg##--}"__
+    -* | --* )
+        __options__ "$@"
         return $status
         ;;
 
     check | install | status | update)
         shift
-        __"${arg}"__ "${@:-${(k)zplugs[@]}}"
+        __${arg}__ "${@:-${(k)zplugs[@]}}"
         return $status
         ;;
 
     clean | clear | list | load)
         shift
-        __"${arg}"__ "$@"
+        __${arg}__ "$@"
         return $status
         ;;
 
     "")
         # TODO
-        ;;
-
-    -* | --* )
-        __zplug::print::print::die \
-            "[zplug] $arg: unknown option\n"
         ;;
 
     */*)
