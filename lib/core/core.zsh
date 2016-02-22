@@ -62,6 +62,7 @@ __zplug::core::core::get_autoload_dirs() {
     else
         reply=(
         "$ZPLUG_ROOT/autoload/commands"
+        "$ZPLUG_ROOT/autoload/options"
         "$ZPLUG_ROOT/autoload/utils"
         )
     fi

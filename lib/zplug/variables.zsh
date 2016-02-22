@@ -19,8 +19,6 @@ typeset -gx -r _ZPLUG_HELP="usage: zplug [COMMANDS] [OPTIONS]
   zplug is a next-generation plugin manager for zsh 
 
 COMMANDS:
-  help      Show this help message and usage
-  version   Show version information
   install   Install described items in parallel
   update    Update items in parallel
   load      Source plugins to current shell and add \$ZPLUG_HOME/bin to \$PATH

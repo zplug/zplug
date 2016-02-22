@@ -34,13 +34,11 @@ check    --> Check whether an update or installation is available
 clean    --> Remove deprecated repositories
 clear    --> Remove cache file
 foo      --> [User-definded] my new zplug command
-help     --> Show help message and usage
 install  --> Install described items (plugins/commands) in parallel
 list     --> Show all of the zplugs in the current shell
 load     --> Load installed items
 status   --> Check if remote branch is up-to-date
 update   --> Update items in parallel
-version  --> Show version information
 ```
 
 ## Sample script

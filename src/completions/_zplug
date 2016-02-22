@@ -1,132 +1,124 @@
 #compdef zplug
 
-local    curcontext="$curcontext" state line
+local    curcontext="$curcontext" state
 local    p desc
 local -i ret=1
 local -a zplug_cmds
 
-_arguments -C \
-    '1: :->cmds' \
-    '*:: :->args' && ret=0
-
 zplug_cmds=(
-"install[Install described items (plugins/commands) in parallel]"
-"load[Load installed items]"
-"update[Update items in parallel]"
-"check[Check whether an update or installation is available]"
-"list[Show all of the zplugs in the current shell]"
-"clean[Remove deprecated repositories]"
-"clear[Remove cache file]"
-"status[Check if remote branch is up-to-date]"
-"version[Show version information]"
-"help[Show help message and usage]"
+'check:check whether an update or install is available'
+'clean:remove a package'
+'clear:remove cache file'
+'install:install a package in parallel'
+'list:list files in a formula or not-installed formulae'
+'load:load an installed package'
+'status:check if remote branch is up-to-date'
+'update:freshen up a installed package in parallel'
 )
 
 for p in ${^path}/zplug-*(N-.)
 do
     desc="$(sed -n '2p' "$p" | sed -E 's/^.*desc(ription)?: ?//')"
     desc="${desc:+"\[User-definded\] $desc"}"
-    zplug_cmds+=("${p:t:gs:zplug-:}[${desc:-"User-definded command"}]")
+    zplug_cmds+=("${p:t:gs:zplug-:}:${desc:-"User-definded command"}")
 done
 
-case $state in
-    cmds)
-        _values "zplug commands" $zplug_cmds
+_arguments \
+    '(--help)--help[show help message]' \
+    '(--version)--version[version information]' \
+    '*:: :->subcmds' && return 0
+
+if (( CURRENT == 1 )); then
+    _describe -t commands "zplug subcommand" zplug_cmds
+    return 0
+fi
+
+case "$words[1]" in
+    check)
+        _arguments \
+            '(--verbose)--verbose[show non-installed items in output]' \
+            '*:: :( "${(k)zplugs[@]}" )'
         ret=0
         ;;
-    args)
-        case $line[1] in
-            check)
-                _arguments \
-                    '(--verbose)--verbose[show non-installed items in output]' \
-                    '*:: :( "${(k)zplugs[@]}" )'
-                ret=0
+    update)
+        _arguments \
+            '(- 1 *)--self[update zplug by itself]' \
+            '(--select)--select[select items with interactive filters]' \
+            '*:: :( "${(k)zplugs[@]}" )'
+        ret=0
+        ;;
+    install)
+        _arguments \
+            '(--verbose)--verbose[show non-installed items in output]' \
+            '(--select)--select[select items with interactive filters]' \
+            '*:: :compadd -x "%F{green}Accept%f %Busername/reponame%b arguments"'
+        ret=0
+        ;;
+    load)
+        _arguments \
+            '(--verbose)--verbose[display loading files]'
+        ret=0
+        ;;
+    status|list)
+        _arguments \
+            '(--select)--select[select items with interactive filters]' \
+            '*:: :( "${(k)zplugs[@]}" )'
+        ret=0
+        ;;
+    clean)
+        _arguments \
+            '(--force --select)--force[force the removing activity]' \
+            '(--select --force)--select[select items with interactive filters]' \
+            '*:: :( "${(k)zplugs[@]}" )'
+        ret=0
+        ;;
+    clear)
+        _arguments \
+            '(--force)--force[force the removing activity]'
+        ret=0
+        ;;
+    */*)
+        _values -S : -s , "zplug tags" \
+            "as[Specify whether to register as commands or to register as plugins]:as:(plugin command)" \
+            "use[Specify the pattern to source (for plugin) or relative path to export (for command)]:use:->use" \
+            "from[Specify the services you use to install]:from:(gh-r gist oh-my-zsh github bitbucket local)" \
+            "at[Support branch/tag installation]:at:" \
+            "rename_to[Specify filename you want to rename]:rename_to:" \
+            "dir[Installation directory (RO)]:dir:->dir" \
+            "if[Specify the conditions under which to source or add to \$PATH]:if:" \
+            "do[Run commands after installation/update]:do:" \
+            "frozen[Do not update unless explicitly specified]:frozen:(0 1)" \
+            "on[Dependencies (RO)]:on:->on" \
+            "nice[Priority of loading the plugins]:nice:->nice" \
+            "ignore[Specify exception pattern so as not to load the files]:ignore:" \
+            "lazy[Lazy loading]:lazy:(0 1)" \
+            "depth[Clone depth]:depth:({0..10})" && ret=0
+        case $state in
+            on|dir)
+                compadd -x "%F{green}READ ONLY%f %Bno arguments%b"
                 ;;
-            update)
-                _arguments \
-                    '(- 1 *)--self[update zplug by itself]' \
-                    '(--select)--select[select items with interactive filters]' \
-                    '*:: :( "${(k)zplugs[@]}" )'
-                ret=0
+            use)
+                compadd -J 'command/plugin' -x "%F{yellow}Completing%f %BExample patterns%b" \
+                    '*.zsh' \
+                    '*.sh' \
+                    'zsh/*.zsh' \
+                    '*.plugin.zsh' \
+                    'init.zsh'
+                compadd -J 'gh-r' -x "%F{yellow}Completing%f %BGitHub Releases (example)%b" \
+                    'amd64' \
+                    'darwin*amd64' \
+                    'linux*amd64' \
+                    '386' \
+                    'darwin*386' \
+                    'linux*386' \
+                    'darwin' \
+                    'linux'
                 ;;
-            install)
-                _arguments \
-                    '(--verbose)--verbose[show non-installed items in output]' \
-                    '(--select)--select[select items with interactive filters]' \
-                    '*:: :compadd -x "%F{green}Accept%f %Busername/reponame%b arguments"'
-                ret=0
-                ;;
-            load)
-                _arguments \
-                    '(--verbose)--verbose[display loading files]'
-                ret=0
-                ;;
-            status|list)
-                _arguments \
-                    '(--select)--select[select items with interactive filters]' \
-                    '*:: :( "${(k)zplugs[@]}" )'
-                ret=0
-                ;;
-            clean)
-                _arguments \
-                    '(--force --select)--force[force the removing activity]' \
-                    '(--select --force)--select[select items with interactive filters]' \
-                    '*:: :( "${(k)zplugs[@]}" )'
-                ret=0
-                ;;
-            clear)
-                _arguments \
-                    '(--force)--force[force the removing activity]'
-                ret=0
-                ;;
-            version|help)
-                compadd -x "%F{yellow}Completing%f %Bno arguments%b"
-                ret=0
-                ;;
-            */*)
-                _values -S : -s , "zplug tags" \
-                    "as[Specify whether to register as commands or to register as plugins]:as:(plugin command)" \
-                    "use[Specify the pattern to source (for plugin) or relative path to export (for command)]:use:->use" \
-                    "from[Specify the services you use to install]:from:(gh-r gist oh-my-zsh github bitbucket local)" \
-                    "at[Support branch/tag installation]:at:" \
-                    "rename_to[Specify filename you want to rename]:rename_to:" \
-                    "dir[Installation directory (RO)]:dir:->dir" \
-                    "if[Specify the conditions under which to source or add to \$PATH]:if:" \
-                    "do[Run commands after installation/update]:do:" \
-                    "frozen[Do not update unless explicitly specified]:frozen:(0 1)" \
-                    "on[Dependencies (RO)]:on:->on" \
-                    "nice[Priority of loading the plugins]:nice:->nice" \
-                    "ignore[Specify exception pattern so as not to load the files]:ignore:" \
-                    "lazy[Lazy loading]:lazy:(0 1)" \
-                    "depth[Clone depth]:depth:({0..10})" && ret=0
-                case $state in
-                    on|dir)
-                        compadd -x "%F{green}READ ONLY%f %Bno arguments%b"
-                        ;;
-                    use)
-                        compadd -J 'command/plugin' -x "%F{yellow}Completing%f %BExample patterns%b" \
-                            '*.zsh' \
-                            '*.sh' \
-                            'zsh/*.zsh' \
-                            '*.plugin.zsh' \
-                            'init.zsh'
-                        compadd -J 'gh-r' -x "%F{yellow}Completing%f %BGitHub Releases (example)%b" \
-                            'amd64' \
-                            'darwin*amd64' \
-                            'linux*amd64' \
-                            '386' \
-                            'darwin*386' \
-                            'linux*386' \
-                            'darwin' \
-                            'linux'
-                        ;;
-                    nice)
-                        compadd -V 'default' -x "%F{yellow}Completing%f %Bpriority (default)%b" 0
-                        compadd -V 'high' -x "%F{yellow}Completing%f %Bpriority (high)%b" -- {-1..-20}
-                        compadd -V 'low' -x "%F{yellow}Completing%f %Bpriority (low)%b" {1..9}
-                        compadd -V 'lowest' -x "%F{yellow}Completing%f %Bpriority (low) after compinit%b" {10..19}
-                        ;;
-                esac
+            nice)
+                compadd -V 'default' -x "%F{yellow}Completing%f %Bpriority (default)%b" 0
+                compadd -V 'high' -x "%F{yellow}Completing%f %Bpriority (high)%b" -- {-1..-20}
+                compadd -V 'low' -x "%F{yellow}Completing%f %Bpriority (low)%b" {1..9}
+                compadd -V 'lowest' -x "%F{yellow}Completing%f %Bpriority (low) after compinit%b" {10..19}
                 ;;
         esac
         ;;
