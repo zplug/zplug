@@ -16,14 +16,14 @@ local \
     dir \
     rename_to \
     at \
-    do \
     frozen \
     on \
     nice \
     ignore \
     lazy \
     depth \
-    hook_load
+    hook_load \
+    hook_build
 
 if [[ -z $1 ]]; then
     __zplug::print::print::die "[zplug] $funcstack[1]: too few arguments\n"
@@ -41,7 +41,6 @@ if=${${${(M)parsed_zplugs:#if:*}#*:}:--EMP-}
 dir=${${${(M)parsed_zplugs:#dir:*}#*:}:--EMP-}
 rename_to=${${${(M)parsed_zplugs:#rename_to:*}#*:}:--EMP-}
 at=${${${(M)parsed_zplugs:#at:*}#*:}:-master}
-do=${${${(M)parsed_zplugs:#do:*}#*:}:--EMP-}
 frozen=${${${(M)parsed_zplugs:#frozen:*}#*:}:-0}
 on=${${${(M)parsed_zplugs:#on:*}#*:}:--EMP-}
 nice=${${${(M)parsed_zplugs:#nice:*}#*:}:-0}
@@ -49,28 +48,29 @@ ignore=${${${(M)parsed_zplugs:#ignore:*}#*:}:--EMP-}
 lazy=${${${(M)parsed_zplugs:#lazy:*}#*:}:-0}
 depth=${${${(M)parsed_zplugs:#depth:*}#*:}:-0}
 hook_load=${${${(M)parsed_zplugs:#hook-load*}#*:}:--EMP-}
+hook_build=${${${(M)parsed_zplugs:#hook-build*}#*:}:--EMP-}
 
 if [[ $name == $_ZPLUG_OHMYZSH ]] && [[ $nice -eq 0 ]]; then
     nice=-10
 fi
 
 zplugs_tags=(
-name      "$name"
-as        "$as"
-use       "$use"
-from      "$from"
-if        "$if"
-dir       "$dir"
-rename_to "$rename_to"
-at        "$at"
-do        "$do"
-frozen    "$frozen"
-on        "$on"
-nice      "$nice"
-ignore    "$ignore"
-lazy      "$lazy"
-depth     "$depth"
-hook_load "$hook_load"
+name       "$name"
+as         "$as"
+use        "$use"
+from       "$from"
+if         "$if"
+dir        "$dir"
+rename_to  "$rename_to"
+at         "$at"
+frozen     "$frozen"
+on         "$on"
+nice       "$nice"
+ignore     "$ignore"
+lazy       "$lazy"
+depth      "$depth"
+hook_load  "$hook_load"
+hook_build "$hook_build"
 )
 
 # Output zplugs_tags

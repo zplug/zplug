@@ -120,7 +120,6 @@ do
                 --use    ${zspec[use]:-""} \
                 --from   ${zspec[from]:-""} \
                 --at     ${zspec[at]:-""} \
-                --do     ${zspec[do]:-""} \
                 --depth  ${zspec[depth]:-""} \
                 "$line"
         fi
@@ -132,6 +131,11 @@ do
                     "Installed!" \
                     "${oh_my_line:-$line}" \
                     $SECONDS
+
+                # hook after installing
+                if [[ -n $zspec[hook_build] ]]; then
+                    eval "$zspec[hook_build]"
+                fi
                 ;;
             1)
                 __zplug::job::spinner::echo "$fg[red]%-20s$reset_color %-${max}s\t(%.2fs)\n" \

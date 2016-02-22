@@ -8,7 +8,7 @@ local    update=false
 local -i ret=0
 local -a candidates_list binaries
 local    repository
-local    tag_do tag_at tag_use
+local    tag_at tag_use
 local    bit one_uri artifact
 local    curl url_format
 local    curl2 url_format2
@@ -25,9 +25,6 @@ do
             ;;
         --at)
             tag_at="$2"; shift
-            ;;
-        --do)
-            tag_do="$2"; shift
             ;;
         -*|--*)
             __zplug::print::print::die "$1: Unknown option\n"
@@ -164,10 +161,6 @@ done
     fi
     # builtin cd -q "$OLDPWD"
     echo "${one_uri:h:t}" >"$repo/INDEX"
-
-    if [[ -n $tag_do ]]; then
-        eval "$tag_do"
-    fi
 )
 
 return $ret

@@ -21,7 +21,7 @@ describe "__arguments__"
 
     it ""
         zplugs=()
-        expect="[zplug] WARNING: You called a Git command named 'lisa', which does not exist.
+        expect="[zplug] WARNING: You called a zplug command named 'lisa', which does not exist.
         Continuing under the assumption that you meant 'list'.
 [zplug] there are no available plugins"
         actual="$(zplug lisa 2>&1 | unansi)"

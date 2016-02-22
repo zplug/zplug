@@ -334,6 +334,8 @@ done
             if (( $themes_ext[(I)${f:e}] )); then
                 __zplug::support::omz::theme
             fi
+        else
+            load_plugins[$load_plugins[(i)$f]]=()
         fi
     done
 
@@ -365,6 +367,8 @@ done
                     failed_packages+=("$f")
                 fi
             fi
+        else
+            nice_plugins[$nice_plugins[(i)$f]]=()
         fi
     done
 

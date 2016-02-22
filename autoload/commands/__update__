@@ -117,7 +117,6 @@ do
             if [[ $zspec[from] == "gh-r" ]]; then
                 __releases__ \
                     --use "${zspec[use]:-}" \
-                    --do  "${zspec[do]:-}" \
                     --at  "${zspec[at]:-}" \
                     "$line"
             else
@@ -161,9 +160,9 @@ do
                     "$line" \
                     $SECONDS
 
-                # Update hook
-                if [[ -n $zspec[do] ]]; then
-                    eval "$zspec[do]"
+                # hook after updating
+                if [[ -n $zspec[hook_build] ]]; then
+                    eval "$zspec[hook_build]"
                 fi
                 ;;
             1)

@@ -29,7 +29,6 @@ __zplug::oh-my-zsh::install() {
         --use    ${zspec[use]:-""} \
         --from   "github" \
         --at     ${zspec[at]:-""} \
-        --do     ${zspec[do]:-""} \
         --depth  ${zspec[depth]:-""} \
         "$_ZPLUG_OHMYZSH"
 

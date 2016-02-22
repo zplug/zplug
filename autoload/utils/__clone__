@@ -3,7 +3,7 @@
 __import "print/print"
 
 local    repository
-local    tag_use tag_from tag_at tag_do tag_depth
+local    tag_use tag_from tag_at tag_depth
 local    depth_option
 local    url_format
 local -i ret
@@ -19,9 +19,6 @@ do
             ;;
         --at)
             tag_at="$2"; shift
-            ;;
-        --do)
-            tag_do="$2"; shift
             ;;
         --depth)
             tag_depth="$2"; shift
@@ -124,7 +121,6 @@ done
         gh-r)
             __releases__ \
                 --use "${tag_use:-}" \
-                --do  "${tag_do:-}" \
                 --at  "${tag_at:#master}" \
                 "$repository" &>/dev/null
             return $status
@@ -163,14 +159,6 @@ ret=$status
     if (( $status != 0 )); then
         __zplug::print::print::die "[zplug] $fg[red]ERROR$reset_color: pathspec '$tag_at' (at tag) did not match ($repository)\n"
         ret=1
-    fi
-
-    # Post-installation hooks
-    if (( $ret == 0 )); then
-        builtin cd -q "$ZPLUG_HOME/repos/$repository" &>/dev/null
-        if [[ -n $tag_do ]]; then
-            eval "$tag_do"
-        fi
     fi
 )
 

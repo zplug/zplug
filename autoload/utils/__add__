@@ -14,6 +14,10 @@ local -a re_tags
 tags=( ${(s/, /)@:gs/,  */, } )
 name="${tags[1]}"
 tags[1]=()
+if [[ ! $name =~ "^[^/]+/[^/]+$" ]]; then
+    __zplug::print::print::die "[zplug] ERROR: ${(qq)name} is invalid package name\n"
+    return 1
+fi
 
 # DEPRECATED: pipe
 if [[ -p /dev/stdin ]]; then
@@ -66,6 +70,12 @@ do
                 key="at"
                 __zplug::print::print::die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]commit$reset_color' tag is deprecated. "
                 __zplug::print::print::die "Please use '$fg[blue]at$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
+                ;;
+            "do")
+                key="hook-build"
+                __zplug::print::print::die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]do$reset_color' tag is deprecated. "
+                __zplug::print::print::die "Please use '$fg[blue]hook-build$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
+                return 1
                 ;;
             "from")
                 case $val in
