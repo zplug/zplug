@@ -6,5 +6,5 @@
 # For more information, see man page of zplug(1)
 
 env \
-    | grep "^ZPLUG_" \
+    | grep -E "^_?ZPLUG_" \
     | perl -pe 's/^(\w+)(=)(.*)$/\033[32m$1\033[m $2 $3/'
