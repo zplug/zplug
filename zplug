@@ -1790,6 +1790,7 @@ TEMPLATE
 }
 
 zplug() {
+    setopt localoptions noshwordsplit
     local arg
     arg="$1"
 
