@@ -609,7 +609,10 @@ __zplug::update()
 
             if [[ -n $zspec[do] ]]; then
                 if [[ $ret -eq 0 ]]; then
+                    (
+                    builtin cd -q "$zspec[dir]"
                     eval "$zspec[do]"
+                    )
                 fi
             fi
 
