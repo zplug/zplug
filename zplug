@@ -754,11 +754,11 @@ __zplug::install()
             # send a http request to git.io/releases with os argument
             # or, git clone (case of normal plugin)
             __zplug::clone \
-                --of ${zspec[of]:-""} \
-                --commit ${zspec[commit]:-""} \
-                --from ${zspec[from]:-""} \
-                --at ${zspec[at]:-""} \
-                --do ${zspec[do]:-""} \
+                --of "${zspec[of]:-""}" \
+                --commit "${zspec[commit]:-""}" \
+                --from "${zspec[from]:-""}" \
+                --at "${zspec[at]:-""}" \
+                --do "${zspec[do]:-""}" \
                 "$line"
             ret=$status
 
@@ -1790,7 +1790,6 @@ TEMPLATE
 }
 
 zplug() {
-    setopt localoptions noshwordsplit
     local arg
     arg="$1"
 
