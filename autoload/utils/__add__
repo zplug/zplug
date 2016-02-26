@@ -3,12 +3,12 @@
 __import "core/core"
 __import "print/print"
 __import "zplug/external"
+__import "zplug/variables"
 
 local    name
 local    tag key val
 local -a tags
 local -i max=0
-local    is_oh_my_zsh=false is_local=false
 local -a re_tags
 
 tags=( ${(s/, /)@:gs/,  */, } )
@@ -54,7 +54,7 @@ do
     key=${${(s.:.)tag}[1]}
     val=${${(s.:.)tag}[2]}
 
-    if [[ $key =~ ^$_ZPLUG_TAG_PATTERN$ ]] || [[ $key =~ ^$_ZPLUG_OLDTAG_PATTERN$ ]]; then
+    if (( $_zplug_tag_pattern[(I)${key}] )); then
         case "$key" in
             "of")
                 key="use"
@@ -78,15 +78,6 @@ do
                 return 1
                 ;;
             "from")
-                case $val in
-                    "oh-my-zsh")
-                        is_oh_my_zsh=true
-                        ;;
-                    "local")
-                        is_local=true
-                        ;;
-                esac
-
                 if __zplug::core::core::is_external "$val"; then
                     source $ZPLUG_ROOT/src/ext/$val.zsh
                 fi
@@ -100,19 +91,6 @@ do
         return 1
     fi
 done
-
-# Set the directory information
-if $is_oh_my_zsh; then
-    re_tags+=("dir:$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/${name:gs:@::}")
-elif $is_local; then
-    if [[ $name[1] =~ [~$/] ]]; then
-        re_tags+=(dir:${~name:gs:@::})
-    else
-        re_tags+=("dir:$ZPLUG_HOME/${name:gs:@::}")
-    fi
-else
-    re_tags+=("dir:$ZPLUG_HOME/repos/${name:gs:@::}")
-fi
 
 # Add to zplugs
 zplugs+=("$name" "${(j:, :)re_tags[@]:-}")

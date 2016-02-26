@@ -68,7 +68,7 @@ fi
 __zplug::print::print::put '%s  =>  %s\n' "${(@kv)copy_zplugs:gs:@::}" \
     | sed -e 's/-EMP-/""/g' \
     | perl -pe 's/^(.*)( *=>.*)$/\033[32m$1\033[m$2/g' \
-    | perl -pe 's/'"$_ZPLUG_TAG_PATTERN"'(:)/\033[34m$1\033[m$2/g' \
+    | perl -pe 's/'"(${(j:|:)_zplug_tag_pattern[@]})"'(:)/\033[34m$1\033[m$2/g' \
     | perl -pe 's/(NO SUCH PACKAGE)/\033[31m$1\033[m/g'
 
 return $ret

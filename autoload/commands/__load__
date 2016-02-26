@@ -2,6 +2,7 @@
 
 __import "print/print"
 __import "zplug/cache"
+__import "zplug/variables"
 __import "support/omz"
 
 local    is_verbose=false is_debug=false
@@ -53,7 +54,8 @@ packages=(
 # Order by nice value
 for key in "${packages[@]}"
 do
-    zspec=( ${(@f)"$(__parser__ "$key")"} )
+    __parser__ "$key"
+    zspec=( "${reply[@]}" )
     unsorted_nice+=("$zspec[nice]:$zspec[name]")
 done
 unset key
@@ -62,14 +64,8 @@ for key in \
     ${${(OnM)unsorted_nice:#-*}#*:} \
     ${${(on)unsorted_nice:#-*}#*:}
 do
-    zspec=( ${(@f)"$(__parser__ "$key")"} )
-    for k in "${(k)zspec[@]}"
-    do
-        if [[ $zspec[$k] == "-EMP-" ]]; then
-            zspec[$k]=""
-        fi
-    done
-    unset k
+    __parser__ "$key"
+    zspec=( "${reply[@]}" )
 
     {
         # FROM tag
@@ -236,7 +232,7 @@ do
                             load_fpaths+=( $zspec[dir]/$zspec[use]/_*(N.:h) )
 
                             # If that is an autoload plugin
-                            if (( $zspec[lazy] == 1 )); then
+                            if (( $__zplug_boolean_true[(I)$zspec[lazy]] ]]; then
                                 load_patterns+=( "$zspec[dir]/autoload"/*(N.) )
                                 load_fpaths+=( "$zspec[dir]/autoload"(N/) )
                             fi
@@ -244,12 +240,12 @@ do
                     fi
                 done
 
-                if (( $zspec[nice] > 9 )); then
+                if [[ $zspec[nice] -gt 9 ]]; then
                     # the order of loading of plugin files
                     nice_plugins+=( "${load_patterns[@]}" )
                 else
                     # autoload plugin / regular plugin
-                    if (( $zspec[lazy] == 1 )); then
+                    if (( $__zplug_boolean_true[(I)$zspec[lazy]] ]]; then
                         lazy_plugins+=( "${load_patterns[@]}" )
                     else
                         load_plugins+=( "${load_patterns[@]}" )

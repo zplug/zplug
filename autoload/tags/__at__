@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg package
+local -a parsed_zplugs
+local    at
+local    default="master"
+
+arg="$1"
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+at="${parsed_zplugs[(k)at:*]#at:*}"
+if [[ -z $at ]]; then
+    zstyle -s ":zplug:tag" at at
+fi
+
+echo "${at:-$default}"
