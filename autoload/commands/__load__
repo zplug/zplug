@@ -232,7 +232,7 @@ do
                             load_fpaths+=( $zspec[dir]/$zspec[use]/_*(N.:h) )
 
                             # If that is an autoload plugin
-                            if (( $__zplug_boolean_true[(I)$zspec[lazy]] ]]; then
+                            if (( $__zplug_boolean_true[(I)$zspec[lazy]] )); then
                                 load_patterns+=( "$zspec[dir]/autoload"/*(N.) )
                                 load_fpaths+=( "$zspec[dir]/autoload"(N/) )
                             fi
@@ -245,7 +245,7 @@ do
                     nice_plugins+=( "${load_patterns[@]}" )
                 else
                     # autoload plugin / regular plugin
-                    if (( $__zplug_boolean_true[(I)$zspec[lazy]] ]]; then
+                    if (( $__zplug_boolean_true[(I)$zspec[lazy]] )); then
                         lazy_plugins+=( "${load_patterns[@]}" )
                     else
                         load_plugins+=( "${load_patterns[@]}" )

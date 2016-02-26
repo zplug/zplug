@@ -77,7 +77,7 @@ do
         esac
 
         if [[ $# == 1 && $argv[1] == $zspec[name] ]]; then
-            if (( $__zplug_boolean_true[(I)$zspec[frozen]] ]]; then
+            if (( $__zplug_boolean_true[(I)$zspec[frozen]] )); then
                 __zplug::job::spinner::unlock
                 __zplug::print::print::put "$fg[green]$zspec[name]: $fg[blue]frozen repo$reset_color. Update? [y/N]: "
                 if read -q; then
@@ -96,7 +96,7 @@ do
             "$line"
 
         function () {
-            if (( $__zplug_boolean_true[(I)$zspec[frozen]] ]]; then
+            if (( $__zplug_boolean_true[(I)$zspec[frozen]] )); then
                 return 3
             fi
 
