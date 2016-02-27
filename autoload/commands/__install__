@@ -133,8 +133,11 @@ do
                     $SECONDS
 
                 # hook after installing
-                if [[ -n $zspec[hook_build] ]]; then
-                    eval "$zspec[hook_build]"
+                if [[ -n $zspec[hook-build] ]]; then
+                    (
+                    builtin cd -q "$zspec[dir]"
+                    eval "$zspec[hook-build]"
+                    )
                 fi
                 ;;
             1)
