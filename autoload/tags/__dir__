@@ -1,0 +1,30 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg="${1:gs:@:}" package
+local -a parsed_zplugs
+local    dir
+local    default="$ZPLUG_HOME/repos/$arg"
+
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+dir="${parsed_zplugs[(k)dir:*]#dir:*}"
+if [[ -z $dir ]]; then
+    zstyle -s ":zplug:tag" dir dir
+fi
+
+local from
+from="$(__from__ "$arg")"
+case "$from" in
+    "oh-my-zsh")
+        dir="$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/$arg"
+        ;;
+    "local")
+        dir="$arg"
+        ;;
+esac
+
+echo ${~dir:-$default}

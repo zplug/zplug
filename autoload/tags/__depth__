@@ -1,0 +1,29 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg package
+local -a parsed_zplugs
+local    depth
+local -i default=0
+
+arg="$1"
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+depth="${parsed_zplugs[(k)depth:*]#depth:*}"
+if [[ -z $depth ]]; then
+    zstyle -s ":zplug:tag" depth depth
+fi
+
+: ${depth:=$default}
+if [[ $depth != <-> ]]; then
+    __zplug::print::print::die \
+        "[zplug] $fg[red]ERROR$reset_color: "
+    __zplug::print::print::die \
+        "depth tag must be an integer ($fg[green]$arg$reset_color)\n"
+    return 1
+fi
+
+echo "$depth"
