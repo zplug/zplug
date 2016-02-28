@@ -14,10 +14,11 @@ zplug_cmds=(
 'clean:remove a package'
 'clear:remove cache file'
 'install:install a package in parallel'
-'list:list files in a formula or not-installed formulae'
+'list:list installed packages with its tags information'
 'load:load an installed package'
 'status:check if remote branch is up-to-date'
 'update:freshen up a installed package in parallel'
+'info:information about a package'
 )
 
 for p in ${^path}/zplug-*(N-.)
@@ -79,6 +80,11 @@ case "$words[1]" in
     clear)
         _arguments \
             '(--force)--force[force the removing activity]'
+        ret=0
+        ;;
+    info)
+        _arguments \
+            '*:: :( "${(k)zplugs[@]}" )'
         ret=0
         ;;
     */*)
