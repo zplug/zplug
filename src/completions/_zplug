@@ -19,8 +19,8 @@ zplug_cmds=(
 for p in ${^path}/zplug-*(N-.)
 do
     desc="$(sed -n '2p' "$p" | sed -E 's/^.*desc(ription)?: ?//')"
-    desc="${desc:+"\[User-definded\] $desc"}"
-    zplug_cmds+=("${p:t:gs:zplug-:}:${desc:-"User-definded command"}")
+    desc="${desc:+"\[User-defined\] $desc"}"
+    zplug_cmds+=("${p:t:gs:zplug-:}:${desc:-"User-defined command"}")
 done
 
 _arguments \

@@ -33,7 +33,7 @@ Completing zplug commands
 check    --> Check whether an update or installation is available
 clean    --> Remove deprecated repositories
 clear    --> Remove cache file
-foo      --> [User-definded] my new zplug command
+foo      --> [User-defined] my new zplug command
 install  --> Install described items (plugins/commands) in parallel
 list     --> Show all of the zplugs in the current shell
 load     --> Load installed items
