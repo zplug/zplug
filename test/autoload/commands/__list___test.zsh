@@ -22,7 +22,7 @@ describe "__list__"
     it ""
         zplugs=()
         zplug "foo/foo"
-        expect="foo/foo  =>  dir:$ZPLUG_HOME/repos/foo/foo"
+        expect="foo/foo  =>  nil"
         actual="$(zplug list | unansi)"
         assert.true $status
         assert.equals "$expect" "$actual"
@@ -31,7 +31,7 @@ describe "__list__"
     it ""
         zplugs=()
         zplug "foo/foo"
-        expect="foo/foo  =>  dir:$ZPLUG_HOME/repos/foo/foo"
+        expect="foo/foo  =>  nil"
         actual="$(zplug list foo | unansi)"
         assert.true $status
         assert.equals "$expect" "$actual"
@@ -40,7 +40,7 @@ describe "__list__"
     it ""
         zplugs=()
         zplug "foo/foo"
-        expect="foo/foo  =>  dir:$ZPLUG_HOME/repos/foo/foo"
+        expect="foo/foo  =>  nil"
         actual="$(zplug list f | unansi)"
         assert.true $status
         assert.equals "$expect" "$actual"
@@ -49,7 +49,7 @@ describe "__list__"
     it ""
         zplugs=()
         zplug "foo/foo"
-        expect="foo/foo  =>  dir:$ZPLUG_HOME/repos/foo/foo"
+        expect="foo/foo  =>  nil"
         actual="$(zplug list f | unansi)"
         assert.true $status
         assert.equals "$expect" "$actual"

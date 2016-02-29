@@ -30,9 +30,9 @@ describe "__add__"
         assert.true $status
         (( $+zplugs[foo/foo@@] ))
         assert.true $status
-        expect="foo/foo  =>  dir:$ZPLUG_HOME/repos/foo/foo
-foo/foo  =>  dir:$ZPLUG_HOME/repos/foo/foo
-foo/foo  =>  dir:$ZPLUG_HOME/repos/foo/foo"
+        expect="foo/foo  =>  nil
+foo/foo  =>  nil
+foo/foo  =>  nil"
         actual="$(zplug list | unansi)"
         assert.equals "$expect" "$actual"
     end
