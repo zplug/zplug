@@ -54,13 +54,8 @@ esac
 for line in "${args[@]}"
 do
     line="$(__zplug::core::core::packaging "$line")"
-    zspec=( ${(@f)"$(__parser__ "$line")"} )
-    for k in "${(k)zspec[@]}"
-    do
-        if [[ $zspec[$k] == "-EMP-" ]]; then
-            zspec[$k]=""
-        fi
-    done
+    __parser__ "$line"
+    zspec=( "${reply[@]}" )
     case "$zspec[from]" in
         "local")
             is_releases=false

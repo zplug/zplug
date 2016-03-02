@@ -111,3 +111,11 @@ __zplug::core::git::get_state() {
     esac
     __zplug::print::print::put "($state) '${url:-?}'\n"
 }
+
+__zplug::core::git::remote_url() {
+    if [[ ! -e .git ]]; then
+        return 1
+    fi
+
+    git remote -v | sed -n '1p' | awk '{print $2}'
+}

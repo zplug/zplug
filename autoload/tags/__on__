@@ -1,0 +1,19 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg="$1" package
+local -a parsed_zplugs
+local    on
+local    default=""
+
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+on="${parsed_zplugs[(k)on:*]#on:*}"
+if [[ -z $on ]]; then
+    zstyle -s ":zplug:tag" on on
+fi
+
+echo "${on:-$default}"

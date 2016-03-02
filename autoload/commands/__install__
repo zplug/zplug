@@ -50,13 +50,8 @@ esac
 
 for line in "${args[@]}"
 do
-    zspec=( ${(@f)"$(__parser__ "$line")"} )
-    for k in ${(k)zspec}
-    do
-        if [[ $zspec[$k] == "-EMP-" ]]; then
-            zspec[$k]=""
-        fi
-    done
+    __parser__ "$line"
+    zspec=( "${reply[@]}" )
 
     # Skip installed items
     if [[ $zspec[from] == "local" ]]; then
@@ -133,8 +128,11 @@ do
                     $SECONDS
 
                 # hook after installing
-                if [[ -n $zspec[hook_build] ]]; then
-                    eval "$zspec[hook_build]"
+                if [[ -n $zspec[hook-build] ]]; then
+                    (
+                    builtin cd -q "$zspec[dir]"
+                    eval "$zspec[hook-build]"
+                    )
                 fi
                 ;;
             1)

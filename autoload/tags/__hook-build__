@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg package
+local -a parsed_zplugs
+local    hook_build
+local    default=""
+
+arg="$1"
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+hook_build="${parsed_zplugs[(k)hook-build:*]#hook-build:*}"
+if [[ -z $hook_build ]]; then
+    zstyle -s ":zplug:tag" hook-build hook_build
+fi
+
+echo "${hook_build:-$default}"

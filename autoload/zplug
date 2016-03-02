@@ -17,7 +17,7 @@ case "$arg" in
         return $status
         ;;
 
-    clean | clear | list | load)
+    clean | clear | list | load | info)
         shift
         __${arg}__ "$@"
         return $status

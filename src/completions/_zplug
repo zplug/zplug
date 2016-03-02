@@ -4,16 +4,21 @@ local    curcontext="$curcontext" state
 local    p desc
 local -i ret=1
 local -a zplug_cmds
+local -a _zplug_boolean_true _zplug_boolean_false
+
+_zplug_boolean_true=("true" "yes" "on" 1)
+_zplug_boolean_false=("false" "no" "off" 0)
 
 zplug_cmds=(
 'check:check whether an update or install is available'
 'clean:remove a package'
 'clear:remove cache file'
 'install:install a package in parallel'
-'list:list files in a formula or not-installed formulae'
+'list:list installed packages with its tags information'
 'load:load an installed package'
 'status:check if remote branch is up-to-date'
 'update:freshen up a installed package in parallel'
+'info:information about a package'
 )
 
 for p in ${^path}/zplug-*(N-.)
@@ -77,6 +82,11 @@ case "$words[1]" in
             '(--force)--force[force the removing activity]'
         ret=0
         ;;
+    info)
+        _arguments \
+            '*:: :( "${(k)zplugs[@]}" )'
+        ret=0
+        ;;
     */*)
         _values -S : -s , "zplug tags" \
             "as[Specify whether to register as commands or to register as plugins]:as:(plugin command)" \
@@ -87,11 +97,11 @@ case "$words[1]" in
             "dir[Installation directory (RO)]:dir:->dir" \
             "if[Specify the conditions under which to source or add to \$PATH]:if:" \
             "do[Run commands after installation/update]:do:" \
-            "frozen[Do not update unless explicitly specified]:frozen:(0 1)" \
+            "frozen[Do not update unless explicitly specified]:frozen:->boolean" \
             "on[Dependencies (RO)]:on:->on" \
             "nice[Priority of loading the plugins]:nice:->nice" \
             "ignore[Specify exception pattern so as not to load the files]:ignore:" \
-            "lazy[Lazy loading]:lazy:(0 1)" \
+            "lazy[Lazy loading]:lazy:->boolean" \
             "depth[Clone depth]:depth:({0..10})" && ret=0
         case $state in
             on|dir)
@@ -119,6 +129,10 @@ case "$words[1]" in
                 compadd -V 'high' -x "%F{yellow}Completing%f %Bpriority (high)%b" -- {-1..-20}
                 compadd -V 'low' -x "%F{yellow}Completing%f %Bpriority (low)%b" {1..9}
                 compadd -V 'lowest' -x "%F{yellow}Completing%f %Bpriority (low) after compinit%b" {10..19}
+                ;;
+            boolean)
+                compadd -J 'boolean/true' -x "%F{yellow}Completing%f %Btrue word%b" $_zplug_boolean_true
+                compadd -J 'boolean/false' -x "%F{yellow}Completing%f %Bfalse word%b" $_zplug_boolean_false
                 ;;
         esac
         ;;

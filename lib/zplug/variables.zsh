@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 __import "print/print"
+__import "core/core"
 
 typeset -gx -A zplugs
 
@@ -31,10 +32,17 @@ COMMANDS:
 For more information, see also $_ZPLUG_URL."
 
 typeset -g -r _ZPLUG_OHMYZSH="robbyrussell/oh-my-zsh"
-typeset -g -r _ZPLUG_TAG_PATTERN="(as|use|from|if|dir|rename_to|at|do|frozen|on|nice|ignore|lazy|depth|hook-load|hook-build)"
-typeset -g -r _ZPLUG_OLDTAG_PATTERN="(of|file|commit|do)"
+
+__zplug::core::core::get_tags
+typeset -ga _zplug_tag_pattern
+_zplug_tag_pattern=( "${reply[@]}" )
 
 if (( $+ZPLUG_SHALLOW )); then
     __zplug::print::print::die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: ZPLUG_SHALLOW is deprecated. "
     __zplug::print::print::die "Please use 'export ZPLUG_CLONE_DEPTH=1' instead.\n"
 fi
+
+typeset -ga _zplug_boolean_true
+_zplug_boolean_true=("true" "yes" "on" 1)
+typeset -ga _zplug_boolean_false
+_zplug_boolean_false=("false" "no" "off" 0)

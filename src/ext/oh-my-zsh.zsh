@@ -7,7 +7,8 @@ __zplug::oh-my-zsh::check() {
     local -A zspec
 
     line="$1"
-    zspec=( ${(@f)"$(__parser__ "$line")"} )
+    __parser__ "$line"
+    zspec=( "${reply[@]}" )
 
     [[ -d ${zspec[dir]:h} ]]
 }
@@ -17,13 +18,8 @@ __zplug::oh-my-zsh::install() {
     local -A zspec
 
     line="$1"
-    zspec=( ${(@f)"$(__parser__ "$line")"} )
-    for k in ${(k)zspec}
-    do
-        if [[ $zspec[$k] == "-EMP-" ]]; then
-            zspec[$k]=""
-        fi
-    done
+    __parser__ "$line"
+    zspec=( "${reply[@]}" )
 
     __clone__ \
         --use    ${zspec[use]:-""} \
@@ -40,13 +36,8 @@ __zplug::oh-my-zsh::load_plugin() {
     local -A zspec
 
     line="$1"
-    zspec=( ${(@f)"$(__parser__ "$line")"} )
-    for k in ${(k)zspec}
-    do
-        if [[ $zspec[$k] == "-EMP-" ]]; then
-            zspec[$k]=""
-        fi
-    done
+    __parser__ "$line"
+    zspec=( "${reply[@]}" )
 
     local -a load_plugins load_fpaths lazy_plugins
     local -a load_patterns

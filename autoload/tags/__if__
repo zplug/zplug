@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg package
+local -a parsed_zplugs
+local    if
+local    default=""
+
+arg="$1"
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+if="${parsed_zplugs[(k)if:*]#if:*}"
+if [[ -z $if ]]; then
+    zstyle -s ":zplug:tag" if if
+fi
+
+echo "${if:-$default}"

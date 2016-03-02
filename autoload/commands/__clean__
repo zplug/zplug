@@ -48,7 +48,8 @@ if (( $#args == 0 )); then
 else
     for arg in "${args[@]}"
     do
-        zspec=( ${(@f)"$(__parser__ "$arg")"} )
+        __parser__ "$arg"
+        zspec=( "${reply[@]}" )
         if [[ -d $zspec[dir] ]]; then
             case "$zspec[from]" in
                 "oh-my-zsh")
@@ -79,7 +80,8 @@ done
 # Remove packages from $zplugs
 for repo in "${(k)zplugs[@]}"
 do
-    zspec=( ${(@f)"$(__parser__ "$repo")"} )
+    __parser__ "$repo"
+    zspec=( "${reply[@]}" )
     if [[ ! -d $zspec[dir] ]]; then
         unset "zplugs[$repo]"
     fi

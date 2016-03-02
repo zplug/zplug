@@ -29,7 +29,8 @@ done
 
 for line in ${${args[@]:-${(k)zplugs[@]}}:gs:@::}
 do
-    zspec=( ${(@f)"$(__parser__ "$line")"} )
+    __parser__ "$line"
+    zspec=( "${reply[@]}" )
     if [[ $zspec[from] == local ]]; then
         continue
     fi

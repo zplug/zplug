@@ -1,82 +1,21 @@
 #!/bin/zsh
 
+__import "core/core"
 __import "print/print"
 
-local    arg key
-local -a parsed_zplugs
-local -A zplugs_tags
+local    arg="$1" tag
+local -a tags
 
-# tag name
-local \
-    name \
-    as \
-    use \
-    from \
-    if \
-    dir \
-    rename_to \
-    at \
-    frozen \
-    on \
-    nice \
-    ignore \
-    lazy \
-    depth \
-    hook_load \
-    hook_build
-
-if [[ -z $1 ]]; then
+if [[ -z $arg ]]; then
     __zplug::print::print::die "[zplug] $funcstack[1]: too few arguments\n"
     return 1
 fi
-arg="$1"
-arg="${arg}, ${zplugs[$arg]%, }"
-parsed_zplugs=(${(s/, /)arg:gs/,  */, })
 
-name="${parsed_zplugs[1]}"
-as=${${${(M)parsed_zplugs:#as:*}#*:}:-plugin}
-use=${${${(M)parsed_zplugs:#use:*}#*:}:-"*.zsh"}
-from=${${${(M)parsed_zplugs:#from:*}#*:}:-github}
-if=${${${(M)parsed_zplugs:#if:*}#*:}:--EMP-}
-dir=${${${(M)parsed_zplugs:#dir:*}#*:}:--EMP-}
-rename_to=${${${(M)parsed_zplugs:#rename_to:*}#*:}:--EMP-}
-at=${${${(M)parsed_zplugs:#at:*}#*:}:-master}
-frozen=${${${(M)parsed_zplugs:#frozen:*}#*:}:-0}
-on=${${${(M)parsed_zplugs:#on:*}#*:}:--EMP-}
-nice=${${${(M)parsed_zplugs:#nice:*}#*:}:-0}
-ignore=${${${(M)parsed_zplugs:#ignore:*}#*:}:--EMP-}
-lazy=${${${(M)parsed_zplugs:#lazy:*}#*:}:-0}
-depth=${${${(M)parsed_zplugs:#depth:*}#*:}:-0}
-hook_load=${${${(M)parsed_zplugs:#hook-load*}#*:}:--EMP-}
-hook_build=${${${(M)parsed_zplugs:#hook-build*}#*:}:--EMP-}
+__zplug::core::core::get_tags
+tags=( "${reply[@]}" )
 
-if [[ $name == $_ZPLUG_OHMYZSH ]] && [[ $nice -eq 0 ]]; then
-    nice=-10
-fi
-
-zplugs_tags=(
-name       "$name"
-as         "$as"
-use        "$use"
-from       "$from"
-if         "$if"
-dir        "$dir"
-rename_to  "$rename_to"
-at         "$at"
-frozen     "$frozen"
-on         "$on"
-nice       "$nice"
-ignore     "$ignore"
-lazy       "$lazy"
-depth      "$depth"
-hook_load  "$hook_load"
-hook_build "$hook_build"
-)
-
-# Output zplugs_tags
-# Separated by newline
-# because it is used by parameter expansion flags (@f)
-for key in "${(k)zplugs_tags[@]}"
+reply=("name" "$arg")
+for tag in "${tags[@]}"
 do
-    __zplug::print::print::put "${key}\n${zplugs_tags[$key]}\n"
+    reply+=("$tag" "$(__${tag}__ "$arg")")
 done

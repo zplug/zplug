@@ -1,0 +1,54 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+__import "zplug/variables"
+
+local    arg package
+local -a parsed_zplugs
+local    frozen
+local    default="no"
+
+arg="$1"
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+frozen="${parsed_zplugs[(k)frozen:*]#frozen:*}"
+if [[ -z $frozen ]]; then
+    zstyle -t ":zplug:tag" frozen
+    case $status in
+        0)
+            # word that means true
+            zstyle -b ":zplug:tag" frozen frozen
+            ;;
+        1)
+            # word that means false
+            if [[ $frozen =~ ^("${(j:|:)_zplug_boolean_true[@]}|${(j:|:)_zplug_boolean_false[@]}")$ ]]; then
+                # ok (false words)
+                :
+            else
+                __zplug::print::print::die \
+                    "[zplug] $fg[red]ERROR$reset_color: "
+                __zplug::print::print::die \
+                    "frozen tag must be a boolean ($fg[green]$arg$reset_color)\n"
+                return 1
+            fi
+            ;;
+        2)
+            # undefined
+            ;;
+    esac
+fi
+
+: ${frozen:=$default}
+if [[ $frozen =~ ^("${(j:|:)_zplug_boolean_true[@]}|${(j:|:)_zplug_boolean_false[@]}")$ ]]; then
+    :
+else
+    __zplug::print::print::die \
+        "[zplug] $fg[red]ERROR$reset_color: "
+    __zplug::print::print::die \
+        "frozen tag must be a boolean ($fg[green]$arg$reset_color)\n"
+    return 1
+fi
+
+echo "$frozen"

@@ -41,7 +41,8 @@ __zplug::core::core::zpluged() {
         if [[ $arg == $_ZPLUG_OHMYZSH ]]; then
             for zplug in "${(k)zplugs[@]}"
             do
-                zspec=( ${(@f)"$(__parser__ "$zplug")"} )
+                __parser__ "$zplug"
+                zspec=( "${reply[@]}" )
                 case "$zspec[from]" in
                     "oh-my-zsh")
                         return 0
@@ -63,6 +64,7 @@ __zplug::core::core::get_autoload_dirs() {
         reply=(
         "$ZPLUG_ROOT/autoload/commands"
         "$ZPLUG_ROOT/autoload/options"
+        "$ZPLUG_ROOT/autoload/tags"
         "$ZPLUG_ROOT/autoload/utils"
         )
     fi
@@ -78,6 +80,10 @@ __zplug::core::core::get_autoload_paths() {
 __zplug::core::core::get_autoload_files() {
     __zplug::core::core::get_autoload_paths "$@"
     (( $#reply > 0 )) && reply=( "${reply[@]:t}" )
+}
+
+__zplug::core::core::get_tags() {
+    reply=( "$ZPLUG_ROOT/autoload/tags/"__*__(:t:gs:__:) )
 }
 
 __zplug::core::core::get_filter() {
