@@ -1,13 +1,22 @@
 '\" t
 .\"     Title: zplug
-.\"    Author: [see the "Authors" section]
-.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 01/13/2016
+.\"    Author: Masaki Ishiyama (@b4b4r07) b4b4r07@gmail.com
+.\" Generator: DocBook XSL Stylesheets v1.79.0 <http://docbook.sf.net/>
+.\"      Date: 02/28/2016
 .\"    Manual: ZPLUG Manual
-.\"    Source: ZPLUG Manual
+.\"    Source: \ \&
 .\"  Language: English
 .\"
-.TH "ZPLUG" "1" "01/13/2016" "ZPLUG Manual" "ZPLUG Manual"
+.TH "ZPLUG" "1" "02/28/2016" "\ \&" "ZPLUG Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -24,15 +33,15 @@ zplug \- A next\-generation plugin manager for zsh
 .sp
 .nf
 \fIzplug\fR [\fI"username/reponame"\fR[, \fItag:"value"\fR[,\&...]]]
-    [<command> [<options>] [<\fIpackage\fR>]]
+    [<command> [<options>] [<\*(Aqpackage\*(Aq>]]
 .fi
 .sp
 .nf
-The word of \'package\' means that it consists of "username/reponame"\&.
+The word \*(Aqpackage\*(Aq refers to the string in the format: "username/reponame"\&.
 .fi
 .SH "DESCRIPTION"
 .sp
-zplug is a super fast and next\-generation plugin manager for zsh\&. zplug can manage everything, for example, zsh plugins, UNIX commands, Gist files, GitHub Releases, local plugins and so on\&. Unlike antigen, zplug requires no ZSH plugin file (*\&.plugin\&.zsh)\&. It\(cqs so fantabulous manager\&.
+zplug is a super\-fast next\-generation plugin manager for zsh\&. zplug can manage everything including: zsh plugins, UNIX commands, Gist files, GitHub Releases, local plugins and so on\&. Unlike antigen, zplug requires no ZSH plugin file (*\&.plugin\&.zsh)\&. It\(cqs such a fantabulous piece of software\&.
 .sp
 .RS 4
 .ie n \{\
@@ -77,7 +86,7 @@ Gist file (gist\&.github\&.com)
 .sp -1
 .IP \(bu 2.3
 .\}
-Externally managed plugins e\&.g\&.,
+Third\-party sources e\&.g\&.,
 oh\-my\-zsh
 plugins/themes
 .RE
@@ -113,7 +122,7 @@ Local plugins
 .sp -1
 .IP \(bu 2.3
 .\}
-etc\&.
+etc\&. (you can add your own sources!)
 .RE
 .RE
 .sp
@@ -136,6 +145,17 @@ Super\-fast parallel installation/update
 .sp -1
 .IP \(bu 2.3
 .\}
+Support for lazy\-loading
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 Branch/tag/commit support
 .RE
 .sp
@@ -147,7 +167,7 @@ Branch/tag/commit support
 .sp -1
 .IP \(bu 2.3
 .\}
-Post\-update hooks
+Post\-update, post\-load hooks
 .RE
 .sp
 .RS 4
@@ -158,7 +178,7 @@ Post\-update hooks
 .sp -1
 .IP \(bu 2.3
 .\}
-Dependencies between plugins
+Dependencies between packages
 .RE
 .sp
 .RS 4
@@ -196,120 +216,120 @@ zaw, and so on)
 .\}
 Cache mechanism for reducing the startup time
 .RE
+.SH "OPTIONS"
+.PP
+\fB\-\-help\fR
+.RS 4
+Print the synopsis and a list of all available commands\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Print zplug\(cqs version\&.
+.RE
 .SH "COMMANDS"
-.PP
-\fBhelp\fR
-.RS 4
-Prints the synopsis and a list of all available commands\&.
-.RE
-.PP
-\fBversion\fR
-.RS 4
-Prints zplug version\&.
-.RE
 .PP
 \fBcheck\fR [\-\-verbose] [\fIpackage\fR]
 .RS 4
-Check whether there is not installed item\&. If the
+Check whether there is at least one item that\(cqs not installed\&. If
 \fIpackage\fR
-name (username/reponame) is passed, check if the package is installed\&. If
+(username/reponame) is given, check if
+\fIpackage\fR
+is installed\&. If the
 \-\-verbose
-option is passed, print extra debugging information\&.
+option is given, print extra debugging information\&.
 .RE
 .PP
 \fBclean\fR [\-\-force] [\-\-select] [\fIpackage\fR]
 .RS 4
-Uninstall
+Remove unused packages that are in
+$ZPLUG_HOME/repos
+after showing a yes/no prompt\&. If
 \fIpackage\fR
-with yes/no prompt\&. If
-\-\-force
-option is passed, suppress that prompt and force to uninstall the
+is given, uninstall that particular
 \fIpackage\fR\&. If
+\-\-force
+option is given, suppress the prompt and uninstall
+\fIpackage\fR\&. If the
 \-\-select
-option is passed, by using one of the filter chosen by
-$ZPLUG_FILTER, you can interactively select
+option is given, by using the filter specified in
+$ZPLUG_FILTER, interactively select the
 \fIpackage\fR
 you want to uninstall\&.
 .RE
 .PP
 \fBclear\fR [\-\-force]
 .RS 4
-Refresh cache file\&. If
+Refresh the cache file\&.
 \-\-force
-option is passed, it is the same with
-\fBclean\fR
-command\&.
+does the same as what\(cqs described above\&.
 .RE
 .PP
 \fBinstall\fR [\-\-verbose] [\-\-select] [\fIpackage\fR]
 .RS 4
 Install
-\fIpackage\fR\&. If
+\fIpackage\fR\&.
 \-\-verbose
 /
 \-\-select
-option is passed, it is the same with the other command\&.
+do the same as what\(cqs described above\&.
 .RE
 .PP
 \fBlist\fR [\-\-verbose] [\-\-select] [\fIpackage\fR]
 .RS 4
-List all installed
-\fIpackage\fR\&. If
+List installed packages\&.
 \-\-verbose
 /
 \-\-select
-option is passed, it is the same with the other command\&.
+do the same as what\(cqs described above\&.
 .RE
 .PP
 \fBload\fR [\-\-verbose]
 .RS 4
-Load
-\fIpackage\fR\&. The all
-\fIpackage\fR
-with
+Load packages\&. All packages registered with
 \fIas:plugin\fR
-are sourced into current zsh process and add the directory of that
-\fIpackage\fR
-to
-$fpath\&. In addition, the all
-\fIpackage\fR
-with
+are sourced into the current zsh process, and its parent directory is added to
+$fpath\&. In addition, all packages with
 \fIas:command\fR
 are linked to
 $ZPLUG_HOME/bin
 and the bin directory is added to
-$PATH\&. If
+$PATH\&.
 \-\-verbose
-is passed, it is the same with the other command\&.
+does the same as what\(cqs described above\&.
+.RE
+.PP
+\fBinfo\fR <package>
+.RS 4
+Show the information such as source URL and tag values of the
+\fIpackage\fR\&.
 .RE
 .PP
 \fBstatus\fR [\-\-select]
 .RS 4
-Fetch the newest version of the installed
-\fIpackage\fR
-by zplug\&. If
+Fetch the newest version of the installed packages by zplug\&.
 \-\-select
-is passed, it is the same with the other command\&.
+does the same as what\(cqs described above\&.
 .RE
 .PP
 \fBupdate\fR [\-\-self] [\-\-select] [\fIpackage\fR]
 .RS 4
 Update
-\fIpackage\fR\&. If
+\fIpackage\fR\&. If no package is given, updates all registered packages\&. If
 \-\-self
-is passed, update your copy of zplug and create symbolic link to
-$ZPLUG_HOME/zplug
-If
+is given, update zplug itself\&.
 \-\-select
-is passed, it is the same with the other command\&.
+does the same as what\(cqs described above\&.
 .RE
 .SH "TAGS"
+.sp
+Values \fItruthy\fR and \fIfalsy\fR mean any of "true, yes, on, 1" and "false, no, off, 0", respectively\&.
 .sp
 .it 1 an-trap
 .nr an-no-space-flag 1
 .nr an-break-flag 1
 .br
-.B Table\ \&1.\ \&zplug available tag list
+.B Table\ \&1.\ \&zplug list of available tags
 .TS
 allbox tab(:);
 ltB ltB ltB ltB.
@@ -335,13 +355,14 @@ lt lt lt lt
 lt lt lt lt
 lt lt lt lt
 lt lt lt lt
+lt lt lt lt
 lt lt lt lt.
 T{
 .sp
 \fBas\fR
 T}:T{
 .sp
-Specify whether to register as commands or to register as plugins
+Whether to register the package as commands or as plugins
 T}:T{
 .sp
 plugin,command (plugin)
@@ -351,23 +372,23 @@ as:command
 T}
 T{
 .sp
-\fBof\fR
+\fBuse\fR
 T}:T{
 .sp
-Specify the pattern to source files (for plugin) or specify relative path to add to the $PATH (for command) / In case of from:gh\-r, can specify of:"*darwin*{amd,386}*" and so on
+Specify the pattern of the files to source (for plugin) or the relative path from the package root of the file to add to $PATH (for command) / Useful, for example, with from:gh\-r you can specify use:"*darwin*{amd,386}*" and so on
 T}:T{
 .sp
-\fBglob\fR (of:"*\&.zsh")
+\fBglob\fR (use:"*\&.zsh")
 T}:T{
 .sp
-of:bin,of:"*\&.sh", of:"*darwin*"
+use:bin,use:"*\&.sh", use:"*darwin*"
 T}
 T{
 .sp
 \fBfrom\fR
 T}:T{
 .sp
-Specify the services you use to install
+Specify the service from which you install
 T}:T{
 .sp
 github,bitbucket,gh\-r,gist, oh\-my\-zsh,local (github)
@@ -380,7 +401,7 @@ T{
 \fBat\fR
 T}:T{
 .sp
-Support branch/tag installation
+Branch, tag, or commit to use
 T}:T{
 .sp
 \fBbranch/tag\fR (master)
@@ -390,16 +411,16 @@ at:v1\&.5\&.6
 T}
 T{
 .sp
-\fBfile\fR
+\fBrename_to\fR
 T}:T{
 .sp
-Specify filename you want to rename (only as:plugin)
+Specify the filename you want to rename to (only valid with as:command)
 T}:T{
 .sp
 \fBfilename\fR (\-)
 T}:T{
 .sp
-file:fzf
+rename_to:fzf
 T}
 T{
 .sp
@@ -419,26 +440,39 @@ T{
 \fBif\fR
 T}:T{
 .sp
-Specify the conditions under which to run source or add to $PATH
+The conditions under which to install and/or use the package
 T}:T{
 .sp
-\fBboolean\fR (\-)
+\fBcommands\fR (\-)
 T}:T{
 .sp
 if:"[ \-d ~/\&.zsh ]"
 T}
 T{
 .sp
-\fBdo\fR
+\fBhook\-build\fR
 T}:T{
 .sp
-Run commands after installation/update
+Commands to run after installation/update
 T}:T{
 .sp
 \fBcommands\fR (\-)
 T}:T{
 .sp
-do:make install
+hook\-build:"make install"
+T}
+T{
+.sp
+\fBhook\-load\fR
+T}:T{
+.sp
+Commands to run after loading
+T}:T{
+.sp
+\fBcommands\fR (\-)
+T}:T{
+.sp
+hook\-load:"echo \*(AqBoo!\*(Aq"
 T}
 T{
 .sp
@@ -448,23 +482,10 @@ T}:T{
 Do not update unless explicitly specified
 T}:T{
 .sp
-0,1 (0)
+truthy,falsy (no)
 T}:T{
 .sp
-frozen:1
-T}
-T{
-.sp
-\fBcommit\fR
-T}:T{
-.sp
-Support commit installation (regardless of whether the $ZPLUG_SHALLOW is true or not)
-T}:T{
-.sp
-\fBrevision\fR (\-)
-T}:T{
-.sp
-commit:4428d48
+frozen:true
 T}
 T{
 .sp
@@ -474,17 +495,30 @@ T}:T{
 Dependencies
 T}:T{
 .sp
-\fBREAD ONLY\fR
+\fBpackage\fR (\-)
 T}:T{
 .sp
 on:user/repo
 T}
 T{
 .sp
+\fBlazy\fR
+T}:T{
+.sp
+Lazy\-load
+T}:T{
+.sp
+\fBtruthy,falsy\fR (no)
+T}:T{
+.sp
+lazy:true
+T}
+T{
+.sp
 \fBnice\fR
 T}:T{
 .sp
-Priority of loading the plugins\&. If this tag is specified 10 or more, zplug will load plugins after compinit (see also #26)
+Priority of loading the plugins\&. If the value is 10 or more, zplug will source the plugin after compinit (see also #26)
 T}:T{
 .sp
 \-20\&.\&.19 (0)
@@ -497,7 +531,7 @@ T{
 \fBignore\fR
 T}:T{
 .sp
-Similar to of tag, specify exception pattern so as not to load the files you want to ignore (see also #56)
+Similar to use, but specify exception pattern of files that you don\(cqt want to load (see also #56)
 T}:T{
 .sp
 \fBglob\fR (\-)
@@ -508,7 +542,7 @@ T}
 .TE
 .sp 1
 .sp
-You can register plugins or commands to zplug on the command\-line\&. If you use zplug on the command\-line, it is possible to write more easily its settings by grace of the command\-line completion\&. In this case, zplug spit out its settings to $ZPLUG_LOADFILE instead of \&.zshrc\&. If you launch new zsh process, zplug load command automatically search this file and run source command\&.
+You can register packages for zplug from the command line\&. If you use zplug on the command line, you can take advantage of the command line completions\&. When using this method, zplug writes out the package settings to $ZPLUG_LOADFILE\&. If you launch a new zsh process, zplug load command will automatically use this file\&. Note that you can also use $ZPLUG_LOADFILE to isolate your zplug package listing from your \&.zshrc\&.
 .SH "ENVIRONMENT VARIABLES"
 .sp
 Various zplug commands use the following environment variables:
@@ -541,26 +575,28 @@ $ZPLUG_HOME
 .RE
 .\}
 .sp
-If you specify \fIas:command\fR in zplug command, zplug will recognize the plugin as a command and create a symbolic link of the same name (if you want to rename it, set file: tag) within $ZPLUG_HOME/bin\&. Because zplug adds $ZPLUG_HOME/bin to the $PATH, you can run that command from any directories\&.
+If you specify \fIas:command\fR when registering the package, zplug will recognize the plugin as a command and create a symbolic link of the same name (if you want to rename it, use rename_to) in $ZPLUG_HOME/bin\&. Because zplug adds $ZPLUG_HOME/bin to the $PATH, you can run that command from anywhere just like any other commands\&.
 .PP
 \fIZPLUG_THREADS\fR
 .RS 4
-The number of threads zplug should use\&. The default value is 16\&.
+The maximum number of threads zplug should use when installing/updating\&. The default value is 16\&.
 .RE
 .PP
 \fIZPLUG_PROTOCOL\fR
 .RS 4
 Defaults to HTTPS\&. Valid options for
 $ZPLUG_PROTOCOL
-are HTTPS or SSH\&. Unless you have a specific reason, you should use the HTTPS protocol\&. For more information, see also
+are
+HTTPS
+or
+SSH\&. Unless you have a specific reason, you should use the HTTPS protocol\&. For more information, see also
 Which remote URL should I use? \- GitHub Help
 .RE
 .PP
-\fIZPLUG_SHALLOW\fR
+\fIZPLUG_CLONE_DEPTH\fR
 .RS 4
 Defaults to
-true\&. When cloning a Git repository, there is an option to limit the amount of history your clone will have\&. If you set this environment variable to
-true, you get the least amount of history, and you create a shallow clone\&.
+0\&. When cloning a Git repository, you can limit the number of commits your clone has\&. Setting this to 0 means that it will clone the entire history\&. Any non\-zero number will clone with that many commits\&.
 .RE
 .PP
 \fIZPLUG_FILTER\fR
@@ -568,24 +604,23 @@ true, you get the least amount of history, and you create a shallow clone\&.
 Defaults to
 fzf\-tmux:fzf:peco:percol:zaw\&. When
 \-\-select
-option is specified, colon\-separated first element that exists in the
-$PATH
-will be used by zplug as the interactive filter\&. The
+option is specified in a subcommand, starting from the first element of the colon\-separated list, whatever filter found will be used by zplug as the interactive filter\&. The
 ZPLUG_FILTER
-also accepts the following values:
-fzf\-tmux \-d "10%":/path/to/peco:my peco\&.
+also accepts arguments (e\&.g\&.
+fzf\-tmux \-d "10%":/path/to/peco:my peco)\&.
 .RE
 .PP
 \fIZPLUG_LOADFILE\fR
 .RS 4
 Defaults to
-$ZPLUG_HOME/init\&.zsh\&. This file is used to add plugins from zplug on the command\-line\&.
+$ZPLUG_HOME/init\&.zsh\&. This file is used to add packages from zplug on the command\-line\&. This is a useful feature when you want to isolate your zplug configurations from your
+\&.zshrc\&. Note that you don\(cqt need to add packages from the command line to use this feature: you can manually edit this file, and it\(cqll work just fine!
 .RE
 .PP
 \fIZPLUG_USE_CACHE\fR
 .RS 4
 Defaults to
-true\&. If this variable is set, zplug comes to use a cache to speed up when it will load plugins after the first\&. The cache file is located in
+true\&. If this variable is true, zplug uses a cache file to speed up the loading process\&. The cache file is located as
 $ZPLUG_HOME/\&.cache\&. If you want to clear the cache, please run
 zplug clear
 or do the following:
@@ -602,10 +637,10 @@ $ ZPLUG_USE_CACHE=false zplug load
 .\}
 .SH "EXTERNAL COMMANDS"
 .sp
-zplug, like \fIgit(1)\fR, supports external commands\&. These are executable scripts that reside somewhere in the PATH, named zplug\-cmdname, which can be invoked like zplug cmdname\&. This allows you to create your own commands without modifying zplug\(cqs internals\&.
-.SH "CONFIGURATION MECHANISM"
+zplug, like \fIgit(1)\fR, supports external commands\&. These are executable scripts that reside somewhere in the PATH, named zplug\-cmdname, which can be invoked with zplug cmdname\&. This allows you to create your own commands without modifying zplug\(cqs internals\&. Instructions for creating your own commands can be found in the docs: https://github\&.com/b4b4r07/zplug2/blob/master/doc/zplug/External\-Commands\&.md Check out the sample zplug\-env external command for an example\&.
+.SH "CONFIGURATION"
 .sp
-Add a zplug section to your \&.zshrc:
+Add a zplug section to your \&.zshrc (or $ZPLUG_LOADFILE):
 .sp
 .RS 4
 .ie n \{\
@@ -615,7 +650,7 @@ Add a zplug section to your \&.zshrc:
 .sp -1
 .IP "  1." 4.2
 .\}
-List the plugins/commands with zplug commands
+Register packages with the zplug command (zplug "username/reponame")
 .RE
 .sp
 .RS 4
@@ -626,7 +661,6 @@ List the plugins/commands with zplug commands
 .sp -1
 .IP "  2." 4.2
 .\}
-
 zplug load
 to source the plugins and add its commands to your
 $PATH
@@ -643,29 +677,29 @@ zplug "zsh\-users/zsh\-history\-substring\-search"
 
 # Can manage a plugin as a command
 # And accept glob patterns (e\&.g\&., brace, wildcard, \&.\&.\&.)
-zplug "Jxck/dotfiles", as:command, of:"bin/{histuniq,color}"
+zplug "Jxck/dotfiles", as:command, use:"bin/{histuniq,color}"
 
-# Can manage everything e\&.g\&., other person\'s zshrc
-zplug "tcnksm/docker\-alias", of:zshrc
+# Can manage everything e\&.g\&., other person\*(Aqs zshrc
+zplug "tcnksm/docker\-alias", use:zshrc
 
 # Prohibit updates to a plugin by using the "frozen:" tag
 zplug "k4rthik/git\-cal", as:command, frozen:1
 
 # Grab binaries from GitHub Releases
-# and rename to use "file:" tag
+# and rename using the "rename_to:" tag
 zplug "junegunn/fzf\-bin", \e
     as:command, \e
     from:gh\-r, \e
-    file:fzf, \e
-    of:"*darwin*amd64*"
+    rename_to:fzf, \e
+    use:"*darwin*amd64*"
 
 # Support oh\-my\-zsh plugins and the like
-zplug "plugins/git",   from:oh\-my\-zsh, if:"which git"
+zplug "plugins/git",   from:oh\-my\-zsh, if:"(( $+commands[git] ))"
 zplug "themes/duellj", from:oh\-my\-zsh
 zplug "lib/clipboard", from:oh\-my\-zsh, if:"[[ $OSTYPE == *darwin* ]]"
 
 # Run a command after a plugin is installed/updated
-zplug "tj/n", do:"make install"
+zplug "tj/n", hook\-build:"make install"
 
 # Support checking out a specific branch/tag/commit of a plugin
 zplug "b4b4r07/enhancd", at:v1
@@ -676,23 +710,23 @@ zplug "hchbaw/opp\&.zsh", if:"(( ${ZSH_VERSION%%\&.*} < 5 ))"
 
 # Can manage gist file just like other plugins
 zplug "b4b4r07/79ee61f7c140c63d2786", \e
-    from:gist, \e
     as:command, \e
-    of:get_last_pane_path\&.sh
+    from:gist, \e
+    use:get_last_pane_path\&.sh
 
 # Support bitbucket
 zplug "b4b4r07/hello_bitbucket", \e
     as:command, \e
     from:bitbucket, \e
-    do:"chmod 755 *\&.sh", \e
-    of:"*\&.sh"
+    hook\-build:"chmod 755 *\&.sh", \e
+    use:"*\&.sh"
 
 # Group dependencies, emoji\-cli depends on jq in this example
 zplug "stedolan/jq", \e
     as:command, \e
-    file:jq, \e
     from:gh\-r \e
-    | zplug "b4b4r07/emoji\-cli"
+    rename_to:jq, \e
+    on:"b4b4r07/emoji\-cli"
 
 # Set priority to load command like a nice command
 # e\&.g\&., zsh\-syntax\-highlighting must be loaded
@@ -701,7 +735,7 @@ zplug "zsh\-users/zsh\-syntax\-highlighting", nice:10
 
 # Can manage local plugins
 zplug "~/\&.zsh", from:local
-# A relative path is resolved with respect to the $ZPLUG_HOME
+# A relative path is resolved with respect to $ZPLUG_HOME
 zplug "repos/robbyrussell/oh\-my\-zsh/custom/plugins/my\-plugin", from:local
 
 # Install plugins if there are plugins that have not been installed
@@ -722,7 +756,7 @@ zplug load \-\-verbose
 Finally, use zplug install to install your plugins and reload \&.zshrc\&.
 .SH "FURTHER DOCUMENTATION"
 .sp
-See the references in official wiki page to get started using zplug\&. The following is probably more detail than necessary for a first\-time user\&.
+See the references in official wiki page to get started using zplug\&. The wiki may perhaps be overwhelming for first\-time users\&.
 .SH "AUTHORS"
 .sp
 zplug was originally written by Masaki Ishi (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
@@ -734,3 +768,9 @@ MIT License
 .SH "REPORTING BUGS"
 .sp
 Report bugs to the zplug issues
+.SH "AUTHOR"
+.PP
+\fBMasaki Ishiyama (@b4b4r07) b4b4r07@gmail\&.com\fR
+.RS 4
+Author.
+.RE

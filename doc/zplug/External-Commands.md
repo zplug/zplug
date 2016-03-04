@@ -9,10 +9,10 @@ $ zplug mycommand --option1 --option2 package
 
 without modifying zplug's internals.
 
-## How to write the command
+## How to write commands
 
 As long as the external command is executable (`chmod +x`) and live somewhere in `$PATH`,
-any command type will do such as shell script, ruby script, ...
+any language will do (e.g. shell script, ruby script, etc.).
 
 Example:
 
@@ -24,8 +24,8 @@ echo "Hello, zplug"
 ```
 
 when saving as zplug-foo, the command can be invoked like zplug foo.
-In addition, the description line (line 2) is used as completion message
-when you complete zplug command.
+In addition, the description line (line 2) is used as the description
+in the completion.
 
 ```console
 % zplug
@@ -33,7 +33,7 @@ Completing zplug commands
 check    --> Check whether an update or installation is available
 clean    --> Remove deprecated repositories
 clear    --> Remove cache file
-foo      --> [User-definded] my new zplug command
+foo      --> [User-defined] my new zplug command
 install  --> Install described items (plugins/commands) in parallel
 list     --> Show all of the zplugs in the current shell
 load     --> Load installed items
