@@ -35,6 +35,10 @@ do
         continue
     fi
 
+    if [[ -n $zspec[if] ]] && ! eval "$zspec[if]" &>/dev/null; then
+        continue
+    fi
+
     if __zplug::core::core::is_handler_defined check "$zspec[from]"; then
         __zplug::core::core::use_handler check "$zspec[from]" "$line"
 
