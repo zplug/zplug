@@ -6,6 +6,7 @@
     source "$ZPLUG_ROOT/test/.helpers/mock.zsh"
 
     export ZPLUG_HOME="$ZPLUG_ROOT/test/.fixtures"
+    unset ZPLUG_LOADFILE
 
     local expect actual
 }
@@ -33,13 +34,14 @@ describe "__load__"
     end
 
     it "loads from cache at a custom location"
-        export ZPLUG_USE_CACHE=true
-        export ZPLUG_CACHE_FILE=$ZPLUG_HOME/foo/cache
+        ZPLUG_USE_CACHE=true
+        ZPLUG_CACHE_FILE=$ZPLUG_HOME/foo/cache
 
         mock_as_plugin "foo/bar"
-        expect="Static loading..."
-        actual="$(zplug load && zplug load --verbose)"
-        assert.equals "$expect" "$actual"
+        zplug load
+
+        [[ -f $ZPLUG_CACHE_FILE ]]
+        assert.true $status
     end
 end
 

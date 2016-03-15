@@ -7,7 +7,7 @@ LICENSE_URL := http://b4b4r07.mit-license.org
 LICENSE_TXT := $(ZPLUG_ROOT)/doc/LICENSE-MIT.txt
 
 SKIP_FILES := __clone__ __releases__ __install__ __update__ __load__
-TEST_FILES := $(shell find $(ZPLUG_ROOT)/test -name *_test.zsh)
+TEST_FILES := $(shell find $(ZPLUG_ROOT)/test -name *_test.zsh | sort)
 SKIP_TESTS := $(foreach f, $(SKIP_FILES), $(shell find $(ZPLUG_ROOT)/test -name $(f)_test.zsh))
 MINI_TESTS := $(filter-out $(SKIP_TESTS), $(TEST_FILES))
 
