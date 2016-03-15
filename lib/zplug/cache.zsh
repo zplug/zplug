@@ -16,11 +16,11 @@ __zplug::zplug::cache::load() {
     local key
 
     $ZPLUG_USE_CACHE || return 2
-    if [[ -f $_ZPLUG_CACHE_FILE ]]; then
+    if [[ -f $ZPLUG_CACHE_FILE ]]; then
         &>/dev/null diff -b \
             <( \
             awk -f "$ZPLUG_ROOT/src/share/read_cache.awk" \
-            "$_ZPLUG_CACHE_FILE" \
+            "$ZPLUG_CACHE_FILE" \
             ) \
             <( \
             for key in "${(k)zplugs[@]}"
@@ -33,7 +33,7 @@ __zplug::zplug::cache::load() {
         case $status in
             0)
                 # same
-                source "$_ZPLUG_CACHE_FILE"
+                source "$ZPLUG_CACHE_FILE"
                 return $status
                 ;;
             1)
@@ -58,8 +58,12 @@ __zplug::zplug::cache::update() {
         return 2
     fi
 
-    if [[ -f $_ZPLUG_CACHE_FILE ]]; then
-        chmod a+w "$_ZPLUG_CACHE_FILE"
+    if [[ -f $ZPLUG_CACHE_FILE ]]; then
+        chmod a+w "$ZPLUG_CACHE_FILE"
+    fi
+
+    if [[ ! -d $ZPLUG_CACHE_FILE:h ]]; then
+        mkdir -p "$ZPLUG_CACHE_FILE:h"
     fi
 
     {
@@ -94,9 +98,9 @@ __zplug::zplug::cache::update() {
         __zplug::print::print::put '\n# Hooks after load\n%s\n' "${hook_load_cmds[@]}"
         __zplug::print::print::put '\nreturn 0\n'
         __zplug::print::print::put '%s\n' "$(__zplug::zplug::cache::tags)"
-    } >|"$_ZPLUG_CACHE_FILE"
+    } >|"$ZPLUG_CACHE_FILE"
 
-    if [[ -f $_ZPLUG_CACHE_FILE ]]; then
-        chmod a-w "$_ZPLUG_CACHE_FILE"
+    if [[ -f $ZPLUG_CACHE_FILE ]]; then
+        chmod a-w "$ZPLUG_CACHE_FILE"
     fi
 }

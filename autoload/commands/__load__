@@ -42,7 +42,7 @@ done
 # Use cache file
 if __zplug::zplug::cache::load; then
     if $is_debug; then
-        __zplug::print::print::put "$_ZPLUG_CACHE_FILE\n"
+        __zplug::print::print::put "$ZPLUG_CACHE_FILE\n"
     fi
     return 0
 fi
