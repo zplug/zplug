@@ -31,6 +31,16 @@ describe "__load__"
         actual="$(zplug load --verbose | unansi)"
         assert.equals "$expect" "$actual"
     end
+
+    it "loads from cache at a custom location"
+        export ZPLUG_USE_CACHE=true
+        export ZPLUG_CACHE_FILE=$ZPLUG_HOME/foo/cache
+
+        mock_as_plugin "foo/bar"
+        expect="Static loading..."
+        actual="$(zplug load && zplug load --verbose)"
+        assert.equals "$expect" "$actual"
+    end
 end
 
 : after
