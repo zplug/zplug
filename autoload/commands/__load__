@@ -263,9 +263,9 @@ do
     if [[ -n $zspec[ignore] ]]; then
         # Make ignore patterns
         if [[ $zspec[from] == "oh-my-zsh" ]]; then
-            ignore_patterns=( "$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH"/${~zspec[ignore]}(N) )
+            ignore_patterns=( $(zsh -c "echo $ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/${~zspec[ignore]}" 2>/dev/null)(N) )
         else
-            ignore_patterns=( "$zspec[dir]"/${~zspec[ignore]}(N) )
+            ignore_patterns=( $(zsh -c "echo ${zspec[dir]}/${~zspec[ignore]}" 2>/dev/null)(N) )
         fi
 
         for ignore in "${ignore_patterns[@]}"
