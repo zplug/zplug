@@ -1088,7 +1088,7 @@ __zplug::load()
     # Commands
     for f in ${(k)load_commands}
     do
-        [[ -f $f ]] && ln -snf "$f" "$load_commands[$f]"
+        [[ -f $f ]] && { chmod a=rx "$f" && ln -snf "$f" "$load_commands[$f]"}
     done
     path=("$ZPLUG_HOME/bin" $path)
     typeset -gx -U path
