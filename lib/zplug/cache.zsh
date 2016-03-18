@@ -62,8 +62,8 @@ __zplug::zplug::cache::update() {
         chmod a+w "$ZPLUG_CACHE_FILE"
     fi
 
-    if [[ ! -d $ZPLUG_CACHE_FILE:h ]]; then
-        mkdir -p "$ZPLUG_CACHE_FILE:h"
+    if [[ ! -d ${ZPLUG_CACHE_FILE:h} ]]; then
+        mkdir -p "${ZPLUG_CACHE_FILE:h}"
     fi
 
     {
