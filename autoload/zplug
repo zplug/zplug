@@ -1,0 +1,39 @@
+#!/bin/zsh
+
+source "$ZPLUG_ROOT/autoload/init.zsh"
+source "$ZPLUG_ROOT/autoload/autoload.zsh"
+
+local arg="$1"
+
+case "$arg" in
+    -* | --* )
+        __options__ "$@"
+        return $status
+        ;;
+
+    check | install | status | update)
+        shift
+        __${arg}__ "${@:-${(k)zplugs[@]}}"
+        return $status
+        ;;
+
+    clean | clear | list | load | info)
+        shift
+        __${arg}__ "$@"
+        return $status
+        ;;
+
+    "")
+        # TODO
+        ;;
+
+    */*)
+        __add__ "$@"
+        return $status
+        ;;
+
+    *)
+        __arguments__ "$@"
+        return $status
+        ;;
+esac

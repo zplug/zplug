@@ -1,0 +1,116 @@
+#!/bin/zsh
+
+__import "core/git"
+__import "support/gh-r"
+__import "job/spinner"
+__import "print/print"
+
+local -a queue
+local -i queue_max=$ZPLUG_THREADS
+local -F SECONDS=0
+local -A zspec
+local -i max=0 dif=0
+local    is_releases=false is_select=false
+local    state arg filter
+local -a args
+
+arg="$1"
+case "$arg" in
+    --select)
+        is_select=true; shift
+        ;;
+    -*|--*)
+        __zplug::print::print::die "[zplug] $arg: Unknown option\n"
+        return 1
+        ;;
+esac
+
+# Initialize
+{
+    filter="$(__zplug::core::core::get_filter "$ZPLUG_FILTER")"
+    if $is_select; then
+        args=(${(@f)"$(echo "${(Fk)zplugs[@]}" | eval "$filter")"})
+    else
+        args=(${(u)${@:gs:@::}})
+    fi
+
+    if (( $#args > 0 )); then
+        for line in "${args[@]}"
+        do
+            line="$(__zplug::core::core::packaging "$line")"
+            (( $#line > $max )) && max=$#line
+        done
+        __zplug::print::print::put "Fetching the status of packages ...\n"
+        __zplug::print::print::put "The packages which have from:'local' tag are skipped.\n"
+        __zplug::print::print::put "===\n"
+        __zplug::job::spinner::lock
+        __zplug::job::spinner::spinner &
+    else
+        __zplug::print::print::die "[zplug] No package to get the status"
+        return 1
+    fi
+}
+
+for line in "${args[@]}"
+do
+    line="$(__zplug::core::core::packaging "$line")"
+    __parser__ "$line"
+    zspec=( "${reply[@]}" )
+    case "$zspec[from]" in
+        "local")
+            is_releases=false
+            continue
+            ;;
+        "gh-r")
+            is_releases=true
+            ;;
+        *)
+            is_releases=false
+            ;;
+    esac
+    if [[ ! -d $zspec[dir] ]]; then
+        shift args
+        continue
+    fi
+
+    # Get package status in subprocess
+    {
+        trap '__zplug::job::spinner::unlock; trap - SIGINT' SIGINT
+
+        # Change directory to get the remote status
+        builtin cd -q \
+            "$zspec[dir]" \
+            &>/dev/null
+
+        if (( $status == 0 )); then
+            if $is_releases; then
+                state="$(__zplug::support::gh-r::get_state "$zspec[name]" "$zspec[dir]")"
+            else
+                state="$(__zplug::core::git::get_state "$zspec[name]" "$zspec[dir]")"
+            fi
+            # space size
+            dif=$(($max - $#line))
+            __zplug::job::spinner::echo "${(%):-"%U"}%-${#line}s${(%):-"%u"}%${dif}s %s\n" \
+                "$line" \
+                "" \
+                "$state"
+        fi
+    } &
+    queue+=($!)
+
+    if (( $#queue % queue_max == 0 )); then
+        wait $queue &>/dev/null
+        queue=()
+    fi
+done
+if (( $#queue > 0 )); then
+    wait $queue &>/dev/null
+fi
+queue=()
+
+__zplug::job::spinner::unlock
+if (( $#args > 0 )); then
+    __zplug::print::print::put "===\n"
+    __zplug::print::print::put "Finished %.6f\n" $SECONDS
+fi
+__zplug::print::print::put "\n"

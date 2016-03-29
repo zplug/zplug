@@ -1,0 +1,74 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg is_select=false filter
+local -i ret=0
+local -a args awk_args
+local -A copy_zplugs
+
+if (( $#zplugs == 0 )); then
+    __zplug::print::print::die "[zplug] there are no available plugins\n"
+    return 1
+fi
+
+while (( $# > 0 ))
+do
+    arg="$1"
+    case "$arg" in
+        --select)
+            is_select=true
+            ;;
+        -*|--*)
+            __zplug::print::print::die "[zplug] $arg: Unknown option\n"
+            return 1
+            ;;
+        *)
+            args+=("$arg")
+            ;;
+    esac
+    shift
+done
+
+filter="$(__zplug::core::core::get_filter "$ZPLUG_FILTER")"
+if $is_select; then
+    args=(${(@f)"$(echo "${(Fk)zplugs[@]}" | eval "$filter")"})
+    if (( $#args == 0 )); then
+        return 0
+    fi
+fi
+
+if (( $#args > 0 )); then
+    copy_zplugs=()
+    for arg in "${args[@]}"
+    do
+        if __zplug::core::core::zpluged "$arg"; then
+            # This is compelte match
+            copy_zplugs+=("$arg" "${zplugs[$arg]}")
+        else
+            # Fuzzy match with awk
+            awk_args=(${(@f)"$(awk -v arg=$arg '$1 ~ arg' <<<${(Fk)zplugs[@]})"})
+            if (( $#awk_args == 0 )); then
+                copy_zplugs+=("$arg" "NO SUCH PACKAGE")
+                ret=1
+            fi
+            for arg in ${awk_args[@]}
+            do
+                if __zplug::core::core::zpluged "$arg"; then
+                    copy_zplugs+=("$arg" "${zplugs[$arg]}")
+                fi
+            done
+        fi
+    done
+else
+    copy_zplugs=( "${(@kv)zplugs[@]}" )
+fi
+
+__zplug::print::print::put '%s  =>  %s\n' "${(@kv)copy_zplugs:gs:@::}" \
+    | perl -pe 's/=>  $/=>  '$fg[red]'nil'$reset_color'/g' \
+    | perl -pe 's/^(.*)( *=>.*)$/'$fg[green]'$1'$reset_color'$2/g' \
+    | perl -pe 's/'"(${(j:|:)_zplug_tag_pattern[@]})"'(:)/'$fg[blue]'$1'$reset_color'$2/g' \
+    | perl -pe 's/(NO SUCH PACKAGE)/'$fg[red]'$1'$reset_color'/g'
+
+return $ret

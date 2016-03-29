@@ -1,0 +1,27 @@
+#!/bin/zsh
+
+__import "print/print"
+
+local arg is_force
+
+while (( $# > 0 ))
+do
+    arg="$1"
+    case "$arg" in
+        --force)
+            is_force=true
+            ;;
+        -*|--*)
+            __zplug::print::print::die "[zplug] $arg: Unknown option\n"
+            return 1
+            ;;
+    esac
+    shift
+done
+
+if eval ${is_force:-"__zplug::print::print::put 'Remove cache file? ';read -q;__zplug::print::print::put '\n'"}; then
+    rm -f "$ZPLUG_CACHE_FILE"
+    __zplug::print::print::put "Removed\n"
+else
+    __zplug::print::print::put "Canceled\n"
+fi

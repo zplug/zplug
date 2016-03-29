@@ -1,0 +1,204 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+__import "print/logger"
+__import "job/spinner"
+__import "zplug/variables"
+
+trap '__zplug::job::spinner::unlock; trap - SIGINT' SIGINT
+
+local    line filter is_select=false
+local -i max=0 ret=0
+local -a args
+local -a queue
+local -i queue_max=$ZPLUG_THREADS
+local -F SECONDS=0
+
+arg="$1"
+case "$arg" in
+    --self)
+        __self__
+        return $status
+        ;;
+    --select)
+        is_select=true; shift
+        ;;
+    -*|--*)
+        __zplug::print::print::die "[zplug] $arg: Unknown option\n"
+        return 1
+        ;;
+esac
+
+# Initialize
+{
+    filter="$(__zplug::core::core::get_filter "$ZPLUG_FILTER")"
+    if $is_select; then
+        args=(${(@f)"$(echo "${(Fk)zplugs[@]}" | eval "$filter")"})
+    else
+        args=(${(u)${@:gs:@::}})
+    fi
+
+    if (( $#args == 0 )); then
+        __list__
+        return $status
+    fi
+
+    for line in "${args[@]}"
+    do
+        (( $#line > $max )) && max=$#line
+    done
+}
+
+__zplug::job::spinner::lock
+__zplug::job::spinner::spinner &
+for line in "${args[@]}"
+do
+    line="$(__zplug::core::core::packaging "$line")"
+    if ! __zplug::core::core::zpluged "$line"; then
+        __zplug::print::print::die "[zplug] $line: no such package\n"
+        ret=1
+        continue
+    fi
+
+    # Run installation in subprocess
+    {
+        # All variables are treated as local variable
+        # because of background job (subprocess)
+        local    k ret=1
+        local -A zspec
+        __parser__ "$line"
+        zspec=( "${reply[@]}" )
+
+        case "$zspec[from]" in
+            "local")
+                continue
+                ;;
+        esac
+
+        if [[ $# == 1 && $argv[1] == $zspec[name] ]]; then
+            if (( $__zplug_boolean_true[(I)$zspec[frozen]] )); then
+                __zplug::job::spinner::unlock
+                __zplug::print::print::put "$fg[green]$zspec[name]: $fg[blue]frozen repo$reset_color. Update? [y/N]: "
+                if read -q; then
+                    __zplug::print::print::put "\n"
+                    __zplug::job::spinner::lock
+                    __zplug::job::spinner::spinner &
+                    SECONDS=0
+                else
+                    continue
+                fi
+            fi
+        fi
+
+        __zplug::job::spinner::echo "%-20s %s\n" \
+            "Updating..." \
+            "$line"
+
+        function () {
+            if (( $__zplug_boolean_true[(I)$zspec[frozen]] )); then
+                return 3
+            fi
+
+            # Change directory to fullpath of zspec dir
+            # or parent directory of zspec dir
+            # If it fails, return this unnamed function with error code 2
+            builtin cd -q $zspec[dir] || \
+                builtin cd -q ${zspec[dir]:h} || \
+                return 1
+
+            # If zspec from is gh-r (GitHub Releases),
+            # send a http request to git.io/releases with os argument
+            # or, git pull (case of normal plugin)
+            if [[ $zspec[from] == "gh-r" ]]; then
+                __releases__ \
+                    --use "${zspec[use]:-}" \
+                    --at  "${zspec[at]:-}" \
+                    "$line"
+            else
+                local fetch_opt
+                if [[ -e $zspec[dir]/.git/shallow ]]; then
+                    fetch_opt="--unshallow"
+                fi
+                git fetch "$fetch_opt"
+                git checkout -q "$zspec[at]"
+
+                local rev_local rev_remote rev_base
+                rev_local="$(git rev-parse HEAD)"
+                rev_remote="$(git rev-parse "@{u}")"
+                rev_base="$(git merge-base HEAD "@{u}")"
+
+                if [[ $rev_local == $rev_remote ]]; then
+                    # up-to-date
+                    return 4
+                elif [[ $rev_local = $rev_base ]]; then
+                    # need to pull
+                    git merge --ff-only origin/$zspec[at] && git submodule update --init --recursive
+                    return $status
+                elif [ $rev_remote = $rev_base ]; then
+                    # need to push
+                    return 1
+                else
+                    # Diverged
+                    return 1
+                fi
+            fi
+        } &>/dev/null
+        # Return code of above unnamed function
+        # Incidentally,
+        # nothing is output even if it success or fails
+        ret=$status
+
+        case "$ret" in
+            0)
+                __zplug::job::spinner::echo "$fg[green]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                    "Updated!" \
+                    "$line" \
+                    $SECONDS
+
+                # hook after updating
+                if [[ -n $zspec[hook_build] ]]; then
+                    eval "$zspec[hook_build]"
+                fi
+                ;;
+            1)
+                __zplug::job::spinner::echo "$fg[red]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                    "Failed to update" \
+                    "$line" \
+                    $SECONDS
+                ;;
+            2)
+                sleep 1
+                __zplug::job::spinner::echo "$fg[magenta]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                    "Not found repo" \
+                    "$line" \
+                    $(( SECONDS - 1 ))
+                ;;
+            3)
+                sleep 1
+                __zplug::job::spinner::echo "$fg[blue]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                    "Frozen repo" \
+                    "$line" \
+                    $(( SECONDS - 1 ))
+                ;;
+            4)
+                __zplug::job::spinner::echo "$fg[white]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                    "Up-to-date" \
+                    "$line" \
+                    $SECONDS
+                ;;
+        esac
+    } &
+    queue+=($!)
+    if (( $#queue % queue_max == 0 )); then
+        wait $queue &>/dev/null
+        queue=()
+    fi
+done
+if (( $#queue > 0 )); then
+    wait $queue &>/dev/null
+fi
+queue=()
+
+__zplug::job::spinner::unlock
+return $ret
