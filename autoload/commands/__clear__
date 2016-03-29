@@ -20,7 +20,7 @@ do
 done
 
 if eval ${is_force:-"__zplug::print::print::put 'Remove cache file? ';read -q;__zplug::print::print::put '\n'"}; then
-    rm -f "$_ZPLUG_CACHE_FILE"
+    rm -f "$ZPLUG_CACHE_FILE"
     __zplug::print::print::put "Removed\n"
 else
     __zplug::print::print::put "Canceled\n"

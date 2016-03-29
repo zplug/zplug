@@ -6,6 +6,7 @@
     source "$ZPLUG_ROOT/test/.helpers/mock.zsh"
 
     export ZPLUG_HOME="$ZPLUG_ROOT/test/.fixtures"
+    unset ZPLUG_LOADFILE
 
     local expect actual
 }
