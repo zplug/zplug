@@ -33,7 +33,7 @@ __zplug::support::omz::depends() {
         do
             [[ -f $t ]] || continue
             sed '/^ *#/d' "$t" \
-                | egrep "(^|\s|['\"(\`])$lib_f($|\s|[\\\\'\")\`])"
+                | egrep "(^|\s|['\"(\`])$lib_f($|\s|[\\\\'\")\`])" \
                 &>/dev/null &&
                 depends+=( "$omz_libs[$lib_f]" )
         done
