@@ -169,7 +169,7 @@ do
                     sources=(
                     # expand to "$ZPLUG_HOME/repos/b4b4r07/sample/mycmd1"
                     #           "$ZPLUG_HOME/repos/b4b4r07/sample/sample"
-                    ${(@f)"$(zsh -c "echo ${zspec[dir]}/${zspec[use]}" 2>/dev/null)"}
+                    $(zsh -c "echo ${zspec[dir]}/${zspec[use]}" 2>/dev/null)
                     )
                     for src in "${sources[@]}"
                     do
@@ -214,7 +214,7 @@ do
                         load_patterns+=( "$zspec[dir]"/${~zspec[use]}(N.) )
                         if (( $#load_patterns == 0 )); then
                             # For brace
-                            load_patterns+=( ${(@f)"$(zsh -c "echo $zspec[dir]/$zspec[use](N.)" 2>/dev/null)"} )
+                            load_patterns+=( $(zsh -c "echo $zspec[dir]/$zspec[use](N.)" 2>/dev/null) )
                         fi
                         # Add the parent directory to fpath
                         load_fpaths+=( $zspec[dir]/_*(N.:h) )
@@ -226,7 +226,7 @@ do
                             load_patterns+=( "$zspec[dir]/$zspec[use]"/*.zsh(N.) )
                             if (( $#load_patterns == 0 )); then
                                 # For brace
-                                load_patterns+=( ${(@f)"$(zsh -c "echo $zspec[dir]/$zspec[use]/*.zsh(N.)" 2>/dev/null)"} )
+                                load_patterns+=( $(zsh -c "echo $zspec[dir]/$zspec[use]/*.zsh(N.)" 2>/dev/null) )
                             fi
                             # Add the parent directory to fpath
                             load_fpaths+=( $zspec[dir]/$zspec[use]/_*(N.:h) )
