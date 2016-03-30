@@ -411,7 +411,7 @@ at:v1\&.5\&.6
 T}
 T{
 .sp
-\fBrename_to\fR
+\fBrename-to\fR
 T}:T{
 .sp
 Specify the filename you want to rename to (only valid with as:command)
@@ -420,7 +420,7 @@ T}:T{
 \fBfilename\fR (\-)
 T}:T{
 .sp
-rename_to:fzf
+rename-to:fzf
 T}
 T{
 .sp
@@ -575,7 +575,7 @@ $ZPLUG_HOME
 .RE
 .\}
 .sp
-If you specify \fIas:command\fR when registering the package, zplug will recognize the plugin as a command and create a symbolic link of the same name (if you want to rename it, use rename_to) in $ZPLUG_HOME/bin\&. Because zplug adds $ZPLUG_HOME/bin to the $PATH, you can run that command from anywhere just like any other commands\&.
+If you specify \fIas:command\fR when registering the package, zplug will recognize the plugin as a command and create a symbolic link of the same name (if you want to rename it, use rename-to) in $ZPLUG_HOME/bin\&. Because zplug adds $ZPLUG_HOME/bin to the $PATH, you can run that command from anywhere just like any other commands\&.
 .PP
 \fIZPLUG_THREADS\fR
 .RS 4
@@ -686,11 +686,11 @@ zplug "tcnksm/docker\-alias", use:zshrc
 zplug "k4rthik/git\-cal", as:command, frozen:1
 
 # Grab binaries from GitHub Releases
-# and rename using the "rename_to:" tag
+# and rename using the "rename-to:" tag
 zplug "junegunn/fzf\-bin", \e
     as:command, \e
     from:gh\-r, \e
-    rename_to:fzf, \e
+    rename-to:fzf, \e
     use:"*darwin*amd64*"
 
 # Support oh\-my\-zsh plugins and the like
@@ -725,7 +725,7 @@ zplug "b4b4r07/hello_bitbucket", \e
 zplug "stedolan/jq", \e
     as:command, \e
     from:gh\-r \e
-    rename_to:jq, \e
+    rename-to:jq, \e
     on:"b4b4r07/emoji\-cli"
 
 # Set priority to load command like a nice command

@@ -93,7 +93,7 @@ case "$words[1]" in
             "use[Specify the pattern to source (for plugin) or relative path to export (for command)]:use:->use" \
             "from[Specify the services you use to install]:from:(gh-r gist oh-my-zsh github bitbucket local)" \
             "at[Support branch/tag installation]:at:" \
-            "rename_to[Specify filename you want to rename]:rename_to:" \
+            "rename-to[Specify filename you want to rename]:rename-to:" \
             "dir[Installation directory (RO)]:dir:->dir" \
             "if[Specify the conditions under which to source or add to \$PATH]:if:" \
             "do[Run commands after installation/update]:do:" \

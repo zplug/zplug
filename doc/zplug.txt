@@ -127,7 +127,7 @@ and so on
 
 |*at* | Branch, tag, or commit to use | *branch/tag* (`master`) | `at:v1.5.6`
 
-|*rename_to* | Specify the filename you want to rename to (only valid with `as:command`) | *filename* (-) | `rename_to:fzf`
+|*rename-to* | Specify the filename you want to rename to (only valid with `as:command`) | *filename* (-) | `rename-to:fzf`
 
 |*dir* | Installation directory which is managed by zplug | **READ ONLY** | `dir:/path/to/user/repo`
 
@@ -186,7 +186,7 @@ $ZPLUG_HOME
 
 If you specify 'as:command' when registering the package, zplug will recognize the plugin
 as a command and create a symbolic link of the same name (if you want to rename it,
-use `rename_to`) in `$ZPLUG_HOME/bin`. Because zplug adds `$ZPLUG_HOME/bin` to
+use `rename-to`) in `$ZPLUG_HOME/bin`. Because zplug adds `$ZPLUG_HOME/bin` to
 the `$PATH`, you can run that command from anywhere just like any other commands.
 
 'ZPLUG_THREADS'::
@@ -270,11 +270,11 @@ zplug "tcnksm/docker-alias", use:zshrc
 zplug "k4rthik/git-cal", as:command, frozen:1
 
 # Grab binaries from GitHub Releases
-# and rename using the "rename_to:" tag
+# and rename using the "rename-to:" tag
 zplug "junegunn/fzf-bin", \
     as:command, \
     from:gh-r, \
-    rename_to:fzf, \
+    rename-to:fzf, \
     use:"*darwin*amd64*"
 
 # Support oh-my-zsh plugins and the like
@@ -309,7 +309,7 @@ zplug "b4b4r07/hello_bitbucket", \
 zplug "stedolan/jq", \
     as:command, \
     from:gh-r \
-    rename_to:jq, \
+    rename-to:jq, \
     on:"b4b4r07/emoji-cli"
 
 # Set priority to load command like a nice command

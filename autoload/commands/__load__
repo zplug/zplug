@@ -122,7 +122,7 @@ do
             else
                 basename="${zspec[name]:t}"
                 zspec[dir]="${zspec[dir]%/}"
-                dst=${${zspec[rename_to]:+$ZPLUG_HOME/bin/$zspec[rename_to]}:-"$ZPLUG_HOME/bin"}
+                dst=${${zspec[rename-to]:+$ZPLUG_HOME/bin/$zspec[rename-to]}:-"$ZPLUG_HOME/bin"}
 
                 # Add parent directories to fpath if any files starting in _* exist
                 load_fpaths+=(${zspec[dir]}{_*,/**/_*}(N-.:h))
