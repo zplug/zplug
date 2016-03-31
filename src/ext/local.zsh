@@ -62,9 +62,9 @@ __zplug::local::load_command() {
     elif [[ -d ${~zspec[name]} ]]; then
         if [[ -n $zspec[use] ]]; then
             load_commands+=( $(zsh -c "echo $zspec[name]/$zspec[use]" 2>/dev/null) )
-        else
-            load_fpaths+=( ${~zspec[name]}(N-.) )
         fi
+
+        load_fpaths+=( ${~zspec[name]}{_*,/**/_*}(N-.:h) )
     fi
 
     # Append dst to each element so that load_commands becomes:
