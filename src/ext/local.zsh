@@ -26,7 +26,7 @@ __zplug::local::load_plugin() {
         load_patterns+=( "${~zspec[name]}" )
     elif [[ -d ${~zspec[name]} ]]; then
         if [[ -n $zspec[use] ]]; then
-            load_patterns+=( $(zsh -c "echo $zspec[name]/$zspec[use]") )
+            load_patterns+=( $(zsh -c "echo $zspec[name]/$zspec[use]" 2>/dev/null) )
         else
             load_fpaths+=(
                 ${~zspec[name]}/{_*,**/_*}(N-.:h)
@@ -58,10 +58,10 @@ __zplug::local::load_command() {
     if [[ -f ${~zspec[name]} ]]; then
         # Expand special characters such as ~ to $HOME
         # echo "${~foo}" with the double quotes doesn't expand for some reason
-        load_commands+=( "$(zsh -c "echo ${zspec[name]}")" )
+        load_commands+=( "$(zsh -c "echo ${zspec[name]}" 2>/dev/null)" )
     elif [[ -d ${~zspec[name]} ]]; then
         if [[ -n $zspec[use] ]]; then
-            load_commands+=( $(zsh -c "echo $zspec[name]/$zspec[use]") )
+            load_commands+=( $(zsh -c "echo $zspec[name]/$zspec[use]" 2>/dev/null) )
         else
             load_fpaths+=( ${~zspec[name]}(N-.) )
         fi
