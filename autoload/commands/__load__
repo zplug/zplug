@@ -116,9 +116,12 @@ do
             if __zplug::core::core::is_handler_defined load_command "$zspec[from]"; then
                 __zplug::core::core::use_handler load_command "$zspec[from]" "$key"
 
-                reply_hash=( ${(@f)reply} )
+                reply_hash=( $reply )
                 load_fpaths+=( ${(@f)reply_hash[load_fpaths]} )
-                load_commands+=( ${(@f)reply_hash[load_commands]} )
+                for pair in ${(@f)reply_hash[load_commands]}; do
+                    # Each line (pair) is null character-separated
+                    load_commands+=( ${(@s:\0:)pair} )
+                done
             else
                 basename="${zspec[name]:t}"
                 zspec[dir]="${zspec[dir]%/}"
@@ -239,18 +242,6 @@ do
                         fi
                     fi
                 done
-
-                if [[ $zspec[nice] -gt 9 ]]; then
-                    # the order of loading of plugin files
-                    nice_plugins+=( "${load_patterns[@]}" )
-                else
-                    # autoload plugin / regular plugin
-                    if (( $__zplug_boolean_true[(I)$zspec[lazy]] )); then
-                        lazy_plugins+=( "${load_patterns[@]}" )
-                    else
-                        load_plugins+=( "${load_patterns[@]}" )
-                    fi
-                fi
             fi
             ;;
 
@@ -259,6 +250,20 @@ do
             return 1
             ;;
     esac
+
+    if [[ $zspec[as] == plugin ]]; then
+        if [[ $zspec[nice] -gt 9 ]]; then
+            # the order of loading of plugin files
+            nice_plugins+=( "${load_patterns[@]}" )
+        else
+            # autoload plugin / regular plugin
+            if (( $__zplug_boolean_true[(I)$zspec[lazy]] )); then
+                lazy_plugins+=( "${load_patterns[@]}" )
+            else
+                load_plugins+=( "${load_patterns[@]}" )
+            fi
+        fi
+    fi
 
     if [[ -n $zspec[ignore] ]]; then
         # Make ignore patterns
