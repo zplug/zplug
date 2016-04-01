@@ -211,7 +211,7 @@ the `$PATH`, you can run that command from anywhere just like any other commands
     The `ZPLUG_FILTER` also accepts arguments (e.g. `fzf-tmux -d "10%":/path/to/peco:my peco`).
 
 'ZPLUG_LOADFILE'::
-    Defaults to `$ZPLUG_HOME/init.zsh`.
+    Defaults to `$ZPLUG_HOME/packages.zsh`.
     This file is used to add packages from zplug on the command-line. This is a
     useful feature when you want to isolate your zplug configurations from your
     `.zshrc`. Note that you don't need to add packages from the command line to

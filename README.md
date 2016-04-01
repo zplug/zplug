@@ -307,7 +307,7 @@ Defaults to `fzf-tmux:fzf:peco:percol:zaw`. When `--select` option is specified,
 
 #### `ZPLUG_LOADFILE`
 
-Defaults to `$ZPLUG_HOME/init.zsh`. This file is used to add plugins from zplug on the command-line. It is also a useful place to isolate your packages list from `.zshrc`. Rather than cluttering your `.zshrc` with many lines enumerating packages, you can put them in a separate file and set `ZPLUG_LOADFILE` to its path.
+Defaults to `$ZPLUG_HOME/packages.zsh`. This file is used to add plugins from zplug on the command-line. It is also a useful place to isolate your packages list from `.zshrc`. Rather than cluttering your `.zshrc` with many lines enumerating packages, you can put them in a separate file and set `ZPLUG_LOADFILE` to its path.
 
 #### `ZPLUG_USE_CACHE`
 
