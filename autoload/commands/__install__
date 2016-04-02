@@ -177,9 +177,9 @@ if (( $#check == 0 )); then
     return 1
 else
     if (( $#failed_packages == 0 )); then
-        __zplug::print::print::put "$fg_bold[default] ==> Installed all plugins to $ZPLUG_HOME/repos, successfully!$reset_color\n"
+        __zplug::print::print::put "$fg_bold[default] ==> Installation finished successfully!$reset_color\n"
     else
-        __zplug::print::print::die "$fg_bold[red] ==> Installed to $ZPLUG_HOME/repos but failed.$reset_color\n"
+        __zplug::print::print::die "$fg_bold[red] ==> Installation failed for following packages:$reset_color\n"
         for package in ${failed_packages[@]}
         do
             __zplug::print::print::die "  $package\n"

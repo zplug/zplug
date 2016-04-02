@@ -255,7 +255,7 @@ do
             ;;
 
         *)
-            __zplug::print::print::die "$zspec[as]: as tag must be command or plugin\n"
+            __zplug::print::print::die "$zspec[as]: as:value must be either command or plugin\n"
             return 1
             ;;
     esac

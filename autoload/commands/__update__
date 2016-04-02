@@ -170,7 +170,7 @@ do
             2)
                 sleep 1
                 __zplug::job::spinner::echo "$fg[magenta]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
-                    "Not found repo" \
+                    "Repo not found" \
                     "$line" \
                     $(( SECONDS - 1 ))
                 ;;
