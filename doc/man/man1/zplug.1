@@ -613,15 +613,17 @@ fzf\-tmux \-d "10%":/path/to/peco:my peco)\&.
 \fIZPLUG_LOADFILE\fR
 .RS 4
 Defaults to
-$ZPLUG_HOME/init\&.zsh\&. This file is used to add packages from zplug on the command\-line\&. This is a useful feature when you want to isolate your zplug configurations from your
+$ZPLUG_HOME/packages\&.zsh\&. This file is used to add packages from zplug on the command\-line\&. This is a useful feature when you want to isolate your zplug configurations from your
 \&.zshrc\&. Note that you don\(cqt need to add packages from the command line to use this feature: you can manually edit this file, and it\(cqll work just fine!
 .RE
 .PP
 \fIZPLUG_USE_CACHE\fR
 .RS 4
 Defaults to
-true\&. If this variable is true, zplug uses a cache file to speed up the loading process\&. The cache file is located as
-$ZPLUG_HOME/\&.cache\&. If you want to clear the cache, please run
+true\&. If this variable is true, zplug uses a cache file to speed up the loading process\&. The cache file is located at
+$ZPLUG_CACHE_FILE
+($ZPLUG_HOME/\&.cache
+by default)\&. If you want to clear the cache, please run
 zplug clear
 or do the following:
 .RE
@@ -635,6 +637,14 @@ $ ZPLUG_USE_CACHE=false zplug load
 .if n \{\
 .RE
 .\}
+.PP
+\fIZPLUG_CACHE_FILE\fR
+.RS 4
+Defaults to
+$ZPLUG_HOME/\&.cache\&. Specifies where to save the cache\&. For example, you can set this to
+$HOME/\&.cache/zplug/cache
+to follow XDG Base Directory Specification
+.RE
 .SH "EXTERNAL COMMANDS"
 .sp
 zplug, like \fIgit(1)\fR, supports external commands\&. These are executable scripts that reside somewhere in the PATH, named zplug\-cmdname, which can be invoked with zplug cmdname\&. This allows you to create your own commands without modifying zplug\(cqs internals\&. Instructions for creating your own commands can be found in the docs: https://github\&.com/b4b4r07/zplug2/blob/master/doc/zplug/External\-Commands\&.md Check out the sample zplug\-env external command for an example\&.
