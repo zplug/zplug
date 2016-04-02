@@ -68,9 +68,8 @@ COMMANDS
     If the `--select` option is given, by using the filter specified in
     `$ZPLUG_FILTER`, interactively select the 'package' you want to uninstall.
 
-*clear* [--force]::
-    Refresh the cache file.
-    `--force` does the same as what's described above.
+*clear*::
+    Remove the cache file.
 
 *install* [--verbose] [--select] ['package']::
     Install 'package'.

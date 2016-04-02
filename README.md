@@ -166,7 +166,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 | `check`   | Return true all packages are installed, false otherwise | `--verbose` |
 | `status`  | Check if the remote repositories are up to date | `--select` |
 | `clean`   | Remove repositories which are no longer managed | `--force`,`--select` |
-| `clear`   | Remove the cache file | `--force` |
+| `clear`   | Remove the cache file | (None) |
 | `info`    | Show the information such as the source URL and tag values for the given package | (None) |
 
 ## Options for `zplug`
