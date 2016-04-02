@@ -41,7 +41,7 @@ esac
             (( $#line > $max )) && max=$#line
         done
         __zplug::print::print::put "Fetching the status of packages ...\n"
-        __zplug::print::print::put "The packages which have from:'local' tag are skipped.\n"
+        __zplug::print::print::put "Packages with from:'local' are skipped.\n"
         __zplug::print::print::put "===\n"
         __zplug::job::spinner::lock
         __zplug::job::spinner::spinner &

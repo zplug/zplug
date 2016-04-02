@@ -9,7 +9,7 @@ local -a args awk_args
 local -A copy_zplugs
 
 if (( $#zplugs == 0 )); then
-    __zplug::print::print::die "[zplug] there are no available plugins\n"
+    __zplug::print::print::die "[zplug] no package managed by zplug\n"
     return 1
 fi
 

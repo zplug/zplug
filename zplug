@@ -6,12 +6,12 @@
 
 __logo() {
     cat <<'EOLOGO'
-               _             
-     _____ __ | |_   _  __ _ 
+               _
+     _____ __ | |_   _  __ _
     |_  / '_ \| | | | |/ _` |
      / /| |_) | | |_| | (_| |
     /___| .__/|_|\__,_|\__, |
-        |_|            |___/ 
+        |_|            |___/
 EOLOGO
 }
 
@@ -54,7 +54,7 @@ __get_zplug() {
 
     printf "\r\033[0K"
     if [[ -d $ZPLUG_HOME ]]; then
-        printf "[zplug] Welcome to zplug world...\U1F33A\n"
+        printf "[zplug] Welcome to the world of zplug...\U1F33A\n"
     else
         printf "[zplug] Oops! Failed to install...\n" >&2
         print -P -n "[zplug] For more details, see also %U$url%u\n" >&2
