@@ -221,7 +221,7 @@ All that's left is to run `zplug update`.
 
 | Tag | Description | Value (default) | Example |
 |-----|-------------|-----------------|---------|
-| `as`          | Specify whether to register as commands or to register as plugins | `plugin`,`command` (`plugin`) | `as:command` |
+| `as`          | Specify whether to register the package as plugins or commands | `plugin`,`command` (`plugin`) | `as:command` |
 | `use`         | Specify the pattern of the files to source (for `plugin`) or the relative path to add to the `$PATH` (for `command`) / For example for `from:gh-r`, you can specify `use:"*darwin*{amd,386}*"` to use OS-specific releases | *glob* (`use:"*.zsh"`) | `use:bin`,`use:"*.sh"`, `use:*darwin*` |
 | `ignore`      | Similar to `use` tag, but specify pattern of files you want to ignore (see also [#56](https://github.com/b4b4r07/zplug/issues/56)) | *glob* (-) | `ignore:"some_*.zsh"` |
 | `from`        | Specify where to get the package from | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`local` (`github`) | `from:gh-r` |
@@ -232,9 +232,9 @@ All that's left is to run `zplug update`.
 | `hook-build`  | Commands to after installation/update | *commands* (-) | `hook-build:"make install"` |
 | `hook-load`   | Commands to after loading | *commands* (-) | `hook-load:"echo 'Loaded!'"` |
 | `frozen`      | Do not update unless explicitly specified | truthy,falsy (false) | `frozen:1` |
-| `on`          | Specify after what package to load this package | *package* | `on:user/repo` |
+| `on`          | Load this package only if a different package is installed | *package* | `on:user/repo` |
 | `nice`        | Priority of loading the plugins. If this tag is specified 10 or more, zplug will load plugins after `compinit` (see also [#26](https://github.com/b4b4r07/zplug/issues/26)) | -20..19 (0) | `nice:19` |
-| `lazy`        | Whether this is an autoload function or not | truthy,falsy (false) | `lazy:true` |
+| `lazy`        | Whether it is an autoload function or not | truthy,falsy (false) | `lazy:true` |
 
 #### Changing the defaults
 
@@ -299,7 +299,7 @@ For more information, see also [**Which remote URL should I use?** - GitHub Help
 
 #### `ZPLUG_CLONE_DEPTH`
 
-Defaults to `0`. When cloning a Git repository, there is an option to limit the amount of history your clone will have. This environment variable how many commits you want to clone. The value `0` means that zplug will clone the whole history of that package.
+Defaults to `0`. When cloning a Git repository, there is an option to limit the amount of history your clone will have. This environment variable how many commits you want to clone. The value `0` means that zplug will clone the whole history of packages.
 
 #### `ZPLUG_FILTER`
 
@@ -311,7 +311,7 @@ Defaults to `$ZPLUG_HOME/packages.zsh`. This file is used to add plugins from zp
 
 #### `ZPLUG_USE_CACHE`
 
-Defaults to `true`. If this variable is true, zplug will use a cache file to speed up the load process. The cache file is located in `$ZPLUG_CACHE_FILE`. If you want to clear the cache, please run `zplug clear` or do the following:
+Defaults to `true`. If this variable is true, zplug will use a cache file to speed up the load process. The cache file is located at `$ZPLUG_CACHE_FILE`. If you want to clear the cache, please run `zplug clear` or do the following:
 
 ```console
 $ ZPLUG_USE_CACHE=false zplug load
@@ -319,11 +319,11 @@ $ ZPLUG_USE_CACHE=false zplug load
 
 #### `ZPLUG_CACHE_FILE`
 
-Defaults to `$ZPLUG_HOME/.cache`. You can change where the cache file is stored, for example, `$HOME/.cache/zplug/cache`.
+Defaults to `$ZPLUG_HOME/.cache`. You can change where the cache file is saved, for example, `$HOME/.cache/zplug/cache`.
 
 ### External commands
-zplug, like 'git(1)', supports external commands.
-These are executable scripts that reside somewhere in the PATH, named zplug-cmdname,
+zplug, like `git(1)`, supports external commands.
+These are executable scripts that reside somewhere in the PATH, named `zplug-cmdname`,
 which can be invoked with `zplug cmdname`.
 This allows you to create your own commands without modifying zplug's internals.
 Instructions for creating your own commands can be found in the [docs](https://github.com/b4b4r07/zplug/blob/master/doc/zplug/External-Commands.md).
