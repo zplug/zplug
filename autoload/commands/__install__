@@ -11,7 +11,7 @@ local -A check
 local    oh_my_line oh_my_count=0
 local -A zspec
 local -i max=0
-local -a failed_packages=()
+local -a failed_packages
 local -F SECONDS=0
 local -F start finish
 local -a queue
@@ -164,6 +164,7 @@ fi
 queue=()
 
 __zplug::job::spinner::unlock
+failed_packages=()
 for name in "${(k)check[@]}"
 do
     if [[ ! -e $check[$name] ]]; then
