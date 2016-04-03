@@ -63,7 +63,45 @@ __zplug::peek-a-boo::install() {
 
 ### `__zplug::peek-a-boo::load_plugin`
 
-This function is called when `as:plugin` is used.
+This function is called when `as:plugin` is used. Following is a template that
+you can stick into the beginning of your handler function:
+
+```zsh
+__zplug::my-source-name::load_plugin() {
+    local    line
+    local -A zspec
+
+    line="$1"
+    __parser__ "$line"
+    zspec=( "${reply[@]}" )
+
+    local -a load_plugins load_fpaths lazy_plugins
+    local -a load_patterns
+    local -a themes_ext plugins_ext
+
+    ...
+
+    reply=()
+    [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
+    [[ -n $load_patterns ]] && reply+=( load_patterns "${(F)load_patterns}" )
+    [[ -n $load_plugins ]] && reply+=( load_plugins "${(F)load_plugins}" )
+    [[ -n $nice_plugins ]] && reply+=( nice_plugins "${(F)nice_plugins}" )
+    [[ -n $themes_ext ]] && reply+=( themes_ext "${(F)themes_ext}" )
+    [[ -n $plugins_ext ]] && reply+=( plugins_ext "${(F)plugins_ext}" )
+
+    return 0
+}
+```
+
+The key variables are the the six local arrays declared. You normally only
+need to put the paths of the files you want to source in `load_patterns`, and
+zplug will later figure out whether it should go into `load_plugins`
+(immediately sorced), `nice_plugins` (sourced after `compinit`), or
+`lazy_plugins` (only added to `$fpath`). `src/ext/local.zsh` is a good example
+of this in action. It's generally a good idea to just put the paths into one
+of the arrays, but you can source the file within the handler like the
+following example.
+
 
 ```zsh
 __zplug::peek-a-boo::load_plugin() {
@@ -80,4 +118,38 @@ __zplug::peek-a-boo::load_plugin() {
 
 We can choose to use the default zplug behavior for commands. By not defining
 the function, zplug will create a symlink to `$ZPLUG_ROOT/bin` so that you can
-use it as a command.
+use it as a command. You can add customize the source path and the destination
+path as well as what directories to add to the `$fpath`.
+
+```zsh
+__zplug::my-source-name::load_command() {
+    local    line
+    local -A zspec
+
+    line="$1"
+    __parser__ "$line"
+    zspec=( "${reply[@]}" )
+
+    local -a load_fpaths
+    local -a load_commands
+    local dst
+
+    dst=${${zspec[rename_to]:+$ZPLUG_HOME/bin/$zspec[rename_to]}:-"$ZPLUG_HOME/bin"}
+
+    ...
+
+    load_commands=( ${^load_commands}"\0$dst" )
+
+    reply=()
+    [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
+    [[ -n $load_commands ]] && reply+=( load_commands "${(F)load_commands}" )
+
+    return 0
+}
+```
+
+The idea is the same as the `load_plugin` function, but there is a catch:
+since `load_commands` in the `__load__` file is an associative array with keys
+being the source and values being the destination, you need to take that into
+account when constructing the `reply`. The source and destination are
+separated by a `\0` (null character).
