@@ -134,7 +134,7 @@ __zplug::my-source-name::load_command() {
     local -a load_commands
     local dst
 
-    dst=${${zspec[rename_to]:+$ZPLUG_HOME/bin/$zspec[rename_to]}:-"$ZPLUG_HOME/bin"}
+    dst=${${zspec[rename-to]:+$ZPLUG_HOME/bin/$zspec[rename-to]}:-"$ZPLUG_HOME/bin"}
 
     ...
 

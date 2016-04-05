@@ -86,11 +86,11 @@ zplug "tcnksm/docker-alias", use:zshrc
 zplug "k4rthik/git-cal", as:command, frozen:1
 
 # Grab binaries from GitHub Releases
-# and rename with the "rename_to:" tag
+# and rename with the "rename-to:" tag
 zplug "junegunn/fzf-bin", \
     from:gh-r, \
     as:command, \
-    rename_to:fzf, \
+    rename-to:fzf, \
     use:"*darwin*amd64*"
 
 # Supports oh-my-zsh plugins and the like
@@ -125,7 +125,7 @@ zplug "b4b4r07/hello_bitbucket", \
 zplug "stedolan/jq", \
     from:gh-r \
     as:command, \
-    rename_to:jq
+    rename-to:jq
 zplug "b4b4r07/emoji-cli", \
     on:"stedolan/jq"
 # Note: To specify the order in which packages should be loaded, use the nice
@@ -226,7 +226,7 @@ All that's left is to run `zplug update`.
 | `ignore`      | Similar to `use` tag, but specify pattern of files you want to ignore (see also [#56](https://github.com/b4b4r07/zplug/issues/56)) | *glob* (-) | `ignore:"some_*.zsh"` |
 | `from`        | Specify where to get the package from | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`local` (`github`) | `from:gh-r` |
 | `at`          | Specify branch/tag/commit to install | *branch/tag* (`master`) | `at:v1.5.6` |
-| `rename_to`   | Specify the filename you want to rename the command to (only with `as:command`) | *filename* (-) | `rename_to:fzf` |
+| `rename-to`   | Specify the filename you want to rename the command to (only with `as:command`) | *filename* (-) | `rename-to:fzf` |
 | `dir`         | Installed directory of the package | **READ ONLY** | `dir:/path/to/user/repo` |
 | `if`          | Specify the conditions under which to install and use the package | *boolean* (-) | `if:"[ -d ~/.zsh ]"` |
 | `hook-build`  | Commands to after installation/update | *commands* (-) | `hook-build:"make install"` |
@@ -285,7 +285,7 @@ $ZPLUG_HOME
         `-- reponame1
 ```
 
-If you specify `as:command`, zplug will see the package as a command and create a symbolic link of the same name (if you want to rename it, use the `rename_to:` tag) in `$ZPLUG_HOME/bin`. Because zplug adds `$ZPLUG_HOME/bin` to the `$PATH`, you can run that command from anywhere.
+If you specify `as:command`, zplug will see the package as a command and create a symbolic link of the same name (if you want to rename it, use the `rename-to:` tag) in `$ZPLUG_HOME/bin`. Because zplug adds `$ZPLUG_HOME/bin` to the `$PATH`, you can run that command from anywhere.
 
 #### `ZPLUG_THREADS`
 
