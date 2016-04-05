@@ -62,9 +62,9 @@ do
                 __zplug::print::print::die "Please use '$fg[blue]use$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
                 ;;
             "file")
-                key="rename_to"
+                key="rename-to"
                 __zplug::print::print::die "[zplug] $fg[red]${(%):-"%U"}WARNING${(%):-"%u"}$reset_color: '$fg[blue]file$reset_color' tag is deprecated. "
-                __zplug::print::print::die "Please use '$fg[blue]rename_to$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
+                __zplug::print::print::die "Please use '$fg[blue]rename-to$reset_color' tag instead ($fg[green]${name:gs:@::}$reset_color).\n"
                 ;;
             "commit")
                 key="at"
