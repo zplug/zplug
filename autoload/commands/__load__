@@ -302,7 +302,7 @@ done
     for f in "${(k)load_commands[@]}"
     do
         if [[ -f $f ]]; then
-            ln -snf "$f" "$load_commands[$f]"
+            chmod a=rx "$f" && ln -snf "$f" "$load_commands[$f]"
             if (( $status != 0 )); then
                 failed_packages+=("$f")
             fi
