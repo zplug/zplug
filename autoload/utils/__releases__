@@ -73,6 +73,9 @@ done
         tag_use="$(__zplug::core::core::glob2regexp "$tag_use")"
     else
         tag_use="$(__zplug::core::core::get_os)"
+        if __zplug::core::core::is_osx; then
+            tag_use="(darwin|osx)"
+        fi
     fi
 }
 
@@ -86,7 +89,7 @@ done
     fi
 
     echo "${(F)candidates_list}" \
-        | grep "${tag_use:-}" \
+        | grep -E "${tag_use:-}" \
         | grep "$bit" \
         | head -n 1 \
         | read one_uri
@@ -136,9 +139,13 @@ done
             tar xvf "$artifact" &>/dev/null
             rm -f "$artifact"
             ;;
-        *)
+        *.*)
             __zplug::print::print::die "$artifact: Unknown format\n"
             return 1
+            ;;
+        *)
+            # Through
+            ;;
     esac
 
     file **/*(N-.) \
