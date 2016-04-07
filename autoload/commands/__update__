@@ -157,8 +157,8 @@ do
                     $SECONDS
 
                 # hook after updating
-                if [[ -n $zspec[hook_build] ]]; then
-                    eval "$zspec[hook_build]"
+                if [[ -n $zspec[hook-build] ]]; then
+                    eval "$zspec[hook-build]"
                 fi
                 ;;
             1)
