@@ -21,6 +21,7 @@ local -a themes_ext plugins_ext
 local -A reply_hash
 local -A hook_load
 local -a failed_packages hook_load_cmds
+local -a do_not_checkout
 
 while (( $# > 0 ))
 do
@@ -96,15 +97,18 @@ do
         fi
     }
 
-    (
-        builtin cd -q "$zspec[dir]" &>/dev/null || \
-            builtin cd -q "$zspec[dir]:h" &>/dev/null || \
-            __zplug::print::print::die "[zplug] $fg[red]ERROR$reset_color: no such directory '$zspec[dir]' ($zspec[name])\n"
-        git checkout -q "$zspec[at]" &>/dev/null
-        if (( $status != 0 )); then
-            __zplug::print::print::die "[zplug] $fg[red]ERROR$reset_color: pathspec '$zspec[at]' (at tag) did not match ($zspec[name])\n"
-        fi
-    )
+    do_not_checkout=( "local" "gh-r" )
+    if (( ! $do_not_checkout[(I)$zspec[from]] )); then
+        (
+            builtin cd -q "$zspec[dir]" &>/dev/null || \
+                builtin cd -q "$zspec[dir]:h" &>/dev/null || \
+                __zplug::print::print::die "[zplug] $fg[red]ERROR$reset_color: no such directory '$zspec[dir]' ($zspec[name])\n"
+            git checkout -q "$zspec[at]" &>/dev/null
+            if (( $status != 0 )); then
+                __zplug::print::print::die "[zplug] $fg[red]ERROR$reset_color: pathspec '$zspec[at]' (at tag) did not match ($zspec[name])\n"
+            fi
+        )
+    fi
 
     # MAIN
     case $zspec[as] in
