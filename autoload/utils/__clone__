@@ -152,14 +152,16 @@ done
     "$url_format" "$repository" &>/dev/null
 ret=$status
 
-(
-    # revision/branch/tag lock
-    builtin cd -q "$ZPLUG_HOME/repos/$repository"
-    git checkout -q "$tag_at" &>/dev/null
-    if (( $status != 0 )); then
-        __zplug::print::print::die "[zplug] $fg[red]ERROR$reset_color: pathspec '$tag_at' (at tag) did not match ($repository)\n"
-        ret=1
-    fi
-)
+if (( $ret == 0 )); then
+    (
+        # revision/branch/tag lock
+        builtin cd -q "$ZPLUG_HOME/repos/$repository"
+        git checkout -q "$tag_at" &>/dev/null
+        if (( $status != 0 )); then
+            __zplug::print::print::die "[zplug] $fg[red]ERROR$reset_color: pathspec '$tag_at' (at tag) did not match ($repository)\n"
+            ret=1
+        fi
+    )
+fi
 
 return $ret
