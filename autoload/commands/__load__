@@ -248,6 +248,18 @@ do
                     fi
                 done
             fi
+
+            if [[ $zspec[nice] -gt 9 ]]; then
+                # the order of loading of plugin files
+                nice_plugins+=( "${load_patterns[@]}" )
+            else
+                # autoload plugin / regular plugin
+                if (( $__zplug_boolean_true[(I)$zspec[lazy]] )); then
+                    lazy_plugins+=( "${load_patterns[@]}" )
+                else
+                    load_plugins+=( "${load_patterns[@]}" )
+                fi
+            fi
             ;;
 
         *)
@@ -255,20 +267,6 @@ do
             return 1
             ;;
     esac
-
-    if [[ $zspec[as] == plugin ]]; then
-        if [[ $zspec[nice] -gt 9 ]]; then
-            # the order of loading of plugin files
-            nice_plugins+=( "${load_patterns[@]}" )
-        else
-            # autoload plugin / regular plugin
-            if (( $__zplug_boolean_true[(I)$zspec[lazy]] )); then
-                lazy_plugins+=( "${load_patterns[@]}" )
-            else
-                load_plugins+=( "${load_patterns[@]}" )
-            fi
-        fi
-    fi
 
     if [[ -n $zspec[ignore] ]]; then
         # Make ignore patterns
