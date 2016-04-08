@@ -187,6 +187,8 @@ do
             ;;
 
         "plugin")
+            load_patterns=()
+
             if __zplug::core::core::is_handler_defined load_plugin "$zspec[from]"; then
                 # Custom handler for loading
                 __zplug::core::core::use_handler load_plugin "$zspec[from]" "$key"
@@ -200,7 +202,6 @@ do
                 plugins_ext+=( ${(@f)reply_hash[plugins_ext]} )
             else
                 # Default load behavior for plugins
-                load_patterns=()
                 plugins_ext=("plugin.zsh")
 
                 # In order to find main file of the plugin,
