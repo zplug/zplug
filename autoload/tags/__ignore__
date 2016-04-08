@@ -1,0 +1,19 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg="$1" package
+local -a parsed_zplugs
+local    ignore
+local    default=""
+
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+ignore="${parsed_zplugs[(k)ignore:*]#ignore:*}"
+if [[ -z $ignore ]]; then
+    zstyle -s ":zplug:tag" ignore ignore
+fi
+
+echo "${ignore:-$default}"

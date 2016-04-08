@@ -1,0 +1,62 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+__import "job/spinner"
+
+local    is_verbose=false
+local    arg line
+local -a args fail
+local -A zspec
+
+while (( $# > 0 ))
+do
+    arg="$1"
+    case "$arg" in
+        --verbose)
+            is_verbose=true
+            ;;
+        -*|--*)
+            __zplug::print::print::die "[zplug] $arg: Unknown option\n"
+            return 1
+            ;;
+        *)
+            args+=("$arg")
+            ;;
+    esac
+    shift
+done
+
+for line in ${${args[@]:-${(k)zplugs[@]}}:gs:@::}
+do
+    __parser__ "$line"
+    zspec=( "${reply[@]}" )
+    if [[ $zspec[from] == local ]]; then
+        continue
+    fi
+
+    if [[ -n $zspec[if] ]] && ! eval "$zspec[if]" &>/dev/null; then
+        continue
+    fi
+
+    if __zplug::core::core::is_handler_defined check "$zspec[from]"; then
+        __zplug::core::core::use_handler check "$zspec[from]" "$line"
+
+        if (( $status )); then
+            fail+=("$zspec[name]")
+        fi
+    else
+        if [[ ! -d $zspec[dir] ]]; then
+            fail+=("$zspec[name]")
+        fi
+    fi
+done
+
+if (( $#fail > 0 )); then
+    if $is_verbose; then
+        __zplug::print::print::put "- $fg[red]%s$reset_color: not installed\n" "${(@nO)fail}"
+    fi
+    return 1
+else
+    return 0
+fi

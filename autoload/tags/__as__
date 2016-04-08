@@ -1,0 +1,50 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg="$1" package
+local -a parsed_zplugs
+local    as
+local    default="plugin"
+local -a candidates
+
+candidates=(
+"$default"
+"command"
+)
+
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+as="${parsed_zplugs[(k)as:*]#as:*}"
+if [[ -z $as ]]; then
+    zstyle -t ":zplug:tag" as "${candidates[@]}"
+    case $status in
+        0)
+            # ok
+            zstyle -s ":zplug:tag" as as
+            ;;
+        1)
+            __zplug::print::print::die \
+                "[zplug] $fg[red]ERROR$reset_color: "
+            __zplug::print::print::die \
+                "as tag must be [${(j:, :)candidates[@]}] ($fg[green]$arg$reset_color)\n"
+            return 1
+            ;;
+        2)
+            # undefined
+            ;;
+    esac
+fi
+
+: ${as:=$default}
+if [[ ! $as =~ ^(${(j:|:)candidates[@]})$ ]]; then
+    __zplug::print::print::die \
+        "[zplug] $fg[red]ERROR$reset_color: "
+    __zplug::print::print::die \
+        "as tag must be [${(j:, :)candidates[@]}] ($fg[green]$arg$reset_color)\n"
+    return 1
+fi
+
+echo "$as"

@@ -1,0 +1,35 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg="$1" package
+local -a parsed_zplugs
+local    nice
+local -i default=0
+
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+nice="${parsed_zplugs[(k)nice:*]#nice:*}"
+if [[ -z $nice ]]; then
+    zstyle -s ":zplug:tag" nice nice
+fi
+
+if [[ $arg == $_ZPLUG_OHMYZSH ]] && [[ $nice == 0 ]]; then
+    nice=-10
+fi
+
+: ${nice:=$default}
+if [[ $nice == <-> ]] && \
+    (( $nice >= -20 )) && (( $nice <= 19 )); then
+    :
+else
+    __zplug::print::print::die \
+        "[zplug] $fg[red]ERROR$reset_color: "
+    __zplug::print::print::die \
+        "from tag must be {-20..19} ($fg[green]$arg$reset_color)\n"
+    return 1
+fi
+
+echo "$nice"

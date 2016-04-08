@@ -1,0 +1,19 @@
+#!/bin/zsh
+
+__import "print/print"
+
+local arg
+
+while (( $# > 0 ))
+do
+    arg="$1"
+    case "$arg" in
+        -*|--*)
+            __zplug::print::print::die "[zplug] $arg: Unknown option\n"
+            return 1
+            ;;
+    esac
+    shift
+done
+
+rm -f "$ZPLUG_CACHE_FILE"

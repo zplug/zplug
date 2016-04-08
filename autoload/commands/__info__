@@ -1,0 +1,44 @@
+#!/bin/zsh
+
+__import "print/print"
+__import "core/core"
+__import "core/git"
+
+local    arg="$1" k
+local -A zspec
+
+if [[ -z $arg ]]; then
+    __zplug::print::print::die \
+        "[zplug] info: too few arguments\n"
+    return 1
+fi
+
+if ! __zplug::core::core::zpluged "$arg"; then
+    __zplug::print::print::die \
+        "[zplug] info: $arg is not a managed package\n"
+    return 1
+fi
+
+__parser__ "$arg"
+zspec=( "${reply[@]}" )
+
+if (( $#zspec > 0 )); then
+    (
+    # change directory for remote_url
+    builtin cd -q "$zspec[dir]"
+
+    __zplug::print::print::put \
+        "==> $fg[green]$arg$reset_color"
+    __zplug::print::print::put \
+        " <${(%):-"%U"}%s${(%):-"%u"}>\n" \
+        "${$(__zplug::core::git::remote_url):-"LOCAL REPO"}"
+    __zplug::print::print::put \
+        " - - - \n"
+    )
+fi
+
+for k in "${(k)zspec[@]}"
+do
+    __zplug::print::print::put \
+        "$fg[red]-$reset_color $fg[blue]$k$reset_color:$fg[yellow]${(qqq)zspec[$k]}$reset_color\n"
+done
