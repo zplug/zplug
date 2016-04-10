@@ -292,10 +292,10 @@ do
     fi
 
     # hook after load
-    if [[ -n $zspec[hook_load] ]]; then
+    if [[ -n $zspec[hook-load] ]]; then
         hook_load+=(
             "$zspec[name]"
-            "$zspec[hook_load]"
+            "$zspec[hook-load]"
         )
     fi
 done

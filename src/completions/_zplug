@@ -96,7 +96,8 @@ case "$words[1]" in
             "rename-to[Specify filename you want to rename]:rename-to:" \
             "dir[Installation directory (RO)]:dir:->dir" \
             "if[Specify the conditions under which to source or add to \$PATH]:if:" \
-            "do[Run commands after installation/update]:do:" \
+            "hook-build[Commands to run after installation/update]:hook-build:" \
+            "hook-load[Commands to run after loading]:hook-load:" \
             "frozen[Do not update unless explicitly specified]:frozen:->boolean" \
             "on[Dependencies (RO)]:on:->on" \
             "nice[Priority of loading the plugins]:nice:->nice" \
