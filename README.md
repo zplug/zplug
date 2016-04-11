@@ -58,6 +58,12 @@ Download [zplug](https://git.io/zplug) and put it in `~/.zplug`
 $ curl -sL git.io/zplug | zsh
 ```
 
+### Requirements
+
+- `zsh` version 4.3.9 or higher
+- `git` version 1.7 or higher
+- `awk` An AWK variant that's **not** `mawk`
+
 ## Usage
 
 Add a zplug section to your `.zshrc`:
