@@ -116,11 +116,11 @@ do
                     --at  "${zspec[at]:-}" \
                     "$line"
             else
-                local fetch_opt
                 if [[ -e $zspec[dir]/.git/shallow ]]; then
-                    fetch_opt="--unshallow"
+                    git fetch --unshallow
+                else
+                    git fetch
                 fi
-                git fetch "$fetch_opt"
                 git checkout -q "$zspec[at]"
 
                 local rev_local rev_remote rev_base
