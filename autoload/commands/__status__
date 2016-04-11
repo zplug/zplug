@@ -40,6 +40,8 @@ esac
             line="$(__zplug::core::core::packaging "$line")"
             (( $#line > $max )) && max=$#line
         done
+        max=$(( $max + 1 ))
+
         __zplug::print::print::put "Fetching the status of packages ...\n"
         __zplug::print::print::put "Packages with from:'local' are skipped.\n"
         __zplug::print::print::put "===\n"
