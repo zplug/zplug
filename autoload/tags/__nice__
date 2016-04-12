@@ -21,14 +21,13 @@ if [[ $arg == $_ZPLUG_OHMYZSH ]] && [[ $nice == 0 ]]; then
 fi
 
 : ${nice:=$default}
-if [[ $nice == <-> ]] && \
-    (( $nice >= -20 )) && (( $nice <= 19 )); then
+if (( $nice >= -20 )) && (( $nice <= 19 )); then
     :
 else
     __zplug::print::print::die \
         "[zplug] $fg[red]ERROR$reset_color: "
     __zplug::print::print::die \
-        "from tag must be {-20..19} ($fg[green]$arg$reset_color)\n"
+        "nice tag must be {-20..19} ($fg[green]$arg$reset_color)\n"
     return 1
 fi
 
