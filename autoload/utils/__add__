@@ -14,7 +14,9 @@ local -a re_tags
 tags=( ${(s/, /)@:gs/,  */, } )
 name="${tags[1]}"
 tags[1]=()
-if [[ ! $name =~ "^[^/]+/[^/]+$" ]]; then
+
+# In the case of "from:local", it accepts multiple slashes
+if [[ ! $name =~ [~$/] ]] && [[ ! $name =~ "^[^/]+/[^/]+$" ]]; then
     __zplug::print::print::die "[zplug] ERROR: ${(qq)name} is invalid package name\n"
     return 1
 fi
