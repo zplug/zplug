@@ -16,7 +16,7 @@ name="${tags[1]}"
 tags[1]=()
 
 # In the case of "from:local", it accepts multiple slashes
-if [[ ! -e $name ]] && [[ ! $name =~ "^[^/]+/[^/]+$" ]]; then
+if [[ ! $name =~ [~$/] ]] && [[ ! $name =~ "^[^/]+/[^/]+$" ]]; then
     __zplug::print::print::die "[zplug] ERROR: ${(qq)name} is invalid package name\n"
     return 1
 fi
