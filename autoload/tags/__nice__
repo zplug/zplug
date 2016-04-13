@@ -21,7 +21,8 @@ if [[ $arg == $_ZPLUG_OHMYZSH ]] && [[ $nice == 0 ]]; then
 fi
 
 : ${nice:=$default}
-if (( $nice >= -20 )) && (( $nice <= 19 )); then
+if [[ $nice =~ ^[-+]?[[:digit:]]+$ ]] && \
+    (( $nice >= -20 )) && (( $nice <= 19 )); then
     :
 else
     __zplug::print::print::die \
