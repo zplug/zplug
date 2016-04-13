@@ -8,7 +8,7 @@ __zplug::core::core::is_external() {
     local source_name
 
     source_name="${1:?}"
-    [[ -f $ZPLUG_ROOT/src/ext/$source_name.zsh ]]
+    [[ -f $ZPLUG_ROOT/base/sources/$source_name.zsh ]]
 }
 
 __zplug::core::core::is_handler_defined() {
@@ -227,7 +227,7 @@ __zplug::core::core::packaging() {
         echo "$k"
     done \
         | awk \
-        -f "$ZPLUG_ROOT/src/share/packaging.awk" \
+        -f "$ZPLUG_ROOT/misc/share/packaging.awk" \
         -v pkg="${1:?}"
 }
 

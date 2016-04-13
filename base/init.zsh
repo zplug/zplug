@@ -28,7 +28,7 @@ __import() {
                 ;;
             */*)
                 shift
-                f="$ZPLUG_ROOT/lib/${arg}.zsh"
+                f="$ZPLUG_ROOT/base/${arg}.zsh"
                 if [[ ! -f $f ]]; then
                     f=""
                     continue

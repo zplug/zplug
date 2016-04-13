@@ -9,7 +9,7 @@ __zplug::zplug::cache::tags() {
     do
         echo "name:$key, $zplugs[$key]"
     done \
-        | awk -f "$ZPLUG_ROOT/src/share/cache.awk"
+        | awk -f "$ZPLUG_ROOT/misc/share/cache.awk"
 }
 
 __zplug::zplug::cache::load() {
@@ -19,7 +19,7 @@ __zplug::zplug::cache::load() {
     if [[ -f $ZPLUG_CACHE_FILE ]]; then
         &>/dev/null diff -b \
             <( \
-            awk -f "$ZPLUG_ROOT/src/share/read_cache.awk" \
+            awk -f "$ZPLUG_ROOT/misc/share/read_cache.awk" \
             "$ZPLUG_CACHE_FILE" \
             ) \
             <( \
@@ -27,7 +27,7 @@ __zplug::zplug::cache::load() {
             do \
                 echo "name:$key, $zplugs[$key]"; \
             done \
-            | awk -f "$ZPLUG_ROOT/src/share/cache.awk"
+            | awk -f "$ZPLUG_ROOT/misc/share/cache.awk"
         )
 
         case $status in

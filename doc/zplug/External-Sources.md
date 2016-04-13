@@ -14,7 +14,7 @@ and post installation/loading actions.
 
 Let's suppose we want a `peek-a-boo` source, that loads the content of the
 file specified by the `use` tag or `$HOME/boo.zsh` if it exists. The first
-step is to create a `peek-a-boo.zsh` in `$ZPLUG_ROOT/src/ext/`. Once we've
+step is to create a `peek-a-boo.zsh` in `$ZPLUG_ROOT/base/sources/`. Once we've
 done that, there are four functions that we can choose to define, or just use
 the default action: `check`, `install`, `load_command`, and `load_plugin`.
 
