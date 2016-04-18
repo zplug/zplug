@@ -8,7 +8,8 @@ __zplug::local::check() {
     __parser__ "$line"
     zspec=( "${reply[@]}" )
 
-    [[ -e ${~zspec[name]} ]]
+    # Note: $zspec[dir] can be a dir name or a file name
+    [[ -e ${~zspec[dir]} ]]
 }
 
 __zplug::local::load_plugin() {
@@ -22,14 +23,14 @@ __zplug::local::load_plugin() {
     local -a load_patterns
     local -a load_fpaths
 
-    if [[ -f ${~zspec[name]} ]]; then
-        load_patterns+=( "${~zspec[name]}" )
-    elif [[ -d ${~zspec[name]} ]]; then
+    if [[ -f ${~zspec[dir]} ]]; then
+        load_patterns+=( $(zsh -c "echo ${zspec[dir]}" 2>/dev/null) )
+    elif [[ -d ${~zspec[dir]} ]]; then
         if [[ -n $zspec[use] ]]; then
-            load_patterns+=( $(zsh -c "echo $zspec[name]/$zspec[use]" 2>/dev/null) )
+            load_patterns+=( $(zsh -c "echo $zspec[dir]/$zspec[use]" 2>/dev/null) )
         else
             load_fpaths+=(
-                ${~zspec[name]}/{_*,**/_*}(N-.:h)
+                ${~zspec[dir]}/{_*,**/_*}(N-.:h)
             )
         fi
     fi
