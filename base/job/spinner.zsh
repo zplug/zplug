@@ -28,7 +28,7 @@ __zplug::job::spinner::spinner() {
 
     # spinners=("⠄" "⠆" "⠇" "⠋" "⠙" "⠸" "⠰" "⠠" "⠰" "⠸" "⠙" "⠋" "⠇" "⠆")
     spinners=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
-    format="@\r"
+    format="@"
     latency=0.03
 
     while __zplug::job::spinner::is_spin
@@ -40,7 +40,7 @@ __zplug::job::spinner::spinner() {
             {
                 system("tput civis")
                 gsub("@", i)
-                printf("%s", $0)
+                printf("%s\r", $0)
                 fflush()
                 system("sleep "t"")
             }
