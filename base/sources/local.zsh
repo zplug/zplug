@@ -8,8 +8,22 @@ __zplug::local::check() {
     __parser__ "$line"
     zspec=( "${reply[@]}" )
 
+    local    expanded_path
+    local -a expanded_paths
+
     # Note: $zspec[dir] can be a dir name or a file name
-    [[ -e ${~zspec[dir]} ]]
+    expanded_paths=( $(zsh -c "echo ${zspec[dir]}" 2>/dev/null) )
+
+    # Okay if at least one expanded path exists
+    for expanded_path in ${expanded_paths[@]}
+    do
+        if [[ -e $expanded_path ]]; then
+            return 0
+        fi
+    done
+
+    __zplug::print::print::die "[zplug] no matching file or directory: ${zspec[dir]}\n"
+    return 1
 }
 
 __zplug::local::load_plugin() {
@@ -22,17 +36,29 @@ __zplug::local::load_plugin() {
 
     local -a load_patterns
     local -a load_fpaths
+    local    expanded_path
+    local -a expanded_paths
 
-    if [[ -f ${~zspec[dir]} ]]; then
-        load_patterns+=( $(zsh -c "echo ${zspec[dir]}" 2>/dev/null) )
-    elif [[ -d ${~zspec[dir]} ]]; then
-        if [[ -n $zspec[use] ]]; then
-            load_patterns+=( $(zsh -c "echo $zspec[dir]/$zspec[use]" 2>/dev/null) )
-        else
-            load_fpaths+=(
-                ${~zspec[dir]}/{_*,**/_*}(N-.:h)
-            )
+    expanded_paths=( $(zsh -c "echo ${zspec[dir]}" 2>/dev/null) )
+
+    for expanded_path in ${expanded_paths[@]}
+    do
+        if [[ -f $expanded_path ]]; then
+            load_patterns+=( $expanded_path )
+        elif [[ -d $expanded_path ]]; then
+            if [[ -n $zspec[use] ]]; then
+                load_patterns+=( $(zsh -c "echo $expanded_path/$zspec[use]" 2>/dev/null) )
+            else
+                load_fpaths+=(
+                    $expanded_path/{_*,**/_*}(N-.:h)
+                )
+            fi
         fi
+    done
+
+    if (( $#load_patterns == 0 )); then
+        __zplug::print::print::die "[zplug] no matching file or directory: ${zspec[dir]}\n"
+        return 1
     fi
 
     reply=()
@@ -52,20 +78,32 @@ __zplug::local::load_command() {
 
     local -a load_fpaths
     local -a load_commands
+    local    expanded_path
+    local -a expanded_paths
     local dst
+
+    expanded_paths=( $(zsh -c "echo ${zspec[dir]}" 2>/dev/null) )
 
     dst=${${zspec[rename-to]:+$ZPLUG_HOME/bin/$zspec[rename-to]}:-"$ZPLUG_HOME/bin"}
 
-    if [[ -f ${~zspec[name]} ]]; then
-        # Expand special characters such as ~ to $HOME
-        # echo "${~foo}" with the double quotes doesn't expand for some reason
-        load_commands+=( "$(zsh -c "echo ${zspec[name]}" 2>/dev/null)" )
-    elif [[ -d ${~zspec[name]} ]]; then
-        if [[ -n $zspec[use] ]]; then
-            load_commands+=( $(zsh -c "echo $zspec[name]/$zspec[use]" 2>/dev/null) )
+    for expanded_path in ${expanded_paths[@]}
+    do
+        if [[ -f $expanded_path ]]; then
+            load_commands+=( $expanded_path )
+        elif [[ -d $expanded_path ]]; then
+            if [[ -n $zspec[use] ]]; then
+                load_commands+=( $(zsh -c "echo $expanded_path/$zspec[use]" 2>/dev/null) )
+            else
+                load_fpaths+=(
+                    $expanded_path/{_*,**/_*}(N-.:h)
+                )
+            fi
         fi
+    done
 
-        load_fpaths+=( ${~zspec[name]}{_*,/**/_*}(N-.:h) )
+    if (( $#load_commands == 0 )); then
+        __zplug::print::print::die "[zplug] no matching file or directory: ${zspec[dir]}\n"
+        return 1
     fi
 
     # Append dst to each element so that load_commands becomes:
