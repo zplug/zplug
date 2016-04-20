@@ -20,7 +20,7 @@ $path
 # Add to the FPATH
 fpath=(
 "$ZPLUG_ROOT"/autoload(N-/)
-"$ZPLUG_ROOT"/src/completions(N-/)
+"$ZPLUG_ROOT"/misc/completions(N-/)
 $fpath
 )
 

@@ -6,7 +6,7 @@ if (( $+functions[__import] )); then
     return 0
 fi
 
-source "$ZPLUG_ROOT/lib/init.zsh"
+source "$ZPLUG_ROOT/base/init.zsh"
 
 __import "zplug/variables"
 __import "zplug/external"

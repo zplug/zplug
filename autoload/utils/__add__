@@ -81,7 +81,7 @@ do
                 ;;
             "from")
                 if __zplug::core::core::is_external "$val"; then
-                    source $ZPLUG_ROOT/src/ext/$val.zsh
+                    source $ZPLUG_ROOT/base/sources/$val.zsh
                 fi
                 ;;
         esac
