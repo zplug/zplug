@@ -4,7 +4,7 @@ if [[ -z $ZPLUG_ROOT ]]; then
     exit 1
 fi
 
-source "$ZPLUG_ROOT/lib/core/core.zsh"
+source "$ZPLUG_ROOT/base/core/core.zsh"
 
 local    filter
 local    dir

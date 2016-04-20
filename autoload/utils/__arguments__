@@ -29,7 +29,7 @@ reply+=("${user_cmds[@]}")
 
 cmds=(
 ${(@f)"$(awk \
-    -f "$ZPLUG_ROOT/src/share/fuzzy.awk" \
+    -f "$ZPLUG_ROOT/misc/share/fuzzy.awk" \
     -v search_string="$arg" \
     <<<"${(F)reply:gs:_:}"
 )"}
