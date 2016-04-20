@@ -67,7 +67,7 @@ do
         continue
     fi
 
-    if __zplug::core::core::is_handler_defined check "$line"; then
+    if __zplug::core::core::is_handler_defined check "$zspec[from]"; then
         if __zplug::core::core::use_handler check "$zspec[from]" "$line"; then
             if $is_verbose; then
                 __zplug::print::print::put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
