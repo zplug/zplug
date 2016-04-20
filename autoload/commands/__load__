@@ -213,8 +213,11 @@ do
                 #    - and *.zsh files ==> bar.zsh
                 for ext in "${plugins_ext[@]}"
                 do
-                    # NOTE: step 1
-                    load_patterns+=( "$zspec[dir]"/*.$ext(N-.) )
+                    if [[ -z $zspec[use] ]]; then
+                        # NOTE: step 1
+                        load_patterns+=( "$zspec[dir]"/*.$ext(N-.) )
+                    fi
+
                     if (( $#load_patterns == 0 )); then
                         # NOTE: step 2
                         # If $zspec[use] is a regular file,
