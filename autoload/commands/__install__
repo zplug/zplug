@@ -84,7 +84,9 @@ do
     fi
 
     # For checking
-    if [[ -n $zspec[dir] ]]; then
+    if __zplug::core::core::is_handler_defined check "$zspec[from]"; then
+        check+=("$zspec[name]" "$zspec[from]")
+    elif [[ -n $zspec[dir] ]]; then
         check+=("$zspec[name]" "$zspec[dir]")
     else
         check+=("$zspec[name]" "$ZPLUG_HOME/repos/$line")
@@ -167,7 +169,11 @@ __zplug::job::spinner::unlock
 failed_packages=()
 for name in "${(k)check[@]}"
 do
-    if [[ ! -e $check[$name] ]]; then
+    if __zplug::core::core::is_handler_defined check "$check[$name]"; then
+        if ! __zplug::core::core::use_handler check "$check[$name]" "$name"; then
+            failed_packages+=( "$name" )
+        fi
+    elif [[ ! -e $check[$name] ]]; then
         failed_packages+=( "$name" )
     fi
 done
