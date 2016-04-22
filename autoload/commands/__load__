@@ -22,6 +22,7 @@ local -A reply_hash
 local -A hook_load
 local -a failed_packages hook_load_cmds
 local -a do_not_checkout
+local    default_use
 
 while (( $# > 0 ))
 do
@@ -213,7 +214,9 @@ do
                 #    - and *.zsh files ==> bar.zsh
                 for ext in "${plugins_ext[@]}"
                 do
-                    if [[ -z $zspec[use] ]]; then
+                    zstyle -a ":zplug:tag" use default_use
+                    default_use=${default_use:-"*.zsh"}
+                    if [[ $zspec[use] == $default_use ]]; then
                         # NOTE: step 1
                         load_patterns+=( "$zspec[dir]"/*.$ext(N-.) )
                     fi
