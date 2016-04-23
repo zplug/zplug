@@ -46,3 +46,11 @@ typeset -ga _zplug_boolean_true
 _zplug_boolean_true=("true" "yes" "on" 1)
 typeset -ga _zplug_boolean_false
 _zplug_boolean_false=("false" "no" "off" 0)
+
+# some config
+local -a subshell
+zstyle -a ":zplug:config" subshell subshell
+typeset -gx _ZPLUG_CONFIG_SUBSHELL=":"
+if (( $#subshell > 0 )); then
+    _ZPLUG_CONFIG_SUBSHELL="setopt ${subshell[@]}"
+fi
