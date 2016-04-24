@@ -241,6 +241,7 @@ All that's left is to run `zplug update`.
 | `on`          | Load this package only if a different package is installed | *package* | `on:user/repo` |
 | `nice`        | Priority of loading the plugins. If this tag is specified 10 or more, zplug will load plugins after `compinit` (see also [#26](https://github.com/b4b4r07/zplug/issues/26)) | -20..19 (0) | `nice:19` |
 | `lazy`        | Whether it is an autoload function or not | truthy,falsy (false) | `lazy:true` |
+| `depth`       | The number of commits to include in the cloned repository. 0 means the whole history. | Any non-negative integer (`ZPLUG_CLONE_DEPTH`) | `depth:10` |
 
 #### Changing the defaults
 

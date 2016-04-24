@@ -142,6 +142,8 @@ and so on
 
 |*lazy* | Lazy-load | *truthy,falsy* (no) | `lazy:true`
 
+|*depth* | The number of commits to include in the cloned repository. 0 means the whole history. | Any non-negative integer (`ZPLUG_CLONE_DEPTH`) | `depth:10` |
+
 |*nice* | Priority of loading the plugins. If the value is 10 or more,
 zplug will source the plugin after `compinit` (see also https://github.com/b4b4r07/zplug/issues/26[#26])
 | -20..19 (0) | `nice:19`
