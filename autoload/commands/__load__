@@ -177,7 +177,7 @@ do
                     sources=(
                     # expand to "$ZPLUG_HOME/repos/b4b4r07/sample/mycmd1"
                     #           "$ZPLUG_HOME/repos/b4b4r07/sample/sample"
-                    $(zsh -c "echo ${zspec[dir]}/${zspec[use]}" 2>/dev/null)
+                    $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${zspec[dir]}/${zspec[use]}" 2>/dev/null)
                     )
                     for src in "${sources[@]}"
                     do
@@ -228,7 +228,7 @@ do
                         load_patterns+=( "$zspec[dir]"/${~zspec[use]}(N.) )
                         if (( $#load_patterns == 0 )); then
                             # For brace
-                            load_patterns+=( $(zsh -c "echo $zspec[dir]/$zspec[use](N.)" 2>/dev/null) )
+                            load_patterns+=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $zspec[dir]/$zspec[use](N.)" 2>/dev/null) )
                         fi
                         # Add the parent directory to fpath
                         load_fpaths+=( $zspec[dir]/_*(N.:h) )
@@ -240,7 +240,7 @@ do
                             load_patterns+=( "$zspec[dir]/$zspec[use]"/*.zsh(N.) )
                             if (( $#load_patterns == 0 )); then
                                 # For brace
-                                load_patterns+=( $(zsh -c "echo $zspec[dir]/$zspec[use]/*.zsh(N.)" 2>/dev/null) )
+                                load_patterns+=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $zspec[dir]/$zspec[use]/*.zsh(N.)" 2>/dev/null) )
                             fi
                             # Add the parent directory to fpath
                             load_fpaths+=( $zspec[dir]/$zspec[use]/_*(N.:h) )
@@ -277,9 +277,9 @@ do
     if [[ -n $zspec[ignore] ]]; then
         # Make ignore patterns
         if [[ $zspec[from] == "oh-my-zsh" ]]; then
-            ignore_patterns=( $(zsh -c "echo $ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/${~zspec[ignore]}" 2>/dev/null)(N) )
+            ignore_patterns=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/${~zspec[ignore]}" 2>/dev/null)(N) )
         else
-            ignore_patterns=( $(zsh -c "echo ${zspec[dir]}/${~zspec[ignore]}" 2>/dev/null)(N) )
+            ignore_patterns=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${zspec[dir]}/${~zspec[ignore]}" 2>/dev/null)(N) )
         fi
 
         for ignore in "${ignore_patterns[@]}"

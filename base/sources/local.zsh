@@ -12,7 +12,7 @@ __zplug::local::check() {
     local -a expanded_paths
 
     # Note: $zspec[dir] can be a dir name or a file name
-    expanded_paths=( $(zsh -c "echo ${zspec[dir]}" 2>/dev/null) )
+    expanded_paths=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${zspec[dir]}" 2>/dev/null) )
 
     # Okay if at least one expanded path exists
     for expanded_path in ${expanded_paths[@]}
@@ -39,7 +39,7 @@ __zplug::local::load_plugin() {
     local    expanded_path
     local -a expanded_paths
 
-    expanded_paths=( $(zsh -c "echo ${zspec[dir]}" 2>/dev/null) )
+    expanded_paths=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${zspec[dir]}" 2>/dev/null) )
 
     for expanded_path in ${expanded_paths[@]}
     do
@@ -47,7 +47,7 @@ __zplug::local::load_plugin() {
             load_patterns+=( $expanded_path )
         elif [[ -d $expanded_path ]]; then
             if [[ -n $zspec[use] ]]; then
-                load_patterns+=( $(zsh -c "echo $expanded_path/$zspec[use]" 2>/dev/null) )
+                load_patterns+=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $expanded_path/$zspec[use]" 2>/dev/null) )
             else
                 load_fpaths+=(
                     $expanded_path/{_*,**/_*}(N-.:h)
@@ -82,7 +82,7 @@ __zplug::local::load_command() {
     local -a expanded_paths
     local dst
 
-    expanded_paths=( $(zsh -c "echo ${zspec[dir]}" 2>/dev/null) )
+    expanded_paths=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${zspec[dir]}" 2>/dev/null) )
 
     dst=${${zspec[rename-to]:+$ZPLUG_HOME/bin/$zspec[rename-to]}:-"$ZPLUG_HOME/bin"}
 
@@ -92,7 +92,7 @@ __zplug::local::load_command() {
             load_commands+=( $expanded_path )
         elif [[ -d $expanded_path ]]; then
             if [[ -n $zspec[use] ]]; then
-                load_commands+=( $(zsh -c "echo $expanded_path/$zspec[use]" 2>/dev/null) )
+                load_commands+=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $expanded_path/$zspec[use]" 2>/dev/null) )
             else
                 load_fpaths+=(
                     $expanded_path/{_*,**/_*}(N-.:h)
