@@ -115,7 +115,7 @@ Values 'truthy' and 'falsy' mean any of "true, yes, on, 1" and "false, no, off, 
 |*use* | Specify the pattern of the files to source (for `plugin`) or the relative path
 from the package root of the file to add to `$PATH` (for `command`) / Useful,
 for example, with `from:gh-r` you can specify `use:"*darwin*{amd,386}*"`
-and so on
+and so on. If you want to use extended glob, see later section for setting the zstyle.
 | *glob* (`use:"*.zsh"`)
 | `use:bin`,`use:"*.sh"`,
 `use:"*darwin*"`
@@ -233,6 +233,21 @@ $ ZPLUG_USE_CACHE=false zplug load
     Defaults to `$ZPLUG_HOME/.cache`.
     Specifies where to save the cache. For example, you can set this to
     `$HOME/.cache/zplug/cache` to follow XDG Base Directory Specification
+
+
+Using zstyle
+------------
+You can use zstyle to change the default values for each tag. The format is:
+`zstyle ":zplug:tag" tag_name new_default_value`. For example, if you have a
+lot of commands and not so many plugins, (i.e. if you find yourself specifying
+`as:command` often), you can do: `zstyle ":zplug:tag" as command`.
+
+You can also specify what options to enable in sub shells. Sub shells are used
+when expanding glob expressions. If you want to use the 'extended_glob' for
+example, you can do: `zstyle ":zplug:config:setopt" only_subshell
+extended_glob`.  If you set `:zplug:config:setopt same_curshell` to a truthy
+value (i.e. `true`, `1`, `yes`), zplug will enable the options enabled at the
+point of sourcing zplug (i.e. at the point of `source $ZPLUG_HOME/init.zsh`).
 
 
 External commands

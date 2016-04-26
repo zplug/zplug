@@ -2,12 +2,12 @@
 .\"     Title: zplug
 .\"    Author: Masaki Ishiyama (@b4b4r07) b4b4r07@gmail.com
 .\" Generator: DocBook XSL Stylesheets v1.79.0 <http://docbook.sf.net/>
-.\"      Date: 04/24/2016
+.\"      Date: 04/26/2016
 .\"    Manual: ZPLUG Manual
 .\"    Source: \ \&
 .\"  Language: English
 .\"
-.TH "ZPLUG" "1" "04/24/2016" "\ \&" "ZPLUG Manual"
+.TH "ZPLUG" "1" "04/26/2016" "\ \&" "ZPLUG Manual"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -374,7 +374,7 @@ T{
 \fBuse\fR
 T}:T{
 .sp
-Specify the pattern of the files to source (for plugin) or the relative path from the package root of the file to add to $PATH (for command) / Useful, for example, with from:gh\-r you can specify use:"*darwin*{amd,386}*" and so on
+Specify the pattern of the files to source (for plugin) or the relative path from the package root of the file to add to $PATH (for command) / Useful, for example, with from:gh\-r you can specify use:"*darwin*{amd,386}*" and so on\&. If you want to use extended glob, see later section for setting the zstyle\&.
 T}:T{
 .sp
 \fBglob\fR (use:"*\&.zsh")
@@ -656,6 +656,11 @@ $ZPLUG_HOME/\&.cache\&. Specifies where to save the cache\&. For example, you ca
 $HOME/\&.cache/zplug/cache
 to follow XDG Base Directory Specification
 .RE
+.SH "USING ZSTYLE"
+.sp
+You can use zstyle to change the default values for each tag\&. The format is: zstyle ":zplug:tag" tag_name new_default_value\&. For example, if you have a lot of commands and not so many plugins, (i\&.e\&. if you find yourself specifying as:command often), you can do: zstyle ":zplug:tag" as command\&.
+.sp
+You can also specify what options to enable in sub shells\&. Sub shells are used when expanding glob expressions\&. If you want to use the \fIextended_glob\fR for example, you can do: zstyle ":zplug:config:setopt" only_subshell extended_glob\&. If you set :zplug:config:setopt same_curshell to a truthy value (i\&.e\&. true, 1, yes), zplug will enable the options enabled at the point of sourcing zplug (i\&.e\&. at the point of source $ZPLUG_HOME/init\&.zsh)\&.
 .SH "EXTERNAL COMMANDS"
 .sp
 zplug, like \fIgit(1)\fR, supports external commands\&. These are executable scripts that reside somewhere in the PATH, named zplug\-cmdname, which can be invoked with zplug cmdname\&. This allows you to create your own commands without modifying zplug\(cqs internals\&. Instructions for creating your own commands can be found in the docs: https://github\&.com/b4b4r07/zplug2/blob/master/doc/zplug/External\-Commands\&.md Check out the sample zplug\-env external command for an example\&.
