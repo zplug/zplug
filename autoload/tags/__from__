@@ -1,0 +1,53 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg="$1" package
+local -a parsed_zplugs
+local    from
+local    default="github"
+local -a candidates
+
+candidates=(
+"$default"
+"bitbucket"
+"gh-r"
+"gist"
+"local"
+"oh-my-zsh"
+)
+
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+from="${parsed_zplugs[(k)from:*]#from:*}"
+if [[ -z $from ]]; then
+    zstyle -t ":zplug:tag" from "${candidates[@]}"
+    case $status in
+        0)
+            # ok
+            zstyle -s ":zplug:tag" from from
+            ;;
+        1)
+            __zplug::print::print::die \
+                "[zplug] $fg[red]ERROR$reset_color: "
+            __zplug::print::print::die \
+                "from tag must be [${(j:, :)candidates[@]}] ($fg[green]$arg$reset_color)\n"
+            return 1
+            ;;
+        2)
+            # undefined
+            ;;
+    esac
+fi
+
+: ${from:=$default}
+if [[ ! $from =~ ^(${(j:|:)candidates[@]})$ ]]; then
+    __zplug::print::print::die \
+        "[zplug] $fg[red]ERROR$reset_color: "
+    __zplug::print::print::die \
+        "from tag must be [${(j:, :)candidates[@]}] ($fg[green]$arg$reset_color)\n"
+    return 1
+fi
+echo "$from"

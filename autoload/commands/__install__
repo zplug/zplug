@@ -1,0 +1,201 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+__import "job/spinner"
+
+local    arg line filter k
+local    is_verbose=false is_select=false
+local -a args
+local -A check
+local    oh_my_line oh_my_count=0
+local -A zspec
+local -i max=0
+local -a failed_packages
+local -F SECONDS=0
+local -F start finish
+local -a queue
+local -i queue_max=$ZPLUG_THREADS
+
+arg="$1"
+case "$arg" in
+    --verbose)
+        is_verbose=true; shift
+        ;;
+    -*|--*)
+        __zplug::print::print::die "[zplug] $arg: Unknown option\n"
+        return 1
+        ;;
+esac
+
+# Initialize
+{
+    [[ -d $ZPLUG_HOME/repos ]] || mkdir -p "$ZPLUG_HOME/repos"
+    start=$SECONDS
+    filter="$(__zplug::core::core::get_filter "$ZPLUG_FILTER")"
+    if $is_select; then
+        args=(${(@f)"$(echo "${(F)@}" | eval "$filter")"})
+    else
+        args=(${(u)${@:gs:@::}})
+    fi
+
+    if (( $#args == 0 )); then
+        __list__
+        return $status
+    fi
+
+    for line in "${args[@]}"
+    do
+        (( $#line > $max )) && max=$#line
+    done
+}
+
+for line in "${args[@]}"
+do
+    __parser__ "$line"
+    zspec=( "${reply[@]}" )
+
+    # Skip installed items
+    if [[ $zspec[from] == "local" ]]; then
+        continue
+    fi
+
+    if [[ -n $zspec[if] ]] && ! eval "$zspec[if]" &>/dev/null; then
+        if $is_verbose; then
+            __zplug::print::print::put "$fg[red]-$reset_color $fg[green]$line$reset_color: skipped due to if tag\n"
+        fi
+        continue
+    fi
+
+    if __zplug::core::core::is_handler_defined check "$zspec[from]"; then
+        if __zplug::core::core::use_handler check "$zspec[from]" "$line"; then
+            if $is_verbose; then
+                __zplug::print::print::put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
+            fi
+            continue
+        fi
+    else
+        if [[ -d $ZPLUG_HOME/repos/$line ]]; then
+            if $is_verbose; then
+                __zplug::print::print::put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
+            fi
+            continue
+        fi
+    fi
+
+    # For checking
+    if __zplug::core::core::is_handler_defined check "$zspec[from]"; then
+        check+=("$zspec[name]" "$zspec[from]")
+    elif [[ -n $zspec[dir] ]]; then
+        check+=("$zspec[name]" "$zspec[dir]")
+    else
+        check+=("$zspec[name]" "$ZPLUG_HOME/repos/$line")
+    fi
+
+    # Case of oh-my-zsh
+    oh_my_line=""
+    if [[ $zspec[from] == "oh-my-zsh" ]]; then
+        if (( oh_my_count++ > 0 )); then
+            continue
+        fi
+        if [[ -d $ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH ]]; then
+            continue
+        fi
+        oh_my_line="$_ZPLUG_OHMYZSH"
+    fi
+
+    __zplug::job::spinner::lock
+    __zplug::job::spinner::spinner &
+    # Run installation in subprocess
+    {
+        trap '__zplug::job::spinner::unlock; trap - SIGINT' SIGINT
+
+        # All variables are treated as local variable
+        # because of background job (subprocess)
+        local -i ret
+        local -F SECONDS=0
+
+        __zplug::job::spinner::echo "%-20s %s\n" \
+            "Installing..." \
+            "${oh_my_line:-$line}"
+
+        if __zplug::core::core::is_handler_defined install "$zspec[from]"; then
+            __zplug::core::core::use_handler install "$zspec[from]" "$line"
+        else
+            __clone__ \
+                --use    ${zspec[use]:-""} \
+                --from   ${zspec[from]:-""} \
+                --at     ${zspec[at]:-""} \
+                --depth  ${zspec[depth]:-""} \
+                "$line"
+        fi
+        ret=$status
+
+        case "$ret" in
+            0)
+                __zplug::job::spinner::echo "$fg[green]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                    "Installed!" \
+                    "${oh_my_line:-$line}" \
+                    $SECONDS
+
+                # hook after installing
+                if [[ -n $zspec[hook-build] ]]; then
+                    (
+                    builtin cd -q "$zspec[dir]"
+                    eval "$zspec[hook-build]"
+                    )
+                fi
+                ;;
+            1)
+                __zplug::job::spinner::echo "$fg[red]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
+                    "Failed to install" \
+                    "${oh_my_line:-$line}" \
+                    $SECONDS
+                ;;
+        esac
+    } &
+    queue+=($!)
+    if (( $#queue % queue_max == 0 )); then
+        wait $queue &>/dev/null
+        queue=()
+    fi
+done
+if (( $#queue > 0 )); then
+    wait $queue &>/dev/null
+fi
+queue=()
+
+__zplug::job::spinner::unlock
+failed_packages=()
+for name in "${(k)check[@]}"
+do
+    if __zplug::core::core::is_handler_defined check "$check[$name]"; then
+        if ! __zplug::core::core::use_handler check "$check[$name]" "$name"; then
+            failed_packages+=( "$name" )
+        fi
+    elif [[ ! -e $check[$name] ]]; then
+        failed_packages+=( "$name" )
+    fi
+done
+
+# Skip footer prints
+if (( $#check == 0 )); then
+    __zplug::print::print::die "[zplug] No package to install\n"
+    return 1
+else
+    if (( $#failed_packages == 0 )); then
+        __zplug::print::print::put "$fg_bold[default] ==> Installation finished successfully!$reset_color\n"
+    else
+        __zplug::print::print::die "$fg_bold[red] ==> Installation failed for following packages:$reset_color\n"
+        for package in ${failed_packages[@]}
+        do
+            __zplug::print::print::die "  $package\n"
+        done
+        __zplug::print::print::die "\n"
+    fi
+
+    finish=$SECONDS
+    __zplug::print::print::put "zplug: total wall-time %f sec.\n" $(($finish - $start))
+
+    return $#failed_packages
+fi

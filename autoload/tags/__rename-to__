@@ -1,0 +1,19 @@
+#!/bin/zsh
+
+__import "core/core"
+__import "print/print"
+
+local    arg="$1" package
+local -a parsed_zplugs
+local    rename_to
+local    default=""
+
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+rename_to="${parsed_zplugs[(k)rename-to:*]#rename-to:*}"
+if [[ -z $rename_to ]]; then
+    zstyle -s ":zplug:tag" rename-to rename_to
+fi
+
+echo "${rename_to:-$default}"

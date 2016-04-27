@@ -1,0 +1,14 @@
+git:
+    depth: 1
+branches:
+    only:
+        - master
+addons:
+    apt:
+        packages:
+            - zsh
+sudo: false
+before_script:
+    - zsh --version
+script:
+    - make test
