@@ -52,10 +52,9 @@
 
 ## Installation
 
-Download [zplug](https://git.io/zplug) and put it in `~/.zplug`
-
 ```console
-$ curl -sL git.io/zplug | zsh
+$ wget git.io/zplug
+$ zsh zplug install
 ```
 
 ### Requirements
