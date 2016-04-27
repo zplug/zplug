@@ -23,7 +23,7 @@ describe "__arguments__"
         zplugs=()
         expect="[zplug] WARNING: You called a zplug command named 'lisa', which does not exist.
         Continuing under the assumption that you meant 'list'.
-[zplug] there are no available plugins"
+[zplug] no package managed by zplug"
         actual="$(zplug lisa 2>&1 | unansi)"
         assert.equals "$expect" "$actual"
     end

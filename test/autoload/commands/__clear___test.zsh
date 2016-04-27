@@ -17,13 +17,6 @@ describe "__clear__"
         assert.false $status
         assert.equals "$expect" "$actual"
     end
-
-    it "Remove cache file"
-        expect="Removed"
-        actual="$(zplug clear --force)"
-        assert.true $status
-        assert.equals "$expect" "$actual"
-    end
 end
 
 : after

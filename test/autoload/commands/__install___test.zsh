@@ -19,7 +19,7 @@ describe "__install__"
     end
 
     it ""
-        expect="[zplug] there are no available plugins"
+        expect="[zplug] no package managed by zplug"
         actual="$(zplug install 2>&1)"
         assert.false $status
         assert.equals "$expect" "$actual"
