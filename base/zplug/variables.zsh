@@ -20,14 +20,15 @@ typeset -gx -r _ZPLUG_HELP="usage: zplug [COMMANDS] [OPTIONS]
   zplug is a next-generation plugin manager for zsh 
 
 COMMANDS:
-  install   Install described items in parallel
-  update    Update items in parallel
-  load      Source plugins to current shell and add \$ZPLUG_HOME/bin to \$PATH
-  list      Show all of the zplugs in the current shell
-  check     Check whether an update or installation is available
-  status    Check if remote branch is up-to-date
-  clean     Remove repositories which is no longer managed
-  clear     Remove the cache file
+  install    Install packages in parallel
+  load       Source installed plugins and add installed commands to \$PATH
+  list       List installed packages (more specifically, view the associative array \$zplugs)
+  update     Update installed packages in parallel
+  check      Return true if all packages are installed, false otherwise
+  status     Check if the remote repositories are up to date
+  clean      Remove repositories which are no longer managed
+  clear      Remove the cache file
+  info       Show the information such as the source URL and tag values for the given package
 
 For more information, see also $_ZPLUG_URL."
 
