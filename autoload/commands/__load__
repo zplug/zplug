@@ -203,7 +203,7 @@ do
                 plugins_ext+=( ${(@f)reply_hash[plugins_ext]} )
             else
                 # Default load behavior for plugins
-                plugins_ext=("plugin.zsh")
+                plugins_ext=("plugin.zsh" "zsh-theme" "theme-zsh")
 
                 # In order to find main file of the plugin,
                 # narrow down the candidates in three stages
