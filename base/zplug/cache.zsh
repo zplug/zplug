@@ -77,7 +77,7 @@ __zplug::zplug::cache::update() {
         __zplug::print::print::put '  echo "Static loading..." >&2\n'
         __zplug::print::print::put 'fi\n'
         if (( $#load_plugins > 0 )); then
-            __zplug::print::print::put 'source %s\n' "${(qqq)load_plugins[@]}"
+            __zplug::print::print::put 'source %s\n' "${(uqqq)load_plugins[@]}"
         fi
         if (( $#load_fpaths > 0 )); then
             __zplug::print::print::put '\n# fpath\n'
