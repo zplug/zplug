@@ -327,7 +327,7 @@ done
 # Plugins
 {
     # Normal plugins
-    for f in "${load_plugins[@]}"
+    for f in "${(u)load_plugins[@]}"
     do
         if [[ -f $f ]]; then
             if $is_debug; then
