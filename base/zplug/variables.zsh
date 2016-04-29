@@ -19,6 +19,10 @@ typeset -gx -r _ZPLUG_URL="https://github.com/b4b4r07/zplug"
 typeset -gx -r _ZPLUG_HELP="usage: zplug [COMMANDS] [OPTIONS]
   zplug is a next-generation plugin manager for zsh 
 
+OPTIONS:
+  --help     Display the help message
+  --version  Display the version of zplug
+
 COMMANDS:
   install    Install packages in parallel
   load       Source installed plugins and add installed commands to \$PATH
@@ -30,7 +34,7 @@ COMMANDS:
   clear      Remove the cache file
   info       Show the information such as the source URL and tag values for the given package
 
-For more information, see also $_ZPLUG_URL."
+For more information, see also ${(%):-"%U"}$_ZPLUG_URL${(%):-"%u"}."
 
 typeset -g -r _ZPLUG_OHMYZSH="robbyrussell/oh-my-zsh"
 
