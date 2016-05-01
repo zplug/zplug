@@ -43,7 +43,7 @@ __zplug::job::notify::check_update() (
     local -i cnt
     local    msg rev state commit
 
-    builtin cd -q "$ZPLUG_HOME/repos/b4b4r07/zplug" || return 1
+    builtin cd -q "$ZPLUG_REPOS/b4b4r07/zplug" || return 1
 
     # Fetch from remote
     git fetch &>/dev/null
