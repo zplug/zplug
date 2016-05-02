@@ -4,6 +4,7 @@
 bin/*
 !bin/zplug-env
 **/zcompdump
+**/zcompdump.zwc
 **/*~
 **/*.swp
 .cache

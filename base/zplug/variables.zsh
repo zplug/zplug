@@ -11,7 +11,7 @@ typeset -gx ZPLUG_CLONE_DEPTH=${ZPLUG_CLONE_DEPTH:-0}
 typeset -gx ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
 typeset -gx ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:zaw"}
 typeset -gx ZPLUG_LOADFILE=${ZPLUG_LOADFILE:-$ZPLUG_HOME/packages.zsh}
-typeset -gx ZPLUG_USE_CACHE=true
+typeset -gx ZPLUG_USE_CACHE=${ZPLUG_USE_CACHE:-true}
 typeset -gx ZPLUG_CACHE_FILE=${ZPLUG_CACHE_FILE:-$ZPLUG_HOME/.cache}
 
 typeset -gx -r _ZPLUG_VERSION="2.0.0"
