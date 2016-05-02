@@ -38,7 +38,7 @@ if $is_select; then
 fi
 
 if (( $#args == 0 )); then
-    repos=( "$ZPLUG_REPOS/*/*(N-/) )
+    repos=( "$ZPLUG_REPOS"/*/*(N-/) )
     for repo in "${repos[@]}"
     do
         if ! __zplug::core::core::zpluged "${repo:h:t}/${repo:t}"; then
