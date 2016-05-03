@@ -36,7 +36,7 @@
   - Externally managed plugins e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) plugins/themes
   - Binary artifacts on [GitHub Releases](https://help.github.com/articles/about-releases/)
   - Local plugins
-  - etc. (you can add your [own sources](https://github.com/b4b4r07/zplug/blob/master/doc/zplug/External-Sources.md)!)
+  - etc. (you can add your [own sources](https://github.com/zplug/zplug/blob/master/doc/zplug/External-Sources.md)!)
 - Super-fast parallel installation/update
 - Support for lazy-loading
 - Branch/tag/commit support
@@ -214,7 +214,7 @@ By using the `--self` option, zplug will be cloned to `$ZPLUG_HOME/repos` and cr
 To manage zplug in the same way as any other packages, put the following in your `.zshrc`.
 
 ```zsh
-zplug "b4b4r07/zplug"
+zplug "zplug/zplug"
 ```
 
 All that's left is to run `zplug update`.
@@ -229,7 +229,7 @@ All that's left is to run `zplug update`.
 |-----|-------------|-----------------|---------|
 | `as`          | Specify whether to register the package as plugins or commands | `plugin`,`command` (`plugin`) | `as:command` |
 | `use`         | Specify the pattern of the files to source (for `plugin`) or the relative path to add to the `$PATH` (for `command`) / With `from:gh-r`, zplug tries to guess which file to use from your OS and architecture. You can manually specify `use:"*darwin*{amd,386}*"` if that doesn't get the right file. | *glob* (`use:"*.zsh"`) | `use:bin`,`use:"*.sh"`, `use:*darwin*` |
-| `ignore`      | Similar to `use` tag, but specify pattern of files you want to ignore (see also [#56](https://github.com/b4b4r07/zplug/issues/56)) | *glob* (-) | `ignore:"some_*.zsh"` |
+| `ignore`      | Similar to `use` tag, but specify pattern of files you want to ignore (see also [#56](https://github.com/zplug/zplug/issues/56)) | *glob* (-) | `ignore:"some_*.zsh"` |
 | `from`        | Specify where to get the package from | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`local` (`github`) | `from:gh-r` |
 | `at`          | Specify branch/tag/commit to install | *branch/tag* (`master`) | `at:v1.5.6` |
 | `rename-to`   | Specify the filename you want to rename the command to (use this only with `as:command`) | *filename* (-) | `rename-to:fzf` |
@@ -239,7 +239,7 @@ All that's left is to run `zplug update`.
 | `hook-load`   | Commands to after loading | *commands* (-) | `hook-load:"echo 'Loaded!'"` |
 | `frozen`      | Do not update unless explicitly specified | truthy,falsy (false) | `frozen:1` |
 | `on`          | Load this package only if a different package is installed | *package* | `on:user/repo` |
-| `nice`        | Priority of loading the plugins. If this tag is specified 10 or more, zplug will load plugins after `compinit` (see also [#26](https://github.com/b4b4r07/zplug/issues/26)) | -20..19 (0) | `nice:19` |
+| `nice`        | Priority of loading the plugins. If this tag is specified 10 or more, zplug will load plugins after `compinit` (see also [#26](https://github.com/zplug/zplug/issues/26)) | -20..19 (0) | `nice:19` |
 | `lazy`        | Whether it is an autoload function or not | truthy,falsy (false) | `lazy:true` |
 | `depth`       | The number of commits to include in the cloned repository. 0 means the whole history. | Any non-negative integer (`ZPLUG_CLONE_DEPTH`) | `depth:10` |
 
@@ -333,8 +333,8 @@ zplug, like `git(1)`, supports external commands.
 These are executable scripts that reside somewhere in the PATH, named `zplug-cmdname`,
 which can be invoked with `zplug cmdname`.
 This allows you to create your own commands without modifying zplug's internals.
-Instructions for creating your own commands can be found in the [docs](https://github.com/b4b4r07/zplug/blob/master/doc/zplug/External-Commands.md).
-Check out the sample [`zplug-env`](https://github.com/b4b4r07/zplug/blob/master/bin/zplug-env) external command for an example.
+Instructions for creating your own commands can be found in the [docs](https://github.com/zplug/zplug/blob/master/doc/zplug/External-Commands.md).
+Check out the sample [`zplug-env`](https://github.com/zplug/zplug/blob/master/bin/zplug-env) external command for an example.
 
 ## V.S.
 
@@ -355,11 +355,11 @@ zplug is the fastest among the famous zsh plugin managers. Numbers? Here they ar
 
 [MIT][license] (c) BABAROT
 
-[repo]: https://github.com/b4b4r07/zplug
+[repo]: https://github.com/zplug/zplug
 [license]: http://b4b4r07.mit-license.org
-[travis-link]: https://travis-ci.org/b4b4r07/zplug
-[travis-badge]: https://img.shields.io/travis/b4b4r07/zplug.svg?style=flat-square
+[travis-link]: https://travis-ci.org/zplug/zplug
+[travis-badge]: https://img.shields.io/travis/zplug/zplug.svg?style=flat-square
 [version-badge]: https://img.shields.io/badge/latest-v2.0.0-ca7f85.svg?style=flat-square
-[version-link]: https://github.com/b4b4r07/zplug/releases
+[version-link]: https://github.com/zplug/zplug/releases
 [slack-link]: https://zplug.herokuapp.com
 [slack-badge]: https://img.shields.io/badge/slack-join-ca7f85.svg?style=flat-square
