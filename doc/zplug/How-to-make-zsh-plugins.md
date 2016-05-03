@@ -23,7 +23,7 @@ zplug can manage zsh plugins with lazy loading. When you specify `zplug "package
 
 ***Pattern 2***:
 
-Of cource, you don't need to make `autolaod` directory but in this case, you must specify `of` tag like `zplug "package", lazy:1, of:"plugin/plugin"` to tell a plugin file to zplug.
+Of cource, you don't need to make `autoload` directory but in this case, you must specify `of` tag like `zplug "package", lazy:1, of:"plugin/plugin"` to tell a plugin file to zplug.
 
 ```
 .
