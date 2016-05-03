@@ -91,15 +91,6 @@ __zplug::oh-my-zsh::load_plugin() {
         ${zspec[dir]}/{_*,**/_*}(N-.:h)
     )
 
-    if (( $#load_patterns > 0 )); then
-        # nice plugin or not
-        if (( $zspec[nice] > 9 )); then
-            nice_plugins+=( "${load_patterns[@]}" )
-        else
-            load_plugins+=( "${load_patterns[@]}" )
-        fi
-        load_omz
-    fi
     # Remove these function from current shell process
     unfunction load_omz
 
