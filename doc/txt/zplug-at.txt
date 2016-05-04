@@ -1,0 +1,89 @@
+zplug-at(5)
+===========
+Masaki Ishiyama b4b4r07@gmail.com
+:man manual: ZPLUG Manual
+
+NAME
+----
+zplug-at - Branch, tag, or commit to use
+
+
+SYNOPSIS
+--------
+[verse]
+'zplug' '"username/reponame"', 'at:v2'
+
+    The word 'package' refers to the string in the format: "username/reponame".
+
+
+DESCRIPTION
+-----------
+By using `at` tag, you can choose the revision (branch/tag/commit) you want to try/lock.
+
+.zplug at tag
+[options="header"]
+|================================
+| Possive Values  | Default value
+| `(revision)` | master
+|================================
+
+Besides, by using `zstyle` command, you can change default value:
+
+------------
+$ zstyle ":zplug:tag" at develop
+------------
+
+
+EXAMPLES
+--------
+Branch lock:
+
+------------
+$ zplug "b4b4r07/enhancd", \
+    as:plugin, \
+    use:enhancd.sh, \
+    at:develop
+------------
+
+Revision lock:
+
+------------
+$ zplug "b4b4r07/enhancd", \
+    as:plugin, \
+    use:enhancd.sh, \
+    at:22d124b
+------------
+
+
+SEE ALSO
+--------
+*zplug(1)*
+
+
+Further Documentation
+---------------------
+
+See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+The wiki may perhaps be overwhelming for first-time users.
+
+
+Authors
+-------
+zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+Many people have contributed to it.
+
+
+Copying
+-------
+Copyright \(C) 2015-2016 Masaki Ishi
+
+MIT License
+
+
+Reporting Bugs
+--------------
+Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+
+
+// vim:ft=asciidoc
+

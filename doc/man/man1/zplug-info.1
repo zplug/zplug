@@ -1,0 +1,92 @@
+'\" t
+.\"     Title: zplug-info
+.\"    Author: [see the "Authors" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/04/2016
+.\"    Manual: ZPLUG Manual
+.\"    Source: ZPLUG Manual
+.\"  Language: English
+.\"
+.TH "ZPLUG\-INFO" "1" "05/04/2016" "ZPLUG Manual" "ZPLUG Manual"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+zplug-info \- Show the information such as the source URL and tag values for the given package
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIzplug info\fR \fI"username/reponame"\fR
+.fi
+.sp
+.nf
+The word \'package\' refers to the string in the format: "username/reponame"\&.
+.fi
+.SH "DESCRIPTION"
+.sp
+List the all tags of that package and show more details\&.
+.SH "OPTIONS"
+.PP
+\fB(None)\fR
+.RS 4
+no options
+.RE
+.SH "EXAMPLES"
+.sp
+Show the information:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ zplug info b4b4r07/enhancd
+==> ~/enhancd <git@github\&.com:b4b4r07/enhancd\&.git>
+ \- \- \-
+ \- use:"init\&.sh"
+ \- as:"plugin"
+ \- at:"master"
+ \- ignore:""
+ \- lazy:"no"
+ \- commit:""
+ \- dir:"/Users/b4b4r07/enhancd"
+ \- of:""
+ \- rename\-to:""
+ \- from:"local"
+ \- do:""
+ \- hook\-load:""
+ \- file:""
+ \- name:"~/enhancd"
+ \- nice:"0"
+ \- if:""
+ \- depth:"0"
+ \- frozen:"no"
+ \- on:""
+ \- hook\-build:""
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+.sp
+\fBzplug(1)\fR
+.SH "FURTHER DOCUMENTATION"
+.sp
+See the references in official wiki page to get started using zplug\&. The wiki may perhaps be overwhelming for first\-time users\&.
+.SH "AUTHORS"
+.sp
+zplug was originally written by Masaki Ishi (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
+.SH "COPYING"
+.sp
+Copyright (C) 2015\-2016 Masaki Ishi
+.sp
+MIT License
+.SH "REPORTING BUGS"
+.sp
+Report bugs to the zplug issues

@@ -1,0 +1,96 @@
+zplug-update(1)
+===============
+Masaki Ishiyama b4b4r07@gmail.com
+:man manual: ZPLUG Manual
+
+NAME
+----
+zplug-update - Update installed packages in parallel
+
+
+SYNOPSIS
+--------
+[verse]
+'zplug update' [--self|--select ['"username/reponame"']]
+
+    The word 'package' refers to the string in the format: "username/reponame".
+
+
+DESCRIPTION
+-----------
+Update installed packages and zplug by itself.
+
+
+OPTIONS
+-------
+*--self*::
+    Use this command to update your copy of zplug.
+
+*--select*::
+    Choose the package that is not updated from the list and update it.
+
+
+EXAMPLES
+--------
+
+Update:
+
+------------
+$ zplug update
+Updating...          mollifier/zload
+Updating...          stedolan/jq
+Updating...          glidenote/hub-zsh-completion
+Frozen repo          junegunn/fzf-bin                 (0.42s)
+Frozen repo          stedolan/jq                      (0.47s)
+Up-to-date           b4b4r07/http_code                (2.29s)
+Up-to-date           b4b4r07/zsh-vimode-visual        (2.29s)
+Up-to-date           b4b4r07/emoji-cli                (2.68s)
+Up-to-date           mollifier/zload                  (2.69s)
+Updated!             b4b4r07/ssh-keyreg               (2.84s)
+Updated!             zsh-users/zsh-completions        (4.00s)
+
+------------
+
+Update zplug:
+
+------------
+$ zplug update --self
+ * zplug self management
+Updating...          b4b4r07/zplug
+Up-to-date           b4b4r07/zplug      (2.42s)
+Everything is ready. (~/.zplug/zplug)
+
+------------
+
+
+SEE ALSO
+--------
+*zplug(1)*
+
+
+Further Documentation
+---------------------
+
+See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+The wiki may perhaps be overwhelming for first-time users.
+
+
+Authors
+-------
+zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+Many people have contributed to it.
+
+
+Copying
+-------
+Copyright \(C) 2015-2016 Masaki Ishi
+
+MIT License
+
+
+Reporting Bugs
+--------------
+Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+
+
+// vim:ft=asciidoc

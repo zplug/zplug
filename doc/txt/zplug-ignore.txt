@@ -1,0 +1,80 @@
+zplug-ignore(5)
+===============
+Masaki Ishiyama b4b4r07@gmail.com
+:man manual: ZPLUG Manual
+
+NAME
+----
+zplug-ignore - Specify exception pattern of files that you don't want to load
+
+SYNOPSIS
+--------
+[verse]
+'zplug' '"username/reponame"', 'ignore:plugin'
+
+    The word 'package' refers to the string in the format: "username/reponame".
+
+
+DESCRIPTION
+-----------
+By using `ignore` tag, you can choose whether the package you want to install
+will be installed ignore the plugin or ignore the command.
+
+.zplug ignore tag
+[options="header"]
+|================================
+| Possive Values  | Default value
+| (glob patterns) | (none)
+|================================
+
+Besides, by using `zstyle` command, you can change default value:
+
+------------
+$ zstyle ":zplug:tag" ignore "*.plugin.zsh"
+------------
+
+
+EXAMPLES
+--------
+Ignore oh-my-zsh main file:
+
+------------
+$ zplug "plugins/brew", \
+    from:oh-my-zsh, \
+    if:"[[ ${(L)OSTYPE} == *darwin* ]]", \
+    ignore:oh-my-zsh.sh
+------------
+
+
+SEE ALSO
+--------
+*zplug(1)*, *zplug-use(5)*
+
+
+Further Documentation
+---------------------
+
+See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+The wiki may perhaps be overwhelming for first-time users.
+
+
+Authors
+-------
+zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+Many people have contributed to it.
+
+
+Copying
+-------
+Copyright \(C) 2015-2016 Masaki Ishi
+
+MIT License
+
+
+Reporting Bugs
+--------------
+Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+
+
+// vim:ft=asciidoc
+

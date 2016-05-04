@@ -3,8 +3,12 @@
 local    curcontext="$curcontext" state
 local    p desc
 local -i ret=1
-local -a zplug_cmds
+local -a -U zplug_cmds
 local -a _zplug_boolean_true _zplug_boolean_false
+local -a cmds tags
+
+cmds=( "$ZPLUG_ROOT"/autoload/commands/__*__(:t:gs:_:) )
+tags=( "$ZPLUG_ROOT"/autoload/tags/__*__(:t:gs:_:) )
 
 _zplug_boolean_true=("true" "yes" "on" 1)
 _zplug_boolean_false=("false" "no" "off" 0)
@@ -21,6 +25,7 @@ zplug_cmds=(
 'info:information about a package'
 )
 
+# Completions for user-defined commands
 for p in ${^path}/zplug-*(N-.)
 do
     desc="$(sed -n '2p' "$p" | sed -E 's/^.*desc(ription)?: ?//')"
@@ -29,9 +34,18 @@ do
 done
 
 _arguments \
-    '(--help)--help[show help message]' \
-    '(--version)--version[version information]' \
-    '*:: :->subcmds' && return 0
+    '(-)--help[show help message]: :->comp' \
+    '(-)--version[version information]: :' \
+    '*:: :->comp' && return 0
+
+
+case $state in
+    comp)
+        _describe -t help_cmds "commands" cmds
+        _describe -t help_tags "tags" tags
+        return 0
+        ;;
+esac
 
 if (( CURRENT == 1 )); then
     _describe -t commands "zplug subcommand" zplug_cmds

@@ -233,7 +233,7 @@ All that's left is to run `zplug update`.
 | `use`         | Specify the pattern of the files to source (for `plugin`) or the relative path to add to the `$PATH` (for `command`) / With `from:gh-r`, zplug tries to guess which file to use from your OS and architecture. You can manually specify `use:"*darwin*{amd,386}*"` if that doesn't get the right file. | *glob* (`use:"*.zsh"`) | `use:bin`,`use:"*.sh"`, `use:*darwin*` |
 | `ignore`      | Similar to `use` tag, but specify pattern of files you want to ignore (see also [#56](https://github.com/zplug/zplug/issues/56)) | *glob* (-) | `ignore:"some_*.zsh"` |
 | `from`        | Specify where to get the package from | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`local` (`github`) | `from:gh-r` |
-| `at`          | Specify branch/tag/commit to install | *branch/tag* (`master`) | `at:v1.5.6` |
+| `at`          | Specify branch/tag/commit to install | *revision* (`master`) | `at:v1.5.6` |
 | `rename-to`   | Specify the filename you want to rename the command to (use this only with `as:command`) | *filename* (-) | `rename-to:fzf` |
 | `dir`         | Installed directory of the package | **READ ONLY** | `dir:/path/to/user/repo` |
 | `if`          | Specify the conditions under which to install and use the package | *boolean* (-) | `if:"[ -d ~/.zsh ]"` |

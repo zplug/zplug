@@ -1,0 +1,89 @@
+zplug-list(1)
+=============
+Masaki Ishiyama b4b4r07@gmail.com
+:man manual: ZPLUG Manual
+
+NAME
+----
+zplug-list - List installed packages
+
+
+SYNOPSIS
+--------
+[verse]
+'zplug list' [--select] ['"username/reponame"']
+
+    The word 'package' refers to the string in the format: "username/reponame".
+
+
+DESCRIPTION
+-----------
+List installed packages.
+
+
+OPTIONS
+-------
+*--select*::
+    List package information choosen from the list.
+
+
+EXAMPLES
+--------
+
+List:
+
+------------
+$ zplug list
+b4b4r07/zplug  =>  nil
+/Users/b4b4r07/.modules  =>  from:local, nice:1, use:*.sh
+b4b4r07/zsh-gomi  =>  as:command, use:bin/gomi
+glidenote/hub-zsh-completion  =>  nil
+peco/peco  =>  as:command, from:gh-r, frozen:1
+so-fancy/diff-so-fancy  =>  as:command, use:diff-so-fancy
+b4b4r07/zgit  =>  as:command, use:bin, on:junegunn/fzf-bin
+~/enhancd  =>  use:init.sh, from:local
+Jxck/dotfiles  =>  as:command, use:bin/l
+mrowa44/emojify  =>  as:command
+
+------------
+
+List a paticular package:
+
+------------
+$ zplug list 'mrowa44/emojify'
+mrowa44/emojify  =>  as:command
+
+------------
+
+
+SEE ALSO
+--------
+*zplug(1)*
+
+
+Further Documentation
+---------------------
+
+See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+The wiki may perhaps be overwhelming for first-time users.
+
+
+Authors
+-------
+zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+Many people have contributed to it.
+
+
+Copying
+-------
+Copyright \(C) 2015-2016 Masaki Ishi
+
+MIT License
+
+
+Reporting Bugs
+--------------
+Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+
+
+// vim:ft=asciidoc

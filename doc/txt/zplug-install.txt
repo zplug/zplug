@@ -1,0 +1,95 @@
+zplug-install(1)
+================
+Masaki Ishiyama b4b4r07@gmail.com
+:man manual: ZPLUG Manual
+
+NAME
+----
+zplug-install - Install packages in parallel
+
+
+SYNOPSIS
+--------
+[verse]
+'zplug install' [--verbose] [--select] ['"username/reponame"']
+
+    The word 'package' refers to the string in the format: "username/reponame".
+
+
+DESCRIPTION
+-----------
+Install the package that has not yet been installed, even though it is described in the file.
+
+
+OPTIONS
+-------
+*--verbose*::
+    Be verbose.
+
+*--select*::
+    Choose the package that is not installed from the list and install it.
+
+
+EXAMPLES
+--------
+
+Install all not-installed packages:
+
+------------
+$ zplug install
+
+------------
+
+Install a paticular package verbosely:
+
+------------
+$ zplug install --verbose 'some_author/some_repo'
+Installing...        some_author/some_repo
+Installed!           some_author/some_repo (2.59s)
+ ==> Installation finished successfully!
+ zplug: total wall-time 2.664253 sec.
+
+------------
+
+ENVIRONMENT VARIABLES
+---------------------
+'ZPLUG_THREADS'::
+    The maximum number of threads zplug should use when installing/updating. The default value is 16.
+
+'ZPLUG_PROTOCOL'::
+    Defaults to HTTPS. Valid options for `$ZPLUG_PROTOCOL` are `HTTPS` or `SSH`.
+    Unless you have a specific reason, you should use the HTTPS protocol.
+    For more information, see also https://help.github.com/articles/which-remote-url-should-i-use/[Which remote URL should I use? - GitHub Help]
+
+
+SEE ALSO
+--------
+*zplug(1)*
+
+
+Further Documentation
+---------------------
+
+See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+The wiki may perhaps be overwhelming for first-time users.
+
+
+Authors
+-------
+zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+Many people have contributed to it.
+
+
+Copying
+-------
+Copyright \(C) 2015-2016 Masaki Ishi
+
+MIT License
+
+
+Reporting Bugs
+--------------
+Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+
+
+// vim:ft=asciidoc

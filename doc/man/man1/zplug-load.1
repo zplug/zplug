@@ -1,0 +1,107 @@
+'\" t
+.\"     Title: zplug-load
+.\"    Author: [see the "Authors" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/04/2016
+.\"    Manual: ZPLUG Manual
+.\"    Source: ZPLUG Manual
+.\"  Language: English
+.\"
+.TH "ZPLUG\-LOAD" "1" "05/04/2016" "ZPLUG Manual" "ZPLUG Manual"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+zplug-load \- Source installed plugins and add installed commands to `$PATH`
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIzplug load\fR [\-\-verbose]
+.fi
+.sp
+.nf
+The word \'package\' refers to the string in the format: "username/reponame"\&.
+.fi
+.SH "DESCRIPTION"
+.sp
+Be able to use a package that has been installed on the current shell\&.
+.SH "OPTIONS"
+.PP
+\fB\-\-verbose\fR
+.RS 4
+Be verbose\&.
+.RE
+.SH "EXAMPLES"
+.sp
+Installation check:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ zplug load
+.fi
+.if n \{\
+.RE
+.\}
+.SH "ENVIRONMENT VARIABLES"
+.PP
+\fIZPLUG_LOADFILE\fR
+.RS 4
+Defaults to
+$ZPLUG_HOME/packages\&.zsh\&. This file is used to add packages from zplug on the command\-line\&. This is a useful feature when you want to isolate your zplug configurations from your
+\&.zshrc\&. Note that you don\(cqt need to add packages from the command line to use this feature: you can manually edit this file, and it\(cqll work just fine!
+.RE
+.PP
+\fIZPLUG_USE_CACHE\fR
+.RS 4
+Defaults to
+true\&. If this variable is true, zplug uses a cache file to speed up the loading process\&. The cache file is located at
+$ZPLUG_CACHE_FILE
+($ZPLUG_HOME/\&.cache
+by default)\&. If you want to clear the cache, please run
+zplug clear
+or do the following:
+.RE
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ ZPLUG_USE_CACHE=false zplug load
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+\fIZPLUG_CACHE_FILE\fR
+.RS 4
+Defaults to
+$ZPLUG_HOME/\&.cache\&. Specifies where to save the cache\&. For example, you can set this to
+$HOME/\&.cache/zplug/cache
+to follow XDG Base Directory Specification
+.RE
+.SH "SEE ALSO"
+.sp
+\fBzplug(1)\fR
+.SH "FURTHER DOCUMENTATION"
+.sp
+See the references in official wiki page to get started using zplug\&. The wiki may perhaps be overwhelming for first\-time users\&.
+.SH "AUTHORS"
+.sp
+zplug was originally written by Masaki Ishi (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
+.SH "COPYING"
+.sp
+Copyright (C) 2015\-2016 Masaki Ishi
+.sp
+MIT License
+.SH "REPORTING BUGS"
+.sp
+Report bugs to the zplug issues

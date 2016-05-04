@@ -24,4 +24,7 @@ fpath=(
 $fpath
 )
 
+# for 'autoload -Uz zplug' in another subshell
+export FPATH="$ZPLUG_ROOT/autoload:$FPATH"
+
 autoload -Uz zplug

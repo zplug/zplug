@@ -1,0 +1,100 @@
+'\" t
+.\"     Title: zplug-clean
+.\"    Author: [see the "Authors" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/04/2016
+.\"    Manual: ZPLUG Manual
+.\"    Source: ZPLUG Manual
+.\"  Language: English
+.\"
+.TH "ZPLUG\-CLEAN" "1" "05/04/2016" "ZPLUG Manual" "ZPLUG Manual"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+zplug-clean \- Remove repositories which are no longer managed
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIzplug clean\fR [\-\-force] [\-\-select] [\fI"username/reponame"\fR]
+.fi
+.sp
+.nf
+The word \'package\' refers to the string in the format: "username/reponame"\&.
+.fi
+.SH "DESCRIPTION"
+.sp
+Remove the packages that is installed in the \fB$ZPLUG_HOME/repos\fR directory but not described in your \fB\&.zshrc\fR or config file for zplug\&. Otherwise, remove the packages you want to uninstall expressly\&.
+.SH "OPTIONE"
+.PP
+\fB\-\-force\fR
+.RS 4
+Forcibly\&. By default, to confirm whether you want to delete by yes/no prompt\&.
+.RE
+.PP
+\fB\-\-select\fR
+.RS 4
+Remove to choose from the list of installed packages\&.
+.RE
+.SH "EXAMPLES"
+.sp
+Remove the packages that is installed but not described with the prompt:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ zplug clean
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Same as above, without the prompt:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ zplug clean \-\-force
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Remove a paticular package:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ zplug clean \'some_author/some_repo\'
+Remove? (y/N) \'~/\&.zplug/repos/some_author/some_repo\'
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+.sp
+\fBzplug(1)\fR
+.SH "FURTHER DOCUMENTATION"
+.sp
+See the references in official wiki page to get started using zplug\&. The wiki may perhaps be overwhelming for first\-time users\&.
+.SH "AUTHORS"
+.sp
+zplug was originally written by Masaki Ishi (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
+.SH "COPYING"
+.sp
+Copyright (C) 2015\-2016 Masaki Ishi
+.sp
+MIT License
+.SH "REPORTING BUGS"
+.sp
+Report bugs to the zplug issues
