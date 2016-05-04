@@ -55,7 +55,9 @@
 Download [zplug](https://git.io/zplug) and put it in `~/.zplug`
 
 ```console
-$ curl -sL git.io/zplug | zsh
+$ export ZPLUG_HOME=/path/to/.zplug
+$ git clone https://github.com/zplug/zplug $ZPLUG_HOME
+$ source $ZPLUG_HOME/init.zsh
 ```
 
 ### Requirements
