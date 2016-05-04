@@ -5,7 +5,7 @@
 [![Slack][slack-badge]][slack-link]
 
 <div align="center">
-  <a href="http://github.com/flyjs">
+  <a href="http://zplug.sh">
     <img width=650px src="https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png">
   </a>
 </div>
