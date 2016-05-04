@@ -1,0 +1,90 @@
+'\" t
+.\"     Title: zplug-check
+.\"    Author: [see the "Authors" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/04/2016
+.\"    Manual: ZPLUG Manual
+.\"    Source: ZPLUG Manual
+.\"  Language: English
+.\"
+.TH "ZPLUG\-CHECK" "1" "05/04/2016" "ZPLUG Manual" "ZPLUG Manual"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+zplug-check \- Return true if all packages are installed, false otherwise
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIzplug check\fR [\-\-verbose] [\fI"username/reponame"\fR]
+.fi
+.sp
+.nf
+The word \'package\' refers to the string in the format: "username/reponame"\&.
+.fi
+.SH "DESCRIPTION"
+.sp
+It\(cqs possible to confirm whether the package is installed\&. Besides, if no packages are given as the arguments, check command checks whether there is a package that has not been installed\&.
+.SH "OPTIONS"
+.PP
+\fB\-\-verbose\fR
+.RS 4
+Be verbose\&.
+.RE
+.SH "EXAMPLES"
+.sp
+Installation check:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+if ! zplug check \-\-verbose; then
+    printf "Install? [y/N]: "
+    if read \-q; then
+        echo; zplug install
+    fi
+fi
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The above code means that the packages will be installed if there is a package that has not been installed\&.
+.sp
+Installation check from CLI:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ zplug check \-\-verbose \'some_author/some_repo\'
+\- some_author/some_repo: not installed
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+.sp
+\fBzplug(1)\fR, \fBzplug\-status(1)\fR
+.SH "FURTHER DOCUMENTATION"
+.sp
+See the references in official wiki page to get started using zplug\&. The wiki may perhaps be overwhelming for first\-time users\&.
+.SH "AUTHORS"
+.sp
+zplug was originally written by Masaki Ishi (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
+.SH "COPYING"
+.sp
+Copyright (C) 2015\-2016 Masaki Ishi
+.sp
+MIT License
+.SH "REPORTING BUGS"
+.sp
+Report bugs to the zplug issues

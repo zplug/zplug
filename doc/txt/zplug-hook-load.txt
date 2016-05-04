@@ -1,0 +1,81 @@
+zplug-hook-load(5)
+==================
+Masaki Ishiyama b4b4r07@gmail.com
+:man manual: ZPLUG Manual
+
+NAME
+----
+zplug-hook-load - Commands to run after loading
+
+
+SYNOPSIS
+--------
+[verse]
+'zplug' '"username/reponame"', 'hook-load:some_command'
+
+    The word 'package' refers to the string in the format: "username/reponame".
+
+
+DESCRIPTION
+-----------
+By using `hook-load` tag, you can choose whether the package you want to install
+will be installed as the plugin or as the command.
+
+.zplug hook-load tag
+[options="header"]
+|================================
+| Possive Values  | Default value
+| (shell commands)| (none)
+|================================
+
+Besides, by using `zstyle` command, you can change default value:
+
+------------
+$ zstyle ":zplug:tag" hook-load "echo load"
+------------
+
+
+EXAMPLES
+--------
+Grant a right to execute:
+
+------------
+$ zplug "b4b4r07/enhancd" \
+    as:command, \
+    use:enhancd.sh, \
+    hook-load:"builtin cd $OLDPWD"
+------------
+
+
+SEE ALSO
+--------
+*zplug(1)*, *zplug-hook-build(5)*
+
+
+Further Documentation
+---------------------
+
+See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+The wiki may perhaps be overwhelming for first-time users.
+
+
+Authors
+-------
+zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+Many people have contributed to it.
+
+
+Copying
+-------
+Copyright \(C) 2015-2016 Masaki Ishi
+
+MIT License
+
+
+Reporting Bugs
+--------------
+Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+
+
+// vim:ft=asciidoc
+

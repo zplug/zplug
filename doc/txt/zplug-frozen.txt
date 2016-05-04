@@ -1,0 +1,85 @@
+zplug-frozen(5)
+===============
+Masaki Ishiyama b4b4r07@gmail.com
+:man manual: ZPLUG Manual
+
+NAME
+----
+zplug-frozen - Do not update unless explicitly specified
+
+
+SYNOPSIS
+--------
+[verse]
+'zplug' '"username/reponame"', 'frozen:yes'
+
+    The word 'package' refers to the string in the format: "username/reponame".
+
+
+DESCRIPTION
+-----------
+By using `frozen` tag, you cant skip update of the repo when executing `zplug command`.
+In paticular, this tag is particularly useful if you can describe the package
+with `from:gh-r` tag since it's so heavy.
+
+.zplug frozen tag
+[options="header"]
+|================================
+| Possive Values  | Default value
+| (truthy, falsy) | no
+|================================
+
+Values 'truthy' and 'falsy' mean any of "true, yes, on, 1" and "false, no, off, 0", respectively.
+
+Besides, by using `zstyle` command, you can change default value:
+
+------------
+$ zstyle ":zplug:tag" frozen true
+------------
+
+
+EXAMPLES
+--------
+Skip the update:
+
+------------
+$ zplug "stedolan/jq" \
+    as:command, \
+    from:gh-r, \
+    use:"*darwin*", \
+    frozen:1, \
+------------
+
+
+SEE ALSO
+--------
+*zplug(1)*, *zplug-update(1)*
+
+
+Further Documentation
+---------------------
+
+See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+The wiki may perhaps be overwhelming for first-time users.
+
+
+Authors
+-------
+zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+Many people have contributed to it.
+
+
+Copying
+-------
+Copyright \(C) 2015-2016 Masaki Ishi
+
+MIT License
+
+
+Reporting Bugs
+--------------
+Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+
+
+// vim:ft=asciidoc
+

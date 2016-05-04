@@ -1,0 +1,77 @@
+zplug-rename-to(5)
+==================
+Masaki Ishiyama b4b4r07@gmail.com
+:man manual: ZPLUG Manual
+
+NAME
+----
+zplug-rename-to - Specify the filename you want to rename to
+
+
+SYNOPSIS
+--------
+[verse]
+'zplug' '"username/reponame"', 'rename-to:a.sh'
+
+    The word 'package' refers to the string in the format: "username/reponame".
+
+
+DESCRIPTION
+-----------
+By using `rename-to` tag, you can rename the package to what you want to change.
+It's only valid with `as:command`.
+
+.zplug rename-to tag
+[options="header"]
+|================================
+| Possive Values  | Default value
+| (rename)        | (none)
+|================================
+
+Besides, by using `zstyle` command, you can change default value but it's impractical.
+
+
+EXAMPLES
+--------
+Rename fzf-bin to fzf:
+
+------------
+$ zplug "junegunn/fzf-bin", \
+    from:gh-r, \
+    as:command, \
+    rename-to:fzf, \
+    use:"*darwin*amd64*"
+------------
+
+
+SEE ALSO
+--------
+*zplug(1)*
+
+
+Further Documentation
+---------------------
+
+See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+The wiki may perhaps be overwhelming for first-time users.
+
+
+Authors
+-------
+zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+Many people have contributed to it.
+
+
+Copying
+-------
+Copyright \(C) 2015-2016 Masaki Ishi
+
+MIT License
+
+
+Reporting Bugs
+--------------
+Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+
+
+// vim:ft=asciidoc

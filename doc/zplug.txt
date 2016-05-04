@@ -124,7 +124,7 @@ and so on. If you want to use extended glob, see later section for setting the z
 | `github`,`bitbucket`,`gh-r`,`gist`,
 `oh-my-zsh`,`local` (`github`) | `from:gh-r`
 
-|*at* | Branch, tag, or commit to use | *branch/tag* (`master`) | `at:v1.5.6`
+|*at* | Branch, tag, or commit to use | *revision* (`master`) | `at:v1.5.6`
 
 |*rename-to* | Specify the filename you want to rename to (only valid with `as:command`) | *filename* (-) | `rename-to:fzf`
 

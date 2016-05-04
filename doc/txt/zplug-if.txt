@@ -1,0 +1,81 @@
+zplug-if(5)
+===========
+Masaki Ishiyama b4b4r07@gmail.com
+:man manual: ZPLUG Manual
+
+NAME
+----
+zplug-if - The conditions under which to install and/or use the package
+
+
+SYNOPSIS
+--------
+[verse]
+'zplug' '"username/reponame"', 'if:(( $+commands[git] ))'
+
+    The word 'package' refers to the string in the format: "username/reponame".
+
+
+DESCRIPTION
+-----------
+By using `if` tag, you can choose whether the package you want to install
+will be installed as the plugin or as the command.
+
+.zplug if tag
+[options="header"]
+|================================
+| Possive Values  | Default value
+| plugin, command | plugin
+|================================
+
+Besides, by using `zstyle` command, you can change default value:
+
+------------
+$ zstyle ":zplug:tag" if "[[ $OSTYPE == *darwin* ]]"
+------------
+
+
+EXAMPLES
+--------
+Load if the local directory exists:
+
+------------
+$ zplug "~/.zsh" \
+    from:local, \
+    use:"*.{sh,zsh}", \
+    if:"[ -d ~/.zsh ]"
+------------
+
+
+SEE ALSO
+--------
+*zplug(1)*
+
+
+Further Documentation
+---------------------
+
+See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+The wiki may perhaps be overwhelming for first-time users.
+
+
+Authors
+-------
+zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+Many people have contributed to it.
+
+
+Copying
+-------
+Copyright \(C) 2015-2016 Masaki Ishi
+
+MIT License
+
+
+Reporting Bugs
+--------------
+Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+
+
+// vim:ft=asciidoc
+

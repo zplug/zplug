@@ -1,0 +1,106 @@
+'\" t
+.\"     Title: zplug-on
+.\"    Author: [see the "Authors" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/04/2016
+.\"    Manual: ZPLUG Manual
+.\"    Source: ZPLUG Manual
+.\"  Language: English
+.\"
+.TH "ZPLUG\-ON" "5" "05/04/2016" "ZPLUG Manual" "ZPLUG Manual"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+zplug-on \- Dependencies
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIzplug\fR \fI"username/reponame"\fR, \fIon:another_user/another_repo\fR
+.fi
+.sp
+.nf
+The word \'package\' refers to the string in the format: "username/reponame"\&.
+.fi
+.SH "DESCRIPTION"
+.sp
+By using on tag, you can manage the repository dependencies\&. zplug "a/b", on:"c/d" means that \fBa/b\fR depends on \fBc/d\fR\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&1.\ \&zplug on tag
+.TS
+allbox tab(:);
+ltB ltB.
+T{
+Possive Values
+T}:T{
+Default value
+T}
+.T&
+lt lt.
+T{
+.sp
+(package)
+T}:T{
+.sp
+(none)
+T}
+.TE
+.sp 1
+.sp
+Besides, by using zstyle command, you can change default value:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ zstyle ":zplug:tag" on "~/\&.zsh"
+.fi
+.if n \{\
+.RE
+.\}
+.SH "EXAMPLES"
+.sp
+Group dependencies:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ zplug "stedolan/jq", \e
+    from:gh\-r \e
+    as:command, \e
+    rename\-to:jq
+$ zplug "b4b4r07/emoji\-cli", \e
+    on:"stedolan/jq"
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+.sp
+\fBzplug(1)\fR
+.SH "FURTHER DOCUMENTATION"
+.sp
+See the references in official wiki page to get started using zplug\&. The wiki may perhaps be overwhelming for first\-time users\&.
+.SH "AUTHORS"
+.sp
+zplug was originally written by Masaki Ishi (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
+.SH "COPYING"
+.sp
+Copyright (C) 2015\-2016 Masaki Ishi
+.sp
+MIT License
+.SH "REPORTING BUGS"
+.sp
+Report bugs to the zplug issues

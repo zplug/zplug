@@ -3,7 +3,11 @@
 .ignore
 bin/*
 !bin/zplug-env
+zcompdump
 **/zcompdump
 **/*~
 **/*.swp
 .cache
+repos
+*.xml
+**/*.xml

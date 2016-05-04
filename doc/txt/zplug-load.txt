@@ -1,0 +1,96 @@
+zplug-load(1)
+=============
+Masaki Ishiyama b4b4r07@gmail.com
+:man manual: ZPLUG Manual
+
+NAME
+----
+zplug-load - Source installed plugins and add installed commands to `$PATH`
+
+
+SYNOPSIS
+--------
+[verse]
+'zplug load' [--verbose]
+
+    The word 'package' refers to the string in the format: "username/reponame".
+
+
+DESCRIPTION
+-----------
+Be able to use a package that has been installed on the current shell.
+
+
+OPTIONS
+-------
+*--verbose*::
+    Be verbose.
+
+
+EXAMPLES
+--------
+
+Installation check:
+
+------------
+$ zplug load
+------------
+
+
+ENVIRONMENT VARIABLES
+---------------------
+'ZPLUG_LOADFILE'::
+    Defaults to `$ZPLUG_HOME/packages.zsh`.
+    This file is used to add packages from zplug on the command-line. This is a
+    useful feature when you want to isolate your zplug configurations from your
+    `.zshrc`. Note that you don't need to add packages from the command line to
+    use this feature: you can manually edit this file, and it'll work just
+    fine!
+
+'ZPLUG_USE_CACHE'::
+    Defaults to `true`.
+    If this variable is true, zplug uses a cache file to speed up the loading process.
+    The cache file is located at `$ZPLUG_CACHE_FILE` (`$ZPLUG_HOME/.cache` by default).
+    If you want to clear the cache, please run `zplug clear` or do the following:
+
+------------
+$ ZPLUG_USE_CACHE=false zplug load
+------------
+
+'ZPLUG_CACHE_FILE'::
+    Defaults to `$ZPLUG_HOME/.cache`.
+    Specifies where to save the cache. For example, you can set this to
+    `$HOME/.cache/zplug/cache` to follow XDG Base Directory Specification
+
+
+SEE ALSO
+--------
+*zplug(1)*
+
+
+Further Documentation
+---------------------
+
+See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+The wiki may perhaps be overwhelming for first-time users.
+
+
+Authors
+-------
+zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+Many people have contributed to it.
+
+
+Copying
+-------
+Copyright \(C) 2015-2016 Masaki Ishi
+
+MIT License
+
+
+Reporting Bugs
+--------------
+Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+
+
+// vim:ft=asciidoc

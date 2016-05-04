@@ -1,0 +1,79 @@
+'\" t
+.\"     Title: zplug-dir
+.\"    Author: [see the "Authors" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/04/2016
+.\"    Manual: ZPLUG Manual
+.\"    Source: ZPLUG Manual
+.\"  Language: English
+.\"
+.TH "ZPLUG\-DIR" "5" "05/04/2016" "ZPLUG Manual" "ZPLUG Manual"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+zplug-dir \- Installation directory which is managed by zplug
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIzplug\fR \fI"username/reponame"\fR
+.fi
+.sp
+.nf
+The word \'package\' refers to the string in the format: "username/reponame"\&.
+.fi
+.SH "DESCRIPTION"
+.sp
+READ ONLY
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.B Table\ \&1.\ \&zplug detph tag
+.TS
+allbox tab(:);
+ltB ltB.
+T{
+Possive Values
+T}:T{
+Default value
+T}
+.T&
+lt lt.
+T{
+.sp
+(READ ONLY)
+T}:T{
+.sp
+$ZPLUG_HOME/repos/user/repo
+T}
+.TE
+.sp 1
+.SH "EXAMPLES"
+.sp
+\fB(None)\fR
+.SH "SEE ALSO"
+.sp
+\fBzplug(1)\fR
+.SH "FURTHER DOCUMENTATION"
+.sp
+See the references in official wiki page to get started using zplug\&. The wiki may perhaps be overwhelming for first\-time users\&.
+.SH "AUTHORS"
+.sp
+zplug was originally written by Masaki Ishi (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
+.SH "COPYING"
+.sp
+Copyright (C) 2015\-2016 Masaki Ishi
+.sp
+MIT License
+.SH "REPORTING BUGS"
+.sp
+Report bugs to the zplug issues

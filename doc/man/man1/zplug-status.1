@@ -1,0 +1,88 @@
+'\" t
+.\"     Title: zplug-status
+.\"    Author: [see the "Authors" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/04/2016
+.\"    Manual: ZPLUG Manual
+.\"    Source: ZPLUG Manual
+.\"  Language: English
+.\"
+.TH "ZPLUG\-STATUS" "1" "05/04/2016" "ZPLUG Manual" "ZPLUG Manual"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+zplug-status \- Check if the remote repositories are up to date
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIzplug status\fR [\-\-select] [\fI"username/reponame"\fR]
+.fi
+.sp
+.nf
+The word \'package\' refers to the string in the format: "username/reponame"\&.
+.fi
+.SH "DESCRIPTION"
+.sp
+Check if the remote repositories are up to date\&.
+.SH "OPTIONS"
+.PP
+\fB\-\-verbose\fR
+.RS 4
+Be verbose\&.
+.RE
+.SH "EXAMPLES"
+.sp
+Check if the package is up to date:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ zplug status
+Fetching the status of packages \&.\&.\&.
+Packages with from:\'local\' are skipped\&.
+===
+b4b4r07/emoji\-cli                       (up to date) \'https://github\&.com/b4b4r07/emoji\-cli\&.git\'
+b4b4r07/zsh\-vimode\-visual               (up to date) \'https://github\&.com/b4b4r07/zsh\-vimode\-visual\&.git\'
+b4b4r07/http_code                       (up to date) \'https://github\&.com/b4b4r07/http_code\&.git\'
+b4b4r07/zsh\-gomi                        (up to date) \'https://github\&.com/b4b4r07/zsh\-gomi\&.git\'
+b4b4r07/zplug                           (local out of date) \'https://github\&.com/b4b4r07/zplug\&.git\'
+so\-fancy/diff\-so\-fancy                  (local out of date) \'https://github\&.com/so\-fancy/diff\-so\-fancy\&.git\'
+zsh\-users/zaw                           (up to date) \'https://github\&.com/zsh\-users/zaw\&.git\'
+stedolan/jq                             (up to date) \'https://github\&.com/stedolan/jq/releases\'
+peco/peco                               (up to date) \'https://github\&.com/peco/peco/releases\'
+junegunn/fzf\-bin                        (local out of date) \'https://github\&.com/junegunn/fzf\-bin/releases\'
+b4b4r07/zgit                            (up to date) \'https://github\&.com/b4b4r07/zgit\&.git\'
+Jxck/dotfiles                           (local out of date) \'https://github\&.com/Jxck/dotfiles\&.git\'
+mrowa44/emojify                         (up to date) \'https://github\&.com/mrowa44/emojify\&.git\'
+===
+Finished 6\&.323036
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+.sp
+\fBzplug(1)\fR
+.SH "FURTHER DOCUMENTATION"
+.sp
+See the references in official wiki page to get started using zplug\&. The wiki may perhaps be overwhelming for first\-time users\&.
+.SH "AUTHORS"
+.sp
+zplug was originally written by Masaki Ishi (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
+.SH "COPYING"
+.sp
+Copyright (C) 2015\-2016 Masaki Ishi
+.sp
+MIT License
+.SH "REPORTING BUGS"
+.sp
+Report bugs to the zplug issues

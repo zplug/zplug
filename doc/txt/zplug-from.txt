@@ -1,0 +1,96 @@
+zplug-from(5)
+=============
+Masaki Ishiyama b4b4r07@gmail.com
+:man manual: ZPLUG Manual
+
+NAME
+----
+zplug-from - Specify the service from which you install
+
+
+SYNOPSIS
+--------
+[verse]
+'zplug' '"username/reponame"', 'from:plugin'
+
+    The word 'package' refers to the string in the format: "username/reponame".
+
+
+DESCRIPTION
+-----------
+By using `from` tag, you can choose whether the package you want to install
+will be installed as the plugin or as the command.
+
+.zplug from tag
+[options="header"]
+|================================================================
+| Possive Values                                  | Default value
+| github, bitbucket, gh-r, gist, oh-my-zsh, local | github
+|================================================================
+
+Besides, by using `zstyle` command, you can change default value:
+
+------------
+$ zstyle ":zplug:tag" from local
+------------
+
+
+EXAMPLES
+--------
+Install from oh-my-zsh:
+
+------------
+$ zplug "plugins/git", \
+    as:plugin, \
+    from:oh-my-zsh
+------------
+
+Install from gist:
+
+------------
+$ zplug "b4b4r07/79ee61f7c140c63d2786" \
+    as:command, \
+    from:gist
+------------
+
+Install from local:
+
+------------
+$ zplug "~/.zsh/plugins/brew" \
+    from:local, \
+    use:"*.sh"
+------------
+
+
+SEE ALSO
+--------
+*zplug(1)*
+
+
+Further Documentation
+---------------------
+
+See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+The wiki may perhaps be overwhelming for first-time users.
+
+
+Authors
+-------
+zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+Many people have contributed to it.
+
+
+Copying
+-------
+Copyright \(C) 2015-2016 Masaki Ishi
+
+MIT License
+
+
+Reporting Bugs
+--------------
+Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+
+
+// vim:ft=asciidoc
+
