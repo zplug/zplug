@@ -38,15 +38,6 @@ _arguments \
     '(-)--version[version information]: :' \
     '*:: :->comp' && return 0
 
-
-case $state in
-    comp)
-        _describe -t help_cmds "commands" cmds
-        _describe -t help_tags "tags" tags
-        return 0
-        ;;
-esac
-
 if (( CURRENT == 1 )); then
     _describe -t commands "zplug subcommand" zplug_cmds
     return 0
@@ -150,6 +141,15 @@ case "$words[1]" in
                 compadd -J 'boolean/false' -x "%F{yellow}Completing%f %Bfalse word%b" $_zplug_boolean_false
                 ;;
         esac
+        ;;
+esac
+
+case $state in
+    comp)
+        is_help="yes"
+        _describe -t help_cmds "commands" cmds
+        _describe -t help_tags "tags" tags
+        return 0
         ;;
 esac
 
