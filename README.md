@@ -52,12 +52,20 @@
 
 ## Installation
 
+### Using git
+
 Download [zplug](https://git.io/zplug) and put it in `~/.zplug`
 
 ```console
 $ export ZPLUG_HOME=/path/to/.zplug
 $ git clone https://github.com/zplug/zplug $ZPLUG_HOME
 $ source $ZPLUG_HOME/init.zsh
+```
+
+### Using [Homebrew](https://github.com/Homebrew/brew) (OS X)
+
+```console
+$ brew install zplug
 ```
 
 ### Requirements
