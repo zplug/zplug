@@ -139,7 +139,7 @@ zplug "b4b4r07/hello_bitbucket", \
 
 # Group dependencies. Load emoji-cli if jq is installed in this example
 zplug "stedolan/jq", \
-    from:gh-r \
+    from:gh-r, \
     as:command, \
     rename-to:jq
 zplug "b4b4r07/emoji-cli", \
