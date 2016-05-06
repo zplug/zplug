@@ -234,6 +234,10 @@ $ ZPLUG_USE_CACHE=false zplug load
     Specifies where to save the cache. For example, you can set this to
     `$HOME/.cache/zplug/cache` to follow XDG Base Directory Specification
 
+'ZPLUG_REPOS'::
+Defaults to `$ZPLUG_HOME/repos`. You can change where the repositories are
+cloned in case you want to manage them separately.
+
 
 Using zstyle
 ------------

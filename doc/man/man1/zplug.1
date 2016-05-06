@@ -2,12 +2,12 @@
 .\"     Title: zplug
 .\"    Author: Masaki Ishiyama (@b4b4r07) b4b4r07@gmail.com
 .\" Generator: DocBook XSL Stylesheets v1.79.0 <http://docbook.sf.net/>
-.\"      Date: 04/26/2016
+.\"      Date: 05/06/2016
 .\"    Manual: ZPLUG Manual
 .\"    Source: \ \&
 .\"  Language: English
 .\"
-.TH "ZPLUG" "1" "04/26/2016" "\ \&" "ZPLUG Manual"
+.TH "ZPLUG" "1" "05/06/2016" "\ \&" "ZPLUG Manual"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -403,7 +403,7 @@ T}:T{
 Branch, tag, or commit to use
 T}:T{
 .sp
-\fBbranch/tag\fR (master)
+\fBrevision\fR (master)
 T}:T{
 .sp
 at:v1\&.5\&.6
@@ -655,6 +655,12 @@ Defaults to
 $ZPLUG_HOME/\&.cache\&. Specifies where to save the cache\&. For example, you can set this to
 $HOME/\&.cache/zplug/cache
 to follow XDG Base Directory Specification
+.RE
+.PP
+\fIZPLUG_REPOS\fR
+.RS 4
+Defaults to
+$ZPLUG_HOME/repos\&. You can change where the repositories are cloned in case you want to manage them separately\&.
 .RE
 .SH "USING ZSTYLE"
 .sp

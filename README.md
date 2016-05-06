@@ -338,6 +338,10 @@ $ ZPLUG_USE_CACHE=false zplug load
 
 Defaults to `$ZPLUG_HOME/.cache`. You can change where the cache file is saved, for example, `$HOME/.cache/zplug/cache`.
 
+#### `ZPLUG_REPOS`
+
+Defaults to `$ZPLUG_HOME/repos`. You can change where the repositories are cloned in case you want to manage them separately.
+
 ### External commands
 zplug, like `git(1)`, supports external commands.
 These are executable scripts that reside somewhere in the PATH, named `zplug-cmdname`,
