@@ -30,7 +30,7 @@ esac
 
 # Initialize
 {
-    [[ -d $ZPLUG_HOME/repos ]] || mkdir -p "$ZPLUG_HOME/repos"
+    [[ -d $ZPLUG_REPOS ]] || mkdir -p "$ZPLUG_REPOS"
     start=$SECONDS
     filter="$(__zplug::core::core::get_filter "$ZPLUG_FILTER")"
     if $is_select; then
@@ -75,7 +75,7 @@ do
             continue
         fi
     else
-        if [[ -d $ZPLUG_HOME/repos/$line ]]; then
+        if [[ -d $ZPLUG_REPOS/$line ]]; then
             if $is_verbose; then
                 __zplug::print::print::put "$fg[red]-$reset_color $fg[green]$line$reset_color: already installed\n"
             fi
@@ -89,7 +89,7 @@ do
     elif [[ -n $zspec[dir] ]]; then
         check+=("$zspec[name]" "$zspec[dir]")
     else
-        check+=("$zspec[name]" "$ZPLUG_HOME/repos/$line")
+        check+=("$zspec[name]" "$ZPLUG_REPOS/$line")
     fi
 
     # Case of oh-my-zsh
@@ -98,7 +98,7 @@ do
         if (( oh_my_count++ > 0 )); then
             continue
         fi
-        if [[ -d $ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH ]]; then
+        if [[ -d $ZPLUG_REPOS/$_ZPLUG_OHMYZSH ]]; then
             continue
         fi
         oh_my_line="$_ZPLUG_OHMYZSH"

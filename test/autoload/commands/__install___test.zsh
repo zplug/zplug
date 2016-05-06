@@ -46,5 +46,5 @@ end
 {
     zplugs=()
     unset expect actual
-    rm -rf "$ZPLUG_HOME/repos"
+    rm -rf "$ZPLUG_REPOS"
 }

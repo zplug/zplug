@@ -61,8 +61,8 @@ done
 
 # Initialize
 {
-    [[ -d $ZPLUG_HOME/repos ]] || mkdir -p "$ZPLUG_HOME/repos"
-    builtin cd -q "$ZPLUG_HOME/repos"
+    [[ -d $ZPLUG_REPOS ]] || mkdir -p "$ZPLUG_REPOS"
+    builtin cd -q "$ZPLUG_REPOS"
 
     case "$tag_from" in
         github)
@@ -155,7 +155,7 @@ ret=$status
 if (( $ret == 0 )); then
     (
         # revision/branch/tag lock
-        builtin cd -q "$ZPLUG_HOME/repos/$repository"
+        builtin cd -q "$ZPLUG_REPOS/$repository"
         git checkout -q "$tag_at" &>/dev/null
         if (( $status != 0 )); then
             __zplug::print::print::die "[zplug] $fg[red]ERROR$reset_color: pathspec '$tag_at' (at tag) did not match ($repository)\n"

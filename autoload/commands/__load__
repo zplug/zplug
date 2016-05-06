@@ -91,7 +91,7 @@ do
 
         # ON tag
         if [[ -n $zspec[on] ]]; then
-            if [[ ! -d $ZPLUG_HOME/repos/${~zspec[on]} ]]; then
+            if [[ ! -d $ZPLUG_REPOS/${~zspec[on]} ]]; then
                 $is_verbose && __zplug::print::print::die "$zspec[name]: (not loaded)\n"
                 continue
             fi
@@ -148,7 +148,7 @@ do
                     # case:
                     #   zplug "b4b4r07/sample", use:mycmd
                     load_commands+=(
-                        # expand to "$ZPLUG_HOME/repos/b4b4r07/sample/mycmd"
+                        # expand to "$ZPLUG_REPOS/b4b4r07/sample/mycmd"
                         "$zspec[dir]${zspec[use]:+"/$zspec[use]"}"
                         "$dst"
                     )
@@ -156,7 +156,7 @@ do
                     # case:
                     #   zplug "b4b4r07/sample", use:bin
                     load_commands+=(
-                        # expand to "$ZPLUG_HOME/repos/b4b4r07/sample/bin/sample"
+                        # expand to "$ZPLUG_REPOS/b4b4r07/sample/bin/sample"
                         "$zspec[dir]${zspec[use]:+"/$zspec[use]"}/$basename"
                         "$dst"
                     )
@@ -164,7 +164,7 @@ do
                     # case:
                     #   zplug "b4b4r07/sample"
                     load_commands+=(
-                        # expand to "$ZPLUG_HOME/repos/b4b4r07/sample/sample"
+                        # expand to "$ZPLUG_REPOS/b4b4r07/sample/sample"
                         "$zspec[dir]/$basename"
                         "$dst"
                     )
@@ -175,8 +175,8 @@ do
                     # case 2:
                     #   zplug "b4b4r07/sample", use:"bin/*"
                     sources=(
-                    # expand to "$ZPLUG_HOME/repos/b4b4r07/sample/mycmd1"
-                    #           "$ZPLUG_HOME/repos/b4b4r07/sample/sample"
+                    # expand to "$ZPLUG_REPOS/b4b4r07/sample/mycmd1"
+                    #           "$ZPLUG_REPOS/b4b4r07/sample/sample"
                     $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${zspec[dir]}/${zspec[use]}" 2>/dev/null)
                     )
                     for src in "${sources[@]}"
@@ -277,7 +277,7 @@ do
     if [[ -n $zspec[ignore] ]]; then
         # Make ignore patterns
         if [[ $zspec[from] == "oh-my-zsh" ]]; then
-            ignore_patterns=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/${~zspec[ignore]}" 2>/dev/null)(N) )
+            ignore_patterns=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $ZPLUG_REPOS/$_ZPLUG_OHMYZSH/${~zspec[ignore]}" 2>/dev/null)(N) )
         else
             ignore_patterns=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${zspec[dir]}/${~zspec[ignore]}" 2>/dev/null)(N) )
         fi
@@ -336,7 +336,7 @@ done
                 source "$f"
                 if (( $status == 0 )); then
                     $is_verbose && \
-                        __zplug::print::print::put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}\n"
+                        __zplug::print::print::put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_REPOS/}\n"
                 else
                     failed_packages+=("$f")
                 fi
@@ -370,7 +370,7 @@ done
                 source "$f"
                 if (( $status == 0 )); then
                     if $is_verbose; then
-                        __zplug::print::print::put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_HOME/repos/}"
+                        __zplug::print::print::put "$fg[green]  Loaded$reset_color ${f#$ZPLUG_REPOS/}"
                         __zplug::print::print::put "$fg[yellow] after compinit$reset_color\n"
                     fi
                 else
