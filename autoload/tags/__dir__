@@ -6,7 +6,7 @@ __import "print/print"
 local    arg="${1:gs:@:}" package
 local -a parsed_zplugs
 local    dir
-local    default="$ZPLUG_HOME/repos/$arg"
+local    default="$ZPLUG_REPOS/$arg"
 
 package="${arg}, ${zplugs[$arg]%, }"
 parsed_zplugs=(${(s/, /)package/,  */, })
@@ -20,7 +20,7 @@ local from
 from="$(__from__ "$arg")"
 case "$from" in
     "oh-my-zsh")
-        dir="$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH/$arg"
+        dir="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH/$arg"
         ;;
     "local")
         dir="$arg"

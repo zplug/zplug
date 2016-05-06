@@ -38,7 +38,7 @@ if $is_select; then
 fi
 
 if (( $#args == 0 )); then
-    repos=( "$ZPLUG_HOME"/repos/*/*(N-/) )
+    repos=( "$ZPLUG_REPOS"/*/*(N-/) )
     for repo in "${repos[@]}"
     do
         if ! __zplug::core::core::zpluged "${repo:h:t}/${repo:t}"; then
@@ -53,7 +53,7 @@ else
         if [[ -d $zspec[dir] ]]; then
             case "$zspec[from]" in
                 "oh-my-zsh")
-                    remove_args+=("$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH")
+                    remove_args+=("$ZPLUG_REPOS/$_ZPLUG_OHMYZSH")
                     ;;
                 *)
                     remove_args+=("$zspec[dir]")
@@ -66,7 +66,7 @@ else
     done
 fi
 
-# Remove packages from $ZPLUG_HOME/repos
+# Remove packages from $ZPLUG_REPOS
 for repo in "${remove_args[@]}"
 do
     __zplug::print::print::put "${${is_force:+"Removed"}:-"Remove? (y/N)"} ${(qq)repo} "

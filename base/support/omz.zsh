@@ -6,7 +6,7 @@ __zplug::support::omz::depends() {
     local -a -U depends
     local -a func_names
     local -A omz_libs
-    local omz_repo="$ZPLUG_HOME/repos/$_ZPLUG_OHMYZSH"
+    local omz_repo="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
 
     for lib_f in "$omz_repo"/lib/*.zsh(.)
     do

@@ -20,7 +20,7 @@ describe "__clean__"
 
     it "exist but clean"
         mock_as_plugin "foo/foo"
-        expect="Removed '$ZPLUG_HOME/repos/foo/foo' "
+        expect="Removed '$ZPLUG_REPOS/foo/foo' "
         actual="$(zplug clean --force "foo/foo")"
         assert.true $status
         assert.equals "$expect" "$actual"
@@ -29,7 +29,7 @@ describe "__clean__"
     it "non-existing plugin"
         mock_as_plugin "bar/bar"
         zplugs=()
-        expect="Removed '$ZPLUG_HOME/repos/bar/bar' "
+        expect="Removed '$ZPLUG_REPOS/bar/bar' "
         actual="$(zplug clean --force)"
         assert.true $status
         assert.equals "$expect" "$actual"

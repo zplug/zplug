@@ -18,10 +18,10 @@ else
 fi
 
 ln -snf \
-    "$ZPLUG_HOME/repos/$main/init.zsh" \
+    "$ZPLUG_REPOS/$main/init.zsh" \
     "$ZPLUG_HOME/init.zsh"
 
-if (( $status == 0)) && [[ -d $ZPLUG_HOME/repos/$main ]]; then
+if (( $status == 0)) && [[ -d $ZPLUG_REPOS/$main ]]; then
     __zplug::print::print::put "$fg[green]Everything is ready. "
     __zplug::print::print::put "$fg_bold[default]($ZPLUG_HOME/zplug)$reset_color\n"
 else

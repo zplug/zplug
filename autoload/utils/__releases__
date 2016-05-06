@@ -99,7 +99,7 @@ done
     fi
 
     # For updating
-    repo="$ZPLUG_HOME/repos/$repository"
+    repo="$ZPLUG_REPOS/$repository"
     command_name="${repo:t}"
     if [[ -d $repo ]]; then
         # Update
