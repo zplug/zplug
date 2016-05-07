@@ -67,5 +67,6 @@ __zplug::job::notify::check_update() (
             __zplug::job::notify::notifier \
                 "[$rev] \"$msg\" ($state $cnt ${commit:-commits})" \
                 'Update "zplug/zplug"'
-            ;zplug
+            ;;
+    esac
 )
