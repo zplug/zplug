@@ -4,7 +4,7 @@ __import "core/core"
 __import "print/print"
 
 local main
-main="b4b4r07/zplug"
+main="zplug/zplug"
 
 __zplug::print::print::put "$fg_bold[default] * zplug self management$reset_color\n"
 

@@ -41,7 +41,7 @@ b4b4r07/emoji-cli                       (up to date) 'https://github.com/b4b4r07
 b4b4r07/zsh-vimode-visual               (up to date) 'https://github.com/b4b4r07/zsh-vimode-visual.git'
 b4b4r07/http_code                       (up to date) 'https://github.com/b4b4r07/http_code.git'
 b4b4r07/zsh-gomi                        (up to date) 'https://github.com/b4b4r07/zsh-gomi.git'
-b4b4r07/zplug                           (local out of date) 'https://github.com/b4b4r07/zplug.git'
+zplug/zplug                           (local out of date) 'https://github.com/zplug/zplug.git'
 so-fancy/diff-so-fancy                  (local out of date) 'https://github.com/so-fancy/diff-so-fancy.git'
 zsh-users/zaw                           (up to date) 'https://github.com/zsh-users/zaw.git'
 stedolan/jq                             (up to date) 'https://github.com/stedolan/jq/releases'
@@ -64,7 +64,7 @@ SEE ALSO
 Further Documentation
 ---------------------
 
-See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+See the references in https://github.com/zplug/zplug/wiki[official wiki page] to get started using zplug.
 The wiki may perhaps be overwhelming for first-time users.
 
 
@@ -83,7 +83,7 @@ MIT License
 
 Reporting Bugs
 --------------
-Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+Report bugs to the https://github.com/zplug/zplug/issues[zplug issues]
 
 
 // vim:ft=asciidoc

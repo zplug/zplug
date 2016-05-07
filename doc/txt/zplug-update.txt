@@ -56,8 +56,8 @@ Update zplug:
 ------------
 $ zplug update --self
  * zplug self management
-Updating...          b4b4r07/zplug
-Up-to-date           b4b4r07/zplug      (2.42s)
+Updating...          zplug/zplug
+Up-to-date           zplug/zplug      (2.42s)
 Everything is ready. (~/.zplug/zplug)
 
 ------------
@@ -71,7 +71,7 @@ SEE ALSO
 Further Documentation
 ---------------------
 
-See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+See the references in https://github.com/zplug/zplug/wiki[official wiki page] to get started using zplug.
 The wiki may perhaps be overwhelming for first-time users.
 
 
@@ -90,7 +90,7 @@ MIT License
 
 Reporting Bugs
 --------------
-Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+Report bugs to the https://github.com/zplug/zplug/issues[zplug issues]
 
 
 // vim:ft=asciidoc

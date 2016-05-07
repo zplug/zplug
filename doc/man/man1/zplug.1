@@ -669,7 +669,7 @@ You can use zstyle to change the default values for each tag\&. The format is: z
 You can also specify what options to enable in sub shells\&. Sub shells are used when expanding glob expressions\&. If you want to use the \fIextended_glob\fR for example, you can do: zstyle ":zplug:config:setopt" only_subshell extended_glob\&. If you set :zplug:config:setopt same_curshell to a truthy value (i\&.e\&. true, 1, yes), zplug will enable the options enabled at the point of sourcing zplug (i\&.e\&. at the point of source $ZPLUG_HOME/init\&.zsh)\&.
 .SH "EXTERNAL COMMANDS"
 .sp
-zplug, like \fIgit(1)\fR, supports external commands\&. These are executable scripts that reside somewhere in the PATH, named zplug\-cmdname, which can be invoked with zplug cmdname\&. This allows you to create your own commands without modifying zplug\(cqs internals\&. Instructions for creating your own commands can be found in the docs: https://github\&.com/b4b4r07/zplug2/blob/master/doc/zplug/External\-Commands\&.md Check out the sample zplug\-env external command for an example\&.
+zplug, like \fIgit(1)\fR, supports external commands\&. These are executable scripts that reside somewhere in the PATH, named zplug\-cmdname, which can be invoked with zplug cmdname\&. This allows you to create your own commands without modifying zplug\(cqs internals\&. Instructions for creating your own commands can be found in the docs: https://github\&.com/zplug/zplug2/blob/master/doc/zplug/External\-Commands\&.md Check out the sample zplug\-env external command for an example\&.
 .SH "CONFIGURATION"
 .sp
 Add a zplug section to your \&.zshrc (or $ZPLUG_LOADFILE):

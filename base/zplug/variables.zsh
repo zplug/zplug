@@ -16,7 +16,7 @@ typeset -gx ZPLUG_CACHE_FILE=${ZPLUG_CACHE_FILE:-$ZPLUG_HOME/.cache}
 typeset -gx ZPLUG_REPOS=${ZPLUG_REPOS:-$ZPLUG_HOME/repos}
 
 typeset -gx -r _ZPLUG_VERSION="2.0.0"
-typeset -gx -r _ZPLUG_URL="https://github.com/b4b4r07/zplug"
+typeset -gx -r _ZPLUG_URL="https://github.com/zplug/zplug"
 typeset -gx -r _ZPLUG_HELP="usage: zplug [COMMANDS] [OPTIONS]
   zplug is a next-generation plugin manager for zsh 
 
