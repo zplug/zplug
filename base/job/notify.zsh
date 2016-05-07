@@ -43,7 +43,7 @@ __zplug::job::notify::check_update() (
     local -i cnt
     local    msg rev state commit
 
-    builtin cd -q "$ZPLUG_REPOS/b4b4r07/zplug" || return 1
+    builtin cd -q "$ZPLUG_REPOS/zplug/zplug" || return 1
 
     # Fetch from remote
     git fetch &>/dev/null
@@ -66,7 +66,7 @@ __zplug::job::notify::check_update() (
         *)
             __zplug::job::notify::notifier \
                 "[$rev] \"$msg\" ($state $cnt ${commit:-commits})" \
-                'Update "b4b4r07/zplug"'
+                'Update "zplug/zplug"'
             ;;
     esac
 )

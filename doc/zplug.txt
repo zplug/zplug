@@ -145,11 +145,11 @@ and so on. If you want to use extended glob, see later section for setting the z
 |*depth* | The number of commits to include in the cloned repository. 0 means the whole history. | Any non-negative integer (`ZPLUG_CLONE_DEPTH`) | `depth:10` |
 
 |*nice* | Priority of loading the plugins. If the value is 10 or more,
-zplug will source the plugin after `compinit` (see also https://github.com/b4b4r07/zplug/issues/26[#26])
+zplug will source the plugin after `compinit` (see also https://github.com/zplug/zplug/issues/26[#26])
 | -20..19 (0) | `nice:19`
 
 |*ignore* | Similar to `use`, but specify exception pattern of files that you
-don't want to load (see also https://github.com/b4b4r07/zplug/issues/56[#56])
+don't want to load (see also https://github.com/zplug/zplug/issues/56[#56])
 | *glob* (-) | `ignore:"some_*.zsh"` |
 |=========================================================
 
@@ -261,7 +261,7 @@ These are executable scripts that reside somewhere in the PATH, named zplug-cmdn
 which can be invoked with `zplug cmdname`.
 This allows you to create your own commands without modifying zplug's internals.
 Instructions for creating your own commands can be found in the docs:
-https://github.com/b4b4r07/zplug2/blob/master/doc/zplug/External-Commands.md
+https://github.com/zplug/zplug2/blob/master/doc/zplug/External-Commands.md
 Check out the sample `zplug-env` external command for an example.
 
 
@@ -361,7 +361,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 Further Documentation
 ---------------------
 
-See the references in https://github.com/b4b4r07/zplug/wiki[official wiki page] to get started using zplug.
+See the references in https://github.com/zplug/zplug/wiki[official wiki page] to get started using zplug.
 The wiki may perhaps be overwhelming for first-time users.
 
 
@@ -380,7 +380,7 @@ MIT License
 
 Reporting Bugs
 --------------
-Report bugs to the https://github.com/b4b4r07/zplug/issues[zplug issues]
+Report bugs to the https://github.com/zplug/zplug/issues[zplug issues]
 
 
 // vim:ft=asciidoc
