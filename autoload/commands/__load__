@@ -358,6 +358,8 @@ done
             "${fpath[@]}"
         )
         compinit -C -d "$ZPLUG_HOME/zcompdump"
+
+        { zcompile "$ZPLUG_HOME/zcompdump" } &!
     fi
 
     # Nice plugins
@@ -401,5 +403,5 @@ do
     fi
 done
 
-# Cache
-__zplug::zplug::cache::update
+# Cache in background
+{__zplug::zplug::cache::update} &!
