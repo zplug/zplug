@@ -11,23 +11,6 @@
 </div>
 <br>
 
-<p align="center">
-  <b><a href="#proc">About</a></b>
-  |
-  <b><a href="#usage">Usage</a></b>
-  |
-  <b><a href="#1-zplug-commands">Commands</a></b>
-  |
-  <b><a href="#2-zplug-tags">Tags</a></b>
-  |
-  <b><a href="#3-zplug-configurations">Configurations</a></b>
-  |
-  <b><a href="#note">Note</a></b>
-
-</p>
-
-<br>
-
 ## Pros.
 
 - Can manage everything
@@ -52,15 +35,15 @@
 
 ## Installation
 
-### Using git
-
-Download [zplug](https://git.io/zplug) and put it in `~/.zplug`
+### The best way
 
 ```console
-$ export ZPLUG_HOME=/path/to/.zplug
-$ git clone https://github.com/zplug/zplug $ZPLUG_HOME
-$ source $ZPLUG_HOME/init.zsh
+$ curl -sL get.zplug.sh | zsh
 ```
+
+If you wonder this installation, please check it out:
+
+- [zplug/installer](https://github.com/zplug/installer/blob/master/installer.zsh)
 
 ### Using [Homebrew](https://github.com/Homebrew/brew) (OS X)
 
@@ -68,7 +51,16 @@ $ source $ZPLUG_HOME/init.zsh
 $ brew install zplug
 ```
 
-### Requirements
+### Manually
+
+Cloning from GitHub, and source `init.zsh`:
+
+```console
+$ export ZPLUG_HOME=/path/to/.zplug
+$ git clone https://github.com/zplug/zplug $ZPLUG_HOME
+```
+
+## Requirements
 
 - `zsh` version 4.3.9 or higher
 - `git` version 1.7 or higher
@@ -171,7 +163,14 @@ zplug load --verbose
 
 Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 
-### 1. `zplug` commands
+### 1. Options for `zplug`
+
+| Option | Description |
+|--------|-------------|
+| `--help` | Display the help message |
+| `--version` | Display the version of zplug |
+
+### 2. Commands for `zplug`
 
 |  Command  | Description | Options |
 |-----------|-------------|---------|
@@ -184,13 +183,6 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 | `clean`   | Remove repositories which are no longer managed | `--force`,`--select` |
 | `clear`   | Remove the cache file | (None) |
 | `info`    | Show the information such as the source URL and tag values for the given package | (None) |
-
-## Options for `zplug`
-
-| Option | Description |
-|--------|-------------|
-| `--help` | Display the help message |
-| `--version` | Display the version of zplug |
 
 #### Take a closer look
 
@@ -231,7 +223,7 @@ All that's left is to run `zplug update`.
 
 [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo]
 
-### 2. `zplug` tags
+### 3. Tags for `zplug`
 
 `truthy` is any of `true`, `yes`, `on`, `1` and `falsy` is any of `false`, `no`, `off`, `0`.
 
@@ -280,7 +272,7 @@ In this case, zplug spit out its settings to `$ZPLUG_LOADFILE` instead of `.zshr
 
 See [`ZPLUG_LOADFILE`](#zplug_loadfile) for other usage of `ZPLUG_LOADFILE`.
 
-### 3. `zplug` configurations
+### 4. Environment variables for `zplug`
 
 #### `ZPLUG_HOME`
 
@@ -367,7 +359,7 @@ zplug is the fastest among the famous zsh plugin managers. Numbers? Here they ar
 
 ## License
 
-[MIT][license] (c) BABAROT
+[MIT][license] (c) [@b4b4r07](https://github.com/b4b4r07)
 
 [repo]: https://github.com/zplug/zplug
 [license]: http://b4b4r07.mit-license.org
