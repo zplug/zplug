@@ -17,7 +17,7 @@ EOLOGO
 
 __get_zplug() {
     local i
-    local url="https://github.com/b4b4r07/zplug"
+    local url="https://github.com/zplug/zplug"
 
     : ${ZPLUG_HOME:=$1}
     if [[ -z $ZPLUG_HOME ]]; then

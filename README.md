@@ -131,7 +131,7 @@ zplug "b4b4r07/hello_bitbucket", \
 
 # Group dependencies. Load emoji-cli if jq is installed in this example
 zplug "stedolan/jq", \
-    from:gh-r \
+    from:gh-r, \
     as:command, \
     rename-to:jq
 zplug "b4b4r07/emoji-cli", \
@@ -365,7 +365,7 @@ zplug is the fastest among the famous zsh plugin managers. Numbers? Here they ar
 [license]: http://b4b4r07.mit-license.org
 [travis-link]: https://travis-ci.org/zplug/zplug
 [travis-badge]: https://img.shields.io/travis/zplug/zplug.svg?style=flat-square
-[version-badge]: https://img.shields.io/badge/latest-v2.0.0-ca7f85.svg?style=flat-square
+[version-badge]: https://img.shields.io/badge/latest-v2.1.0-ca7f85.svg?style=flat-square
 [version-link]: https://github.com/zplug/zplug/releases
 [slack-link]: https://zplug.herokuapp.com
 [slack-badge]: https://img.shields.io/badge/slack-join-ca7f85.svg?style=flat-square

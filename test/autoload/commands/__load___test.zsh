@@ -40,6 +40,8 @@ describe "__load__"
         mock_as_plugin "foo/bar"
         zplug load
 
+        sleep 1
+
         [[ -f $ZPLUG_CACHE_FILE ]]
         assert.true $status
     end
