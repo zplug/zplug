@@ -261,7 +261,7 @@ These are executable scripts that reside somewhere in the PATH, named zplug-cmdn
 which can be invoked with `zplug cmdname`.
 This allows you to create your own commands without modifying zplug's internals.
 Instructions for creating your own commands can be found in the docs:
-https://github.com/zplug/zplug2/blob/master/doc/zplug/External-Commands.md
+https://github.com/zplug/zplug/blob/master/doc/zplug/External-Commands.md
 Check out the sample `zplug-env` external command for an example.
 
 
