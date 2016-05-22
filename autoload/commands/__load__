@@ -204,6 +204,7 @@ do
             else
                 # Default load behavior for plugins
                 plugins_ext=("plugin.zsh" "zsh-theme" "theme-zsh")
+                themes_ext=("zsh-theme" "theme-zsh")
 
                 # In order to find main file of the plugin,
                 # narrow down the candidates in three stages
@@ -378,6 +379,9 @@ done
                 else
                     failed_packages+=("$f")
                 fi
+            fi
+            if (( $themes_ext[(I)${f:e}] )); then
+                __zplug::support::omz::theme
             fi
         else
             nice_plugins[$nice_plugins[(i)$f]]=()
