@@ -8,7 +8,8 @@ __import "zplug/variables"
 
 trap '__zplug::job::spinner::unlock; trap - SIGINT' SIGINT
 
-local    line filter is_select=false
+local    line filter
+local    is_select=false is_force=false
 local -i max=0 ret=0
 local -a args
 local -a queue
@@ -23,6 +24,9 @@ case "$arg" in
         ;;
     --select)
         is_select=true; shift
+        ;;
+    --force)
+        is_force=true; shift
         ;;
     -*|--*)
         __zplug::print::print::die "[zplug] $arg: Unknown option\n"
@@ -76,27 +80,12 @@ do
                 ;;
         esac
 
-        if [[ $# == 1 && $argv[1] == $zspec[name] ]]; then
-            if (( $_zplug_boolean_true[(I)$zspec[frozen]] )); then
-                __zplug::job::spinner::unlock
-                __zplug::print::print::put "$fg[green]$zspec[name]: $fg[blue]frozen repo$reset_color. Update? [y/N]: "
-                if read -q; then
-                    __zplug::print::print::put "\n"
-                    __zplug::job::spinner::lock
-                    __zplug::job::spinner::spinner &
-                    SECONDS=0
-                else
-                    continue
-                fi
-            fi
-        fi
-
         __zplug::job::spinner::echo "%-20s %s\n" \
             "Updating..." \
             "$line"
 
         function () {
-            if (( $_zplug_boolean_true[(I)$zspec[frozen]] )); then
+            if (( $_zplug_boolean_true[(I)$zspec[frozen]] )) && ! $is_force; then
                 return 3
             fi
 

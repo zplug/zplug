@@ -93,10 +93,12 @@ COMMANDS
     Fetch the newest version of the installed packages by zplug.
     `--select` does the same as what's described above.
 
-*update* [--self] [--select] ['package']::
+*update* [--self] [--select] [--force] ['package']::
     Update 'package'. If no package is given, updates all registered packages.
     If `--self` is given, update zplug itself.
     `--select` does the same as what's described above.
+    Normally, the package with frozen tag will be skipped, but if `--force` option
+    is given, regardless of whether a frozen tag is true, the package is updated.
 
 
 TAGS
