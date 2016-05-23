@@ -18,13 +18,35 @@ __zplug::core::core::is_handler_defined() {
 
     subcommand="${1:?}"
     source_name="${2:?}"
-    handler_name="__zplug::$source_name::$subcommand"
+    handler_name="__zplug::sources::$source_name::$subcommand"
 
     if ! __zplug::core::core::is_external "$source_name"; then
         return 1
     fi
 
     (( $+functions[$handler_name] ))
+}
+
+# Call the handler of the external source if defined
+__zplug::core::core::use_handler() {
+    local subcommand
+    local source_name
+    local handler_name
+    local line
+
+    subcommand="${1:?}"
+    source_name="${2:?}"
+    handler_name="__zplug::sources::$source_name::$subcommand"
+    line="${3:?}"
+
+    if ! __zplug::core::core::is_handler_defined "$subcommand" "$source_name"; then
+        # Callback function undefined
+        return 1
+    fi
+
+    eval "$handler_name '$line'"
+
+    return $status
 }
 
 __zplug::core::core::zpluged() {
@@ -229,26 +251,4 @@ __zplug::core::core::packaging() {
         | awk \
         -f "$ZPLUG_ROOT/misc/share/packaging.awk" \
         -v pkg="${1:?}"
-}
-
-# Call the handler of the external source if defined
-__zplug::core::core::use_handler() {
-    local subcommand
-    local source_name
-    local handler_name
-    local line
-
-    subcommand="${1:?}"
-    source_name="${2:?}"
-    handler_name="__zplug::$source_name::$subcommand"
-    line="${3:?}"
-
-    if ! __zplug::core::core::is_handler_defined "$subcommand" "$source_name"; then
-        # Callback function undefined
-        return 1
-    fi
-
-    eval "$handler_name '$line'"
-
-    return $status
 }
