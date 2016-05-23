@@ -51,6 +51,7 @@ __zplug::oh-my-zsh::load_plugin() {
     # Check if omz is loaded and set some necessary settings
     if [[ -z $ZSH ]]; then
         export ZSH="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
+	export ZSH_CACHE_DIR="$ZSH/cache/"
         # Insert to the top of load_plugins
         # load_plugins=(
         #     "$ZSH/oh-my-zsh.sh"
