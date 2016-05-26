@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 __zplug::core::core::is_cli() {
     [[ $- =~ s ]]

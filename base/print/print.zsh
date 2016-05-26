@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 __zplug::print::print::put() {
     command printf -- "$@"

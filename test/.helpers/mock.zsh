@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 typeset -g _zplug_mock_repos="${ZPLUG_ROOT:?}/test/.fixtures/repos"
 
@@ -27,7 +27,7 @@ mock_as_plugin() {
 mock_as_command() {
     local name="${1:?}"
     mkdir -p "$_zplug_mock_repos/$name"
-    printf "#!/bin/zsh\necho ${name:t}\n" \
+    printf "#!/usr/bin/env zsh\necho ${name:t}\n" \
         >"$_zplug_mock_repos/$name/${name:t}"
     chmod 755 "$_zplug_mock_repos/$name/${name:t}"
     init_mock_repos "$name"

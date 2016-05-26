@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 __zplug::support::omz::depends() {
     local    lib_f func_name dep
