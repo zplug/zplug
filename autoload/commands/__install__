@@ -122,12 +122,9 @@ do
         if __zplug::core::core::is_handler_defined install "$zspec[from]"; then
             __zplug::core::core::use_handler install "$zspec[from]" "$line"
         else
-            __clone__ \
-                --use    ${zspec[use]:-""} \
-                --from   ${zspec[from]:-""} \
-                --at     ${zspec[at]:-""} \
-                --depth  ${zspec[depth]:-""} \
-                "$line"
+            __zplug::print::print::die \
+                "[zplug] ERROR: sources/$zspec[from] is not defined\n"
+            return 1
         fi
         ret=$status
 
