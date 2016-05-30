@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 if [[ -z $ZPLUG_ROOT ]]; then
     exit 1

@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 local -F all=0
 local -a pass
@@ -49,7 +49,7 @@ if $is_create; then
     do
         f="test/${f:r}_test.zsh"
         mkdir -p "${f:h}"
-        echo "#!/bin/zsh" >"$f"
+        echo "#!/usr/bin/env zsh" >"$f"
     done
 else
     show_untested_files

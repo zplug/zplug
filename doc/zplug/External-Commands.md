@@ -17,7 +17,7 @@ any language will do (e.g. shell script, ruby script, etc.).
 Example:
 
 ```zsh
-#!/bin/zsh
+#!/usr/bin/env zsh
 # description: my new zplug command
 
 echo "Hello, zplug"

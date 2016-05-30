@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 __import "print/print"
 
@@ -11,7 +11,7 @@ __zplug::zplug::external::load() {
 __zplug::zplug::external::generate() {
     if [[ ! -f $ZPLUG_LOADFILE ]]; then
         cat <<-TEMPLATE >$ZPLUG_LOADFILE
-	#!/bin/zsh
+	#!/usr/bin/env zsh
 	# -*- mode: zsh -*-
 	# vim:ft=zsh
 	#
