@@ -358,7 +358,7 @@ done
             "${(u)load_fpaths[@]}"
             "${fpath[@]}"
         )
-        compinit -C -d "$ZPLUG_HOME/zcompdump"
+        compinit -i -d "$ZPLUG_HOME/zcompdump"
 
         { zcompile "$ZPLUG_HOME/zcompdump" } &!
     fi
