@@ -87,7 +87,7 @@ __zplug::zplug::cache::update() {
             __zplug::print::print::put '$fpath\n'
             __zplug::print::print::put ')\n'
         fi
-        __zplug::print::print::put 'compinit -C -d %s\n' "$ZPLUG_HOME/zcompdump"
+        __zplug::print::print::put 'compinit -i -d %s\n' "$ZPLUG_HOME/zcompdump"
         if (( $#nice_plugins > 0 )); then
             __zplug::print::print::put '\n# Loading after compinit\n'
             __zplug::print::print::put 'source %s\n' "${(qqq)nice_plugins[@]}"
