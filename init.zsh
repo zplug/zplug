@@ -23,6 +23,16 @@ fpath=(
 "$ZPLUG_ROOT"/misc/completions(N-/)
 $fpath
 )
+# Test for manpage, if not then...
+man zplug &> /dev/null || \
+    # Test if MANPATH is set
+    if [ -z "${MANPATH+x}" ]; then
+        # If false, append to system defaults
+        export MANPATH=":${ZPLUG_ROOT}/man" 
+    else
+        # If true, add to manpath 
+        manpath+=("$ZPLUG_ROOT"/*/man)
+    fi
 
 # for 'autoload -Uz zplug' in another subshell
 export FPATH="$ZPLUG_ROOT/autoload:$FPATH"
