@@ -357,6 +357,9 @@ zplug is the fastest among the famous zsh plugin managers. Numbers? Here they ar
 
 [awesome-zsh-plugins](https://github.com/unixorn/awesome-zsh-plugins) is a list of ZSH plugins, themes and completions that you can use with zplug.
 
+For migration from antigen, zgen, or zplug v1, check out the [wiki
+page](https://github.com/zplug/zplug/wiki/Migration).
+
 ## License
 
 [MIT][license] (c) [@b4b4r07](https://github.com/b4b4r07)
