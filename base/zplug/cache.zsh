@@ -77,6 +77,9 @@ __zplug::zplug::cache::update() {
         __zplug::print::print::put 'if $is_verbose; then\n'
         __zplug::print::print::put '  echo "Static loading..." >&2\n'
         __zplug::print::print::put 'fi\n'
+        if [[ -o prompt_subst ]]; then
+            __zplug::print::print::put 'setopt prompt_subst\n'
+        fi
         if (( $#load_plugins > 0 )); then
             __zplug::print::print::put 'source %s\n' "${(uqqq)load_plugins[@]}"
         fi
