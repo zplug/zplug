@@ -2,7 +2,7 @@
 
 __import "support/omz"
 
-__zplug::oh-my-zsh::check() {
+__zplug::sources::oh-my-zsh::check() {
     local    line
     local -A zspec
 
@@ -13,7 +13,7 @@ __zplug::oh-my-zsh::check() {
     [[ -d ${zspec[dir]:h} ]]
 }
 
-__zplug::oh-my-zsh::install() {
+__zplug::sources::oh-my-zsh::install() {
     local    line
     local -A zspec
 
@@ -31,7 +31,7 @@ __zplug::oh-my-zsh::install() {
     return $status
 }
 
-__zplug::oh-my-zsh::load_plugin() {
+__zplug::sources::oh-my-zsh::load_plugin() {
     local    line
     local -A zspec
 

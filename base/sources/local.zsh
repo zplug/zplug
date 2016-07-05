@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-__zplug::local::check() {
+__zplug::sources::local::check() {
     local    line
     local -A zspec
 
@@ -26,7 +26,7 @@ __zplug::local::check() {
     return 1
 }
 
-__zplug::local::load_plugin() {
+__zplug::sources::local::load_plugin() {
     local    line
     local -A zspec
 
@@ -68,7 +68,7 @@ __zplug::local::load_plugin() {
     return 0
 }
 
-__zplug::local::load_command() {
+__zplug::sources::local::load_command() {
     local    line
     local -A zspec
 

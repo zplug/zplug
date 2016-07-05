@@ -177,7 +177,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 | `install` | Install packages in parallel | `--verbose`,`--select` |
 | `load`    | Source installed plugins and add installed commands to `$PATH` | `--verbose` |
 | `list`    | List installed packages (more specifically, view the associative array `$zplugs`) | `--select` |
-| `update`  | Update installed packages in parallel | `--self`,`--select` |
+| `update`  | Update installed packages in parallel | `--self`,`--select`, `--force` |
 | `check`   | Return true if all packages are installed, false otherwise | `--verbose` |
 | `status`  | Check if the remote repositories are up to date | `--select` |
 | `clean`   | Remove repositories which are no longer managed | `--force`,`--select` |

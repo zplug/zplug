@@ -54,6 +54,7 @@ case "$words[1]" in
         _arguments \
             '(- 1 *)--self[update zplug by itself]' \
             '(--select)--select[select items with interactive filters]' \
+            '(--force)--force[update in spite of a frozen tag]' \
             '*:: :( "${(k)zplugs[@]}" )'
         ret=0
         ;;

@@ -50,6 +50,11 @@ if __zplug::core::core::zpluged; then
     done
 fi
 
+fpath=(
+"$ZPLUG_HOME/base/sources"
+"${fpath[@]}"
+)
+
 # Reconstruct the tag information
 for tag in "${tags[@]}"
 do
@@ -81,7 +86,8 @@ do
                 ;;
             "from")
                 if __zplug::core::core::is_external "$val"; then
-                    source $ZPLUG_ROOT/base/sources/$val.zsh
+                    autoload -Uz "$val.zsh" && eval "$val.zsh"
+                    unfunction "$val.zsh"
                 fi
                 ;;
         esac
@@ -93,6 +99,13 @@ do
         return 1
     fi
 done
+
+# Load external sources from /base/sources in case of default value
+val="$(__from__)"
+if __zplug::core::core::is_external "$val"; then
+    autoload -Uz "$val.zsh" && eval "$val.zsh"
+    unfunction "$val.zsh"
+fi
 
 # Add to zplugs
 zplugs+=("$name" "${(j:, :)re_tags[@]:-}")

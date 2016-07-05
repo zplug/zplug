@@ -11,7 +11,7 @@ zplug-update - Update installed packages in parallel
 SYNOPSIS
 --------
 [verse]
-'zplug update' [--self|--select ['"username/reponame"']]
+'zplug update' [--self|--select|--force ['"username/reponame"']]
 
     The word 'package' refers to the string in the format: "username/reponame".
 
@@ -28,6 +28,9 @@ OPTIONS
 
 *--select*::
     Choose the package that is not updated from the list and update it.
+
+*--force*::
+    Regardless of whether a frozen tag is true, update the package.
 
 
 EXAMPLES
@@ -65,7 +68,7 @@ Everything is ready. (~/.zplug/zplug)
 
 SEE ALSO
 --------
-*zplug(1)*
+*zplug(1)*, *zplug-frozen(5)*
 
 
 Further Documentation
