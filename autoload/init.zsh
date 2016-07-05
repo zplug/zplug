@@ -13,16 +13,28 @@ __import "zplug/external"
 __import "core/core"
 __import "job/notify"
 __import "print/print"
+__import "core/awk"
 
 if ! __zplug::core::core::zsh_version 4.3.9; then
-    __zplug::print::print::die "[zplug] zplug does not work this version of zsh $ZSH_VERSION.\n"
-    __zplug::print::print::die "        You must use zsh 4.3.9 or later.\n"
+    __zplug::print::print::die \
+        "[zplug] zplug does not work this version of zsh $ZSH_VERSION.\n"
+    __zplug::print::print::die \
+        "        You must use zsh 4.3.9 or later.\n"
     return 1
 fi
 
 if (( ! $+commands[git] )); then
-    __zplug::print::print::die "[zplug] git command not found in \$PATH\n"
-    __zplug::print::print::die "        zplug depends on git 1.7 or later.\n"
+    __zplug::print::print::die \
+        "[zplug] git command not found\n"
+    __zplug::print::print::die \
+        "        zplug depends on git 1.7 or later.\n"
+    return 1
+fi
+
+# Detect awk variant
+if ! has_awk &>/dev/null; then
+    __zplug::print::print::die \
+        "[zplug] mawk found only. zplug require (n)awk or gawk\n"
     return 1
 fi
 
