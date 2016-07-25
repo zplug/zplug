@@ -1,9 +1,9 @@
 #!/usr/bin/env zsh
 
 __zplug::print::print::put() {
-    command printf -- "$@"
+    LC_ALL=POSIX command printf -- "$@"
 }
 
 __zplug::print::print::die() {
-    command printf -- "$@" >&2
+    LC_ALL=POSIX command printf -- "$@" >&2
 }
