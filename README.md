@@ -38,7 +38,7 @@
 ### The best way
 
 ```console
-$ curl -sL get.zplug.sh | zsh
+$ curl -sL zplug.sh/installer | zsh
 ```
 
 If you wonder this installation, please check it out:
