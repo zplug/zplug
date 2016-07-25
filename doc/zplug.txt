@@ -339,8 +339,6 @@ zplug "zsh-users/zsh-syntax-highlighting", nice:10
 
 # Can manage local plugins
 zplug "~/.zsh", from:local
-# A relative path is resolved with respect to $ZPLUG_HOME
-zplug "repos/robbyrussell/oh-my-zsh/custom/plugins/my-plugin", from:local
 
 # Install plugins if there are plugins that have not been installed
 if ! zplug check --verbose; then
