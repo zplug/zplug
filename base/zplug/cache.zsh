@@ -74,8 +74,9 @@ __zplug::zplug::cache::update() {
         if (( ! $path[(I)$ZPLUG_HOME/bin] )); then
             __zplug::print::print::put 'export PATH="%s:$PATH"\n' "$ZPLUG_HOME/bin"
         fi
-        __zplug::print::print::put 'export ZSH=%s\n' "$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
-        __zplug::print::print::put 'export ZSH_CACHE_DIR=%s\n\n' "$ZSH/cache/"
+        __zplug::print::print::put 'export ZSH=${ZSH:-%s}\n' "$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
+        __zplug::print::print::put 'export ZSH_CACHE_DIR=${ZSH_CACHE_DIR:-$ZSH/cache}/\n\n'
+
         __zplug::print::print::put 'if $is_verbose; then\n'
         __zplug::print::print::put '  echo "Static loading..." >&2\n'
         __zplug::print::print::put 'fi\n'
