@@ -59,6 +59,10 @@ do
     shift
 done
 
+# If an 'at' tag has been specified, do a deep clone to allow any commit to be
+# checked out.
+[[ -n "$tag_at" ]] && depth_option=""
+
 # Initialize
 {
     [[ -d $ZPLUG_REPOS ]] || mkdir -p "$ZPLUG_REPOS"
