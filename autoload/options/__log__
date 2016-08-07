@@ -18,7 +18,7 @@ do
     arg="$1"
     case "$arg" in
         edit)
-            ${=EDITOR:-vim} "$ZPLUG_ERROR_LOG"
+            ${=${2:+$2}:-${EDITOR:-vim}} "$ZPLUG_ERROR_LOG"
             return $status
             ;;
         jq)
@@ -27,21 +27,31 @@ do
             fi
             cat "$ZPLUG_ERROR_LOG" \
                 | sed -e 's/[[:cntrl:]]//g' \
-                | jq '.'
+                | jq ${=${2:+"$argv[2,-1]"}:-"."}
             return $status
             ;;
         less | more)
-            if [[ $arg == 'pager' ]]; then
-                arg="less"
-            fi
+            # $PAGER
             cat "$ZPLUG_ERROR_LOG" \
-                | ${=PAGER:-$arg}
+                | $arg
             return $status
             ;;
         oneline | "")
+            # compatible
             ;;
         clear)
             rm -f "$ZPLUG_ERROR_LOG"
+            return $status
+            ;;
+        count)
+            cat "$ZPLUG_ERROR_LOG" \
+                | grep -c ''
+            return $status
+            ;;
+        latest)
+            cat "$ZPLUG_ERROR_LOG" \
+                | tail -n ${${2:+"$argv[2,-1]"}:-1} \
+                | ${=${commands[jq]:+"jq ."}:-"cat -"}
             return $status
             ;;
         *)

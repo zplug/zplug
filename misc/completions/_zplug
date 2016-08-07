@@ -162,7 +162,9 @@ case $state in
             'edit'
         compadd -J 'log/log' -X "%F{yellow}Completing%f %Bwith log%b" \
             'oneline' \
-            'clear'
+            'clear' \
+            'count' \
+            'latest'
 esac
 
 return ret
