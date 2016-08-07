@@ -1,4 +1,4 @@
-[:us:](../../README.md) :jp:
+[:us:](../../../README.md) :jp:
 
 > Zsh のプラグインマネージャー
 
@@ -82,49 +82,58 @@ $ git clone https://github.com/zplug/zplug $ZPLUG_HOME
 ```zsh
 source ~/.zplug/init.zsh
 
-# ダブルクォーテーションで囲むと良い
+# ダブルクォーテーションで囲うと良い
 zplug "zsh-users/zsh-history-substring-search"
 
-# コマンドとしてインストールする
-# グロブ・パターンを受け付ける（ブレースやワイルドカードなど）
+# コマンドも管理する
+# グロブを受け付ける（ブレースやワイルドカードなど）
 zplug "Jxck/dotfiles", as:command, use:"bin/{histuniq,color}"
 
-# 何でも管理・読み込みができる（例えば他人の zshrc）
+# こんな使い方もある（他人の zshrc）
 zplug "tcnksm/docker-alias", use:zshrc
 
-# Disable updates using the "frozen:" tag
+# frozen タグが設定されているとアップデートされない
 zplug "k4rthik/git-cal", as:command, frozen:1
 
-# GitHub Releases からバイナリを取得する
-# "rename-to:" タグでファイル名を変更できる
+# GitHub Releases からインストールする
+# また、コマンドは rename-to でリネームできる
 zplug "junegunn/fzf-bin", \
     from:gh-r, \
     as:command, \
     rename-to:fzf, \
     use:"*darwin*amd64*"
 
-# oh-my-zsh のプラグインなど
-zplug "plugins/git",   from:oh-my-zsh, if:"(( $+commands[git] ))"
-zplug "themes/duellj", from:oh-my-zsh
+# oh-my-zsh をサービスと見なして、
+# そこからインストールする
+zplug "plugins/git",   from:oh-my-zsh
+
+# if タグが true のときのみインストールされる
 zplug "lib/clipboard", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
 
-# インストール・アップデート後にコマンドを実行するフック
-zplug "tj/n", hook-build:"make install"
+# インストール・アップデート後に実行されるフック
+# この場合は以下のような設定が別途必要
+# ZPLUG_SUDO_PASSWORD="********"
+zplug "jhawthorn/fzy", \
+    as:command, \
+    rename-to:fzy, \
+    hook-build:"
+    {
+        make
+        sudo make install
+    } &>/dev/null
+    "
 
-# リビジョン（ブランチ名やハッシュなど）による固定が可能
+# リビジョンロック機能を持つ
 zplug "b4b4r07/enhancd", at:v1
 zplug "mollifier/anyframe", at:4c23cb60
 
-# "if" タグが真のとき読み込まれる
-zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
-
-# Gist も同様に管理できる
+# Gist ファイルもインストールできる
 zplug "b4b4r07/79ee61f7c140c63d2786", \
     from:gist, \
     as:command, \
     use:get_last_pane_path.sh
 
-# Bitbucket に対応
+# bitbucket も
 zplug "b4b4r07/hello_bitbucket", \
     from:bitbucket, \
     as:command, \
@@ -132,25 +141,24 @@ zplug "b4b4r07/hello_bitbucket", \
     use:"*.sh"
 
 # 依存管理
-# jq コマンドがインストールされているときのみ emoji-cli を読み込む例
+# "emoji-cli" は "jq" があるときにのみ読み込まれる
 zplug "stedolan/jq", \
     from:gh-r, \
     as:command, \
     rename-to:jq
 zplug "b4b4r07/emoji-cli", \
     on:"stedolan/jq"
-# Note: To specify the order in which packages should be loaded, use the nice
-#       tag described in the next section
+# ノート: 読み込み順序を指定するなら nice タグを使いましょう
 
-# 読み込む順序を設定する
-# 例: zsh-syntax-highlighting は compinit コマンドの実行後に読み込まれる必要がある
-# "nice" は 10 以上で compinit 後に実行するようにできる（-20 <= nice <= 19）
+# 読み込み順序を設定する
+# 例: "zsh-syntax-highlighting" は compinit の前に読み込まれる必要がる
+# （10 以上は compinit 後に読み込まれるようになる）
 zplug "zsh-users/zsh-syntax-highlighting", nice:10
 
-# ローカルプラグインを管理する
+# ローカルプラグインも読み込める
 zplug "~/.zsh", from:local
 
-# まだインストールされていないプラグインを一括インストールする
+# 未インストール項目をインストールする
 if ! zplug check --verbose; then
     printf "Install? [y/N]: "
     if read -q; then
@@ -158,7 +166,7 @@ if ! zplug check --verbose; then
     fi
 fi
 
-# その後プラグインを読み込み、コマンドを PATH に追加する
+# コマンドをリンクして、PATH に追加し、プラグインは読み込む
 zplug load --verbose
 ```
 
@@ -170,6 +178,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 |--------|-------------|
 | `--help` | ヘルプを表示する |
 | `--version` | バージョン情報を表示する |
+| `--log` | ログを見る（開発者向け） |
 
 ### 2. サブコマンド
 
@@ -333,6 +342,16 @@ $ ZPLUG_USE_CACHE=false zplug load
 #### `ZPLUG_REPOS`
 
 デフォルトは `$ZPLUG_HOME/repos`。パッケージのクローン先かつ保存先の場所を設定することができる。
+
+#### `ZPLUG_SUDO_PASSWORD`
+
+設定しておくと `hook-build` などのときに sudo コマンドが使えるようになる。しかし、セキュアな変数なので取扱に注意すること。
+
+```zsh
+# dotfiles で管理していないファイルに切り出すなどする
+source ~/.zshrc_secret
+zplug "some/command", hook-build:"make && sudo make install"
+```
 
 ### 外部コマンド
 

@@ -5,7 +5,7 @@ TEST_TARGET ?= test
 
 .DEFAULT_GOAL := help
 
-.PHONY: all install shove test license help
+.PHONY: all install shove test release help
 
 all:
 
@@ -19,6 +19,12 @@ shove: # Grab shove from GitHub and grant execution
 
 test: shove ## Unit test for zplug
 	ZPLUG_ROOT=$(ZPLUG_ROOT) $(SHOVE_DIR)/bin/shove -r $(TEST_TARGET) -s zsh
+
+release: ## Create new GitHub Releases
+	git tag \
+		-a "$$_ZPLUG_VERSION" \
+		-m "Release of version $$_ZPLUG_VERSION"
+	git push origin $$_ZPLUG_VERSION
 
 help: ## Self-documented Makefile
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \

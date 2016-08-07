@@ -19,7 +19,7 @@ __zplug::utils::shell::search_commands()
     while (( $# > 0 ))
     do
         arg="$1"
-        case $arg in
+        case "$arg" in
             --verbose)
                 is_verbose=true
                 ;;
@@ -30,7 +30,7 @@ __zplug::utils::shell::search_commands()
                 return 1
                 ;;
             *)
-                args=+( "$arg" )
+                args+=( "$arg" )
                 ;;
         esac
         shift

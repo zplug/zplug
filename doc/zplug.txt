@@ -53,6 +53,9 @@ OPTIONS
 *--version*::
     Print zplug's version.
 
+*--log*::
+    Show the error log.
+
 
 COMMANDS
 --------
@@ -236,6 +239,17 @@ $ ZPLUG_USE_CACHE=false zplug load
 'ZPLUG_REPOS'::
     Defaults to `$ZPLUG_HOME/repos`. You can change where the repositories are
     cloned in case you want to manage them separately.
+
+
+'ZPLUG_SUDO_PASSWORD'::
+    Defaults to `''`. You can set sudo password for zplug's `hook-build` tag.
+    However, this variable shoud not be managed in dotfiles and so on.
+
+------------
+# your .zshrc
+source ~/.zshrc_secret
+zplug "some/command", hook-build:"make && sudo make install"
+------------
 
 
 Using zstyle
