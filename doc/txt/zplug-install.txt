@@ -11,7 +11,7 @@ zplug-install - Install packages in parallel
 SYNOPSIS
 --------
 [verse]
-'zplug install' [--verbose] [--select] ['"username/reponame"']
+'zplug install' ['"username/reponame"']
 
     The word 'package' refers to the string in the format: "username/reponame".
 
@@ -23,11 +23,8 @@ Install the package that has not yet been installed, even though it is described
 
 OPTIONS
 -------
-*--verbose*::
-    Be verbose.
-
-*--select*::
-    Choose the package that is not installed from the list and install it.
+*(None)*::
+    no options
 
 
 EXAMPLES
@@ -43,7 +40,7 @@ $ zplug install
 Install a paticular package verbosely:
 
 ------------
-$ zplug install --verbose 'some_author/some_repo'
+$ zplug install 'some_author/some_repo'
 Installing...        some_author/some_repo
 Installed!           some_author/some_repo (2.59s)
  ==> Installation finished successfully!

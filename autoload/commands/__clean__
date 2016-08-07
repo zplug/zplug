@@ -1,12 +1,11 @@
 #!/usr/bin/env zsh
+# Description:
+#   Remove repositories which are no longer managed
 
-__import "core/core"
-__import "print/print"
-
-local    arg filter repo
-local    is_force is_select=false
-local -a args repos remove_args
-local -A zspec
+local    repo filter
+local    is_force="" is_select=false
+local -a repos remove_repos
+local -A tags
 local -i ret=0
 
 while (( $# > 0 ))
@@ -20,71 +19,107 @@ do
             is_select=true
             ;;
         -*|--*)
-            __zplug::print::print::die "[zplug] $arg: Unknown option\n"
+            __zplug::core::options::unknown "$arg"
+            return $status
+            ;;
+        "")
+            # Invalid
             return 1
             ;;
+        */*)
+            repos+=( "${arg:gs:@::}" )
+            ;;
         *)
-            args+=("$arg")
+            return 1
+            ;;
     esac
     shift
 done
 
-filter="$(__zplug::core::core::get_filter "$ZPLUG_FILTER")"
 if $is_select; then
-    args=(${(@f)"$(echo "${(Fk)zplugs[@]}" | eval "$filter")"})
-    if (( $#args == 0 )); then
+    __zplug::utils::shell::search_commands \
+        "$ZPLUG_FILTER" \
+        | read filter
+    if [[ -z $filter ]]; then
+        __zplug::io::print::f \
+            --die \
+            --zplug \
+            --error \
+            --func \
+            "There is no available filter in ZPLUG_FILTER\n"
+        return 1
+    fi
+    repos=( ${(@f)"$(echo "${(Fk)zplugs[@]}" | eval "$filter")"} )
+
+    # Cace of type Ctrl-C
+    if (( $#repos == 0 )); then
         return 0
     fi
 fi
 
-if (( $#args == 0 )); then
+if (( $#repos == 0 )); then
+    # If no argument is given:
+    #   search the repositories that have not been already managed by zplug
     repos=( "$ZPLUG_REPOS"/*/*(N-/) )
     for repo in "${repos[@]}"
     do
-        if ! __zplug::core::core::zpluged "${repo:h:t}/${repo:t}"; then
-            remove_args+=("$repo")
+        if ! __zplug::base::base::zpluged "${repo:h:t}/${repo:t}"; then
+            remove_repos+=("$repo")
         fi
     done
 else
-    for arg in "${args[@]}"
+    # If the arguments are given or selected by the filter
+    for repo in "${repos[@]}"
     do
-        __parser__ "$arg"
-        zspec=( "${reply[@]}" )
-        if [[ -d $zspec[dir] ]]; then
-            case "$zspec[from]" in
+        tags[dir]="$(
+        __zplug::core::core::run_interfaces \
+            'dir' \
+            "$repo" \
+            2> >(__zplug::io::log::capture)
+        )"
+        if [[ -d $tags[dir] ]]; then
+            case "$tags[from]" in
                 "oh-my-zsh")
-                    remove_args+=("$ZPLUG_REPOS/$_ZPLUG_OHMYZSH")
+                    remove_repos+=( "${tags[dir]:F[2]h}" )
                     ;;
                 *)
-                    remove_args+=("$zspec[dir]")
+                    remove_repos+=( "$tags[dir]" )
                     ;;
             esac
         else
-            __zplug::print::print::die "[zplug] $arg: no such package\n"
+            __zplug::io::print::f \
+                --die \
+                --zplug \
+                --func \
+                "$repo: no such package\n"
             ret=1
         fi
     done
 fi
 
 # Remove packages from $ZPLUG_REPOS
-for repo in "${remove_args[@]}"
+for repo in "${remove_repos[@]}"
 do
-    __zplug::print::print::put "${${is_force:+"Removed"}:-"Remove? (y/N)"} ${(qq)repo} "
+    __zplug::io::print::put \
+        "${${is_force:+"Removed"}:-"Remove? (y/N)"} ${(qq)repo} "
+
     if ${(z)is_force:-"read -q"}; then
+        # Remove directories
         rm -rf "$repo"
         rmdir "${repo:h}"
-    fi &>/dev/null
-    __zplug::print::print::put "\n"
+        # Clear cache
+        __zplug::core::core::run_interfaces 'clear'
+    fi \
+        2> >(__zplug::io::log::capture) >/dev/null
+
+    __zplug::io::print::put "\n"
 done
 
 # Remove packages from $zplugs
-for repo in "${(k)zplugs[@]}"
+__zplug::core::core::run_interfaces 'check'
+for repo in "${reply[@]}"
 do
-    __parser__ "$repo"
-    zspec=( "${reply[@]}" )
-    if [[ ! -d $zspec[dir] ]]; then
-        unset "zplugs[$repo]"
-    fi
+    unset "zplugs[$repo]"
 done
 
 return $ret

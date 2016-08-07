@@ -1,13 +1,11 @@
 #!/usr/bin/env zsh
+# Description:
+#   Return true if all packages are installed, false otherwise
 
-__import "core/core"
-__import "print/print"
-__import "job/spinner"
-
-local    is_verbose=false
-local    arg line
-local -a args fail
-local -A zspec
+local     is_verbose=false
+local     arg repo
+local -aU repos not_installed_repos
+local -A  tags
 
 while (( $# > 0 ))
 do
@@ -17,46 +15,64 @@ do
             is_verbose=true
             ;;
         -*|--*)
-            __zplug::print::print::die "[zplug] $arg: Unknown option\n"
+            __zplug::core::options::unknown "$arg"
+            return $status
+            ;;
+        "")
+            # Invalid
             return 1
             ;;
+        */*)
+            repos+=( "${arg:gs:@::}" )
+            ;;
         *)
-            args+=("$arg")
+            return 1
             ;;
     esac
     shift
 done
 
-for line in ${${args[@]:-${(k)zplugs[@]}}:gs:@::}
+if (( $#repos == 0 )); then
+    repos=( "${(k)zplugs[@]:gs:@::}" )
+fi
+
+for repo in "${repos[@]}"
 do
-    __parser__ "$line"
-    zspec=( "${reply[@]}" )
-    if [[ $zspec[from] == local ]]; then
+    tags[from]="$(
+    __zplug::core::core::run_interfaces \
+        'from' \
+        "$repo" \
+        2> >(__zplug::io::log::capture)
+    )"
+    if [[ -z "$tags[from]" ]]; then
+        not_installed_repos+=( "$repo" )
         continue
     fi
 
-    if [[ -n $zspec[if] ]] && ! eval "$zspec[if]" &>/dev/null; then
-        continue
-    fi
+    if __zplug::core::sources::is_handler_defined "check" "$tags[from]"; then
+        __zplug::core::sources::use_handler \
+            "check" \
+            "$tags[from]" \
+            "$repo"
 
-    if __zplug::core::core::is_handler_defined check "$zspec[from]"; then
-        __zplug::core::core::use_handler check "$zspec[from]" "$line"
-
-        if (( $status )); then
-            fail+=("$zspec[name]")
-        fi
-    else
-        if [[ ! -d $zspec[dir] ]]; then
-            fail+=("$zspec[name]")
+        if (( $status != 0 )); then
+            not_installed_repos+=( "$repo" )
         fi
     fi
 done
 
-if (( $#fail > 0 )); then
+if (( $#not_installed_repos > 0 )); then
+    # Share not installed repos information
+    # e.g. for __install__ command
+    reply=( "${not_installed_repos[@]}" )
+
     if $is_verbose; then
-        __zplug::print::print::put "- $fg[red]%s$reset_color: not installed\n" "${(@nO)fail}"
+        __zplug::io::print::put \
+            "- $fg[red]%s$reset_color: not installed\n" \
+            "${not_installed_repos[@]}"
     fi
+
     return 1
-else
-    return 0
 fi
+
+return 0

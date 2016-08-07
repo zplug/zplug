@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
+# Description:
+#   Display the version of zplug
 
-__import "print/print"
-
-__zplug::print::print::put "$_ZPLUG_VERSION\n"
+__zplug::io::print::put "$_ZPLUG_VERSION\n"
 
 return 0

@@ -28,7 +28,7 @@ zplug_cmds=(
 # Completions for user-defined commands
 for p in ${^path}/zplug-*(N-.)
 do
-    desc="$(sed -n '2p' "$p" | sed -E 's/^.*desc(ription)?: ?//')"
+    desc="$(sed -n '2p' "$p" | sed -E 's/^.*[Dd]esc(ription)?: ?//')"
     desc="${desc:+"\[User-defined\] $desc"}"
     zplug_cmds+=("${p:t:gs:zplug-:}:${desc:-"User-defined command"}")
 done
@@ -36,6 +36,7 @@ done
 _arguments \
     '(-)--help[show help message]: :->comp' \
     '(-)--version[version information]: :' \
+    '(-)--log=[view zplug error log]: :->log' \
     '*:: :->comp' && return 0
 
 if (( CURRENT == 1 )); then
@@ -61,7 +62,7 @@ case "$words[1]" in
         _arguments \
             '(--verbose)--verbose[show non-installed items in output]' \
             '(--select)--select[select items with interactive filters]' \
-            '*:: :compadd -x "%F{green}Accept%f %Busername/reponame%b arguments"'
+            '*:: :compadd -X "%F{green}Accept%f %Busername/reponame%b arguments"'
         ret=0
         ;;
     load)
@@ -111,16 +112,16 @@ case "$words[1]" in
             "depth[Clone depth]:depth:({0..10})" && ret=0
         case $state in
             on|dir)
-                compadd -x "%F{green}READ ONLY%f %Bno arguments%b"
+                compadd -X "%F{green}READ ONLY%f %Bno arguments%b"
                 ;;
             use)
-                compadd -J 'command/plugin' -x "%F{yellow}Completing%f %BExample patterns%b" \
+                compadd -J 'command/plugin' -X "%F{yellow}Completing%f %BExample patterns%b" \
                     '*.zsh' \
                     '*.sh' \
                     'zsh/*.zsh' \
                     '*.plugin.zsh' \
                     'init.zsh'
-                compadd -J 'gh-r' -x "%F{yellow}Completing%f %BGitHub Releases (example)%b" \
+                compadd -J 'gh-r' -X "%F{yellow}Completing%f %BGitHub Releases (example)%b" \
                     'amd64' \
                     'darwin*amd64' \
                     'linux*amd64' \
@@ -131,26 +132,37 @@ case "$words[1]" in
                     'linux'
                 ;;
             nice)
-                compadd -V 'default' -x "%F{yellow}Completing%f %Bpriority (default)%b" 0
-                compadd -V 'high' -x "%F{yellow}Completing%f %Bpriority (high)%b" -- {-1..-20}
-                compadd -V 'low' -x "%F{yellow}Completing%f %Bpriority (low)%b" {1..9}
-                compadd -V 'lowest' -x "%F{yellow}Completing%f %Bpriority (low) after compinit%b" {10..19}
+                compadd -V 'default' -X "%F{yellow}Completing%f %Bpriority (default)%b" 0
+                compadd -V 'high' -X "%F{yellow}Completing%f %Bpriority (high)%b" -- {-1..-20}
+                compadd -V 'low' -X "%F{yellow}Completing%f %Bpriority (low)%b" {1..9}
+                compadd -V 'lowest' -X "%F{yellow}Completing%f %Bpriority (low) after compinit%b" {10..19}
                 ;;
             boolean)
-                compadd -J 'boolean/true' -x "%F{yellow}Completing%f %Btrue word%b" $_zplug_boolean_true
-                compadd -J 'boolean/false' -x "%F{yellow}Completing%f %Bfalse word%b" $_zplug_boolean_false
+                compadd -J 'boolean/true' -X "%F{yellow}Completing%f %Btrue word%b" $_zplug_boolean_true
+                compadd -J 'boolean/false' -X "%F{yellow}Completing%f %Bfalse word%b" $_zplug_boolean_false
                 ;;
         esac
         ;;
 esac
 
 case $state in
-    comp)
+    "comp")
         is_help="yes"
         _describe -t help_cmds "commands" cmds
         _describe -t help_tags "tags" tags
         return 0
         ;;
+    "log")
+        compadd -J 'log/jq' -X "%F{yellow}Completing%f %Bwith jq%b" \
+            'jq'
+        compadd -J 'log/pager' -X "%F{yellow}Completing%f %Bwith pager%b" \
+            'less' \
+            'more'
+        compadd -J 'log/edit' -X "%F{yellow}Completing%f %Bwith editor%b" \
+            'edit'
+        compadd -J 'log/log' -X "%F{yellow}Completing%f %Bwith log%b" \
+            'oneline' \
+            'clear'
 esac
 
 return ret

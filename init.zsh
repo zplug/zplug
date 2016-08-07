@@ -1,30 +1,32 @@
 #!/usr/bin/env zsh
-# init.zsh:
-#   This file is called only once
 
-# It is desirable that the ZPLUG_ROOT and the ZPLUG_HOME is the same
-# because zplug should be installed with git clone URL /path/to/local_dir
-# e.g. ~/.zplug
+# A hash array for zplug
+typeset -gx -A zplugs
+zplugs=()
+
+# A variable as a starting point of zplug
 typeset -gx ZPLUG_ROOT="${${(%):-%N}:A:h}"
 
-# Unique array
-typeset -gx -U path
-typeset -gx -U fpath
+# Load basic functions such as an __zplug::base function
+source "$ZPLUG_ROOT/base/init.zsh"
+# Load autoloader
+source "$ZPLUG_ROOT/autoload/init.zsh"
 
-# Add to the PATH
-path=(
-"$ZPLUG_ROOT"/bin
-$path
-)
+__zplug::base "base/*"
+__zplug::base "core/*"
+__zplug::base "io/*"
+__zplug::base "job/*"
+__zplug::base "sources/*"
+__zplug::base "utils/*"
 
-# Add to the FPATH
-fpath=(
-"$ZPLUG_ROOT"/autoload(N-/)
-"$ZPLUG_ROOT"/misc/completions(N-/)
-$fpath
-)
+if ! __zplug::core::core::prepare; then
+    __zplug::io::print::f \
+        --die \
+        --zplug \
+        --error \
+        "The loading of zplug was discontinued.\n"
+    return 1
+fi
 
-# for 'autoload -Uz zplug' in another subshell
-export FPATH="$ZPLUG_ROOT/autoload:$FPATH"
-
-autoload -Uz zplug
+# Load the external file of zplug
+__zplug::io::file::load

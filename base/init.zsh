@@ -1,62 +1,49 @@
-#!/usr/bin/env zsh
-# init.zsh:
-#   This file is called only once
-
-if (( $+functions[__import] )); then
-    return 0
-fi
-
-typeset -gx -T \
-    _ZPLUG_LIB_CALLED \
-    _zplug_lib_called
-
-_zplug_lib_called=()
-
-__import() {
-    local f arg lib is_debug=false
+__zplug::base()
+{
+    local     load_file arg
+    local -aU load_files
 
     while (( $# > 0 ))
     do
         arg="$1"
         case "$arg" in
-            --debug)
-                shift
-                is_debug=true
-                ;;
             -*|--*)
                 return 1
                 ;;
+            */'*')
+                # e.g. 'base/*'
+                load_files+=( "$ZPLUG_ROOT/base/${arg:h}"/*.zsh(N-.) )
+                ;;
             */*)
-                shift
-                f="$ZPLUG_ROOT/base/${arg}.zsh"
-                if [[ ! -f $f ]]; then
-                    f=""
-                    continue
-                fi
+                # e.g. 'core/add'
+                load_files+=( "$ZPLUG_ROOT/base/${arg}.zsh"(N-.) )
                 ;;
             *)
                 return 1
                 ;;
         esac
+        shift
     done
 
-    # invalid argument
-    if [[ -z $f ]]; then
+    # invalid format
+    if (( $#load_files == 0 )); then
         return 1
     fi
 
-    lib="${f:h:t}/${f:t:r}"
-    if (( ! $_zplug_lib_called[(I)$lib] )); then
-        if $is_debug; then
-            printf "$f\n"
-        else
-            fpath=(
-            "${f:h}"
-            "${fpath[@]}"
-            )
-            autoload -Uz "${f:t}" && eval "${f:t}"
-            unfunction "${f:t}"
+    fpath=(
+    "${load_files[@]:h}"
+    "${fpath[@]}"
+    )
+
+    for load_file in "${load_files[@]}"
+    do
+        if (( $+functions[$load_file] )); then
+            # already defined
+            continue
         fi
-        _zplug_lib_called+=("$lib")
-    fi
+
+        autoload -Uz "${load_file:t}" &&
+            eval "${load_file:t}"     &&
+            unfunction "${load_file:t}"
+    done
 }

@@ -1,3 +1,5 @@
+:us: [:jp:](./doc/guide/README.ja.md)
+
 > Zsh Plugin Manager
 
 [![Travis][travis-badge]][travis-link]
@@ -62,9 +64,9 @@ $ git clone https://github.com/zplug/zplug $ZPLUG_HOME
 
 ## Requirements
 
-- `zsh` version 4.3.9 or higher
-- `git` version 1.7 or higher
-- `awk` An AWK variant that's **not** `mawk`
+- `zsh`: version 4.3.9 or higher
+- `git`: version 1.7 or higher
+- `awk`: An AWK variant that's **not** `mawk`
 
 ## Usage
 
@@ -172,10 +174,10 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 
 |  Command  | Description | Options |
 |-----------|-------------|---------|
-| `install` | Install packages in parallel | `--verbose`,`--select` |
+| `install` | Install packages in parallel | (None) |
 | `load`    | Source installed plugins and add installed commands to `$PATH` | `--verbose` |
 | `list`    | List installed packages (more specifically, view the associative array `$zplugs`) | `--select` |
-| `update`  | Update installed packages in parallel | `--self`,`--select` |
+| `update`  | Update installed packages in parallel | `--self`,`--select`,`--force` |
 | `check`   | Return true if all packages are installed, false otherwise | `--verbose` |
 | `status`  | Check if the remote repositories are up to date | `--select` |
 | `clean`   | Remove repositories which are no longer managed | `--force`,`--select` |
@@ -333,6 +335,7 @@ Defaults to `$ZPLUG_HOME/.cache`. You can change where the cache file is saved, 
 Defaults to `$ZPLUG_HOME/repos`. You can change where the repositories are cloned in case you want to manage them separately.
 
 ### External commands
+
 zplug, like `git(1)`, supports external commands.
 These are executable scripts that reside somewhere in the PATH, named `zplug-cmdname`,
 which can be invoked with `zplug cmdname`.

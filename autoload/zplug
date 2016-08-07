@@ -1,39 +1,30 @@
 #!/usr/bin/env zsh
 
-source "$ZPLUG_ROOT/autoload/init.zsh"
-source "$ZPLUG_ROOT/autoload/autoload.zsh"
-
 local arg="$1"
 
 case "$arg" in
-    -* | --* )
-        __options__ "$@"
-        return $status
+    -* | --*)
+        __zplug::core::options::parse "$argv[@]"
         ;;
 
-    check | install | status | update)
+    check | install | update | list | clean | status | clear | load | info)
         shift
-        __${arg}__ "${@:-${(k)zplugs[@]}}"
-        return $status
-        ;;
-
-    clean | clear | list | load | info)
-        shift
-        __${arg}__ "$@"
-        return $status
-        ;;
-
-    "")
-        # TODO
+        __zplug::core::core::run_interfaces \
+            "$arg" \
+            "$argv[@]"
         ;;
 
     */*)
-        __add__ "$@"
-        return $status
+        __zplug::core::add::to_zplugs "$argv[@]"
+        ;;
+
+    "")
+        __zplug::core::arguments::none
         ;;
 
     *)
-        __arguments__ "$@"
-        return $status
+        __zplug::core::arguments::exec "$argv[@]"
         ;;
 esac
+
+return $status

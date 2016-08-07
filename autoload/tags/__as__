@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
-
-__import "core/core"
-__import "print/print"
+# Description:
+#   as tag
 
 local    arg="$1" package
 local -a parsed_zplugs
@@ -9,9 +8,16 @@ local    as
 local    default="plugin"
 local -a candidates
 
+if [[ -n $arg ]] && ! __zplug::base::base::zpluged "$arg"; then
+    __zplug::io::log::error \
+        "$arg: no package managed by zplug"
+    return 1
+fi
+
 candidates=(
 "$default"
 "command"
+"itself"
 )
 
 package="${arg}, ${zplugs[$arg]%, }"
@@ -26,10 +32,14 @@ if [[ -z $as ]]; then
             zstyle -s ":zplug:tag" as as
             ;;
         1)
-            __zplug::print::print::die \
-                "[zplug] $fg[red]ERROR$reset_color: "
-            __zplug::print::print::die \
-                "as tag must be [${(j:, :)candidates[@]}] ($fg[green]$arg$reset_color)\n"
+            __zplug::io::print::f \
+                --die \
+                --zplug \
+                --error \
+                --func \
+                "as tag must be [%s] ($fg[green]%s$reset_color)\n" \
+                "${(j:, :)candidates[*]}" \
+                "$arg"
             return 1
             ;;
         2)
@@ -38,12 +48,27 @@ if [[ -z $as ]]; then
     esac
 fi
 
+if [[ $arg != "zplug/zplug" ]] && [[ $as == "itself" ]]; then
+    __zplug::io::print::f \
+        --die \
+        --zplug \
+        --func \
+        "%s: cannot set since it's reserved value (%s)\n" \
+        "$as" \
+        "$arg"
+    return 1
+fi
+
 : ${as:=$default}
 if [[ ! $as =~ ^(${(j:|:)candidates[@]})$ ]]; then
-    __zplug::print::print::die \
-        "[zplug] $fg[red]ERROR$reset_color: "
-    __zplug::print::print::die \
-        "as tag must be [${(j:, :)candidates[@]}] ($fg[green]$arg$reset_color)\n"
+    __zplug::io::print::f \
+        --die \
+        --zplug \
+        --error \
+        --func \
+        "as tag must be [%s] ($fg[green]%s$reset_color)\n" \
+        "${(j:, :)candidates[*]}" \
+        "$arg"
     return 1
 fi
 

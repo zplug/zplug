@@ -1,8 +1,8 @@
 #!/usr/bin/env zsh
-# description: The environment variables of zplug
+# Description: The environment variables of zplug
 # ^-- This description is used as complete message
 
-# Sample zplug script
+# This is a sample zplug script
 # For more information, see man page of zplug(1)
 
 env \

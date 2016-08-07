@@ -1,12 +1,17 @@
 #!/usr/bin/env zsh
-
-__import "core/core"
-__import "print/print"
+# Description:
+#   on tag
 
 local    arg="$1" package
 local -a parsed_zplugs
 local    on
 local    default=""
+
+if [[ -n $arg ]] && ! __zplug::base::base::zpluged "$arg"; then
+    __zplug::io::log::error \
+        "$arg: no package managed by zplug"
+    return 1
+fi
 
 package="${arg}, ${zplugs[$arg]%, }"
 parsed_zplugs=(${(s/, /)package/,  */, })
