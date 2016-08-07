@@ -62,9 +62,15 @@ __zplug::core::core::get_interfaces()
 
 __zplug::core::core::run_interfaces()
 {
-    local    arg="${1:?}"; shift
+    local    arg="$1"; shift
     local    interface
     local -i ret=0
+
+    if [[ -z $arg ]]; then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     interface="__${arg:gs:_:}__"
 

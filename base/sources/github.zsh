@@ -1,7 +1,13 @@
 __zplug::sources::github::check()
 {
-    local    repo="${1:?}"
+    local    repo="$1"
     local -A tags
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     tags[dir]="$(
     __zplug::core::core::run_interfaces \
@@ -15,7 +21,13 @@ __zplug::sources::github::check()
 
 __zplug::sources::github::install()
 {
-    local repo="${1:?}"
+    local repo="$1"
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     __zplug::utils::git::clone "$repo"
     return $status
@@ -23,9 +35,15 @@ __zplug::sources::github::install()
 
 __zplug::sources::github::update()
 {
-    local    repo="${1:?}"
+    local    repo="$1"
     local    rev_local rev_remote rev_base
     local -A tags
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     tags[dir]="$(__zplug::core::core::run_interfaces 'dir' "$repo")"
     tags[at]="$(__zplug::core::core::run_interfaces 'at' "$repo")"
@@ -39,7 +57,13 @@ __zplug::sources::github::update()
 
 __zplug::sources::github::get_url()
 {
-    local repo="${1:?}" url_format
+    local repo="$1" url_format
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     case "$ZPLUG_PROTOCOL" in
         HTTPS | https)
@@ -72,11 +96,17 @@ __zplug::sources::github::get_url()
 
 __zplug::sources::github::load_plugin()
 {
-    local    repo="${1:?}"
+    local    repo="$1"
     local -A tags default_tags
     local -a plugins_ext themes_ext
     local -a load_patterns
     local    ext default_use
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )

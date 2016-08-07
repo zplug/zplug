@@ -27,8 +27,14 @@ __zplug::sources::oh-my-zsh::install()
 
 __zplug::sources::oh-my-zsh::update()
 {
-    local    repo="${1:?}"
+    local    repo="$1"
     local -A tags
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     tags[dir]="${$(
     __zplug::core::core::run_interfaces \
@@ -55,11 +61,17 @@ __zplug::sources::oh-my-zsh::get_url()
 
 __zplug::sources::oh-my-zsh::load_plugin()
 {
-    local    repo="${1:?}"
+    local    repo="$1"
     local -A tags
     local -a load_fpaths
     local -a load_plugins
     local -a themes_ext
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )

@@ -1,9 +1,15 @@
 __zplug::utils::git::clone()
 {
-    local    repo="${1:?}"
+    local    repo="$1"
     local    depth_option url_format
     local -i ret=1
     local -A tags default_tags
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     # A validation of ZPLUG_PROTOCOL
     # - HTTPS (recommended)
@@ -70,9 +76,15 @@ __zplug::utils::git::clone()
 
 __zplug::utils::git::checkout()
 {
-    local    repo="${1:?}"
+    local    repo="$1"
     local -a do_not_checkout
     local -A tags
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     do_not_checkout=( "gh-r" )
     tags[at]="$(__zplug::core::core::run_interfaces 'at' "$repo")"
@@ -175,9 +187,15 @@ __zplug::utils::git::merge()
 
 __zplug::utils::git::status()
 {
-    local    repo="${1:?}"
+    local    repo="$1"
     local    key val line
     local -A tags revisions
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     git ls-remote --heads --tags https://github.com/"$repo".git \
         | awk '{print $2,$1}' \
@@ -227,7 +245,13 @@ __zplug::utils::git::get_head_branch_name()
 
 __zplug::utils::git::get_remote_name()
 {
-    local branch="${1:?}" remote_name
+    local branch="$1" remote_name
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     remote_name="$(git config branch.${branch}.remote)"
     if [[ -z $remote_name ]]; then

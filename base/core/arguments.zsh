@@ -1,6 +1,12 @@
 __zplug::core::arguments::exec()
 {
-    local arg="${1:?}"
+    local arg="$1"
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     reply=()
     __zplug::core::commands::user_defined
@@ -21,9 +27,15 @@ __zplug::core::arguments::exec()
 
 __zplug::core::arguments::auto_correct()
 {
-    local    arg="${1:?}"
+    local    arg="$1"
     local -i ret=0
     local -a cmds reply_cmds
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     reply_cmds=()
 

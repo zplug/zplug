@@ -8,11 +8,11 @@ __zplug::core::options::get()
 __zplug::core::options::parse()
 {
     local    arg
-    local -i ret=0
+    local -i ret=1
 
     while (( $# > 0 ))
     do
-        arg="${1:?}"
+        arg="$1"
         case "$arg" in
             "--")
                 # TODO

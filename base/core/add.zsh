@@ -86,8 +86,14 @@ __zplug::core::add::to_zplugs()
 
 __zplug::core::add::proc_at-sign()
 {
-    local    name="${1:?}" key
+    local    name="$1" key
     local -i max=0
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     for key in "${(k)zplugs[@]}"
     do

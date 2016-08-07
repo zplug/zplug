@@ -1,7 +1,13 @@
 __zplug::job::hook::service()
 {
-    local    repo="${1:?}" hook="${2:?}"
+    local    repo="$1" hook="$2"
     local -A tags
+
+    if (( $# < 2 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
@@ -37,7 +43,13 @@ __zplug::job::hook::service()
 
 __zplug::job::hook::build()
 {
-    local repo="${1:?}"
+    local repo="$1"
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     __zplug::job::hook::service \
         "$repo" \
@@ -46,7 +58,13 @@ __zplug::job::hook::build()
 
 __zplug::job::hook::load()
 {
-    local repo="${1:?}"
+    local repo="$1"
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     __zplug::job::hook::service \
         "$repo" \

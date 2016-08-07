@@ -1,9 +1,13 @@
 __zplug::utils::releases::get_latest()
 {
-    local repo="${1:?}"
+    local repo="$1"
     local cmd url
 
-    repo="${1:?}"
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     url="https://github.com/$repo/releases/latest"
     if (( $+commands[curl] )); then
@@ -22,10 +26,14 @@ __zplug::utils::releases::get_latest()
 
 __zplug::utils::releases::get_state()
 {
-    local state
-    local name="${1:?}"
-    local dir="${2:?}"
+    local state name="$1" dir="$2"
     local url="https://github.com/$name/releases"
+
+    if (( $# < 2 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     if [[ "$(__zplug::utils::releases::get_latest "$name")" == "$(cat "$dir/INDEX")" ]]; then
         state="up to date"
@@ -51,12 +59,16 @@ __zplug::utils::releases::is_64()
 
 __zplug::utils::releases::get_url()
 {
-    local    repo="${1:?}"
-    local    tag_use tag_at
-    local    cmd url
+    local    repo="$1" result
+    local    tag_use tag_at cmd url
     local -i arch=386
     local -a candidates
-    local    result
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     {
         tag_use="$(
@@ -139,9 +151,15 @@ __zplug::utils::releases::get_url()
 
 __zplug::utils::releases::get()
 {
-    local    url="${1:?}"
+    local    url="$1"
     local    repo dir header artifact cmd
     local -A tags
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     # make 'username/reponame' style
     repo="${url:s-https://github.com/--:F[4]h}"

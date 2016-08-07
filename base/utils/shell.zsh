@@ -61,7 +61,13 @@ __zplug::utils::shell::search_commands()
 __zplug::utils::shell::glob2regexp()
 {
     local -i i=0
-    local    glob="${1:?}" char
+    local    glob="$1" char
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     printf "^"
     for ((; i < $#glob; i++))

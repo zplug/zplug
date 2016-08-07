@@ -1,6 +1,12 @@
 __zplug::core::sources::is_exists()
 {
-    local source_name="${1:?}"
+    local source_name="$1"
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     [[ -f $ZPLUG_ROOT/base/sources/$source_name.zsh ]]
     return $status
@@ -8,11 +14,14 @@ __zplug::core::sources::is_exists()
 
 __zplug::core::sources::is_handler_defined()
 {
-    local subcommand source_name handler_name
-
-    subcommand="${1:?}"
-    source_name="${2:?}"
+    local subcommand="$1" source_name="$2" handler_name
     handler_name="__zplug::sources::$source_name::$subcommand"
+
+    if (( $# < 2 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     if ! __zplug::core::sources::is_exists "$source_name"; then
         return $_ZPLUG_STATUS_FALSE
@@ -26,10 +35,16 @@ __zplug::core::sources::is_handler_defined()
 __zplug::core::sources::use_handler()
 {
     local \
-        subcommand="${1:?}" \
-        source_name="${2:?}" \
-        repo="${3:?}"
+        subcommand="$1" \
+        source_name="$2" \
+        repo="$3"
     local handler_name="__zplug::sources::$source_name::$subcommand"
+
+    if (( $# < 3 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     case "$repo" in
         "zplug/zplug")
@@ -56,7 +71,13 @@ __zplug::core::sources::use_handler()
 
 __zplug::core::sources::call()
 {
-    local val="${1:?}"
+    local val="$1"
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     if __zplug::core::sources::is_exists "$val"; then
         {

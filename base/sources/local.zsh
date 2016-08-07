@@ -1,9 +1,15 @@
 __zplug::sources::local::check()
 {
-    local    repo="${1:?}"
+    local    repo="$1"
     local -A tags
     local    expanded_path
     local -a expanded_paths
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
@@ -29,12 +35,18 @@ __zplug::sources::local::check()
 
 __zplug::sources::local::load_plugin()
 {
-    local    repo="${1:?}"
+    local    repo="$1"
     local -A tags
     local -a load_plugins
     local -a load_fpaths
     local    expanded_path
     local -a expanded_paths
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
@@ -77,13 +89,19 @@ __zplug::sources::local::load_plugin()
 
 __zplug::sources::local::load_command()
 {
-    local    repo="${1:?}"
+    local    repo="$1"
     local -A tags
     local -a load_fpaths
     local -a load_commands
     local    expanded_path
     local -a expanded_paths
     local    dst
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )

@@ -7,6 +7,12 @@ __zplug::utils::omz::depends()
     local -A    omz_libs
     local       omz_repo="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
 
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
+
     for lib_f in "$omz_repo"/lib/*.zsh(.)
     do
         # List funcname in the library file
@@ -25,7 +31,7 @@ __zplug::utils::omz::depends()
         done
     done
 
-    target=( "$omz_repo/${1:?}"{.zsh-theme,/*.plugin.zsh}(N-.) )
+    target=( "$omz_repo/$1"{.zsh-theme,/*.plugin.zsh}(N-.) )
     for lib_f in "${(k)omz_libs[@]}"
     do
         for t in "${target[@]}"
