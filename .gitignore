@@ -4,6 +4,7 @@ bin/*
 repos/*
 .cache
 .gitignore.d/*
+.error_log
 
 # zsh
 zcompdump
