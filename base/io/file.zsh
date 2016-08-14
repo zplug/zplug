@@ -36,11 +36,3 @@ __zplug::io::file::generate()
 #
 TEMPLATE
 }
-
-__zplug::io::file::append()
-{
-    __zplug::io::file::generate
-    __zplug::io::print::put \
-        "$@\n" \
-        >>|"$ZPLUG_LOADFILE"
-}

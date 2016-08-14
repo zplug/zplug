@@ -1,13 +1,9 @@
 __zplug::core::add::to_zplugs()
 {
-    local    name
+    local    name="$1"
     local    tag key val
     local -a tags
     local -a re_tags
-
-    tags=( ${(s/, /)@:gs/,  */, } )
-    name="$tags[1]"
-    tags[1]=()
 
     # DEPRECATED: pipe
     if [[ -p /dev/stdin ]]; then
@@ -26,26 +22,20 @@ __zplug::core::add::to_zplugs()
     fi
 
     if __zplug::base::base::is_cli; then
-        if __zplug::base::base::zpluged "$name"; then
-            __zplug::io::print::f \
-                --die \
-                --zplug \
-                "$name: already managed\n"
-            return 1
-        else
-            # Add to the external file
-            __zplug::io::file::append \
-                "zplug ${(qqq)name}${tags[@]:+", ${(j:, :)${(q)tags[@]}}"}"
-        fi
+        # register a package to ZPLUG_LOADFILE
+        __zplug::core::add::on_cli "$argv[@]"
     fi
-
-    name="$(__zplug::core::add::proc_at-sign "$name")"
 
     # Automatically add "as:itself" to tag array
     # if $name is zplug repository
     if [[ $name == "zplug/zplug" ]]; then
-        re_tags="as:itself"
+        re_tags+=( "as:itself" )
     fi
+
+    # Parse argv
+    tags=( ${(s/, /)argv[@]:gs/,  */, } )
+    name="$(__zplug::core::add::proc_at-sign "$tags[1]")"
+    tags[1]=()
 
     # Reconstruct the tag information
     for tag in "${tags[@]}"
@@ -104,4 +94,25 @@ __zplug::core::add::proc_at-sign()
     done
 
     echo "$name"
+}
+
+__zplug::core::add::on_cli()
+{
+    local    name
+    local -a tags
+
+    tags=( ${(s/, /)argv[@]:gs/,  */, } )
+    name="$tags[1]"
+    tags[1]=()
+
+    if __zplug::base::base::zpluged "$name"; then
+        __zplug::io::print::f \
+            --die \
+            --zplug \
+            "$name: already managed\n"
+        return 1
+    fi
+
+    echo "zplug ${(qqq)name}${tags[@]:+", ${(j:, :)${(q)tags[@]}}"}" \
+        >>|"$ZPLUG_LOADFILE"
 }
