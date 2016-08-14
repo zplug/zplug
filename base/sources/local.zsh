@@ -12,7 +12,7 @@ __zplug::local::check() {
     local -a expanded_paths
 
     # Note: $zspec[dir] can be a dir name or a file name
-    expanded_paths=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${zspec[dir]}" 2>/dev/null) )
+    expanded_paths=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${ZPLUG_HOME}/${zspec[dir]}" 2>/dev/null) )
 
     # Okay if at least one expanded path exists
     for expanded_path in ${expanded_paths[@]}
@@ -39,7 +39,7 @@ __zplug::local::load_plugin() {
     local    expanded_path
     local -a expanded_paths
 
-    expanded_paths=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${zspec[dir]}" 2>/dev/null) )
+    expanded_paths=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${ZPLUG_HOME}/${zspec[dir]}" 2>/dev/null) )
 
     for expanded_path in ${expanded_paths[@]}
     do
