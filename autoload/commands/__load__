@@ -140,9 +140,12 @@ do
                     "$repo"
                 reply_hash=( "$reply[@]" )
 
-                load_fpaths+=( ${(@f)reply_hash[load_fpaths]} )
+                # Plugins
                 load_plugins+=( ${(@f)reply_hash[load_plugins]} )
+                lazy_plugins+=( ${(@f)reply_hash[lazy_plugins]} )
                 nice_plugins+=( ${(@f)reply_hash[nice_plugins]} )
+                # fpath
+                load_fpaths+=( ${(@f)reply_hash[load_fpaths]} )
             fi
             ;;
 
