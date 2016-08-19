@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
-
-__import "print/print"
+# Description:
+#   Remove the cache file
 
 local arg
 
@@ -9,11 +9,25 @@ do
     arg="$1"
     case "$arg" in
         -*|--*)
-            __zplug::print::print::die "[zplug] $arg: Unknown option\n"
+            __zplug::core::options::unknown "$arg"
+            return $status
+            ;;
+        "")
+            # Invalid
+            return 1
+            ;;
+        */*)
+            # Unexpect
+            return 1
+            ;;
+        *)
             return 1
             ;;
     esac
     shift
 done
 
-rm -f "$ZPLUG_CACHE_FILE" "$ZPLUG_HOME/zcompdump" "$ZPLUG_HOME/zcompdump.zwc"
+rm -f \
+    "$ZPLUG_CACHE_FILE" \
+    "$ZPLUG_HOME/zcompdump" \
+    "$ZPLUG_HOME/zcompdump.zwc"

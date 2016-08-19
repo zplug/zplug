@@ -1,14 +1,18 @@
 #!/usr/bin/env zsh
+# Description:
+#   depth tag
 
-__import "core/core"
-__import "print/print"
-
-local    arg package
+local    arg="$1" package
 local -a parsed_zplugs
 local    depth
 local -i default=0
 
-arg="$1"
+if [[ -n $arg ]] && ! __zplug::base::base::zpluged "$arg"; then
+    __zplug::io::log::error \
+        "$arg: no package managed by zplug"
+    return 1
+fi
+
 package="${arg}, ${zplugs[$arg]%, }"
 parsed_zplugs=(${(s/, /)package/,  */, })
 
@@ -18,12 +22,44 @@ if [[ -z $depth ]]; then
 fi
 
 : ${depth:=$default}
-if [[ $depth != <-> ]]; then
-    __zplug::print::print::die \
-        "[zplug] $fg[red]ERROR$reset_color: "
-    __zplug::print::print::die \
-        "depth tag must be an integer ($fg[green]$arg$reset_color)\n"
-    return 1
-fi
+
+case $depth in
+    0)
+        case "$ZPLUG_CLONE_DEPTH" in
+            0)
+                #depth_option=""
+                :
+                ;;
+            <->)
+                #depth_option="--depth=$ZPLUG_CLONE_DEPTH"
+                depth="$ZPLUG_CLONE_DEPTH"
+                ;;
+            *)
+                __zplug::io::print::f \
+                    --die \
+                    --zplug \
+                    --error \
+                    --func \
+                    "ZPLUG_CLONE_DEPTH must be a positive number.\n"
+                return 1
+                ;;
+        esac
+        ;;
+    <->)
+        #depth_option="--depth=$tag_depth"
+        :
+        ;;
+    *)
+        # not integer
+        __zplug::io::print::f \
+            --die \
+            --zplug \
+            --error \
+            --func \
+            "depth tag must be a positive number\n" \
+            "but, if zero, no shallow clone.\n"
+        return 1
+        ;;
+esac
 
 echo "$depth"

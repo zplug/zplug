@@ -1,44 +1,66 @@
 #!/usr/bin/env zsh
+# Description:
+#   Show the information such as the source URL and tag values for the given package
 
-__import "print/print"
-__import "core/core"
-__import "core/git"
+local    arg="$1" repo key
+local -a repos
+local -A tags
 
-local    arg="$1" k
-local -A zspec
-
-if [[ -z $arg ]]; then
-    __zplug::print::print::die \
-        "[zplug] info: too few arguments\n"
-    return 1
-fi
-
-if ! __zplug::core::core::zpluged "$arg"; then
-    __zplug::print::print::die \
-        "[zplug] info: $arg is not a managed package\n"
-    return 1
-fi
-
-__parser__ "$arg"
-zspec=( "${reply[@]}" )
-
-if (( $#zspec > 0 )); then
-    (
-    # change directory for remote_url
-    builtin cd -q "$zspec[dir]"
-
-    __zplug::print::print::put \
-        "==> $fg[green]$arg$reset_color"
-    __zplug::print::print::put \
-        " <${(%):-"%U"}%s${(%):-"%u"}>\n" \
-        "${$(__zplug::core::git::remote_url):-"LOCAL REPO"}"
-    __zplug::print::print::put \
-        " - - - \n"
-    )
-fi
-
-for k in "${(k)zspec[@]}"
+while (( $# > 0 ))
 do
-    __zplug::print::print::put \
-        "$fg[red]-$reset_color $fg[blue]$k$reset_color:$fg[yellow]${(qqq)zspec[$k]}$reset_color\n"
+    arg="$1"
+    case "$arg" in
+        -*|--*)
+            __zplug::core::options::unknown "$arg"
+            return $status
+            ;;
+        "")
+            # Invalid
+            return 1
+            ;;
+        */*)
+            repos+=( "${arg:gs:@::}" )
+            ;;
+        *)
+            __zplug::io::print::f \
+                --die \
+                --zplug \
+                --error \
+                "$arg: invalid argument\n"
+            return 1
+            ;;
+    esac
+    shift
+done
+
+# If no argument is given
+if (( $#repos == 0 )); then
+    __zplug::io::print::put \
+        "%d plugs, %s\n" \
+        $#zplugs \
+        "$(du -ch "$ZPLUG_REPOS" | awk '$2 == "total"{print $1}')"
+    return 1
+fi
+
+for repo in "${repos[@]}"
+do
+    if ! __zplug::base::base::zpluged "$repo"; then
+        __zplug::io::print::f \
+            --die \
+            --zplug \
+            --func \
+            "$repo: no such package\n"
+        return 1
+    fi
+
+    __zplug::core::tags::parse "$repo"
+    tags=( "${reply[@]}" )
+
+    for key in "${(k)tags[@]}"
+    do
+        __zplug::io::print::put \
+            "$fg[red]-$reset_color $fg[blue]$key$reset_color: "
+        __zplug::io::print::put \
+            "$fg[yellow]${(qqq)tags[$key]}$reset_color\n"
+    done
 done

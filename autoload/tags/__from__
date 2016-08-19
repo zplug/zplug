@@ -1,13 +1,18 @@
 #!/usr/bin/env zsh
-
-__import "core/core"
-__import "print/print"
+# Description:
+#   from tag
 
 local    arg="$1" package
 local -a parsed_zplugs
 local    from
 local    default="github"
 local -a candidates
+
+if [[ -n $arg ]] && ! __zplug::base::base::zpluged "$arg"; then
+    __zplug::io::log::error \
+        "$arg: no package managed by zplug"
+    return 1
+fi
 
 candidates=(
 "$default"
@@ -30,11 +35,14 @@ if [[ -z $from ]]; then
             zstyle -s ":zplug:tag" from from
             ;;
         1)
-            __zplug::print::print::die \
-                "[zplug] $fg[red]ERROR$reset_color: "
-            __zplug::print::print::die \
-                "from tag must be [${(j:, :)candidates[@]}] ($fg[green]$arg$reset_color)\n"
-            return 1
+            __zplug::io::print::f \
+                --die \
+                --zplug \
+                --error \
+                --func \
+                "from tag must be [%s] ($fg[green]%s$reset_color)\n" \
+                "${(j:, :)candidates[*]}" \
+                "$arg"
             ;;
         2)
             # undefined
@@ -44,10 +52,14 @@ fi
 
 : ${from:=$default}
 if [[ ! $from =~ ^(${(j:|:)candidates[@]})$ ]]; then
-    __zplug::print::print::die \
-        "[zplug] $fg[red]ERROR$reset_color: "
-    __zplug::print::print::die \
-        "from tag must be [${(j:, :)candidates[@]}] ($fg[green]$arg$reset_color)\n"
+    __zplug::io::print::f \
+        --die \
+        --zplug \
+        --error \
+        --func \
+        "from tag must be [%s] ($fg[green]%s$reset_color)\n" \
+        "${(j:, :)candidates[*]}" \
+        "$arg"
     return 1
 fi
 echo "$from"

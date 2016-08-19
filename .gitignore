@@ -1,14 +1,27 @@
-.DS_Store
-**/.DS_Store
-.ignore
+# zplug
 bin/*
 !bin/zplug-env
+repos/*
+.cache
+.gitignore.d/*
+.error_log
+
+# zsh
 zcompdump
 **/zcompdump
+zcompdump.zwc
 **/zcompdump.zwc
-**/*~
-**/*.swp
-.cache
-repos
+
+# a2x (man page)
 *.xml
 **/*.xml
+
+# vim
+*~
+**/*~
+*.swp
+**/*.swp
+
+# OS X
+.DS_Store
+**/.DS_Store

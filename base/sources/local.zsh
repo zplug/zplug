@@ -1,18 +1,24 @@
-#!/usr/bin/env zsh
-
-__zplug::local::check() {
-    local    line
-    local -A zspec
-
-    line="$1"
-    __parser__ "$line"
-    zspec=( "${reply[@]}" )
-
+__zplug::sources::local::check()
+{
+    local    repo="$1"
+    local -A tags
     local    expanded_path
     local -a expanded_paths
 
-    # Note: $zspec[dir] can be a dir name or a file name
-    expanded_paths=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${zspec[dir]}" 2>/dev/null) )
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
+
+    __zplug::core::tags::parse "$repo"
+    tags=( "${reply[@]}" )
+
+    # Note: $tags[dir] can be a dir name or a file name
+    expanded_paths=( $(
+    zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${tags[dir]}" \
+        2> >(__zplug::io::log::capture)
+    ) )
 
     # Okay if at least one expanded path exists
     for expanded_path in ${expanded_paths[@]}
@@ -22,87 +28,111 @@ __zplug::local::check() {
         fi
     done
 
-    __zplug::print::print::die "[zplug] no matching file or directory: ${zspec[dir]}\n"
+    __zplug::io::log::warn \
+        "no matching file or directory in $tags[dir]"
     return 1
 }
 
-__zplug::local::load_plugin() {
-    local    line
-    local -A zspec
-
-    line="$1"
-    __parser__ "$line"
-    zspec=( "${reply[@]}" )
-
-    local -a load_patterns
+__zplug::sources::local::load_plugin()
+{
+    local    repo="$1"
+    local -A tags
+    local -a load_plugins
     local -a load_fpaths
     local    expanded_path
     local -a expanded_paths
 
-    expanded_paths=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${zspec[dir]}" 2>/dev/null) )
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
-    for expanded_path in ${expanded_paths[@]}
+    __zplug::core::tags::parse "$repo"
+    tags=( "${reply[@]}" )
+
+    expanded_paths=( $(
+    zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${tags[dir]}" \
+        2> >(__zplug::io::log::capture)
+    ) )
+
+    for expanded_path in "${expanded_paths[@]}"
     do
         if [[ -f $expanded_path ]]; then
-            load_patterns+=( $expanded_path )
+            load_plugins+=( "$expanded_path" )
         elif [[ -d $expanded_path ]]; then
-            if [[ -n $zspec[use] ]]; then
-                load_patterns+=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $expanded_path/$zspec[use]" 2>/dev/null) )
+            if [[ -n $tags[use] ]]; then
+                load_plugins+=( $(
+                zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $expanded_path/$tags[use]" \
+                    2> >(__zplug::io::log::capture)
+                ) )
             else
                 load_fpaths+=(
-                    $expanded_path/{_*,**/_*}(N-.:h)
+                    "$expanded_path"/{_*,**/_*}(N-.:h)
                 )
             fi
         fi
     done
 
-    if (( $#load_patterns == 0 )); then
-        __zplug::print::print::die "[zplug] no matching file or directory: ${zspec[dir]}\n"
+    if (( $#load_plugins == 0 )); then
+        __zplug::io::log::warn \
+            "no matching file or directory in $tags[dir]"
         return 1
     fi
 
     reply=()
     [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
-    [[ -n $load_patterns ]] && reply+=( load_patterns "${(F)load_patterns}" )
+    [[ -n $load_plugins ]] && reply+=( load_plugins "${(F)load_plugins}" )
 
     return 0
 }
 
-__zplug::local::load_command() {
-    local    line
-    local -A zspec
-
-    line="$1"
-    __parser__ "$line"
-    zspec=( "${reply[@]}" )
-
+__zplug::sources::local::load_command()
+{
+    local    repo="$1"
+    local -A tags
     local -a load_fpaths
     local -a load_commands
     local    expanded_path
     local -a expanded_paths
-    local dst
+    local    dst
 
-    expanded_paths=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${zspec[dir]}" 2>/dev/null) )
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
 
-    dst=${${zspec[rename-to]:+$ZPLUG_HOME/bin/$zspec[rename-to]}:-"$ZPLUG_HOME/bin"}
+    __zplug::core::tags::parse "$repo"
+    tags=( "${reply[@]}" )
 
-    for expanded_path in ${expanded_paths[@]}
+    expanded_paths=( $(
+    zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $tags[dir]" \
+        2> >(__zplug::io::log::capture)
+    ) )
+    dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
+
+    for expanded_path in "${expanded_paths[@]}"
     do
         if [[ -f $expanded_path ]]; then
-            load_commands+=( $expanded_path )
+            load_commands+=( "$expanded_path" )
         elif [[ -d $expanded_path ]]; then
-            if [[ -n $zspec[use] ]]; then
-                load_commands+=( $(zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $expanded_path/$zspec[use]" 2>/dev/null) )
+            if [[ -n $tags[use] ]]; then
+                load_commands+=( $(
+                zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $expanded_path/$tags[use]" \
+                    2> >(__zplug::io::log::capture)
+                ) )
             else
                 load_fpaths+=(
-                    $expanded_path/{_*,**/_*}(N-.:h)
+                    "$expanded_path"/{_*,**/_*}(N-.:h)
                 )
             fi
         fi
     done
 
     if (( $#load_commands == 0 )); then
-        __zplug::print::print::die "[zplug] no matching file or directory: ${zspec[dir]}\n"
+        __zplug::io::log::warn \
+            "no matching file or directory in $tags[dir]"
         return 1
     fi
 
@@ -116,8 +146,8 @@ __zplug::local::load_command() {
     #
     # where \0 is a null character used to separate the two strings.
     #
-    # In the caller function (__load__), each line is decomposed into an
-    # element in an associative array, thus, in the example above, the line:
+    # In the caller function (__load__), each repo is decomposed into an
+    # element in an associative array, thus, in the example above, the repo:
     #
     #   path/to/cmd1\0dst
     #

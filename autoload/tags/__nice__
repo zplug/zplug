@@ -1,12 +1,17 @@
 #!/usr/bin/env zsh
-
-__import "core/core"
-__import "print/print"
+# Description:
+#   nice tag
 
 local    arg="$1" package
 local -a parsed_zplugs
 local    nice
 local -i default=0
+
+if [[ -n $arg ]] && ! __zplug::base::base::zpluged "$arg"; then
+    __zplug::io::log::error \
+        "$arg: no package managed by zplug"
+    return 1
+fi
 
 package="${arg}, ${zplugs[$arg]%, }"
 parsed_zplugs=(${(s/, /)package/,  */, })
@@ -25,9 +30,11 @@ if [[ $nice =~ ^[-+]?[[:digit:]]+$ ]] && \
     (( $nice >= -20 )) && (( $nice <= 19 )); then
     :
 else
-    __zplug::print::print::die \
-        "[zplug] $fg[red]ERROR$reset_color: "
-    __zplug::print::print::die \
+    __zplug::io::print::f \
+        --die \
+        --zplug \
+        --error \
+        --func \
         "nice tag must be {-20..19} ($fg[green]$arg$reset_color)\n"
     return 1
 fi

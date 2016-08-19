@@ -1,13 +1,17 @@
 #!/usr/bin/env zsh
-
-__import "core/core"
-__import "print/print"
-__import "zplug/variables"
+# Description:
+#   frozen tag
 
 local    arg package
 local -a parsed_zplugs
 local    frozen
 local    default="no"
+
+if [[ -n $arg ]] && ! __zplug::base::base::zpluged "$arg"; then
+    __zplug::io::log::error \
+        "$arg: no package managed by zplug"
+    return 1
+fi
 
 arg="$1"
 package="${arg}, ${zplugs[$arg]%, }"
@@ -27,10 +31,13 @@ if [[ -z $frozen ]]; then
                 # ok (false words)
                 :
             else
-                __zplug::print::print::die \
-                    "[zplug] $fg[red]ERROR$reset_color: "
-                __zplug::print::print::die \
-                    "frozen tag must be a boolean ($fg[green]$arg$reset_color)\n"
+                __zplug::io::print::f \
+                    --die \
+                    --zplug \
+                    --error \
+                    --func \
+                    "frozen tag must be a boolean ($fg[green]%s$reset_color)\n" \
+                    "$arg"
                 return 1
             fi
             ;;
@@ -44,10 +51,13 @@ fi
 if [[ $frozen =~ ^("${(j:|:)_zplug_boolean_true[@]}|${(j:|:)_zplug_boolean_false[@]}")$ ]]; then
     :
 else
-    __zplug::print::print::die \
-        "[zplug] $fg[red]ERROR$reset_color: "
-    __zplug::print::print::die \
-        "frozen tag must be a boolean ($fg[green]$arg$reset_color)\n"
+    __zplug::io::print::f \
+        --die \
+        --zplug \
+        --error \
+        --func \
+        "frozen tag must be a boolean ($fg[green]%s$reset_color)\n" \
+        "$arg"
     return 1
 fi
 

@@ -1,20 +1,37 @@
 #!/usr/bin/env zsh
+# Description:
+#   at tag
 
-__import "core/core"
-__import "print/print"
-
-local    arg package
+local    arg="$1" package
 local -a parsed_zplugs
 local    at
 local    default="master"
 
-arg="$1"
+if [[ -n $arg ]] && ! __zplug::base::base::zpluged "$arg"; then
+    __zplug::io::log::error \
+        "$arg: no package managed by zplug"
+    return 1
+fi
+
 package="${arg}, ${zplugs[$arg]%, }"
 parsed_zplugs=(${(s/, /)package/,  */, })
 
 at="${parsed_zplugs[(k)at:*]#at:*}"
 if [[ -z $at ]]; then
     zstyle -s ":zplug:tag" at at
+fi
+
+local from
+__zplug::core::core::run_interfaces \
+    'from' \
+    "$arg" \
+    | read from
+
+if [[ $from == "gh-r" ]]; then
+    default="latest"
+    if [[ -n $at ]]; then
+        at="tag/$at"
+    fi
 fi
 
 echo "${at:-$default}"

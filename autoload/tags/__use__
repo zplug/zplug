@@ -1,12 +1,17 @@
 #!/usr/bin/env zsh
-
-__import "core/core"
-__import "print/print"
+# Description:
+#   use tag
 
 local    arg="$1" package
 local -a parsed_zplugs
 local    use
 local    default="*.zsh"
+
+if [[ -n $arg ]] && ! __zplug::base::base::zpluged "$arg"; then
+    __zplug::io::log::error \
+        "$arg: no package managed by zplug"
+    return 1
+fi
 
 package="${arg}, ${zplugs[$arg]%, }"
 parsed_zplugs=(${(s/, /)package/,  */, })
@@ -14,6 +19,24 @@ parsed_zplugs=(${(s/, /)package/,  */, })
 use="${parsed_zplugs[(k)use:*]#use:*}"
 if [[ -z $use ]]; then
     zstyle -s ":zplug:tag" use use
+fi
+
+local from
+__zplug::core::core::run_interfaces \
+    'from' \
+    "$arg" \
+    | read from
+
+if [[ $from == "gh-r" ]]; then
+    default=""
+    if [[ -n $use ]]; then
+        use="$(__zplug::utils::shell::glob2regexp "$use")"
+    else
+        use="$(__zplug::base::base::get_os)"
+        if __zplug::base::base::is_osx; then
+            use="(darwin|osx)"
+        fi
+    fi
 fi
 
 echo "${use:-$default}"

@@ -1,15 +1,18 @@
 #!/usr/bin/env zsh
+# Description:
+#   lazy tag
 
-__import "core/core"
-__import "print/print"
-__import "zplug/variables"
-
-local    arg package
+local    arg="$1" package
 local -a parsed_zplugs
 local    lazy
 local    default="no"
 
-arg="$1"
+if [[ -n $arg ]] && ! __zplug::base::base::zpluged "$arg"; then
+    __zplug::io::log::error \
+        "$arg: no package managed by zplug"
+    return 1
+fi
+
 package="${arg}, ${zplugs[$arg]%, }"
 parsed_zplugs=(${(s/, /)package/,  */, })
 
@@ -27,9 +30,11 @@ if [[ -z $lazy ]]; then
                 # ok (false words)
                 :
             else
-                __zplug::print::print::die \
-                    "[zplug] $fg[red]ERROR$reset_color: "
-                __zplug::print::print::die \
+                __zplug::io::print::f \
+                    --die \
+                    --zplug \
+                    --error \
+                    --func \
                     "lazy tag must be a boolean ($fg[green]$arg$reset_color)\n"
                 return 1
             fi
@@ -44,9 +49,11 @@ fi
 if [[ $lazy =~ ^("${(j:|:)_zplug_boolean_true[@]}|${(j:|:)_zplug_boolean_false[@]}")$ ]]; then
     :
 else
-    __zplug::print::print::die \
-        "[zplug] $fg[red]ERROR$reset_color: "
-    __zplug::print::print::die \
+    __zplug::io::print::f \
+        --die \
+        --zplug \
+        --error \
+        --func \
         "lazy tag must be a boolean ($fg[green]$arg$reset_color)\n"
     return 1
 fi

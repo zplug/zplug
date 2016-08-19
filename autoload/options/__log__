@@ -1,0 +1,69 @@
+#!/usr/bin/env zsh
+# Description:
+#   Show the report of zplug errors
+
+if [[ ! -f $ZPLUG_ERROR_LOG ]] || [[ ! -s $ZPLUG_ERROR_LOG ]]; then
+    __zplug::io::print::f \
+        --die \
+        --zplug \
+        --error \
+        "ZPLUG_ERROR_LOG: is not found or empty\n"
+    return 1
+fi
+
+local arg
+
+while (( $# > 0 ))
+do
+    arg="$1"
+    case "$arg" in
+        edit)
+            ${=${2:+$2}:-${EDITOR:-vim}} "$ZPLUG_ERROR_LOG"
+            return $status
+            ;;
+        jq)
+            if (( ! $+commands[jq] )); then
+                return 1
+            fi
+            cat "$ZPLUG_ERROR_LOG" \
+                | sed -e 's/[[:cntrl:]]//g' \
+                | jq ${=${2:+"$argv[2,-1]"}:-"."}
+            return $status
+            ;;
+        less | more)
+            # $PAGER
+            cat "$ZPLUG_ERROR_LOG" \
+                | $arg
+            return $status
+            ;;
+        oneline | "")
+            # compatible
+            ;;
+        clear)
+            rm -f "$ZPLUG_ERROR_LOG"
+            return $status
+            ;;
+        count)
+            cat "$ZPLUG_ERROR_LOG" \
+                | grep -c ''
+            return $status
+            ;;
+        latest)
+            cat "$ZPLUG_ERROR_LOG" \
+                | tail -n ${${2:+"$argv[2,-1]"}:-1} \
+                | ${=${commands[jq]:+"jq ."}:-"cat -"}
+            return $status
+            ;;
+        *)
+            __zplug::io::print::f \
+                --die \
+                --zplug \
+                --func \
+                "$arg: invalid arguments\n"
+            return 1
+            ;;
+    esac
+    shift
+done
+
+cat "$ZPLUG_ERROR_LOG"

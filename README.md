@@ -1,3 +1,5 @@
+:us: [:jp:](./doc/guide/ja/README.md)
+
 > Zsh Plugin Manager
 
 [![Travis][travis-badge]][travis-link]
@@ -31,7 +33,8 @@
 
 ***DEMO:***
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/install.gif)][repo]
+<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/install.gif)][repo] -->
+[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)][repo]
 
 ## Installation
 
@@ -62,9 +65,9 @@ $ git clone https://github.com/zplug/zplug $ZPLUG_HOME
 
 ## Requirements
 
-- `zsh` version 4.3.9 or higher
-- `git` version 1.7 or higher
-- `awk` An AWK variant that's **not** `mawk`
+- `zsh`: version 4.3.9 or higher
+- `git`: version 1.7 or higher
+- `awk`: An AWK variant that's **not** `mawk`
 
 ## Usage
 
@@ -90,7 +93,7 @@ zplug "Jxck/dotfiles", as:command, use:"bin/{histuniq,color}"
 # Can manage everything e.g., other person's zshrc
 zplug "tcnksm/docker-alias", use:zshrc
 
-# Disable updates using the "frozen:" tag
+# Disable updates using the "frozen" tag
 zplug "k4rthik/git-cal", as:command, frozen:1
 
 # Grab binaries from GitHub Releases
@@ -102,19 +105,27 @@ zplug "junegunn/fzf-bin", \
     use:"*darwin*amd64*"
 
 # Supports oh-my-zsh plugins and the like
-zplug "plugins/git",   from:oh-my-zsh, if:"(( $+commands[git] ))"
-zplug "themes/duellj", from:oh-my-zsh
+zplug "plugins/git",   from:oh-my-zsh
+
+# Load if "if" tag returns true
 zplug "lib/clipboard", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
 
 # Run a command after a plugin is installed/updated
-zplug "tj/n", hook-build:"make install"
+# Provided, it requires to set the variable like the following:
+# ZPLUG_SUDO_PASSWORD="********"
+zplug "jhawthorn/fzy", \
+    as:command, \
+    rename-to:fzy, \
+    hook-build:"
+    {
+        make
+        sudo make install
+    } &>/dev/null
+    "
 
 # Supports checking out a specific branch/tag/commit
 zplug "b4b4r07/enhancd", at:v1
 zplug "mollifier/anyframe", at:4c23cb60
-
-# Install if "if:" tag returns true
-zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
 # Can manage gist file just like other packages
 zplug "b4b4r07/79ee61f7c140c63d2786", \
@@ -129,7 +140,8 @@ zplug "b4b4r07/hello_bitbucket", \
     hook-build:"chmod 755 *.sh", \
     use:"*.sh"
 
-# Group dependencies. Load emoji-cli if jq is installed in this example
+# Group dependencies
+# Load "emoji-cli" if "jq" is installed in this example
 zplug "stedolan/jq", \
     from:gh-r, \
     as:command, \
@@ -167,15 +179,16 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 |--------|-------------|
 | `--help` | Display the help message |
 | `--version` | Display the version of zplug |
+| `--log` | Show the error log (for developer) |
 
 ### 2. Commands for `zplug`
 
 |  Command  | Description | Options |
 |-----------|-------------|---------|
-| `install` | Install packages in parallel | `--verbose`,`--select` |
+| `install` | Install packages in parallel | (None) |
 | `load`    | Source installed plugins and add installed commands to `$PATH` | `--verbose` |
 | `list`    | List installed packages (more specifically, view the associative array `$zplugs`) | `--select` |
-| `update`  | Update installed packages in parallel | `--self`,`--select` |
+| `update`  | Update installed packages in parallel | `--self`,`--select`,`--force` |
 | `check`   | Return true if all packages are installed, false otherwise | `--verbose` |
 | `status`  | Check if the remote repositories are up to date | `--select` |
 | `clean`   | Remove repositories which are no longer managed | `--force`,`--select` |
@@ -219,7 +232,7 @@ zplug "zplug/zplug"
 
 All that's left is to run `zplug update`.
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo]
+<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo] -->
 
 ### 3. Tags for `zplug`
 
@@ -264,7 +277,7 @@ The default value for all tags can be changed in this way.
 
 You can register packages to zplug from the command-line. If you use zplug from the command-line, it is possible to add stuff more easily with the help of powerful zsh completions.
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo]
+<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo] -->
 
 In this case, zplug spit out its settings to `$ZPLUG_LOADFILE` instead of `.zshrc`. If you launch new zsh process, `zplug load` command automatically search this file and run `source` command.
 
@@ -332,7 +345,18 @@ Defaults to `$ZPLUG_HOME/.cache`. You can change where the cache file is saved, 
 
 Defaults to `$ZPLUG_HOME/repos`. You can change where the repositories are cloned in case you want to manage them separately.
 
+#### `ZPLUG_SUDO_PASSWORD`
+
+Defaults to `''`. You can set sudo password for zplug's `hook-build` tag. However, this variable shoud not be managed in dotfiles and so on.
+
+```zsh
+# your .zshrc
+source ~/.zshrc_secret
+zplug "some/command", hook-build:"make && sudo make install"
+```
+
 ### External commands
+
 zplug, like `git(1)`, supports external commands.
 These are executable scripts that reside somewhere in the PATH, named `zplug-cmdname`,
 which can be invoked with `zplug cmdname`.

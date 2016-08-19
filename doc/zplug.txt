@@ -53,6 +53,9 @@ OPTIONS
 *--version*::
     Print zplug's version.
 
+*--log*::
+    Show the error log.
+
 
 COMMANDS
 --------
@@ -71,13 +74,12 @@ COMMANDS
 *clear*::
     Remove the cache file.
 
-*install* [--verbose] [--select] ['package']::
+*install* ['package']::
     Install 'package'.
-    `--verbose` / `--select` do the same as what's described above.
 
 *list* [--verbose] [--select] ['package']::
     List installed packages.
-    `--verbose` / `--select` do the same as what's described above.
+    `--select` do the same as what's described above.
 
 *load* [--verbose]::
     Load packages. All packages registered with 'as:plugin' are sourced into
@@ -93,7 +95,7 @@ COMMANDS
     Fetch the newest version of the installed packages by zplug.
     `--select` does the same as what's described above.
 
-*update* [--self] [--select] ['package']::
+*update* [--self] [--select] [--force] ['package']::
     Update 'package'. If no package is given, updates all registered packages.
     If `--self` is given, update zplug itself.
     `--select` does the same as what's described above.
@@ -235,8 +237,19 @@ $ ZPLUG_USE_CACHE=false zplug load
     `$HOME/.cache/zplug/cache` to follow XDG Base Directory Specification
 
 'ZPLUG_REPOS'::
-Defaults to `$ZPLUG_HOME/repos`. You can change where the repositories are
-cloned in case you want to manage them separately.
+    Defaults to `$ZPLUG_HOME/repos`. You can change where the repositories are
+    cloned in case you want to manage them separately.
+
+
+'ZPLUG_SUDO_PASSWORD'::
+    Defaults to `''`. You can set sudo password for zplug's `hook-build` tag.
+    However, this variable shoud not be managed in dotfiles and so on.
+
+------------
+# your .zshrc
+source ~/.zshrc_secret
+zplug "some/command", hook-build:"make && sudo make install"
+------------
 
 
 Using zstyle

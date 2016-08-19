@@ -1,14 +1,18 @@
 #!/usr/bin/env zsh
+# Description:
+#   hook-load tag
 
-__import "core/core"
-__import "print/print"
-
-local    arg package
+local    arg="$1" package
 local -a parsed_zplugs
 local    hook_load
 local    default=""
 
-arg="$1"
+if [[ -n $arg ]] && ! __zplug::base::base::zpluged "$arg"; then
+    __zplug::io::log::error \
+        "$arg: no package managed by zplug"
+    return 1
+fi
+
 package="${arg}, ${zplugs[$arg]%, }"
 parsed_zplugs=(${(s/, /)package/,  */, })
 
