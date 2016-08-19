@@ -33,7 +33,8 @@
 
 ***DEMO:***
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/install.gif)][repo]
+<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/install.gif)][repo] -->
+[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)][repo]
 
 ## Installation
 
@@ -231,7 +232,7 @@ zplug "zplug/zplug"
 
 All that's left is to run `zplug update`.
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo]
+<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo] -->
 
 ### 3. Tags for `zplug`
 
@@ -276,7 +277,7 @@ The default value for all tags can be changed in this way.
 
 You can register packages to zplug from the command-line. If you use zplug from the command-line, it is possible to add stuff more easily with the help of powerful zsh completions.
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo]
+<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo] -->
 
 In this case, zplug spit out its settings to `$ZPLUG_LOADFILE` instead of `.zshrc`. If you launch new zsh process, `zplug load` command automatically search this file and run `source` command.
 
