@@ -82,11 +82,11 @@ __zplug::io::cache::update()
         __zplug::io::print::put '\n'
         if (( $#load_commands > 0 )); then
             __zplug::io::print::put '# Commands\n'
-            __zplug::io::print::put 'chmod a=rx "%s"\n' \
+            __zplug::io::print::put '\\chmod a=rx "%s"\n' \
                 "${(uk)load_commands[@]}"
             for load_command in "${(uk)load_commands[@]}"
             do
-                __zplug::io::print::put 'ln -snf "%s" "%s"\n' \
+                __zplug::io::print::put '\\ln -snf "%s" "%s"\n' \
                     "$load_command" \
                     "$load_commands[$load_command]"
             done
