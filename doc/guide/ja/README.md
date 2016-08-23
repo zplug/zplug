@@ -3,7 +3,7 @@
 > Zsh のプラグインマネージャー
 
 [![Travis][travis-badge]][travis-link]
-[![Version][version-badge]][version-link]
+[![Latest][latest-badge]][latest-link]
 [![Slack][slack-badge]][slack-link]
 
 <div align="center">
@@ -33,9 +33,13 @@
 
 ***DEMO:***
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/install.gif)][repo]
+[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)][repo]
 
 ## インストール
+
+最新版 | 安定版
+---|---
+[![Latest][latest-badge]][latest-link] | [![Stable][stable-badge]][stable-link]
 
 ### 推奨方法
 
@@ -231,7 +235,7 @@ zplug "zplug/zplug"
 
 あとは `zplug update` を実行するだけ。
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo]
+<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo] -->
 
 ### 3. タグ
 
@@ -275,7 +279,7 @@ zstyle ":zplug:tag" as command
 
 コマンドライン上から zplug パッケージを追加できる。もしコマンドライン上から追加することがあるのなら、zsh 補完を利用してより簡単でパワフルに追加できる。
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo]
+<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo] -->
 
 この場合、`.zshrc` でなく `$ZPLUG_LOADFILE` に設定を記述される。また、新しく zsh を立ち上げるのときは、`zplug load` の際にこのファイルもロードする。
 
@@ -385,7 +389,9 @@ antigen や zgen、もしくは zplug v1 から移行するための情報は [z
 [license]: http://b4b4r07.mit-license.org
 [travis-link]: https://travis-ci.org/zplug/zplug
 [travis-badge]: https://img.shields.io/travis/zplug/zplug.svg?style=flat-square
-[version-badge]: https://img.shields.io/badge/latest-v2.1.0-ca7f85.svg?style=flat-square
-[version-link]: https://github.com/zplug/zplug/releases
+[latest-badge]: https://img.shields.io/badge/latest-v2.2.0-ca7f85.svg?style=flat-square
+[latest-link]: https://github.com/zplug/zplug/releases/latest
+[stable-badge]: https://img.shields.io/badge/stable-v2.1.0-e9a326.svg?style=flat-square
+[stable-link]: https://github.com/zplug/zplug/releases/tag/2.1.0
 [slack-link]: https://zplug.herokuapp.com
 [slack-badge]: https://img.shields.io/badge/slack-join-ca7f85.svg?style=flat-square

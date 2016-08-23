@@ -3,7 +3,7 @@
 > Zsh Plugin Manager
 
 [![Travis][travis-badge]][travis-link]
-[![Version][version-badge]][version-link]
+[![Latest][latest-badge]][latest-link]
 [![Slack][slack-badge]][slack-link]
 
 <div align="center">
@@ -37,6 +37,10 @@
 [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)][repo]
 
 ## Installation
+
+latest | stable
+---|---
+[![Latest][latest-badge]][latest-link] | [![Stable][stable-badge]][stable-link]
 
 ### The best way
 
@@ -390,7 +394,9 @@ page](https://github.com/zplug/zplug/wiki/Migration).
 [license]: http://b4b4r07.mit-license.org
 [travis-link]: https://travis-ci.org/zplug/zplug
 [travis-badge]: https://img.shields.io/travis/zplug/zplug.svg?style=flat-square
-[version-badge]: https://img.shields.io/badge/latest-v2.1.0-ca7f85.svg?style=flat-square
-[version-link]: https://github.com/zplug/zplug/releases
+[latest-badge]: https://img.shields.io/badge/latest-v2.2.0-ca7f85.svg?style=flat-square
+[latest-link]: https://github.com/zplug/zplug/releases/latest
+[stable-badge]: https://img.shields.io/badge/stable-v2.1.0-e9a326.svg?style=flat-square
+[stable-link]: https://github.com/zplug/zplug/releases/tag/2.1.0
 [slack-link]: https://zplug.herokuapp.com
 [slack-badge]: https://img.shields.io/badge/slack-join-ca7f85.svg?style=flat-square
