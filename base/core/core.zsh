@@ -190,6 +190,7 @@ __zplug::core::core::variable()
     typeset -gx -i _ZPLUG_STATUS_INVALID_ARGUMENT=6
     typeset -gx -i _ZPLUG_STATUS_INVALID_OPTION=7
     typeset -gx -i _ZPLUG_STATUS_ERROR_PARSE=8
+    typeset -gx -i _ZPLUG_STATUS_ZPLUG_IS_LATEST=101
     typeset -gx -i _ZPLUG_STATUS_=255
 
     if (( $+ZPLUG_SHALLOW )); then

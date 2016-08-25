@@ -179,6 +179,10 @@ do
                     "$repo" \
                     $(( SECONDS - 1 ))
                 ;;
+            $_ZPLUG_STATUS_ZPLUG_IS_LATEST)
+                # DO NOTHING
+                ret=0
+                ;;
         esac
     } &
     __zplug::job::queue::enqueue "$!"
