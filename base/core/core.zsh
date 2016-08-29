@@ -246,7 +246,8 @@ __zplug::core::core::variable()
         fi
     }
 
+    zmodload zsh/terminfo
     typeset -gx -A em
-    em[under]="${(%):-"%U"}"
-    em[bold]="${(%):-"%B"}"
+    em[under]="$terminfo[smul]"
+    em[bold]="$terminfo[bold]"
 }
