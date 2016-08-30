@@ -29,10 +29,12 @@ __zplug::core::self::update()
     # If there is a difference in the remote and local
     # re-install zplug by itself and initialize
     if ! __zplug::core::self::info --up-to-date; then
-        # TODO:
-        __zplug::core::core::run_interfaces \
-            "update" \
-            "zplug/zplug"
+        # TODO: "DONE"
+        #__zplug::core::core::run_interfaces \
+        #    "update" \
+        #    "zplug/zplug"
+        #    ^-- Leave these codes just in case for a while
+        __zplug::sources::github::update "zplug/zplug"
         return $status
     fi
 
@@ -46,7 +48,8 @@ __zplug::core::self::update()
         "$_ZPLUG_VERSION" \
         "$em[under]$HEAD[1,8]$reset_color"
 
-    return 1
+    __zplug::io::log::info "zplug is up-to-date"
+    return $_ZPLUG_STATUS_ZPLUG_IS_LATEST
 }
 
 __zplug::core::self::load()
