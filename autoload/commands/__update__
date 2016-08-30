@@ -9,7 +9,7 @@ local -aU repos
 local -A  tags
 local -a  failed_packages
 local -A  checked_packages
-local -i  max=0
+local -i  max=0 ret=0
 local -F  SECONDS=0 start_time finish_time
 local     is_select=false is_force=false
 
@@ -20,7 +20,12 @@ do
         --self)
             __zplug::core::self::update \
                 ${2:+"$argv[2,-1]"}
-            return $status
+            ret=$status
+            # Returns true if zplug is already up-to-date
+            if (( $ret == $_ZPLUG_STATUS_ZPLUG_IS_LATEST )); then
+                ret=0
+            fi
+            return $ret
             ;;
         --select)
             is_select=true
