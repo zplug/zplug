@@ -9,14 +9,16 @@ __zplug::sources::oh-my-zsh::check()
         "$repo"
     )"
 
-    [[ -d $tags[dir]:h ]]
+    [[ -n $tags[dir] ]] && [[ -d $tags[dir] ]]
     return $status
 }
 
 __zplug::sources::oh-my-zsh::install()
 {
+    local repo="$1"
+
     # Already cloned
-    if [[ -d $_ZPLUG_OHMYZSH ]]; then
+    if __zplug::sources::oh-my-zsh::check "$repo"; then
         return 0
     fi
 

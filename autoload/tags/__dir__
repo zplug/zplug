@@ -29,7 +29,14 @@ __zplug::core::core::run_interfaces \
 
 case "$from" in
     "oh-my-zsh")
-        dir="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH/$arg"
+        case "${arg:h}" in
+            "plugins")
+                dir="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH/$arg"
+                ;;
+            "themes" | "lib")
+                dir="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH/${arg:h}"
+                ;;
+        esac
         ;;
     "local")
         dir="$arg"

@@ -102,17 +102,24 @@ __zplug::utils::git::checkout()
     # Try not to be affected by directory changes
     # by running in subshell
     (
-    __zplug::utils::shell::cd \
-        "$tags[dir]" \
-        "$tags[dir]:h"
-    if (( $status != 0 )); then
-        __zplug::io::print::f \
-            --die \
-            --zplug \
-            --error \
-            "no such directory '$tags[dir]' ($repo)\n"
-        return 1
+    if __zplug::core::sources::is_handler_defined "check" "$tags[from]"; then
+        # Cannot do `git checkout` if $tags[dir] doesn't exsit
+        if ! __zplug::core::sources::use_handler \
+            "check" \
+            "$tags[from]" \
+            "$repo"; \
+        then
+            __zplug::io::print::f \
+                --die \
+                --zplug \
+                --error \
+                "no such directory '$tags[dir]' ($repo)\n"
+            return 1
+        fi
     fi
+
+    # For doing `git checkout`
+    __zplug::utils::shell::cd "$tags[dir]"
 
     git checkout -q "$tags[at]" \
         2> >(__zplug::io::log::capture) >/dev/null
