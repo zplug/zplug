@@ -92,9 +92,10 @@ __zplug::sources::oh-my-zsh::load_plugin()
         #     "$ZSH/oh-my-zsh.sh"
         #     "${load_plugins[@]}"
         # )
-        if [[ $tags[name] =~ ^lib ]]; then
-            __zplug::utils::omz::theme
-        fi
+    fi
+
+    if [[ $tags[name] =~ ^themes ]]; then
+        __zplug::utils::omz::theme
     fi
 
     case $tags[name] in
@@ -102,19 +103,19 @@ __zplug::sources::oh-my-zsh::load_plugin()
             # TODO: use tag
             load_plugins=(
                 ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"}
-                "$tags[dir]"/*.plugin.zsh(N-.)
+                "$tags[dir]/${tags[name]}"/*.plugin.zsh(N-.)
             )
             ;;
         themes/*)
             # TODO: use tag
             load_plugins=(
                 ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"}
-                "$tags[dir]".${^themes_ext}(N-.)
+                "$tags[dir]/${tags[name]}."${^themes_ext}(N-.)
             )
             ;;
         lib/*)
             load_plugins=(
-                "$tags[dir]"${~tags[use]}
+                "$tags[dir]/${tags[name]}".zsh(N-.)
             )
             ;;
     esac
