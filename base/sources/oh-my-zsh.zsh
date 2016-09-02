@@ -100,14 +100,21 @@ __zplug::sources::oh-my-zsh::load_plugin()
 
     case $tags[name] in
         plugins/*)
-            # TODO: use tag
             load_plugins=(
                 ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"}
-                "$tags[dir]/${tags[name]}"/*.plugin.zsh(N-.)
             )
+            # No USE tag specified
+            if [[ $tags[use] == '*.zsh' ]]; then
+                load_plugins+=(
+                    "$tags[dir]/${tags[name]}/"*.plugin.zsh(N-.)
+                )
+            else
+                load_plugins+=(
+                    "$tags[dir]/${tags[name]}/"${~tags[use]}(N-.)
+                )
+            fi
             ;;
         themes/*)
-            # TODO: use tag
             load_plugins=(
                 ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"}
                 "$tags[dir]/${tags[name]}."${^themes_ext}(N-.)
