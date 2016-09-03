@@ -102,24 +102,19 @@ __zplug::utils::git::checkout()
     # Try not to be affected by directory changes
     # by running in subshell
     (
-    if __zplug::core::sources::is_handler_defined "check" "$tags[from]"; then
-        # Cannot do `git checkout` if $tags[dir] doesn't exsit
-        if ! __zplug::core::sources::use_handler \
-            "check" \
-            "$tags[from]" \
-            "$repo"; \
-        then
-            __zplug::io::print::f \
-                --die \
-                --zplug \
-                --error \
-                "no such directory '$tags[dir]' ($repo)\n"
-            return 1
-        fi
+    # For doing `git checkout`
+    if ! __zplug::utils::shell::cd "$tags[dir]"; then
+        __zplug::io::print::f \
+            --die \
+            --zplug \
+            --error \
+            "no such directory '$tags[dir]' ($repo)\n"
+        return 1
     fi
 
-    # For doing `git checkout`
-    __zplug::utils::shell::cd "$tags[dir]"
+    if ! __zplug::utils::git::have_cloned; then
+        return 0
+    fi
 
     git checkout -q "$tags[at]" \
         2> >(__zplug::io::log::capture) >/dev/null
@@ -131,6 +126,12 @@ __zplug::utils::git::checkout()
             "pathspec '$tags[at]' (at tag) did not match ($repo)\n"
     fi
     )
+}
+
+__zplug::utils::git::have_cloned()
+{
+    git rev-parse --is-inside-work-tree &>/dev/null &&
+        [[ "$(git rev-parse HEAD 2>/dev/null)" != "HEAD" ]]
 }
 
 # TODO:
