@@ -33,6 +33,10 @@ release: ## Create new GitHub Releases
 		}' \
 		"https://api.github.com/repos/zplug/zplug/releases?access_token=$(ACCESS_TOKEN)"
 
+patch:
+	git tag -a $$_ZPLUG_VERSION -m $$_ZPLUG_VERSION
+	git push origin $$_ZPLUG_VERSION
+
 help: ## Self-documented Makefile
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 		| sort \
