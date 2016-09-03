@@ -7,12 +7,6 @@ local -a parsed_zplugs
 local    dir
 local    default="$ZPLUG_REPOS/$arg"
 
-if [[ -n $arg ]] && ! __zplug::base::base::zpluged "$arg"; then
-    __zplug::io::log::error \
-        "$arg: no package managed by zplug"
-    return 1
-fi
-
 package="${arg}, ${zplugs[$arg]%, }"
 parsed_zplugs=(${(s/, /)package/,  */, })
 

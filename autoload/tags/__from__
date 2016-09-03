@@ -8,12 +8,6 @@ local    from
 local    default="github"
 local -a candidates
 
-if [[ -n $arg ]] && ! __zplug::base::base::zpluged "$arg"; then
-    __zplug::io::log::error \
-        "$arg: no package managed by zplug"
-    return 1
-fi
-
 candidates=(
 "$default"
 "bitbucket"
