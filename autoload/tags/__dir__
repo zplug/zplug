@@ -25,6 +25,9 @@ case "$from" in
     "oh-my-zsh")
         dir="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
         ;;
+    "prezto")
+        dir="$ZPLUG_REPOS/$_ZPLUG_PREZTO"
+        ;;
     "local")
         dir="$arg"
         ;;

@@ -15,6 +15,7 @@ candidates=(
 "gist"
 "local"
 "oh-my-zsh"
+"prezto"
 )
 
 package="${arg}, ${zplugs[$arg]%, }"
