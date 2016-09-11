@@ -127,7 +127,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
             ;;
     esac
     load_fpaths+=(
-        ${tags[dir]}/{_*,**/_*}(N-.:h)
+        ${tags[dir]}/${tags[name]}/{_*,**/_*}(N-.:h)
     )
 
     reply=()
