@@ -42,7 +42,7 @@ __zplug::sources::oh-my-zsh::update()
     __zplug::core::core::run_interfaces \
         'dir' \
         "$repo"
-    ):F[2]h}"
+    )}"
     tags[at]="$(
     __zplug::core::core::run_interfaces \
         'at' \
