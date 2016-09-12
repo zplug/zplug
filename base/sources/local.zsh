@@ -37,7 +37,7 @@ __zplug::sources::local::load_plugin()
 {
     local    repo="$1"
     local -A tags
-    local -a load_plugins
+    local -a unclassified_plugins
     local -a load_fpaths
     local    expanded_path
     local -a expanded_paths
@@ -59,14 +59,22 @@ __zplug::sources::local::load_plugin()
     for expanded_path in "${expanded_paths[@]}"
     do
         if [[ -f $expanded_path ]]; then
-            load_plugins+=( "$expanded_path" )
+            unclassified_plugins+=( "$expanded_path" )
+
+            # Add parent directory to fpath
+            if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
+                load_fpaths+=( $expanded_path(N-.:h) )
+            fi
         elif [[ -d $expanded_path ]]; then
-            if [[ -n $tags[use] ]]; then
-                load_plugins+=( $(
+            if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
+                load_fpaths+=( $expanded_path(N-/) )
+            else
+                # Note: $tags[use] defaults to '*.zsh'
+                unclassified_plugins+=( $(
                 zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $expanded_path/$tags[use]" \
                     2> >(__zplug::io::log::capture)
                 ) )
-            else
+
                 load_fpaths+=(
                     "$expanded_path"/{_*,**/_*}(N-.:h)
                 )
@@ -74,7 +82,7 @@ __zplug::sources::local::load_plugin()
         fi
     done
 
-    if (( $#load_plugins == 0 )); then
+    if (( $#unclassified_plugins == 0 )) && (( $#load_fpaths == 0 )); then
         __zplug::io::log::warn \
             "no matching file or directory in $tags[dir]"
         return 1
@@ -82,7 +90,7 @@ __zplug::sources::local::load_plugin()
 
     reply=()
     [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
-    [[ -n $load_plugins ]] && reply+=( load_plugins "${(F)load_plugins}" )
+    [[ -n $unclassified_plugins ]] && reply+=( unclassified_plugins "${(F)unclassified_plugins}" )
 
     return 0
 }
