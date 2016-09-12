@@ -37,7 +37,7 @@ __zplug::job::spinner::spin()
         do
             __zplug::job::spinner::is_spin || break
 
-            printf " $spinner\r" >/dev/stderr
+            printf " $spinner\r" >&2
             sleep "$latency"
         done
     done
