@@ -100,7 +100,7 @@ __zplug::sources::github::load_plugin()
     local -A tags default_tags
     local -a plugins_ext themes_ext
     local -a unclassified_plugins
-    local    ext default_use
+    local    ext
 
     if (( $# < 1 )); then
         __zplug::io::log::error \
@@ -114,12 +114,21 @@ __zplug::sources::github::load_plugin()
 
     # If that is an autoload plugin
     if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
-        if [[ -n $tags[use] ]]; then
-            unclassified_plugins+=( "$tags[dir]"/$tags[use](N.) )
-            load_fpaths+=( "$tags[dir]"/$tags[use]:h(N/) )
+        if [[ $tags[use] != '*.zsh' ]]; then
+            unclassified_plugins+=( $(
+            zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $tags[dir]/$tags[use](N.)" \
+                2> >(__zplug::io::log::capture)
+            ) )
+            load_fpaths+=( $unclassified_plugins:h(N/) )
         else
-            unclassified_plugins+=( "$tags[dir]/autoload"/*(N.) )
-            load_fpaths+=( "$tags[dir]/autoload"(N/) )
+            unclassified_plugins+=( \
+                "$tags[dir]/autoload"/*(N.) \
+                "$tags[dir]/functions"/*(N.) \
+            )
+            load_fpaths+=( \
+                "$tags[dir]/autoload"(N/) \
+                "$tags[dir]/functions"(N/) \
+            )
         fi
     else
     # Default load behavior for plugins
