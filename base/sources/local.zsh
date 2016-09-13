@@ -41,6 +41,7 @@ __zplug::sources::local::load_plugin()
     local -a load_fpaths
     local    expanded_path
     local -a expanded_paths
+    local    lazy_pattern
 
     if (( $# < 1 )); then
         __zplug::io::log::error \
@@ -51,8 +52,15 @@ __zplug::sources::local::load_plugin()
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
 
+    # Assume unspecified USE tag is '' rather than '*.zsh'
+    if [[ $tags[use] == '*.zsh' ]]; then
+        lazy_pattern=''
+    else
+        lazy_pattern="$tags[use]"
+    fi
+
     expanded_paths=( $(
-    zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${tags[dir]}" \
+    zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${tags[dir]}${lazy_pattern:+/$lazy_pattern}" \
         2> >(__zplug::io::log::capture)
     ) )
 
