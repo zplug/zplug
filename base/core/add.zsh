@@ -28,7 +28,8 @@ __zplug::core::add::to_zplugs()
 
     # Automatically add "as:itself" to tag array
     # if $name is zplug repository
-    if [[ $name == "zplug/zplug" ]]; then
+    # $name can be "zplug/zplug" or "zplug/zplug,"
+    if [[ ${name%,} == "zplug/zplug" ]]; then
         re_tags+=( "as:itself" )
     fi
 
