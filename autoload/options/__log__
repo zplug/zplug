@@ -51,7 +51,7 @@ do
         latest)
             cat "$ZPLUG_ERROR_LOG" \
                 | tail -n ${${2:+"$argv[2,-1]"}:-1} \
-                | ${=${commands[jq]:+"jq ."}:-"cat -"}
+                | ${=${${commands[jq]:+"jq ."}:-"cat -"}}
             return $status
             ;;
         *)

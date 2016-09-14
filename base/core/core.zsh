@@ -83,9 +83,8 @@ __zplug::core::core::run_interfaces()
     ${=interface} "$argv[@]"
     ret=$status
 
-    # TODO:
-    unfunction "$interface" \
-        2> >(__zplug::io::log::capture) >/dev/null
+    # It may be discarded
+    unfunction "$interface" &>/dev/null
 
     return $ret
 }
