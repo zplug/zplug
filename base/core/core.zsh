@@ -41,14 +41,17 @@ __zplug::core::core::get_interfaces()
             if $is_prefix; then
                 name="__${name}__"
             fi
-            cat "$interface" \
-                | awk '
-                $0 ~ "# Description:" {
-                    getline
-                    sub(/^# */, "")
-                    print $0
-                }' \
-                | read desc
+
+            desc=""
+            while IFS= read -r line
+            do
+                if [[ "$line" =~ "# Description:" ]]; then
+                    IFS= read -r desc
+                    regexp-replace desc "^# *" ""
+                    break
+                fi
+            done < "$interface"
+
             interfaces[$name]="$desc"
         done
 
