@@ -225,7 +225,7 @@ zplug 自身を管理するなら以下を実行する (zplug のインストー
 $ zplug update --self
 ```
 
-`--self` オプションを利用すると zplug が `$ZPLUG_HOME/repos` にインストールされて `$ZPLUG_HOME/zplug` にリンクされる。
+`--self` オプションを利用すると zplug が `$ZPLUG_HOME/repos` にインストールされ、zplugは自身により管理される。
 
 zplug を他のパッケージと同様に管理するには `.zshrc` に以下を書き込む。
 
