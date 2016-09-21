@@ -12,6 +12,7 @@ local    ignore
 local -A load_commands
 local -a unsorted_repos
 
+local -aU unclassified_plugins
 local -aU load_plugins load_fpaths lazy_plugins nice_plugins
 local -aU ignore_patterns
 
@@ -140,6 +141,9 @@ do
                     "$repo"
                 reply_hash=( "$reply[@]" )
 
+                # Temporary array until files get sorted into
+                # {load,lazy,nice}_plugins
+                unclassified_plugins=( ${(@f)reply_hash[unclassified_plugins]} )
                 # Plugins
                 load_plugins+=( ${(@f)reply_hash[load_plugins]} )
                 lazy_plugins+=( ${(@f)reply_hash[lazy_plugins]} )
@@ -164,6 +168,20 @@ do
             return 1
             ;;
     esac
+
+    # unclassified_plugins -> {nice_plugins,lazy_plugins,load_plugins}
+    if [[ $tags[nice] -gt 9 ]]; then
+        # the order of loading of plugin files
+        nice_plugins+=( "${unclassified_plugins[@]}" )
+    else
+        # autoload plugin / regular plugin
+        if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
+            lazy_plugins+=( "${unclassified_plugins[@]}" )
+        else
+            load_plugins+=( "${unclassified_plugins[@]}" )
+        fi
+    fi
+    unclassified_plugins=()
 
     if [[ -n $tags[ignore] ]]; then
         ignore_patterns=( $(

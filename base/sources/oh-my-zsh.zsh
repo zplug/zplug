@@ -66,7 +66,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
     local    repo="$1"
     local -A tags
     local -a load_fpaths
-    local -a load_plugins
+    local -a unclassified_plugins
     local -a themes_ext
 
     if (( $# < 1 )); then
@@ -79,7 +79,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
     tags=( "${reply[@]}" )
 
     load_fpaths=()
-    load_plugins=()
+    unclassified_plugins=()
     # Themes' extensions for Oh-My-Zsh
     themes_ext=("zsh-theme" "theme-zsh")
 
@@ -87,10 +87,10 @@ __zplug::sources::oh-my-zsh::load_plugin()
     if [[ -z $ZSH ]]; then
         export ZSH="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
         export ZSH_CACHE_DIR="$ZSH/cache/"
-        # Insert to the top of load_plugins
-        # load_plugins=(
+        # Insert to the top of unclassified_plugins
+        # unclassified_plugins=(
         #     "$ZSH/oh-my-zsh.sh"
-        #     "${load_plugins[@]}"
+        #     "${unclassified_plugins[@]}"
         # )
     fi
 
@@ -100,7 +100,8 @@ __zplug::sources::oh-my-zsh::load_plugin()
 
     case $tags[name] in
         plugins/*)
-            load_plugins=(
+            # TODO: use tag
+            unclassified_plugins=(
                 ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"}
             )
             # No USE tag specified
@@ -115,14 +116,15 @@ __zplug::sources::oh-my-zsh::load_plugin()
             fi
             ;;
         themes/*)
-            load_plugins=(
+            # TODO: use tag
+            unclassified_plugins=(
                 ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"}
                 "$tags[dir]/${tags[name]}."${^themes_ext}(N-.)
             )
             ;;
         lib/*)
-            load_plugins=(
-                "$tags[dir]/${tags[name]}".zsh(N-.)
+            unclassified_plugins=(
+                "$tags[dir]"${~tags[use]}
             )
             ;;
     esac
@@ -132,7 +134,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
 
     reply=()
     [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
-    [[ -n $load_plugins ]] && reply+=( load_plugins "${(F)load_plugins}" )
+    [[ -n $unclassified_plugins ]] && reply+=( unclassified_plugins "${(F)unclassified_plugins}" )
 
     return 0
 }

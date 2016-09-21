@@ -99,8 +99,8 @@ __zplug::sources::github::load_plugin()
     local    repo="$1"
     local -A tags default_tags
     local -a plugins_ext themes_ext
-    local -a load_patterns
-    local    ext default_use
+    local -a unclassified_plugins
+    local    ext
 
     if (( $# < 1 )); then
         __zplug::io::log::error \
@@ -114,12 +114,21 @@ __zplug::sources::github::load_plugin()
 
     # If that is an autoload plugin
     if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
-        if [[ -n $tags[use] ]]; then
-            load_patterns+=( "$tags[dir]"/$tags[use](N.) )
-            load_fpaths+=( "$tags[dir]"/$tags[use]:h(N/) )
+        if [[ $tags[use] != '*.zsh' ]]; then
+            unclassified_plugins+=( $(
+            zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $tags[dir]/$tags[use](N.)" \
+                2> >(__zplug::io::log::capture)
+            ) )
+            load_fpaths+=( $unclassified_plugins:h(N/) )
         else
-            load_patterns+=( "$tags[dir]/autoload"/*(N.) )
-            load_fpaths+=( "$tags[dir]/autoload"(N/) )
+            unclassified_plugins+=( \
+                "$tags[dir]/autoload"/*(N.) \
+                "$tags[dir]/functions"/*(N.) \
+            )
+            load_fpaths+=( \
+                "$tags[dir]/autoload"(N/) \
+                "$tags[dir]/functions"(N/) \
+            )
         fi
     else
     # Default load behavior for plugins
@@ -137,17 +146,17 @@ __zplug::sources::github::load_plugin()
     do
         if [[ $tags[use] == $default_tags[use] ]]; then
             # NOTE: step 1
-            load_patterns+=( "$tags[dir]"/*.$ext(N-.) )
+            unclassified_plugins+=( "$tags[dir]"/*.$ext(N-.) )
         fi
 
-        if (( $#load_patterns == 0 )); then
+        if (( $#unclassified_plugins == 0 )); then
             # NOTE: step 2
             # If $tags[use] is a regular file,
             # expect to expand to $tags[dir]/*.zsh
-            load_patterns+=( "$tags[dir]"/${~tags[use]}(N.) )
-            if (( $#load_patterns == 0 )); then
+            unclassified_plugins+=( "$tags[dir]"/${~tags[use]}(N.) )
+            if (( $#unclassified_plugins == 0 )); then
                 # For brace
-                load_patterns+=( $(
+                unclassified_plugins+=( $(
                 zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $tags[dir]/$tags[use](N.)" \
                     2> >(__zplug::io::log::capture)
                 ) )
@@ -158,11 +167,11 @@ __zplug::sources::github::load_plugin()
             # NOTE: step 3
             # If $tags[use] is a directory,
             # expect to expand to $tags[dir]/*.zsh
-            if (( $#load_patterns == 0 )); then
-                load_patterns+=( $tags[dir]/$tags[use]/$default_tags[use](N.) )
-                if (( $#load_patterns == 0 )); then
+            if (( $#unclassified_plugins == 0 )); then
+                unclassified_plugins+=( $tags[dir]/$tags[use]/$default_tags[use](N.) )
+                if (( $#unclassified_plugins == 0 )); then
                     # For brace
-                    load_patterns+=( $(
+                    unclassified_plugins+=( $(
                     zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $tags[dir]/$tags[use]/$default_tags[use](N.)" \
                         2> >(__zplug::io::log::capture)
                     ) )
@@ -174,23 +183,9 @@ __zplug::sources::github::load_plugin()
     done
     fi
 
-    if [[ $tags[nice] -gt 9 ]]; then
-        # the order of loading of plugin files
-        nice_plugins+=( "${load_patterns[@]}" )
-    else
-        # autoload plugin / regular plugin
-        if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
-            lazy_plugins+=( "${load_patterns[@]}" )
-        else
-            load_plugins+=( "${load_patterns[@]}" )
-        fi
-    fi
-
     reply=()
     [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
-    [[ -n $nice_plugins ]] && reply+=( nice_plugins "${(F)nice_plugins}" )
-    [[ -n $load_plugins ]] && reply+=( load_plugins "${(F)load_plugins}" )
-    [[ -n $lazy_plugins ]] && reply+=( lazy_plugins "${(F)lazy_plugins}" )
+    [[ -n $unclassified_plugins ]] && reply+=( unclassified_plugins "${(F)unclassified_plugins}" )
 }
 
 __zplug::sources::github::load_command()
