@@ -155,7 +155,7 @@ zplug "b4b4r07/emoji-cli", \
 # ノート: 読み込み順序を指定するなら nice タグを使いましょう
 
 # 読み込み順序を設定する
-# 例: "zsh-syntax-highlighting" は compinit の前に読み込まれる必要がる
+# 例: "zsh-syntax-highlighting" は compinit の前に読み込まれる必要がある
 # （10 以上は compinit 後に読み込まれるようになる）
 zplug "zsh-users/zsh-syntax-highlighting", nice:10
 
