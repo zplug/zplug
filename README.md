@@ -226,7 +226,7 @@ If you want to manage zplug by itself, run this command (after installing zplug,
 $ zplug update --self
 ```
 
-By using the `--self` option, zplug will be cloned to `$ZPLUG_HOME/repos` and create a symlink to `$ZPLUG_HOME/zplug`.
+By using the `--self` option, zplug will be cloned to `$ZPLUG_HOME/repos` so that zplug can be managed by itself.
 
 To manage zplug in the same way as any other packages, put the following in your `.zshrc`.
 
