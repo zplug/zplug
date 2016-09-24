@@ -106,11 +106,11 @@ __zplug::sources::oh-my-zsh::load_plugin()
             )
             # No USE tag specified
             if [[ $tags[use] == '*.zsh' ]]; then
-                load_plugins+=(
+                unclassified_plugins+=(
                     "$tags[dir]/${tags[name]}/"*.plugin.zsh(N-.)
                 )
             else
-                load_plugins+=(
+                unclassified_plugins+=(
                     "$tags[dir]/${tags[name]}/"${~tags[use]}(N-.)
                 )
             fi
