@@ -68,7 +68,7 @@ __zplug::sources::prezto::load_plugin()
     local    repo="$1"
     local -A tags
     local -a load_fpaths
-    local -a load_plugins
+    local -a unclassified_plugins
     local -a lazy_plugins
     local    module_name
 
@@ -82,7 +82,7 @@ __zplug::sources::prezto::load_plugin()
     tags=( "${reply[@]}" )
 
     load_fpaths=()
-    load_plugins=()
+    unclassified_plugins=()
     lazy_plugins=()
 
     module_name="${tags[name]#*/}"
@@ -100,13 +100,13 @@ __zplug::sources::prezto::load_plugin()
 
     for dependency in ${(@f)"$( __zplug::utils::prezto::depends "$module_name" )"}
     do
-        load_plugins+=( "$tags[dir]/modules/$dependency/"init.zsh(N-.) )
+        unclassified_plugins+=( "$tags[dir]/modules/$dependency/"init.zsh(N-.) )
     done
 
     if [[ $tags[use] != '*.zsh' ]]; then
-        load_plugins+=( "$tags[dir]/"${~tags[use]}(N-.) )
+        unclassified_plugins+=( "$tags[dir]/"${~tags[use]}(N-.) )
     elif [[ -f $tags[dir]/$tags[name]/init.zsh ]]; then
-        load_plugins+=( "$tags[dir]/$tags[name]/"init.zsh(N-.) )
+        unclassified_plugins+=( "$tags[dir]/$tags[name]/"init.zsh(N-.) )
     fi
 
     # Add functions directory to FPATH if it exists
@@ -132,7 +132,7 @@ __zplug::sources::prezto::load_plugin()
 
     reply=()
     [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
-    [[ -n $load_plugins ]] && reply+=( load_plugins "${(F)load_plugins}" )
+    [[ -n $unclassified_plugins ]] && reply+=( unclassified_plugins "${(F)unclassified_plugins}" )
     [[ -n $lazy_plugins ]] && reply+=( lazy_plugins "${(F)lazy_plugins}" )
 
     return 0
