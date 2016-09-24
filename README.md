@@ -226,7 +226,7 @@ If you want to manage zplug by itself, run this command (after installing zplug,
 $ zplug update --self
 ```
 
-By using the `--self` option, zplug will be cloned to `$ZPLUG_HOME/repos` and create a symlink to `$ZPLUG_HOME/zplug`.
+By using the `--self` option, zplug will be cloned to `$ZPLUG_HOME/repos` so that zplug can be managed by itself.
 
 To manage zplug in the same way as any other packages, put the following in your `.zshrc`.
 
@@ -394,7 +394,7 @@ page](https://github.com/zplug/zplug/wiki/Migration).
 [license]: http://b4b4r07.mit-license.org
 [travis-link]: https://travis-ci.org/zplug/zplug
 [travis-badge]: https://img.shields.io/travis/zplug/zplug.svg?style=flat-square
-[latest-badge]: https://img.shields.io/badge/latest-v2.2.1-ca7f85.svg?style=flat-square
+[latest-badge]: https://img.shields.io/badge/latest-v2.2.3-ca7f85.svg?style=flat-square
 [latest-link]: https://github.com/zplug/zplug/releases/latest
 [stable-badge]: https://img.shields.io/badge/stable-v2.1.0-e9a326.svg?style=flat-square
 [stable-link]: https://github.com/zplug/zplug/releases/tag/2.1.0

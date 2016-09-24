@@ -107,7 +107,7 @@ __zplug::io::cache::update()
             __zplug::io::print::put ')\n'
         fi
         __zplug::io::print::put '\n# path\n'
-        __zplug::io::print::put 'typeset -U path\n\n'
+        __zplug::io::print::put 'typeset -gx -U path\n\n'
         __zplug::io::print::put '\ncompinit -C -d %s\n\n' "$ZPLUG_HOME/zcompdump"
         if (( $#nice_plugins > 0 )); then
             __zplug::io::print::put '# Loading after compinit\n'

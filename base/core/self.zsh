@@ -16,6 +16,7 @@ __zplug::core::self::init()
 
 __zplug::core::self::update()
 {
+    local ret=0
     local HEAD
 
     if ! __zplug::base::base::zpluged "zplug/zplug"; then
@@ -35,7 +36,11 @@ __zplug::core::self::update()
         #    "zplug/zplug"
         #    ^-- Leave these codes just in case for a while
         __zplug::sources::github::update "zplug/zplug"
-        return $status
+        ret=$status
+        if (( $ret == $_ZPLUG_STATUS_REPO_UP_TO_DATE )); then
+            ret=$_ZPLUG_STATUS_ZPLUG_IS_LATEST
+        fi
+        return $ret
     fi
 
     __zplug::core::self::info --HEAD \

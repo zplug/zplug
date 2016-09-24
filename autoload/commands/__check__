@@ -4,8 +4,9 @@
 
 local     is_verbose=false
 local     arg repo
-local -aU repos not_installed_repos
+local -aU repos not_installed_repos not_found_repos
 local -A  tags
+local -i  ret=0
 
 while (( $# > 0 ))
 do
@@ -70,10 +71,25 @@ do
             "$repo"
 
         if (( $status != 0 )); then
-            not_installed_repos+=( "$repo" )
+            if [[ $tags[from] == 'local' ]]; then
+                # FIXME: use $_ZPLUG_STATUS_*
+                not_found_repos+=( "$repo" )
+            else
+                not_installed_repos+=( "$repo" )
+            fi
         fi
     fi
 done
+
+if (( $#not_found_repos > 0 )); then
+    if $is_verbose; then
+        __zplug::io::print::put \
+            "- $fg[red]%s$reset_color: no such directory\n" \
+            "${not_found_repos[@]}"
+    fi
+
+    ret=0
+fi
 
 if (( $#not_installed_repos > 0 )); then
     # Share not installed repos information
@@ -86,7 +102,7 @@ if (( $#not_installed_repos > 0 )); then
             "${not_installed_repos[@]}"
     fi
 
-    return 1
+    ret=1
 fi
 
-return 0
+return $ret

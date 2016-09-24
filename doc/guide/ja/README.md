@@ -155,7 +155,7 @@ zplug "b4b4r07/emoji-cli", \
 # ノート: 読み込み順序を指定するなら nice タグを使いましょう
 
 # 読み込み順序を設定する
-# 例: "zsh-syntax-highlighting" は compinit の前に読み込まれる必要がる
+# 例: "zsh-syntax-highlighting" は compinit の前に読み込まれる必要がある
 # （10 以上は compinit 後に読み込まれるようになる）
 zplug "zsh-users/zsh-syntax-highlighting", nice:10
 
@@ -225,7 +225,7 @@ zplug 自身を管理するなら以下を実行する (zplug のインストー
 $ zplug update --self
 ```
 
-`--self` オプションを利用すると zplug が `$ZPLUG_HOME/repos` にインストールされて `$ZPLUG_HOME/zplug` にリンクされる。
+`--self` オプションを利用すると zplug が `$ZPLUG_HOME/repos` にインストールされ、zplugは自身により管理される。
 
 zplug を他のパッケージと同様に管理するには `.zshrc` に以下を書き込む。
 
@@ -389,7 +389,7 @@ antigen や zgen、もしくは zplug v1 から移行するための情報は [z
 [license]: http://b4b4r07.mit-license.org
 [travis-link]: https://travis-ci.org/zplug/zplug
 [travis-badge]: https://img.shields.io/travis/zplug/zplug.svg?style=flat-square
-[latest-badge]: https://img.shields.io/badge/latest-v2.2.0-ca7f85.svg?style=flat-square
+[latest-badge]: https://img.shields.io/badge/latest-v2.2.3-ca7f85.svg?style=flat-square
 [latest-link]: https://github.com/zplug/zplug/releases/latest
 [stable-badge]: https://img.shields.io/badge/stable-v2.1.0-e9a326.svg?style=flat-square
 [stable-link]: https://github.com/zplug/zplug/releases/tag/2.1.0

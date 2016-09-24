@@ -41,14 +41,17 @@ __zplug::core::core::get_interfaces()
             if $is_prefix; then
                 name="__${name}__"
             fi
-            cat "$interface" \
-                | awk '
-                $0 ~ "# Description:" {
-                    getline
-                    sub(/^# */, "")
-                    print $0
-                }' \
-                | read desc
+
+            desc=""
+            while IFS= read -r line
+            do
+                if [[ "$line" =~ "# Description:" ]]; then
+                    IFS= read -r desc
+                    regexp-replace desc "^# *" ""
+                    break
+                fi
+            done < "$interface"
+
             interfaces[$name]="$desc"
         done
 
@@ -83,9 +86,8 @@ __zplug::core::core::run_interfaces()
     ${=interface} "$argv[@]"
     ret=$status
 
-    # TODO:
-    unfunction "$interface" \
-        2> >(__zplug::io::log::capture) >/dev/null
+    # It may be discarded
+    unfunction "$interface" &>/dev/null
 
     return $ret
 }
@@ -174,7 +176,7 @@ __zplug::core::core::variable()
     typeset -gx    ZPLUG_SUDO_PASSWORD
     typeset -gx    ZPLUG_ERROR_LOG=${ZPLUG_ERROR_LOG:-$ZPLUG_HOME/.error_log}
 
-    typeset -gx    _ZPLUG_VERSION="2.2.1"
+    typeset -gx    _ZPLUG_VERSION="2.2.3"
     typeset -gx    _ZPLUG_URL="https://github.com/zplug/zplug"
     typeset -gx    _ZPLUG_OHMYZSH="robbyrussell/oh-my-zsh"
     typeset -gx    _ZPLUG_PREZTO="sorin-ionescu/prezto"
