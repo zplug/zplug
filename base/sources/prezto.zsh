@@ -69,6 +69,7 @@ __zplug::sources::prezto::load_plugin()
     local -A tags
     local -a load_fpaths
     local -a load_plugins
+    local -a lazy_plugins
     local    module_name
 
     if (( $# < 1 )); then
@@ -82,6 +83,7 @@ __zplug::sources::prezto::load_plugin()
 
     load_fpaths=()
     load_plugins=()
+    lazy_plugins=()
 
     module_name="${tags[name]#*/}"
 
@@ -117,10 +119,7 @@ __zplug::sources::prezto::load_plugin()
             setopt local_options extended_glob
 
             local pfunction_glob='^([_.]*|prompt_*_setup|README*)(-.N:t)'
-            for func in "$tags[dir]/$tags[name]/functions/"$~pfunction_glob
-            do
-                autoload -Uz "$func"
-            done
+            lazy_plugins=( "$tags[dir]/$tags[name]/functions/"$~pfunction_glob )
         }
     fi
 
@@ -134,6 +133,7 @@ __zplug::sources::prezto::load_plugin()
     reply=()
     [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
     [[ -n $load_plugins ]] && reply+=( load_plugins "${(F)load_plugins}" )
+    [[ -n $lazy_plugins ]] && reply+=( lazy_plugins "${(F)lazy_plugins}" )
 
     return 0
 }
