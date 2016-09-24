@@ -85,14 +85,21 @@ __zplug::sources::prezto::load_plugin()
 
     module_name="${tags[name]#*/}"
 
-    if (( ! $+functions[pmodload] )); then
-        source "$ZPLUG_REPOS/$_ZPLUG_PREZTO/init.zsh"
-    fi
-
     if [[ ! -d $tags[dir] ]]; then
         zstyle ":prezto:module:$module_name" loaded "no"
         return 1
     fi
+
+    if (( ! $+functions[pmodload] )) {
+        pmodload() {
+            # Do nothing
+        }
+    }
+
+    for dependency in ${(@f)"$( __zplug::utils::prezto::depends "$module_name" )"}
+    do
+        load_plugins+=( "$tags[dir]/modules/$dependency/"init.zsh(N-.) )
+    done
 
     if [[ $tags[use] != '*.zsh' ]]; then
         load_plugins+=( "$tags[dir]/"${~tags[use]}(N-.) )
