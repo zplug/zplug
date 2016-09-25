@@ -70,6 +70,7 @@ __zplug::sources::prezto::load_plugin()
     local -a load_fpaths
     local -a unclassified_plugins
     local -a lazy_plugins
+    local -a nice_plugins
     local    module_name
 
     if (( $# < 1 )); then
@@ -84,6 +85,7 @@ __zplug::sources::prezto::load_plugin()
     load_fpaths=()
     unclassified_plugins=()
     lazy_plugins=()
+    nice_plugins=()
 
     module_name="${tags[name]#*/}"
 
@@ -107,6 +109,13 @@ __zplug::sources::prezto::load_plugin()
         unclassified_plugins+=( "$tags[dir]/"${~tags[use]}(N-.) )
     elif [[ -f $tags[dir]/$tags[name]/init.zsh ]]; then
         unclassified_plugins+=( "$tags[dir]/$tags[name]/"init.zsh(N-.) )
+    fi
+
+    # modules/prompt's init.zsh must be sourced AFTER fpath is added (i.e.
+    # after compinit in __load__)
+    if [[ $tags[name] == modules/prompt ]]; then
+        nice_plugins=( $unclassified_plugins[@] )
+        unclassified_plugins=()
     fi
 
     # Add functions directory to FPATH if it exists
@@ -133,6 +142,7 @@ __zplug::sources::prezto::load_plugin()
     reply=()
     [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
     [[ -n $unclassified_plugins ]] && reply+=( unclassified_plugins "${(F)unclassified_plugins}" )
+    [[ -n $nice_plugins ]] && reply+=( nice_plugins "${(F)nice_plugins}" )
     [[ -n $lazy_plugins ]] && reply+=( lazy_plugins "${(F)lazy_plugins}" )
 
     return 0
