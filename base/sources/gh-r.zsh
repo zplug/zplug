@@ -70,7 +70,7 @@ __zplug::sources::gh-r::update()
                     # up-to-date
                     return $_ZPLUG_STATUS_REPO_UP_TO_DATE
                 else
-                    __zplug::sources::gh-r::clone "$repo"
+                    __zplug::sources::gh-r::install "$repo"
                     return $status
                 fi
             else
