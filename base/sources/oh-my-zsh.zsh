@@ -124,7 +124,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
             ;;
         lib/*)
             unclassified_plugins=(
-                "$tags[dir]"${~tags[use]}
+                "$tags[dir]/"${~tags[use]}
             )
             ;;
     esac
