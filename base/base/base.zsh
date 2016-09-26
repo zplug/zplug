@@ -115,10 +115,7 @@ __zplug::base::base::packaging()
 {
     local k
 
-    for k in "${(k)zplugs[@]}"
-    do
-        echo "$k"
-    done \
+    print -l ${(k)zplugs[@]} \
         | awk \
         -f "$_ZPLUG_AWKPATH/packaging.awk" \
         -v pkg="${1:?}"
