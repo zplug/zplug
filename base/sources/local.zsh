@@ -15,10 +15,9 @@ __zplug::sources::local::check()
     tags=( "${reply[@]}" )
 
     # Note: $tags[dir] can be a dir name or a file name
-    expanded_paths=( $(
-    zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${tags[dir]}" \
-        2> >(__zplug::io::log::capture)
-    ) )
+    expanded_paths=( ${(@f)"$( \
+        __zplug::utils::shell::expand_glob "$tags[dir]"
+    )"} )
 
     # Okay if at least one expanded path exists
     for expanded_path in ${expanded_paths[@]}
@@ -59,10 +58,9 @@ __zplug::sources::local::load_plugin()
         lazy_pattern="$tags[use]"
     fi
 
-    expanded_paths=( $(
-    zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${tags[dir]}${lazy_pattern:+/$lazy_pattern}" \
-        2> >(__zplug::io::log::capture)
-    ) )
+    expanded_paths=( ${(@f)"$( \
+        __zplug::utils::shell::expand_glob "${tags[dir]}${lazy_pattern:+/$lazy_pattern}"
+    )"} )
 
     for expanded_path in "${expanded_paths[@]}"
     do
@@ -78,10 +76,9 @@ __zplug::sources::local::load_plugin()
                 load_fpaths+=( $expanded_path(N-/) )
             else
                 # Note: $tags[use] defaults to '*.zsh'
-                unclassified_plugins+=( $(
-                zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $expanded_path/$tags[use]" \
-                    2> >(__zplug::io::log::capture)
-                ) )
+                unclassified_plugins+=( ${(@f)"$(
+                    __zplug::utils::shell::expand_glob "$expanded_path/$tags[use]"
+                )"} )
 
                 load_fpaths+=(
                     "$expanded_path"/{_*,**/_*}(N-.:h)
@@ -122,10 +119,9 @@ __zplug::sources::local::load_command()
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
 
-    expanded_paths=( $(
-    zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $tags[dir]" \
-        2> >(__zplug::io::log::capture)
-    ) )
+    expanded_paths=( ${(@f)"$( \
+        __zplug::utils::shell::expand_glob "$tags[dir]"
+    )"} )
     dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
 
     for expanded_path in "${expanded_paths[@]}"
@@ -133,11 +129,10 @@ __zplug::sources::local::load_command()
         if [[ -f $expanded_path ]]; then
             load_commands+=( "$expanded_path" )
         elif [[ -d $expanded_path ]]; then
-            if [[ -n $tags[use] ]]; then
-                load_commands+=( $(
-                zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $expanded_path/$tags[use]" \
-                    2> >(__zplug::io::log::capture)
-                ) )
+            if [[ $tags[use] != '*.zsh' ]]; then
+                load_commands+=( ${(@f)"$(
+                    __zplug::utils::shell::expand_glob "$expanded_path/$tags[use]"
+                )"} )
             else
                 load_fpaths+=(
                     "$expanded_path"/{_*,**/_*}(N-.:h)

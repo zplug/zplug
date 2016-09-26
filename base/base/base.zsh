@@ -115,7 +115,7 @@ __zplug::base::base::packaging()
 {
     local k
 
-    print -l ${(k)zplugs[@]} \
+    print -l "${(k)zplugs[@]}" \
         | awk \
         -f "$_ZPLUG_AWKPATH/packaging.awk" \
         -v pkg="${1:?}"

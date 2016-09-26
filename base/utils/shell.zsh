@@ -175,3 +175,29 @@ __zplug::utils::shell::pipestatus()
     [[ ${_status//0 /} == 0 ]]
     return $status
 }
+
+__zplug::utils::shell::expand_glob()
+{
+    local    pattern="$1"
+    # Modifiers to use if $pattern does not include modifiers
+    local    default_modifiers="$2"
+    local -a matches
+
+    # Modifiers not specified (by user)
+    if [[ ! $pattern =~ '\([^)]*\)$' ]]; then
+        pattern+="$default_modifiers"
+    fi
+
+    # Try expanding ~ and *
+    matches=( ${~pattern} )
+
+    # Use subshell for brace expansion
+    if (( $#matches <= 1 )); then
+        matches=( $( \
+            zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $pattern" \
+            2> >(__zplug::io::log::capture) \
+        ) )
+    fi
+
+    print -l "${matches[@]}"
+}

@@ -115,10 +115,9 @@ __zplug::sources::github::load_plugin()
     # If that is an autoload plugin
     if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
         if [[ $tags[use] != '*.zsh' ]]; then
-            unclassified_plugins+=( $(
-            zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $tags[dir]/$tags[use](N.)" \
-                2> >(__zplug::io::log::capture)
-            ) )
+            unclassified_plugins+=( ${(@f)"$( \
+                __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use](N-.)"
+            )"} )
             load_fpaths+=( $unclassified_plugins:h(N/) )
         else
             unclassified_plugins+=( \
@@ -153,14 +152,9 @@ __zplug::sources::github::load_plugin()
             # NOTE: step 2
             # If $tags[use] is a regular file,
             # expect to expand to $tags[dir]/*.zsh
-            unclassified_plugins+=( "$tags[dir]"/${~tags[use]}(N.) )
-            if (( $#unclassified_plugins == 0 )); then
-                # For brace
-                unclassified_plugins+=( $(
-                zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $tags[dir]/$tags[use](N.)" \
-                    2> >(__zplug::io::log::capture)
-                ) )
-            fi
+            unclassified_plugins+=( ${(@f)"$( \
+                __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use](N-.)"
+            )"} )
             # Add the parent directory to fpath
             load_fpaths+=( $tags[dir]/_*(N.:h) )
 
@@ -168,14 +162,9 @@ __zplug::sources::github::load_plugin()
             # If $tags[use] is a directory,
             # expect to expand to $tags[dir]/*.zsh
             if (( $#unclassified_plugins == 0 )); then
-                unclassified_plugins+=( $tags[dir]/$tags[use]/$default_tags[use](N.) )
-                if (( $#unclassified_plugins == 0 )); then
-                    # For brace
-                    unclassified_plugins+=( $(
-                    zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $tags[dir]/$tags[use]/$default_tags[use](N.)" \
-                        2> >(__zplug::io::log::capture)
-                    ) )
-                fi
+                unclassified_plugins+=( ${(@f)"$( \
+                    __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]/$default_tags[use](N-.)"
+                )"} )
                 # Add the parent directory to fpath
                 load_fpaths+=( $tags[dir]/$tags[use]/_*(N.:h) )
             fi
@@ -204,54 +193,20 @@ __zplug::sources::github::load_command()
     dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
 
     # Add parent directories to fpath if any files starting in _* exist
-    load_fpaths+=(${tags[dir]}{_*,/**/_*}(N-.:h))
+    load_fpaths+=(${tags[dir]}/{_*,/**/_*}(N-.:h))
 
-    # Mock (example): "b4b4r07/sample"
-    # sample
-    # |-- bin
-    # |   |-- sample
-    # |   `-- mycmd1
-    # `-- mycmd2
-    #
-    # 1 directory, 2 files
-    #
-    if [[ -f $tags[dir]${tags[use]:+"/$tags[use]"} ]]; then
-        # case:
-        #   zplug "b4b4r07/sample", use:mycmd
-        load_commands+=(
-        # expand to "$ZPLUG_REPOS/b4b4r07/sample/mycmd"
-        "$tags[dir]${tags[use]:+"/$tags[use]"}\0$dst"
-        )
-    elif [[ -f $tags[dir]${tags[use]:+"/$tags[use]"}/$basename ]]; then
-        # case:
-        #   zplug "b4b4r07/sample", use:bin
-        load_commands+=(
-        # expand to "$ZPLUG_REPOS/b4b4r07/sample/bin/sample"
-        "$tags[dir]${tags[use]:+"/$tags[use]"}/$basename\0$dst"
-        )
-    elif [[ -f $tags[dir]/$basename ]]; then
-        # case:
-        #   zplug "b4b4r07/sample"
-        load_commands+=(
-        # expand to "$ZPLUG_REPOS/b4b4r07/sample/sample"
-        "$tags[dir]/$basename\0$dst"
-        )
-    else
-        # For brace
-        # case 1:
-        #   zplug "b4b4r07/sample", use:"bin/{mycmd1,sample}"
-        # case 2:
-        #   zplug "b4b4r07/sample", use:"bin/*"
-        sources=( $(
-        # expand to "$ZPLUG_REPOS/b4b4r07/sample/mycmd1"
-        #           "$ZPLUG_REPOS/b4b4r07/sample/sample"
-        zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${tags[dir]}/${tags[use]}" \
-            2> >(__zplug::io::log::capture)
-        ) )
-        for src in "${sources[@]}"
-        do
-            load_commands+=("$src\0$dst")
-        done
+    # If no USE is specified, link all executables in $tags[dir] to $dst
+    if [[ $tags[use] == '*.zsh' ]]; then
+        tags[use]="*(N-*)"
+    fi
+
+    sources=( ${(@f)"$( \
+        __zplug::utils::shell::expand_glob "$tags[dir]/${tags[use]}" "(N-)"
+    )"} )
+
+    # Try again assuming executable file name is the same as repo name
+    if (( $#sources == 0 )); then
+        sources=( $tags[dir]/$basename )
     fi
 
     # Append dst to each element so that load_commands becomes:
@@ -271,7 +226,10 @@ __zplug::sources::github::load_command()
     #
     # becomes an element where the key is "path/to/cmd" and the value is
     # "dst".
-    #load_commands=( ${^load_commands}"\0$dst" )
+    for src in "${sources[@]}"
+    do
+        load_commands+=("$src\0$dst")
+    done
 
     reply=()
     [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )

@@ -100,32 +100,32 @@ __zplug::sources::oh-my-zsh::load_plugin()
 
     case $tags[name] in
         plugins/*)
-            # TODO: use tag
             unclassified_plugins=(
                 ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"}
             )
             # No USE tag specified
             if [[ $tags[use] == '*.zsh' ]]; then
-                unclassified_plugins+=(
-                    "$tags[dir]/${tags[name]}/"*.plugin.zsh(N-.)
-                )
+                unclassified_plugins+=( ${(@f)"$( \
+                    __zplug::utils::shell::expand_glob "$tags[dir]/${tags[name]}/*.plugin.zsh" "(N-.)"
+                )"} )
             else
-                unclassified_plugins+=(
-                    "$tags[dir]/${tags[name]}/"${~tags[use]}(N-.)
-                )
+                unclassified_plugins+=( ${(@f)"$( \
+                    __zplug::utils::shell::expand_glob "$tags[dir]/${tags[name]}/${tags[use]}" "(N-.)"
+                )"} )
             fi
             ;;
         themes/*)
-            # TODO: use tag
             unclassified_plugins=(
                 ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"}
-                "$tags[dir]/${tags[name]}."${^themes_ext}(N-.)
+                ${(@f)"$( \
+                    __zplug::utils::shell::expand_glob "$tags[dir]/${tags[name]}.${^themes_ext}" "(N-.)"
+                )"}
             )
             ;;
         lib/*)
-            unclassified_plugins=(
-                "$tags[dir]/"${~tags[use]}
-            )
+            unclassified_plugins+=( ${(@f)"$( \
+                __zplug::utils::shell::expand_glob "$tags[dir]/${tags[name]}.zsh" "(N-.)"
+            )"} )
             ;;
     esac
     load_fpaths+=(
