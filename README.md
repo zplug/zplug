@@ -21,7 +21,7 @@
   - Externally managed plugins e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) plugins/themes
   - Binary artifacts on [GitHub Releases](https://help.github.com/articles/about-releases/)
   - Local plugins
-  - etc. (you can add your [own sources](https://github.com/zplug/zplug/blob/master/doc/zplug/External-Sources.md)!)
+  - etc. (you can add your [own sources](https://github.com/zplug/zplug/blob/master/doc/guide/External-Sources.md)!)
 - Super-fast parallel installation/update
 - Support for lazy-loading
 - Branch/tag/commit support
