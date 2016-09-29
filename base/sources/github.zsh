@@ -116,7 +116,7 @@ __zplug::sources::github::load_plugin()
     if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
         if [[ $tags[use] != '*.zsh' ]]; then
             unclassified_plugins+=( ${(@f)"$( \
-                __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use](N-.)"
+                __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
             )"} )
             load_fpaths+=( $unclassified_plugins:h(N/) )
         else
@@ -153,7 +153,7 @@ __zplug::sources::github::load_plugin()
             # If $tags[use] is a regular file,
             # expect to expand to $tags[dir]/*.zsh
             unclassified_plugins+=( ${(@f)"$( \
-                __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use](N-.)"
+                __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
             )"} )
             # Add the parent directory to fpath
             load_fpaths+=( $tags[dir]/_*(N.:h) )
@@ -163,7 +163,7 @@ __zplug::sources::github::load_plugin()
             # expect to expand to $tags[dir]/*.zsh
             if (( $#unclassified_plugins == 0 )); then
                 unclassified_plugins+=( ${(@f)"$( \
-                    __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]/$default_tags[use](N-.)"
+                    __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]/$default_tags[use]" "(N-.)"
                 )"} )
                 # Add the parent directory to fpath
                 load_fpaths+=( $tags[dir]/$tags[use]/_*(N.:h) )
