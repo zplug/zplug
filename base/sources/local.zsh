@@ -36,6 +36,7 @@ __zplug::sources::local::load_plugin()
 {
     local    repo="$1"
     local -A tags
+    local -A default_tags
     local -a unclassified_plugins
     local -a load_fpaths
     local    expanded_path
@@ -50,9 +51,10 @@ __zplug::sources::local::load_plugin()
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
+    default_tags[use]="$(__zplug::core::core::run_interfaces 'use')"
 
     # Assume unspecified USE tag is '' rather than '*.zsh'
-    if [[ $tags[use] == '*.zsh' ]]; then
+    if [[ $tags[use] == $default_tags[use] ]]; then
         lazy_pattern=''
     else
         lazy_pattern="$tags[use]"
@@ -104,6 +106,7 @@ __zplug::sources::local::load_command()
 {
     local    repo="$1"
     local -A tags
+    local -A default_tags
     local -a load_fpaths
     local -a load_commands
     local    expanded_path
@@ -118,6 +121,7 @@ __zplug::sources::local::load_command()
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
+    default_tags[use]="$(__zplug::core::core::run_interfaces 'use')"
 
     expanded_paths=( ${(@f)"$( \
         __zplug::utils::shell::expand_glob "$tags[dir]"
@@ -129,7 +133,7 @@ __zplug::sources::local::load_command()
         if [[ -f $expanded_path ]]; then
             load_commands+=( "$expanded_path" )
         elif [[ -d $expanded_path ]]; then
-            if [[ $tags[use] != '*.zsh' ]]; then
+            if [[ $tags[use] != $default_tags[use] ]]; then
                 load_commands+=( ${(@f)"$(
                     __zplug::utils::shell::expand_glob "$expanded_path/$tags[use]"
                 )"} )

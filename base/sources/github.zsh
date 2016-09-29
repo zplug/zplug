@@ -114,7 +114,7 @@ __zplug::sources::github::load_plugin()
 
     # If that is an autoload plugin
     if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
-        if [[ $tags[use] != '*.zsh' ]]; then
+        if [[ $tags[use] != $default_tags[use] ]]; then
             unclassified_plugins+=( ${(@f)"$( \
                 __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
             )"} )
@@ -181,12 +181,14 @@ __zplug::sources::github::load_command()
 {
     local    repo="$1"
     local -A tags
+    local -A default_tags
     local    dst basename
     local -a sources
     local -a load_fpaths load_commands
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
+    default_tags[use]="$(__zplug::core::core::run_interfaces 'use')"
 
     basename="${repo:t}"
     tags[dir]="${tags[dir]%/}"
@@ -196,7 +198,7 @@ __zplug::sources::github::load_command()
     load_fpaths+=(${tags[dir]}/{_*,/**/_*}(N-.:h))
 
     # If no USE is specified, link all executables in $tags[dir] to $dst
-    if [[ $tags[use] == '*.zsh' ]]; then
+    if [[ $tags[use] == $default_tags[use] ]]; then
         tags[use]="*(N-*)"
     fi
 

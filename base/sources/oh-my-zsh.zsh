@@ -65,6 +65,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
 {
     local    repo="$1"
     local -A tags
+    local -A default_tags
     local -a load_fpaths
     local -a unclassified_plugins
     local -a themes_ext
@@ -77,6 +78,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
+    default_tags[use]="$(__zplug::core::core::run_interfaces 'use')"
 
     load_fpaths=()
     unclassified_plugins=()
@@ -104,7 +106,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
                 ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"}
             )
             # No USE tag specified
-            if [[ $tags[use] == '*.zsh' ]]; then
+            if [[ $tags[use] == $default_tags[use] ]]; then
                 unclassified_plugins+=( ${(@f)"$( \
                     __zplug::utils::shell::expand_glob "$tags[dir]/${tags[name]}/*.plugin.zsh" "(N-.)"
                 )"} )
