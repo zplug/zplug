@@ -67,6 +67,7 @@ __zplug::sources::prezto::load_plugin()
 {
     local    repo="$1"
     local -A tags
+    local -A default_tags
     local -a load_fpaths
     local -a unclassified_plugins
     local -a lazy_plugins
@@ -81,6 +82,7 @@ __zplug::sources::prezto::load_plugin()
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
+    default_tags[use]="$(__zplug::core::core::run_interfaces 'use')"
 
     load_fpaths=()
     unclassified_plugins=()
@@ -105,7 +107,7 @@ __zplug::sources::prezto::load_plugin()
         unclassified_plugins+=( "$tags[dir]/modules/$dependency/"init.zsh(N-.) )
     done
 
-    if [[ $tags[use] != '*.zsh' ]]; then
+    if [[ $tags[use] != $default_tags[use] ]]; then
         unclassified_plugins+=( "$tags[dir]/"${~tags[use]}(N-.) )
     elif [[ -f $tags[dir]/$tags[name]/init.zsh ]]; then
         unclassified_plugins+=( "$tags[dir]/$tags[name]/"init.zsh(N-.) )
