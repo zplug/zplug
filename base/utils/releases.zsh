@@ -61,8 +61,9 @@ __zplug::utils::releases::get_url()
 {
     local    repo="$1" result
     local -A tags
+    local -A default_tags
     local    cmd url
-    local -i arch=386
+    local -i arch
     local -a candidates
 
     if (( $# < 1 )); then
@@ -72,6 +73,11 @@ __zplug::utils::releases::get_url()
     fi
 
     {
+        default_tags[use]="$(
+        __zplug::core::core::run_interfaces \
+            'use'
+        )"
+
         tags[use]="$(
         __zplug::core::core::run_interfaces \
             'use' \
@@ -106,9 +112,13 @@ __zplug::utils::releases::get_url()
         #fi
     }
 
+    if [[ $tags[use] == $default_tags[use] ]]; then
+        arch=""
     # Get machine information
-    if __zplug::utils::releases::is_64; then
+    elif __zplug::utils::releases::is_64; then
         arch="64"
+    else
+        arch="386"
     fi
 
     url="https://github.com/$repo/releases/$tags[at]"
