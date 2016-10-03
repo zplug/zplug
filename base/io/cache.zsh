@@ -77,6 +77,10 @@ __zplug::io::cache::update()
         if [[ -o prompt_subst ]]; then
             __zplug::io::print::put '\nsetopt prompt_subst\n'
         fi
+        if (( $+functions[pmodload] )); then
+            # zplug doesn't need pmodload
+            __zplug::io::print::put 'pmodload() { }'
+        fi
         __zplug::io::print::put '\n'
         if (( $#load_commands > 0 )); then
             __zplug::io::print::put '# Commands\n'
