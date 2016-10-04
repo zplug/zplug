@@ -29,8 +29,9 @@ It's such a fantabulous piece of software.
 **  Zsh plugins/UNIX commands on https://github.com[GitHub]
     and https://bitbucket.org[Bitbucket]
 **  Gist file (https://gist.github.com[gist.github.com])
-**  Third-party sources e.g., https://github.com/robbyrussell/oh-my-zsh[oh-my-zsh]
-    plugins/themes
+**  Third-party sources e.g.,
+ https://github.com/robbyrussell/oh-my-zsh[oh-my-zsh] and
+ https://github.com/sorin-ionescu/prezto[prezto] plugins/themes
 **  Birary artifacts on https://help.github.com/articles/about-releases[GitHub Releases]
 **  Local plugins
 **  etc. (you can add your own sources!)
@@ -124,7 +125,7 @@ and so on. If you want to use extended glob, see later section for setting the z
 
 |*from* | Specify the service from which you install
 | `github`,`bitbucket`,`gh-r`,`gist`,
-`oh-my-zsh`,`local` (`github`) | `from:gh-r`
+`oh-my-zsh`,`prezto`,`local` (`github`) | `from:gh-r`
 
 |*at* | Branch, tag, or commit to use | *revision* (`master`) | `at:v1.5.6`
 
@@ -314,6 +315,12 @@ zplug "junegunn/fzf-bin", \
 zplug "plugins/git",   from:oh-my-zsh, if:"(( $+commands[git] ))"
 zplug "themes/duellj", from:oh-my-zsh
 zplug "lib/clipboard", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
+
+# Also supports prezto plugins
+zplug "modules/osx", from:prezto, if:"[[ $OSTYPE == *darwin* ]]"
+zplug "modules/prompt", from:prezto
+# Set zstyle before zplug load
+zstyle ':prezto:module:prompt' theme 'sorin'
 
 # Run a command after a plugin is installed/updated
 zplug "tj/n", hook-build:"make install"

@@ -18,7 +18,7 @@
 - Can manage everything
   - Zsh plugins/UNIX commands on [GitHub](https://github.com) and [Bitbucket](https://bitbucket.org)
   - Gist files ([gist.github.com](https://gist.github.com))
-  - Externally managed plugins e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) plugins/themes
+  - Externally managed plugins e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) and [prezto](https://github.com/sorin-ionescu/prezto) plugins/themes
   - Binary artifacts on [GitHub Releases](https://help.github.com/articles/about-releases/)
   - Local plugins
   - etc. (you can add your [own sources](https://github.com/zplug/zplug/blob/master/doc/guide/External-Sources.md)!)
@@ -110,6 +110,9 @@ zplug "junegunn/fzf-bin", \
 
 # Supports oh-my-zsh plugins and the like
 zplug "plugins/git",   from:oh-my-zsh
+
+# Also prezto
+zplug "modules/prompt", from:prezto
 
 # Load if "if" tag returns true
 zplug "lib/clipboard", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
@@ -247,7 +250,7 @@ All that's left is to run `zplug update`.
 | `as`          | Specify whether to register the package as plugins or commands | `plugin`,`command` (`plugin`) | `as:command` |
 | `use`         | Specify the pattern of the files to source (for `plugin`) or the relative path to add to the `$PATH` (for `command`) / With `from:gh-r`, zplug tries to guess which file to use from your OS and architecture. You can manually specify `use:"*darwin*{amd,386}*"` if that doesn't get the right file. | *glob* (`use:"*.zsh"`) | `use:bin`,`use:"*.sh"`, `use:*darwin*` |
 | `ignore`      | Similar to `use` tag, but specify pattern of files you want to ignore (see also [#56](https://github.com/zplug/zplug/issues/56)) | *glob* (-) | `ignore:"some_*.zsh"` |
-| `from`        | Specify where to get the package from | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`local` (`github`) | `from:gh-r` |
+| `from`        | Specify where to get the package from | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`prezto`,`local` (`github`) | `from:gh-r` |
 | `at`          | Specify branch/tag/commit to install | *revision* (`master`) | `at:v1.5.6` |
 | `rename-to`   | Specify the filename you want to rename the command to (use this only with `as:command`) | *filename* (-) | `rename-to:fzf` |
 | `dir`         | Installed directory of the package | **READ ONLY** | `dir:/path/to/user/repo` |

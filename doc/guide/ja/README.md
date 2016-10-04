@@ -18,7 +18,7 @@
 - 何でも管理できる
   - [GitHub](https://github.com) や [Bitbucket](https://bitbucket.org) にあるプラグインや UNIX コマンド
   - Gist ファイル ([gist.github.com](https://gist.github.com))
-  - 外部フレームワークなどのプラグイン (例: [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) のプラグイン・テーマ)
+  - 外部フレームワークなどのプラグイン (例: [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) や [prezto](https://github.com/sorin-ionescu/prezto) のプラグイン・テーマ)
   - [GitHub Releases](https://help.github.com/articles/about-releases/) のバイナリファイル
   - ローカルプラグイン
   - その他 ([カスタムソース](https://github.com/zplug/zplug/blob/master/doc/zplug/External-Sources.md)によって追加できる)
@@ -113,6 +113,12 @@ zplug "plugins/git",   from:oh-my-zsh
 
 # if タグが true のときのみインストールされる
 zplug "lib/clipboard", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
+
+# prezto のプラグインやテーマを使用する
+zplug "modules/osx", from:prezto, if:"[[ $OSTYPE == *darwin* ]]"
+zplug "modules/prompt", from:prezto
+# zstyle は zplug load の前に設定する
+zstyle ':prezto:module:prompt' theme 'sorin'
 
 # インストール・アップデート後に実行されるフック
 # この場合は以下のような設定が別途必要
@@ -246,7 +252,7 @@ zplug "zplug/zplug"
 | `as`          | プラグインとして、またはコマンドとして追加するか指定する | `plugin`,`command` (`plugin`) | `as:command` |
 | `use`         | 読み込むファイルパターンを指定する (`plugin` のとき) か `$PATH` に追加したいコマンドの相対パスを指定する (`command` のとき) / `from:gh-r` の場合は zplug が自動で OS のアーキテクチャを判別するが、意図しない結果の場合 `use:"*darwin*{amd,386}*"` のようにすると良い | *グロブ・パターン* (`use:"*.zsh"`) | `use:bin`,`use:"*.sh"`, `use:*darwin*` |
 | `ignore`      | `use` タグと似ているが無視したいファイルパターンを指定する ([#56](https://github.com/zplug/zplug/issues/56) 参照) | *グロブ・パターン* (-) | `ignore:"some_*.zsh"` |
-| `from`        | どこからインストールするか指定する | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`local` (`github`) | `from:gh-r` |
+| `from`        | どこからインストールするか指定する | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`prezto`,`local` (`github`) | `from:gh-r` |
 | `at`          | branch/tag/commit を指定して固定する | *リビジョン* (`master`) | `at:v1.5.6` |
 | `rename-to`   | リンクするときに変更したいファイル名を指定する (`as:command` のときのみ有効) | *ファイル名* (-) | `rename-to:fzf` |
 | `dir`         | パッケージのインストール先 | **READ ONLY** | `dir:/path/to/user/repo` |
