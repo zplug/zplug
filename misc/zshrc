@@ -85,7 +85,7 @@ zplug clear
     '[[ -x $ZPLUG_HOME/bin/emojify ]]'
     '[[ -x $ZPLUG_HOME/bin/hello.sh ]]'
     '(( $+aliases[gba] ))'
-    '(( $+aliases[cpv] ))'
+    '(( $+functions[cpv] ))'
     '(( $+functions[random_emoji] ))'
     '[[ -x $ZPLUG_HOME/bin/fzf ]]'
     '[[ -x $ZPLUG_HOME/bin/get_last_pane_path.sh ]]'
