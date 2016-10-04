@@ -57,11 +57,15 @@ __zplug::utils::releases::is_64()
     uname -m | grep -q "64$"
 }
 
+__zplug::utils::releases::is_arm()
+{
+    uname -m | grep -q "^arm"
+}
+
 __zplug::utils::releases::get_url()
 {
     local    repo="$1" result
     local -A tags
-    local -A default_tags
     local    cmd url
     local -i arch
     local -a candidates
@@ -73,11 +77,6 @@ __zplug::utils::releases::get_url()
     fi
 
     {
-        default_tags[use]="$(
-        __zplug::core::core::run_interfaces \
-            'use'
-        )"
-
         tags[use]="$(
         __zplug::core::core::run_interfaces \
             'use' \
@@ -112,11 +111,11 @@ __zplug::utils::releases::get_url()
         #fi
     }
 
-    if [[ $tags[use] == $default_tags[use] ]]; then
-        arch=""
     # Get machine information
-    elif __zplug::utils::releases::is_64; then
+    if __zplug::utils::releases::is_64; then
         arch="64"
+    elif __zplug::utils::releases::is_arm; then
+        arch="arm"
     else
         arch="386"
     fi
@@ -143,11 +142,11 @@ __zplug::utils::releases::get_url()
         return 1
     fi
 
-    echo "${(F)candidates[@]}" \
-        | grep -E "${tags[use]:-}" \
-        | grep "$arch" \
-        | head -n 1 \
-        | read result
+    candidates=( $( echo "${(F)candidates[@]}" | grep -E "${tags[use]:-}" ) )
+    if (( $#candidates > 1 )); then
+        candidates=( $( echo "${(F)candidates[@]}" | grep "$arch" ) )
+    fi
+    result="${candidates[1]}"
 
     if [[ -z $result ]]; then
         __zplug::io::print::f \
