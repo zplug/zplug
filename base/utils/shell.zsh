@@ -184,7 +184,7 @@ __zplug::utils::shell::expand_glob()
     local -a matches
 
     # Modifiers not specified (by user)
-    if [[ ! $pattern =~ '\([^)]*\)$' ]]; then
+    if [[ ! $pattern =~ '[^/]\([^)]*\)$' ]]; then
         pattern+="$default_modifiers"
     fi
 
