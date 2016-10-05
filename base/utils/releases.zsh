@@ -183,7 +183,7 @@ __zplug::utils::releases::get()
     artifact="${url:t}"
 
     if (( $+commands[curl] )); then
-        cmd="curl -L -O"
+        cmd="curl -s -L -O"
     elif (( $+commands[wget] )); then
         cmd="wget"
     fi
