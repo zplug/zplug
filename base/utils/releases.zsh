@@ -57,11 +57,17 @@ __zplug::utils::releases::is_64()
     uname -m | grep -q "64$"
 }
 
+__zplug::utils::releases::is_arm()
+{
+    uname -m | grep -q "^arm"
+}
+
 __zplug::utils::releases::get_url()
 {
     local    repo="$1" result
-    local    tag_use tag_at cmd url
-    local -i arch=386
+    local -A tags
+    local    cmd url
+    local    arch
     local -a candidates
 
     if (( $# < 1 )); then
@@ -71,36 +77,36 @@ __zplug::utils::releases::get_url()
     fi
 
     {
-        tag_use="$(
+        tags[use]="$(
         __zplug::core::core::run_interfaces \
             'use' \
             "$repo"
         )"
-        tag_at="$(
+        tags[at]="$(
         __zplug::core::core::run_interfaces \
             'at' \
             "$repo"
         )"
 
-        #if [[ $tag_use == '*.zsh' ]]; then
-        #    tag_use=
+        #if [[ $tags[use] == '*.zsh' ]]; then
+        #    tags[use]=
         #fi
-        #if [[ $tag_at == "master" ]]; then
-        #    tag_at="latest"
-        #fi
-
-        #if [[ -n $tag_at && $tag_at != "latest" ]]; then
-        #    tag_at="tag/$tag_at"
-        #else
-        #    tag_at="latest"
+        #if [[ $tags[at] == "master" ]]; then
+        #    tags[at]="latest"
         #fi
 
-        #if [[ -n $tag_use ]]; then
-        #    tag_use="$(__zplug::utils::shell::glob2regexp "$tag_use")"
+        #if [[ -n $tags[at] && $tags[at != "latest" ]]; then
+        #    tags[at]="tag/$tags[at"
         #else
-        #    tag_use="$(__zplug::base::base::get_os)"
+        #    tags[at]="latest"
+        #fi
+
+        #if [[ -n $tags[use] ]]; then
+        #    tags[use]="$(__zplug::utils::shell::glob2regexp "$tags[use")"
+        #else
+        #    tags[use]="$(__zplug::base::base::get_os)"
         #    if __zplug::base::base::is_osx; then
-        #        tag_use="(darwin|osx)"
+        #        tags[use]="(darwin|osx)"
         #    fi
         #fi
     }
@@ -108,9 +114,13 @@ __zplug::utils::releases::get_url()
     # Get machine information
     if __zplug::utils::releases::is_64; then
         arch="64"
+    elif __zplug::utils::releases::is_arm; then
+        arch="arm"
+    else
+        arch="386"
     fi
 
-    url="https://github.com/$repo/releases/$tag_at"
+    url="https://github.com/$repo/releases/$tags[at]"
     if (( $+commands[curl] )); then
         cmd="curl -fsSL"
     elif (( $+commands[wget] )); then
@@ -132,11 +142,11 @@ __zplug::utils::releases::get_url()
         return 1
     fi
 
-    echo "${(F)candidates[@]}" \
-        | grep -E "${tag_use:-}" \
-        | grep "$arch" \
-        | head -n 1 \
-        | read result
+    candidates=( $( echo "${(F)candidates[@]}" | grep -E "${tags[use]:-}" ) )
+    if (( $#candidates > 1 )); then
+        candidates=( $( echo "${(F)candidates[@]}" | grep "$arch" ) )
+    fi
+    result="${candidates[1]}"
 
     if [[ -z $result ]]; then
         __zplug::io::print::f \
