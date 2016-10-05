@@ -67,7 +67,7 @@ __zplug::utils::releases::get_url()
     local    repo="$1" result
     local -A tags
     local    cmd url
-    local -i arch
+    local    arch
     local -a candidates
 
     if (( $# < 1 )); then
