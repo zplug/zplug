@@ -31,7 +31,7 @@ It's such a fantabulous piece of software.
 **  Gist file (https://gist.github.com[gist.github.com])
 **  Third-party sources e.g., https://github.com/robbyrussell/oh-my-zsh[oh-my-zsh]
     plugins/themes
-**  Birary artifacts on https://help.github.com/articles/about-releases[GitHub Releases]
+**  Binary artifacts on https://help.github.com/articles/about-releases[GitHub Releases]
 **  Local plugins
 **  etc. (you can add your own sources!)
 *   Super-fast parallel installation/update
