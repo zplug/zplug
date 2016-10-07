@@ -32,7 +32,7 @@ It's such a fantabulous piece of software.
 **  Third-party sources e.g.,
  https://github.com/robbyrussell/oh-my-zsh[oh-my-zsh] and
  https://github.com/sorin-ionescu/prezto[prezto] plugins/themes
-**  Birary artifacts on https://help.github.com/articles/about-releases[GitHub Releases]
+**  Binary artifacts on https://help.github.com/articles/about-releases[GitHub Releases]
 **  Local plugins
 **  etc. (you can add your own sources!)
 *   Super-fast parallel installation/update
