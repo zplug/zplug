@@ -217,7 +217,7 @@ done
     for pkg in "${(k)load_commands[@]}"
     do
         if [[ -f $pkg ]]; then
-            chmod a=rx "$pkg" && ln -snf "$pkg" "$load_commands[$pkg]"
+            chmod a=rx "$pkg" && ln -snf "$pkg" "$load_commands[$pkg]" 2>/dev/null
             if (( $status == 0 )); then
                 $is_verbose && \
                     __zplug::io::print::put \
