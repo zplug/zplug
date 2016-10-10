@@ -261,7 +261,7 @@ All that's left is to run `zplug update`.
 | `on`          | Load this package only if a different package is installed | *package* | `on:user/repo` |
 | `nice`        | Priority of loading the plugins. If this tag is specified 10 or more, zplug will load plugins after `compinit` (see also [#26](https://github.com/zplug/zplug/issues/26)) | -20..19 (0) | `nice:19` |
 | `lazy`        | Whether it is an autoload function or not | truthy,falsy (false) | `lazy:true` |
-| `depth`       | The number of commits to include in the cloned repository. 0 means the whole history. | Any non-negative integer (`ZPLUG_CLONE_DEPTH`) | `depth:10` |
+| `depth`       | The number of commits to include in the cloned repository. 0 means the whole history. | Any non-negative integer | `depth:10` |
 
 #### Changing the defaults
 
@@ -323,10 +323,6 @@ The number of threads zplug uses when installing/updating. The default value is 
 Defaults to HTTPS. Valid options are `HTTPS` and `SSH`. Unless you have a specific reason, you should use the HTTPS protocol.
 
 For more information, see also [**Which remote URL should I use?** - GitHub Help](https://help.github.com/articles/which-remote-url-should-i-use/)
-
-#### `ZPLUG_CLONE_DEPTH`
-
-Defaults to `0`. When cloning a Git repository, there is an option to limit the amount of history your clone will have. This environment variable how many commits you want to clone. The value `0` means that zplug will clone the whole history of packages.
 
 #### `ZPLUG_FILTER`
 

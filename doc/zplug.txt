@@ -145,7 +145,7 @@ and so on. If you want to use extended glob, see later section for setting the z
 
 |*lazy* | Lazy-load | *truthy,falsy* (no) | `lazy:true`
 
-|*depth* | The number of commits to include in the cloned repository. 0 means the whole history. | Any non-negative integer (`ZPLUG_CLONE_DEPTH`) | `depth:10` |
+|*depth* | The number of commits to include in the cloned repository. 0 means the whole history. | Any non-negative integer | `depth:10` |
 
 |*nice* | Priority of loading the plugins. If the value is 10 or more,
 zplug will source the plugin after `compinit` (see also https://github.com/zplug/zplug/issues/26[#26])
@@ -200,12 +200,6 @@ the `$PATH`, you can run that command from anywhere just like any other commands
     Defaults to HTTPS. Valid options for `$ZPLUG_PROTOCOL` are `HTTPS` or `SSH`.
     Unless you have a specific reason, you should use the HTTPS protocol.
     For more information, see also https://help.github.com/articles/which-remote-url-should-i-use/[Which remote URL should I use? - GitHub Help]
-
-'ZPLUG_CLONE_DEPTH'::
-    Defaults to `0`.
-    When cloning a Git repository, you can limit the number of commits your
-    clone has.  Setting this to 0 means that it will clone the entire history.
-    Any non-zero number will clone with that many commits.
 
 'ZPLUG_FILTER'::
     Defaults to `fzf-tmux:fzf:peco:percol:zaw`.

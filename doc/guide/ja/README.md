@@ -263,7 +263,7 @@ zplug "zplug/zplug"
 | `on`          | 指定されたパッケージがインストールされているときのみロードする | *package* | `on:user/repo` |
 | `nice`        | プラグインの読み込み順序を指定する。 10 以上を指定すると、`compinit` コマンドの実行後に読まれることになる ([#26](https://github.com/zplug/zplug/issues/26) 参照) | -20 から 19 (0) | `nice:19` |
 | `lazy`        | 遅延読み込みするかどうかを指定する | truthy または falsy (false) | `lazy:true` |
-| `depth`       | リポジトリをクローンするときのヒストリサイズ。0 はすべてのヒストリをクローンする | 0 と正の整数 (`ZPLUG_CLONE_DEPTH`) | `depth:10` |
+| `depth`       | リポジトリをクローンするときのヒストリサイズ。0 はすべてのヒストリをクローンする | 0 と正の整数 | `depth:10` |
 
 #### デフォルト値を一括変更する
 
@@ -324,10 +324,6 @@ $ZPLUG_HOME
 デフォルトは HTTPS。取りうる値は `HTTPS` と `SSH`のみ。特別な理由がない限り、 `HTTPS` を推奨する。
 
 詳細やその理由については [**Which remote URL should I use?** - GitHub Help](https://help.github.com/articles/which-remote-url-should-i-use/) を参照のこと。
-
-#### `ZPLUG_CLONE_DEPTH`
-
-デフォルトは `0`。When cloning a Git repository, there is an option to limit the amount of history your clone will have. This environment variable how many commits you want to clone. The value `0` means that zplug will clone the whole history of packages.
 
 #### `ZPLUG_FILTER`
 

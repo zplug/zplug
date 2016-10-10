@@ -166,7 +166,6 @@ __zplug::core::core::variable()
 
     typeset -gx    ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
     typeset -gx -i ZPLUG_THREADS=${ZPLUG_THREADS:-16}
-    typeset -gx -i ZPLUG_CLONE_DEPTH=${ZPLUG_CLONE_DEPTH:-0}
     typeset -gx    ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
     typeset -gx    ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:fzy:zaw"}
     typeset -gx    ZPLUG_LOADFILE=${ZPLUG_LOADFILE:-$ZPLUG_HOME/packages.zsh}
@@ -202,8 +201,18 @@ __zplug::core::core::variable()
             --zplug \
             --warn \
             "ZPLUG_SHALLOW is deprecated." \
-            "Please use 'export ZPLUG_CLONE_DEPTH=1' instead.\n"
+            "Please use 'zstyle :zplug:tag depth 1' instead.\n"
     fi
+
+    if (( $+ZPLUG_CLONE_DEPTH )); then
+        __zplug::io::print::f \
+            --die \
+            --zplug \
+            --warn \
+            "ZPLUG_CLONE_DEPTH is deprecated." \
+            "Please use 'zstyle :zplug:tag depth $ZPLUG_CLONE_DEPTH' instead.\n"
+    fi
+
 
     # zplug core variables
     {
