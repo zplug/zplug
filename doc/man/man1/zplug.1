@@ -2,12 +2,12 @@
 .\"     Title: zplug
 .\"    Author: Masaki Ishiyama (@b4b4r07) b4b4r07@gmail.com
 .\" Generator: DocBook XSL Stylesheets v1.79.0 <http://docbook.sf.net/>
-.\"      Date: 05/06/2016
+.\"      Date: 10/10/2016
 .\"    Manual: ZPLUG Manual
 .\"    Source: \ \&
 .\"  Language: English
 .\"
-.TH "ZPLUG" "1" "05/06/2016" "\ \&" "ZPLUG Manual"
+.TH "ZPLUG" "1" "10/10/2016" "\ \&" "ZPLUG Manual"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -88,6 +88,8 @@ Gist file (gist\&.github\&.com)
 .\}
 Third\-party sources e\&.g\&.,
 oh\-my\-zsh
+and
+prezto
 plugins/themes
 .RE
 .sp
@@ -227,6 +229,11 @@ Print the synopsis and a list of all available commands\&.
 .RS 4
 Print zplug\(cqs version\&.
 .RE
+.PP
+\fB\-\-log\fR
+.RS 4
+Show the error log\&.
+.RE
 .SH "COMMANDS"
 .PP
 \fBcheck\fR [\-\-verbose] [\fIpackage\fR]
@@ -263,21 +270,15 @@ you want to uninstall\&.
 Remove the cache file\&.
 .RE
 .PP
-\fBinstall\fR [\-\-verbose] [\-\-select] [\fIpackage\fR]
+\fBinstall\fR [\fIpackage\fR]
 .RS 4
 Install
 \fIpackage\fR\&.
-\-\-verbose
-/
-\-\-select
-do the same as what\(cqs described above\&.
 .RE
 .PP
 \fBlist\fR [\-\-verbose] [\-\-select] [\fIpackage\fR]
 .RS 4
 List installed packages\&.
-\-\-verbose
-/
 \-\-select
 do the same as what\(cqs described above\&.
 .RE
@@ -310,7 +311,7 @@ Fetch the newest version of the installed packages by zplug\&.
 does the same as what\(cqs described above\&.
 .RE
 .PP
-\fBupdate\fR [\-\-self] [\-\-select] [\fIpackage\fR]
+\fBupdate\fR [\-\-self] [\-\-select] [\-\-force] [\fIpackage\fR]
 .RS 4
 Update
 \fIpackage\fR\&. If no package is given, updates all registered packages\&. If
@@ -390,7 +391,7 @@ T}:T{
 Specify the service from which you install
 T}:T{
 .sp
-github,bitbucket,gh\-r,gist, oh\-my\-zsh,local (github)
+github,bitbucket,gh\-r,gist, oh\-my\-zsh,prezto,local (github)
 T}:T{
 .sp
 from:gh\-r
@@ -520,7 +521,7 @@ T}:T{
 The number of commits to include in the cloned repository\&. 0 means the whole history\&.
 T}:T{
 .sp
-Any non\-negative integer (ZPLUG_CLONE_DEPTH)
+Any non\-negative integer
 T}:T{
 .sp
 depth:10
@@ -604,12 +605,6 @@ SSH\&. Unless you have a specific reason, you should use the HTTPS protocol\&. F
 Which remote URL should I use? \- GitHub Help
 .RE
 .PP
-\fIZPLUG_CLONE_DEPTH\fR
-.RS 4
-Defaults to
-0\&. When cloning a Git repository, you can limit the number of commits your clone has\&. Setting this to 0 means that it will clone the entire history\&. Any non\-zero number will clone with that many commits\&.
-.RE
-.PP
 \fIZPLUG_FILTER\fR
 .RS 4
 Defaults to
@@ -662,6 +657,26 @@ to follow XDG Base Directory Specification
 Defaults to
 $ZPLUG_HOME/repos\&. You can change where the repositories are cloned in case you want to manage them separately\&.
 .RE
+.PP
+\fIZPLUG_SUDO_PASSWORD\fR
+.RS 4
+Defaults to
+\*(Aq\*(Aq\&. You can set sudo password for zplug\(cqs
+hook\-build
+tag\&. However, this variable shoud not be managed in dotfiles and so on\&.
+.RE
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+# your \&.zshrc
+source ~/\&.zshrc_secret
+zplug "some/command", hook\-build:"make && sudo make install"
+.fi
+.if n \{\
+.RE
+.\}
 .SH "USING ZSTYLE"
 .sp
 You can use zstyle to change the default values for each tag\&. The format is: zstyle ":zplug:tag" tag_name new_default_value\&. For example, if you have a lot of commands and not so many plugins, (i\&.e\&. if you find yourself specifying as:command often), you can do: zstyle ":zplug:tag" as command\&.
@@ -669,7 +684,7 @@ You can use zstyle to change the default values for each tag\&. The format is: z
 You can also specify what options to enable in sub shells\&. Sub shells are used when expanding glob expressions\&. If you want to use the \fIextended_glob\fR for example, you can do: zstyle ":zplug:config:setopt" only_subshell extended_glob\&. If you set :zplug:config:setopt same_curshell to a truthy value (i\&.e\&. true, 1, yes), zplug will enable the options enabled at the point of sourcing zplug (i\&.e\&. at the point of source $ZPLUG_HOME/init\&.zsh)\&.
 .SH "EXTERNAL COMMANDS"
 .sp
-zplug, like \fIgit(1)\fR, supports external commands\&. These are executable scripts that reside somewhere in the PATH, named zplug\-cmdname, which can be invoked with zplug cmdname\&. This allows you to create your own commands without modifying zplug\(cqs internals\&. Instructions for creating your own commands can be found in the docs: https://github\&.com/zplug/zplug2/blob/master/doc/zplug/External\-Commands\&.md Check out the sample zplug\-env external command for an example\&.
+zplug, like \fIgit(1)\fR, supports external commands\&. These are executable scripts that reside somewhere in the PATH, named zplug\-cmdname, which can be invoked with zplug cmdname\&. This allows you to create your own commands without modifying zplug\(cqs internals\&. Instructions for creating your own commands can be found in the docs: https://github\&.com/zplug/zplug/blob/master/doc/zplug/External\-Commands\&.md Check out the sample zplug\-env external command for an example\&.
 .SH "CONFIGURATION"
 .sp
 Add a zplug section to your \&.zshrc (or $ZPLUG_LOADFILE):
@@ -729,6 +744,12 @@ zplug "junegunn/fzf\-bin", \e
 zplug "plugins/git",   from:oh\-my\-zsh, if:"(( $+commands[git] ))"
 zplug "themes/duellj", from:oh\-my\-zsh
 zplug "lib/clipboard", from:oh\-my\-zsh, if:"[[ $OSTYPE == *darwin* ]]"
+
+# Also supports prezto plugins
+zplug "modules/osx", from:prezto, if:"[[ $OSTYPE == *darwin* ]]"
+zplug "modules/prompt", from:prezto
+# Set zstyle before zplug load
+zstyle \*(Aq:prezto:module:prompt\*(Aq theme \*(Aqsorin\*(Aq
 
 # Run a command after a plugin is installed/updated
 zplug "tj/n", hook\-build:"make install"

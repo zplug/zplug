@@ -48,18 +48,9 @@ $ zplug "b4b4r07/enhancd", \
 ------------
 
 
-ENVIRONMENT VARIABLES
----------------------
-'ZPLUG_CLONE_DEPTH'::
-    Defaults to `0`.
-    When cloning a Git repository, you can limit the number of commits your
-    clone has.  Setting this to 0 means that it will clone the entire history.
-    Any non-zero number will clone with that many commits.
-
-
 SEE ALSO
 --------
-*zplug(1)*, *ZPLUG_CLONE_DEPTH(5)*
+*zplug(1)*
 
 
 Further Documentation

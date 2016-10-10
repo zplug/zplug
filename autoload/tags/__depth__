@@ -18,27 +18,6 @@ fi
 : ${depth:=$default}
 
 case $depth in
-    0)
-        case "$ZPLUG_CLONE_DEPTH" in
-            0)
-                #depth_option=""
-                :
-                ;;
-            <->)
-                #depth_option="--depth=$ZPLUG_CLONE_DEPTH"
-                depth="$ZPLUG_CLONE_DEPTH"
-                ;;
-            *)
-                __zplug::io::print::f \
-                    --die \
-                    --zplug \
-                    --error \
-                    --func \
-                    "ZPLUG_CLONE_DEPTH must be a positive number.\n"
-                return 1
-                ;;
-        esac
-        ;;
     <->)
         #depth_option="--depth=$tag_depth"
         :
