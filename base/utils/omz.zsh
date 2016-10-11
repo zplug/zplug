@@ -45,7 +45,7 @@ __zplug::utils::omz::depends()
     done
 
     # Return dependency list
-    print -l ${depends[@]}
+    print -l "${depends[@]}"
 }
 
 __zplug::utils::omz::theme()
