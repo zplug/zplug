@@ -9,14 +9,9 @@ local    default="github"
 local -a candidates
 
 candidates=(
-"$default"
-"bitbucket"
-"gh-r"
-"gist"
-"local"
-"oh-my-zsh"
-"prezto"
+"$ZPLUG_ROOT/base/sources/"*.zsh
 )
+candidates=( ${${candidates%.zsh}:t} )
 
 package="${arg}, ${zplugs[$arg]%, }"
 parsed_zplugs=(${(s/, /)package/,  */, })
