@@ -110,6 +110,12 @@ do
         __zplug::core::tags::parse "$repo"
         tags=( "${reply[@]}" )
 
+        if [[ -n $tags[if] ]]; then
+            if ! eval "$tags[if]" 2> >(__zplug::io::log::capture) >/dev/null; then
+                continue
+            fi
+        fi
+
         # Run in anonymous function for using its exit code
         function () {
             __zplug::job::spinner::echo "%-20s %s\n" \
