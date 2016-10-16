@@ -141,6 +141,7 @@ __zplug::utils::git::merge()
 {
     local    key value
     local    opt arg
+    local    failed=false
     local -A git
 
     __zplug::utils::shell::getopts "$argv[@]" \
@@ -181,20 +182,28 @@ __zplug::utils::git::merge()
         {
             git reset --hard HEAD
             git merge --ff-only "origin/$git[branch]"
+            if (( $status != 0 )); then
+                failed=true
+            fi
             git submodule update --init --recursive
+            if (( $status != 0 )); then
+                failed=true
+            fi
         } \
             2> >(__zplug::io::log::capture) >/dev/null
-        return $status
 
     elif [[ $git[upstream] == $git[base] ]]; then
         # need to push
-        return $_ZPLUG_STATUS_FAILURE
+        failed=true
 
     else
         # Diverged
-        return $_ZPLUG_STATUS_FAILURE
+        failed=true
     fi
 
+    if $failed; then
+        return $_ZPLUG_STATUS_FAILURE
+    fi
     return $_ZPLUG_STATUS_SUCCESS
 }
 
