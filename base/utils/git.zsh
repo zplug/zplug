@@ -179,6 +179,7 @@ __zplug::utils::git::merge()
     elif [[ $git[local] == $git[base] ]]; then
         # need to pull
         {
+            git reset --hard HEAD
             git merge --ff-only "origin/$git[branch]"
             git submodule update --init --recursive
         } \
