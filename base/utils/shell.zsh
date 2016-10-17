@@ -188,11 +188,16 @@ __zplug::utils::shell::expand_glob()
         pattern+="$default_modifiers"
     fi
 
-    # Use subshell for ~, *, and brace expansion
-    matches=( $( \
-        zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $pattern" \
-        2> >(__zplug::io::log::capture) \
-    ) )
+    # Try expanding ~ and *
+    matches=( ${~pattern} )
+
+    # Use subshell for brace expansion
+    if (( $#matches <= 1 )); then
+        matches=( $( \
+            zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $pattern" \
+            2> >(__zplug::io::log::capture) \
+        ) )
+    fi
 
     print -l "${matches[@]}"
 }
