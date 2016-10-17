@@ -180,7 +180,7 @@ __zplug::utils::shell::expand_glob()
 {
     local    pattern="$1"
     # Modifiers to use if $pattern does not include modifiers
-    local    default_modifiers="$2"
+    local    default_modifiers="${2:-(N)}"
     local -a matches
 
     # Modifiers not specified (by user)
