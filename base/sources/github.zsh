@@ -146,6 +146,8 @@ __zplug::sources::github::load_plugin()
         if [[ $tags[use] == $default_tags[use] ]]; then
             # NOTE: step 1
             unclassified_plugins+=( "$tags[dir]"/*.$ext(N-.) )
+            # Add the parent directory to fpath
+            load_fpaths+=( $tags[dir]/_*(N.:h) )
         fi
 
         if (( $#unclassified_plugins == 0 )); then
