@@ -1,5 +1,3 @@
-#!/bin/zsh
-
 __zplug::sources::prezto::check()
 {
     local    repo="$1"
