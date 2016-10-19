@@ -201,3 +201,32 @@ __zplug::utils::shell::expand_glob()
 
     print -l "${matches[@]}"
 }
+
+__zplug::utils::shell::eval()
+{
+    local cmd
+
+    # Report stderr to error log
+    eval "${=cmd}" 2> >(__zplug::io::log::capture) >/dev/null
+    return $status
+}
+
+__zplug::utils::shell::json_escape()
+{
+    #| perl -pe 's/\//\\\//g' \
+    if [[ -z $1 ]]; then
+        cat <&0
+    else
+        if [[ -f $1 ]]; then
+            cat "$1"
+        else
+            echo "$1"
+        fi
+    fi \
+        | perl -pe 's/\\/\\\\/g' \
+        | perl -pe 's/"/\\"/g' \
+        | perl -pe 's/\f/\\f/g' \
+        | perl -pe 's/\r/\\r/g' \
+        | perl -pe 's/\n/\\n/g' \
+        | perl -pe 's/\t/\\t/g'
+}

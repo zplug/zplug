@@ -26,6 +26,10 @@ __zplug::utils::git::clone()
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
 
+    if [[ -d $tags[dir] ]]; then
+        return $_zplug_status[install_already]
+    fi
+
     if [[ $tags[depth] == 0 ]]; then
         depth_option=""
     else
@@ -66,12 +70,17 @@ __zplug::utils::git::clone()
             ${=depth_option} \
             "$url_format" "$tags[dir]" \
             2> >(__zplug::io::log::capture) >/dev/null
+        ret=$status
     fi
 
     # The revison (hash/branch/tag) lock
     __zplug::utils::git::checkout "$repo"
 
-    return $status
+    if (( $ret == 0 )); then
+        return $_zplug_status[install_success]
+    else
+        return $_zplug_status[install_failure]
+    fi
 }
 
 __zplug::utils::git::checkout()
@@ -342,11 +351,10 @@ __zplug::utils::git::get_state()
     local    state url
 
     if [[ ! -e .git ]]; then
-        state="not git repo"
+        return $_zplug_status[status_not_git_repo]
     fi
 
     state="not on any branch"
-
     branch="$(__zplug::utils::git::get_head_branch_name)"
     if (( $status == 0 )); then
         res=( ${(@f)"$(__zplug::utils::git::get_remote_state "$branch")"} )
@@ -355,15 +363,19 @@ __zplug::utils::git::get_state()
     fi
 
     case "$state" in
-        "local out of date")
-            state="${fg[red]}${state}${reset_color}"
-            ;;
         "up to date")
-            state="${fg[green]}${state}${reset_color}"
+            return $_zplug_status[status_up_to_date]
+            ;;
+        "local out of date")
+            return $_zplug_status[status_local_out_of_date]
+            ;;
+        "not on any branch")
+            return $_zplug_status[status_not_on_any_branch]
+            ;;
+        *)
+            return $_zplug_status[status_unknown]
             ;;
     esac
-
-    printf "($state) '${url:-?}'\n"
 }
 
 __zplug::utils::git::remote_url()

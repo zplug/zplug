@@ -28,15 +28,20 @@ __zplug::job::hook::service()
         __zplug::utils::shell::cd "$tags[dir]"
         alias sudo=__zplug::utils::shell::sudo
 
-        eval "$tags[$hook]" 2> >(__zplug::io::log::capture)
-        if (( $status != 0 )); then
-            __zplug::io::print::f \
-                --die \
-                --zplug \
-                --error \
-                "'%s' failed\n" \
-                "$tags[$hook]"
-        fi
+        # Save a result to the log file (stdout/stderr)
+        eval "$tags[$hook]" \
+            2> >(__zplug::io::log::capture_error) \
+            1> >(__zplug::io::log::capture_execution)
+        return $status
+
+        #if (( $status != 0 )); then
+        #    __zplug::io::print::f \
+        #        --die \
+        #        --zplug \
+        #        --error \
+        #        "'%s' failed\n" \
+        #        "$tags[$hook]"
+        #fi
         )
     fi
 }
@@ -54,6 +59,7 @@ __zplug::job::hook::build()
     __zplug::job::hook::service \
         "$repo" \
         "hook-build"
+    return $status
 }
 
 __zplug::job::hook::load()
@@ -69,4 +75,21 @@ __zplug::job::hook::load()
     __zplug::job::hook::service \
         "$repo" \
         "hook-load"
+    return $status
+}
+
+__zplug::job::hook::build_failure()
+{
+    local repo="$1"
+
+    [[ -f $_zplug_config[build_failure] ]] && grep -x "$repo" "$_zplug_config[build_failure]" &>/dev/null
+    return $status
+}
+
+__zplug::job::hook::build_timeout()
+{
+    local repo="$1"
+
+    [[ -f $_zplug_config[build_timeout] ]] && grep -x "$repo" "$_zplug_config[build_timeout]" &>/dev/null
+    return $status
 }

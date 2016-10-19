@@ -5,10 +5,17 @@
 local     repo arg
 local -aU repos
 local -A  tags
-local -a  failed_packages
-local -A  from
-local -i  max=0
-local -F  SECONDS=0 start_time finish_time
+local -i  status_code=0 cant_lock=0
+
+local -A repo_pids states hook_build hook_finished hook_pids status_codes repo_dir
+local -F SECONDS=0
+local -a spinners sub_spinners
+local -i spinner_idx subspinner_idx
+local -i timeout=60
+local    is_parallel=""
+
+spinners=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
+sub_spinners=(⠁ ⠁ ⠉ ⠙ ⠚ ⠒ ⠂ ⠂ ⠒ ⠲ ⠴ ⠤ ⠄ ⠄ ⠤ ⠠ ⠠ ⠤ ⠦ ⠖ ⠒ ⠐ ⠐ ⠒ ⠓ ⠋ ⠉ ⠈ ⠈)
 
 while (( $# > 0 ))
 do
@@ -32,26 +39,37 @@ do
     shift
 done
 
-# Initialize
-{
-    start_time=$SECONDS
+# If no argument is given,
+# use non-installed plugins as an installation target
+if (( $#repos == 0 )); then
+    __zplug::core::core::run_interfaces \
+        "check" \
+        2> >(__zplug::io::log::capture) >/dev/null \
+        || repos=( "${reply[@]}" )
+fi
 
-    if (( $#repos == 0 )); then
-        # Case of existing not installed repos
-        __zplug::core::core::run_interfaces \
-            "check" \
-            2> >(__zplug::io::log::capture) >/dev/null \
-            || repos=( "${reply[@]}" )
-    fi
+# No plugin to install
+if (( $#repos == 0 )); then
+    return 0
+fi
 
-    for repo in "${repos[@]}"
-    do
-        (( $#repo > $max )) && max=$#repo
-    done
-}
+# Check the number of arguments
+if (( $#repos > 1 )); then
+    is_parallel=true
+fi
 
-# Main loop
-for repo in "${repos[@]}"
+rm -f \
+    "$_zplug_config[build_success]" \
+    "$_zplug_config[build_failure]" \
+    "$_zplug_config[build_timeout]" \
+    "$_zplug_config[install_status]"
+touch "$_zplug_config[install_status]"
+
+# Suppress outputs
+setopt nonotify nomonitor
+tput civis
+
+for repo in "$repos[@]"
 do
     if ! __zplug::base::base::zpluged "$repo"; then
         __zplug::io::print::f \
@@ -62,127 +80,240 @@ do
         return 1
     fi
 
-    __zplug::core::tags::parse "$repo"
-    tags=( "${reply[@]}" )
+    tags[hook-build]="$(
+    __zplug::core::core::run_interfaces \
+        'hook-build' \
+        "$repo"
+    )"
+    tags[dir]="$(
+    __zplug::core::core::run_interfaces \
+        'dir' \
+        "$repo"
+    )"
+    tags[from]="$(
+    __zplug::core::core::run_interfaces \
+        'from' \
+        "$repo"
+    )"
 
-    # Skip items
+    # Run the installation in background
     {
         if [[ -n $tags[if] ]]; then
-            if ! eval "$tags[if]" 2> >(__zplug::io::log::capture) >/dev/null; then
-                __zplug::io::print::put \
-                    "$fg[red]-$reset_color $fg[green]$repo$reset_color: skipped due to if tag\n"
-                continue
+            status_code=$_zplug_status[install_skip_if]
+        else
+            # Run 'install' handler
+            if __zplug::core::sources::is_handler_defined "install" "$tags[from]"; then
+                __zplug::core::sources::use_handler \
+                    "install" \
+                    "$tags[from]" \
+                    "$repo"
+                status_code=$status
             fi
         fi
 
-        if __zplug::core::sources::is_handler_defined "check" "$tags[from]"; then
-            if __zplug::core::sources::use_handler "check" "$tags[from]" "$repo"; then
-                __zplug::io::print::put \
-                    "$fg[red]-$reset_color $fg[green]$repo$reset_color: already installed\n"
-                continue
-            fi
-        fi
-    }
-
-    # For checking whether the repo's installation is success
-    from+=( "$repo" "$tags[from]" )
-
-    __zplug::job::spinner::lock
-    __zplug::job::spinner::spin &
-    # Run installation in subprocess
-    {
-        trap '__zplug::job::spinner::unlock; trap - SIGINT' SIGINT
-
-        # All variables are treated as local variable
-        # because of background job (subprocess)
-        local -i ret=2
-        local -F SECONDS=0
-
-        __zplug::job::spinner::echo \
-            "%-20s %s\n" \
-            "Installing..." \
-            "$repo"
-
-        if __zplug::core::sources::is_handler_defined "install" "$tags[from]"; then
-            __zplug::core::sources::use_handler \
-                "install" \
-                "$tags[from]" \
-                "$repo"
-            ret=$status
+        # Manage the status codes in a file
+        # to lock the file in order to write asynchronously
+        (
+        zsystem flock -t 180 "$_zplug_config[install_status]"
+        cant_lock=$status
+        if (( cant_lock > 0 )); then
+            {
+                printf "Can't acquire lock for $_zplug_config[install_status]."
+                if (( cant_lock == 2 )); then
+                    printf " timeout."
+                fi
+                printf "\n"
+            } 1> >(__zplug::io::log::capture)
+            return 1
         fi
 
-        case "$ret" in
-            0)
-                __zplug::job::spinner::echo \
-                    "$fg[green]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
-                    "Installed!" \
-                    "$repo" \
-                    $SECONDS
-
-                # hook after installing
-                __zplug::job::hook::build "$repo"
-                ;;
-            1)
-                __zplug::job::spinner::echo \
-                    --die \
-                    "$fg[red]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
-                    "Failed to install" \
-                    "$repo" \
-                    $SECONDS
-                ;;
-            2)
-                __zplug::job::spinner::echo \
-                    --die \
-                    --zplug \
-                    --error \
-                    "sources/$tags[from] is not defined\n"
-                ;;
-        esac
+        # Save the status code with LTSV
+        __zplug::io::print::f "repo:%s\tstatus:%s\n" \
+            "$repo" \
+            "$status_code" \
+            >>|"$_zplug_config[install_status]"
+        )
     } &
-    __zplug::job::queue::enqueue "$!"
-    __zplug::job::queue::wait
+
+    repo_pids[$repo]=$!
+    repo_dir[$repo]="$tags[dir]"
+    hook_build[$repo]="$tags[hook-build]"
+    hook_finished[$repo]=false
+    states[$repo]="unfinished"
+    status_codes[$repo]=""
 done
 
-# Finalize
-{
-    __zplug::job::queue::wait_all
-    __zplug::job::spinner::unlock
+__zplug::io::print::f \
+    --zplug \
+    "Start to install %d plugin${is_parallel:+"s"} %s\n\n" \
+    $#repos \
+    "${is_parallel:+"in parallel"}"
 
-    failed_packages=()
-    for repo in "${(k)from[@]}"
+repeat $(($#repos + 2))
+do
+    printf "\n"
+done
+
+#
+# Multiple progress bars
+#
+# Use printf command (not builtin) instead of __zplug::io::print::f function,
+# because this loop is run the processing by interval of 0.1 second
+# and there is a need to be called faster
+while __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]" || (( ${(k)#states[(R)installing]} > 0 ))
+do
+    sleep 0.1
+    __zplug::utils::ansi::cursor_up $(($#repos + 2))
+
+    # Count up within spinners index
+    if (( ( spinner_idx+=1 ) > $#spinners )); then
+        spinner_idx=1
+    fi
+    # Count up within sub_spinners index
+    if (( ( subspinner_idx+=1 ) > $#sub_spinners )); then
+        subspinner_idx=1
+    fi
+
+    # Processing pids
+    for repo in "${(k)repo_pids[@]}"
     do
-        if __zplug::core::sources::is_handler_defined "check" "$from[$repo]"; then
-            if ! __zplug::core::sources::use_handler "check" "$from[$repo]" "$repo"; then
-                failed_packages+=( "$repo" )
+        if __zplug::job::state::running "$repo_pids[$repo]"; then
+            __zplug::job::message::installing \
+                $spinners[$spinner_idx] \
+                "$repo"
+            states[$repo]="installing"
+        else
+            # If $repo has build-hook tag
+            if [[ -n $hook_build[$repo] ]]; then
+                # Save status code for process cache
+                if [[ -z $status_codes[$repo] ]]; then
+                    status_codes[$repo]="$(__zplug::job::state::get "$repo")"
+                fi
+                if [[ $status_codes[$repo] != 0 ]]; then
+                    __zplug::job::message::failed_to_install_with_hook "$repo"
+                    states[$repo]="finished"
+                    continue
+                fi
+
+                if ! $hook_finished[$repo]; then
+                    hook_finished[$repo]=true
+                    # Run the hook-build in background
+                    {
+                        __zplug::job::hook::build "$repo"
+                        if (( $status > 0 )); then
+                            printf "$repo\n" >>|"$_zplug_config[build_failure]"
+                            printf "$repo\n" >>|"$_zplug_config[build_rollback]"
+                        else
+                            printf "$repo\n" >>|"$_zplug_config[build_success]"
+                        fi
+                    } & hook_pids[$repo]=$!
+                    # Run the timeout process in background
+                    {
+                        # kill the process for hook-build after sleeping
+                        # during the number of seconds that has been set as a timeout
+                        sleep "$timeout"
+
+                        # Check if $repo_pids don't run
+                        # and check if the process ($hook_pids[$repo]) that has should be killed
+                        if __zplug::job::state::running $hook_pids[$repo] && ! __zplug::job::state::running "$repo_pids[@]"; then
+                            __zplug::job::state::kill $hook_pids[$repo]
+                            printf "$repo\n" >>|"$_zplug_config[build_timeout]"
+                            printf "$repo\n" >>|"$_zplug_config[build_rollback]"
+                        fi
+                    } &
+                fi
+
+                if __zplug::job::state::running "$hook_pids[$repo]"; then
+                    # running build-hook
+                    __zplug::utils::ansi::erace_current_line
+                    __zplug::job::message::installed_with_hook_spinning \
+                        "$spinners[$spinner_idx]" \
+                        "$repo" \
+                        "$sub_spinners[$subspinner_idx]"
+                else
+                    # finished build-hook
+                    __zplug::utils::ansi::erace_current_line
+                    if __zplug::job::hook::build_failure "$repo"; then
+                        __zplug::job::message::installed_with_hook_failure "$repo"
+                    elif __zplug::job::hook::build_timeout "$repo"; then
+                        __zplug::job::message::installed_with_hook_timeout "$repo"
+                    else
+                        __zplug::job::message::installed_with_hook_success "$repo"
+                    fi
+                fi
+            else
+                # Save status code for process cache
+                if [[ -z $status_codes[$repo] ]]; then
+                    status_codes[$repo]="$(__zplug::job::state::get "$repo")"
+                fi
+                case $status_codes[$repo] in
+                    $_zplug_status[install_success])
+                        __zplug::job::message::installed "$repo"
+                        ;;
+                    $_zplug_status[install_failure])
+                        __zplug::job::message::failed_to_install "$repo"
+                        ;;
+                    $_zplug_status[install_already])
+                        __zplug::job::message::already_installed "$repo"
+                        ;;
+                    $_zplug_status[install_skip_if])
+                        __zplug::job::message::skipped_due_to_if_tag "$repo"
+                        ;;
+                    *)
+                        __zplug::job::message::unknown "$repo"
+                        ;;
+                esac
             fi
+            states[$repo]="finished"
         fi
     done
 
-    # Skip footer prints
-    if (( $#from == 0 )); then
+    printf "\n"
+    if __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]"; then
         __zplug::io::print::f \
             --zplug \
-            "No package to install\n"
-        return 0
+            "Finished: %d/%d plugin%s\n" \
+            ${(k)#states[(R)finished]} \
+            $#states \
+            ${is_parallel:+"s"}
     else
-        if (( $#failed_packages == 0 )); then
-            __zplug::io::print::put \
-                "$fg_bold[default] ==> Installation finished successfully!$reset_color\n"
-        else
-            __zplug::io::print::die \
-                "$fg_bold[red] ==> Installation failed for following packages:$reset_color\n"
-            __zplug::io::print::die \
-                "- $fg_bold[red]%s$reset_color\n" "${failed_packages[@]}"
-        fi
-
-        finish_time=$SECONDS
-
+        __zplug::utils::ansi::erace_current_line
         __zplug::io::print::f \
             --zplug \
-            --func \
-            "total wall-time %f sec.\n" \
-            $(( $finish_time - $start_time ))
-
-        return $#failed_packages
+            "Elapsed time: %.4f sec.\n" \
+            $SECONDS
     fi
-}
+done
+
+tput cnorm
+
+if (( ${(k)#status_codes[(R)1]} == 0 )); then
+    printf "$fg_bold[default] ==> Installation finished successfully!$reset_color\n"
+else
+    printf "$fg_bold[red] ==> Installation failed for following packages:$reset_color\n"
+    # Listing the packages that have failed to install
+    for repo in "${(k)status_codes[@]}"
+    do
+        if [[ $status_codes[$repo] == 1 ]]; then
+            printf " - %s\n" "$repo"
+        fi
+    done
+fi
+
+# Run rollback if hook-build failed
+if [[ -s $_zplug_config[build_rollback] ]]; then
+    if [[ -f $_zplug_config[build_failure] ]] || [[ -f $_zplug_config[build_timeout] ]]; then
+        __zplug::io::print::f \
+            --zplug \
+            "\n$fg_bold[red]These hook-build were failed to run:$reset_color\n"
+        # Listing the packages that have failed to build
+        {
+            sed 's/^/ - /g' "$_zplug_config[build_failure]"
+            sed 's/^/ - /g' "$_zplug_config[build_timeout]"
+        } 2>/dev/null
+        __zplug::io::print::f \
+            --zplug \
+            "To retry these hook-build, please run '$fg_bold[default]%s$reset_color'.\n" \
+            "zplug --rollback=build"
+    fi
+fi

@@ -37,6 +37,7 @@ _arguments \
     '(-)--help[show help message]: :->comp' \
     '(-)--version[version information]: :' \
     '(-)--log=[view zplug error log]: :->log' \
+    '(-)--rollback=[rollback paticular processings]: :->rollback' \
     '*:: :->comp' && return 0
 
 if (( CURRENT == 1 )); then
@@ -150,7 +151,6 @@ case $state in
         is_help="yes"
         _describe -t help_cmds "commands" cmds
         _describe -t help_tags "tags" tags
-        return 0
         ;;
     "log")
         compadd -J 'log/jq' -X "%F{yellow}Completing%f %Bwith jq%b" \
@@ -165,6 +165,11 @@ case $state in
             'clear' \
             'count' \
             'latest'
+        ;;
+    "rollback")
+        compadd -J 'rollback' -X "%F{yellow}Completing%f %Bwith rollback%b" \
+            'build'
+        ;;
 esac
 
 return ret

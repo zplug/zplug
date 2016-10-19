@@ -153,6 +153,9 @@ __zplug::core::core::prepare()
     mkdir -p "$ZPLUG_REPOS"
     mkdir -p "$ZPLUG_HOME/bin"
 
+    # Setup manage directory
+    mkdir -p "$ZPLUG_MANAGE"/{var,tmp}/log
+
     # Run compinit if zplug comp file hasn't load
     if (( ! $+functions[_zplug] )); then
         compinit
@@ -194,6 +197,77 @@ __zplug::core::core::variable()
     typeset -gx -i _ZPLUG_STATUS_ERROR_PARSE=8
     typeset -gx -i _ZPLUG_STATUS_ZPLUG_IS_LATEST=101
     typeset -gx -i _ZPLUG_STATUS_=255
+
+    typeset -gx     ZPLUG_MANAGE="$ZPLUG_HOME/.zplug"
+
+    # user-defined exit code 64..113
+    typeset -gx -A _zplug_status
+    _zplug_status=(
+    # compatible
+    "success"            0
+    "failure"            1
+    "true"               0
+    "false"              1
+    "repo_not_found"     2
+    "repo_frozen"        3
+    "repo_up_to_date"    4
+    "repo_local"         5
+    "invalid_argument"   6
+    "invalid_option"     7
+    "parse_error"        8
+    "latest_version"     101
+    # installation
+    "install_success"    0
+    "install_failure"    1
+    "install_already"    2
+    "install_skip_if"    3
+    "install_unknown"    4
+    # update
+    "update_success"         0
+    "update_failure"         1
+    "update_already"         2
+    "update_skip_if"         5
+    "update_up_to_date"      4
+    "update_skip_frozen"     3
+    "update_local_repo"      7
+    "update_repo_not_found"  9
+    "update_unknown"         8
+    # status
+    "status_up_to_date"         0
+    "status_local_out_of_date"  1
+    "status_not_on_any_branch"  2 # TODO
+    "status_not_git_repo"       3 # TODO
+    "status_unknown"            4
+    "status_repo_not_found"     5 # TODO
+    "status_skip_local_repo"    6 # TODO
+    # based on bash scripting
+    # - http://tldp.org/LDP/abs/html/exitcodes.html
+    "error"                  1
+    "builtin_error"          2
+    "diff_binary"            2
+    "command_not_executable" 126
+    "command_not_found"      127
+    "exit_syntax_error"      128
+    "error_signal_hup"       129
+    "error_signal_int"       130
+    "error_signal_kill"      137
+    # TODO: add others
+    )
+
+    typeset -gx -A _zplug_config
+    _zplug_config=(
+    "install_status" "$ZPLUG_MANAGE/tmp/installed"
+    "update_status"  "$ZPLUG_MANAGE/tmp/updated"
+    "status_status"  "$ZPLUG_MANAGE/tmp/status_status"
+
+    "build_success"  "$ZPLUG_MANAGE/tmp/build_success"
+    "build_failure"  "$ZPLUG_MANAGE/tmp/build_failure"
+    "build_timeout"  "$ZPLUG_MANAGE/tmp/build_timeout"
+    "build_rollback" "$ZPLUG_MANAGE/tmp/build_rollback"
+
+    "error_log"      "$ZPLUG_MANAGE/var/log/error_log"
+    "execution_log"  "$ZPLUG_MANAGE/var/log/execution_log"
+    )
 
     if (( $+ZPLUG_SHALLOW )); then
         __zplug::io::print::f \

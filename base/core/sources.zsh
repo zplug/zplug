@@ -46,24 +46,10 @@ __zplug::core::sources::use_handler()
         return 1
     fi
 
-    case "$repo" in
-        "zplug/zplug")
-            # Search the handler that has a name including 'self' word
-            handler_name="__zplug::core::self::$subcommand"
-            (( $+functions[$handler_name] )) ||
-                handler_name="__zplug::sources::github::$subcommand"
-            # If it isn't found, search another handler
-            # Nevertheless, callback is undefined
-            (( $+functions[$handler_name] )) ||
-                return $_ZPLUG_STATUS_FAILURE
-            ;;
-        *)
             if ! __zplug::core::sources::is_handler_defined "$subcommand" "$source_name"; then
                 # Callback function is undefined
                 return $_ZPLUG_STATUS_FAILURE
             fi
-            ;;
-    esac
 
     eval "$handler_name '$repo'"
     return $status

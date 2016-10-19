@@ -25,7 +25,9 @@ __zplug::io::log::with_json()
     printf '"shlvl": %d,' "$SHLVL"
     printf '"level": "%s",' "$level"
     printf '"dir": "%s",' "$PWD"
-    printf '"message": %s,' "${(qqq)message[*]}"
+    printf '"message": "'
+    printf "${(F)message[@]}" | __zplug::utils::shell::json_escape
+    printf '",'
     printf '"trace": {'
     for ((i = 1; i < $#functrace; i++))
     do
@@ -103,6 +105,18 @@ __zplug::io::log::capture()
 {
     __zplug::io::log::with_json "ERROR" \
         | >>|"$ZPLUG_ERROR_LOG"
+}
+
+__zplug::io::log::capture_error()
+{
+    __zplug::io::log::with_json "ERROR" \
+        | >>|"$_zplug_config[error_log]"
+}
+
+__zplug::io::log::capture_execution()
+{
+    __zplug::io::log::with_json "DEBUG" \
+        | >>|"$_zplug_config[execution_log]"
 }
 
 __zplug::io::log::info()

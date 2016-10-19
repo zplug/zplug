@@ -17,7 +17,7 @@ __zplug::utils::releases::get_latest()
     fi
 
     eval "$cmd $url" \
-        2> >(__zplug::io::log::capture) \
+        2>/dev/null \
         | grep -o '/'"$repo"'/releases/download/[^"]*' \
         | awk -F/ '{print $6}' \
         | sort \
@@ -27,7 +27,6 @@ __zplug::utils::releases::get_latest()
 __zplug::utils::releases::get_state()
 {
     local state name="$1" dir="$2"
-    local url="https://github.com/$name/releases"
 
     if (( $# < 2 )); then
         __zplug::io::log::error \
@@ -42,14 +41,16 @@ __zplug::utils::releases::get_state()
     fi
 
     case "$state" in
-        "local out of date")
-            state="${fg[red]}${state}${reset_color}"
-            ;;
         "up to date")
-            state="${fg[green]}${state}${reset_color}"
+            return $_zplug_status[status_up_to_date]
+            ;;
+        "local out of date")
+            return $_zplug_status[status_local_out_of_date]
+            ;;
+        *)
+            return $_zplug_status[status_unknown]
             ;;
     esac
-    __zplug::io::print::put "($state) '${url:-?}'\n"
 }
 
 __zplug::utils::releases::is_64()
@@ -130,7 +131,7 @@ __zplug::utils::releases::get_url()
     candidates=(
     ${(@f)"$(
     eval "$cmd $url" \
-        2> >(__zplug::io::log::capture) \
+        2>/dev/null \
         | grep -o '/'"$repo"'/releases/download/[^"]*'
     )"}
     )
@@ -195,12 +196,12 @@ __zplug::utils::releases::get()
 
     # Grab artifact from G-R
     eval "$cmd $url" \
-        2> >(__zplug::io::log::capture) >/dev/null
+        &>/dev/null
 
     __zplug::utils::releases::index \
         "$repo" \
         "$artifact" \
-        2> >(__zplug::io::log::capture) >/dev/null &&
+        &>/dev/null &&
         echo "$header" >"$tags[dir]/INDEX"
     )
 

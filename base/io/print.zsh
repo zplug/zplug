@@ -91,7 +91,7 @@ __zplug::io::print::f()
     # Change the output destination by the value of $fd
     {
         echo "${pre_formats[*]}" \
-            | __zplug::utils::shell::unansi \
+            | __zplug::utils::ansi::remove \
             | read pre_format
         repeat $#pre_format; do w="$w "; done
 
