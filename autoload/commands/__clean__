@@ -122,4 +122,7 @@ do
     unset "zplugs[$repo]"
 done
 
+# Remove broken symlinks
+rm -f $ZPLUG_ROOT/bin/*(-@)
+
 return $ret
