@@ -260,6 +260,7 @@ done
     "${(u)load_fpaths[@]}"
     "${fpath[@]}"
     )
+    rm -f "$ZPLUG_HOME/"zcompdump{,.zwc}
     compinit -C -d "$ZPLUG_HOME/zcompdump"
 
     {
