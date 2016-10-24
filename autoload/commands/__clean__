@@ -123,6 +123,6 @@ do
 done
 
 # Remove broken symlinks
-rm -f $ZPLUG_ROOT/bin/*(-@)
+__zplug::utils::shell::remove_deadlinks "$ZPLUG_HOME/bin"/*(@N)
 
 return $ret
