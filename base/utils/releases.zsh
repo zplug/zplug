@@ -220,7 +220,7 @@ __zplug::utils::releases::index()
                 rm -f "$artifact"
             } 2> >(__zplug::io::log::capture) >/dev/null
             ;;
-        *.tar.bs2)
+        *.tar.bz2)
             {
                 tar jxvf "$artifact"
                 rm -f "$artifact"
