@@ -113,26 +113,9 @@ do
 
         # Manage the status codes in a file
         # to lock the file in order to write asynchronously
-        (
-        zsystem flock -t 180 "$_zplug_config[install_status]"
-        cant_lock=$status
-        if (( cant_lock > 0 )); then
-            {
-                printf "Can't acquire lock for $_zplug_config[install_status]."
-                if (( cant_lock == 2 )); then
-                    printf " timeout."
-                fi
-                printf "\n"
-            } 1> >(__zplug::io::log::capture)
-            return 1
-        fi
-
-        # Save the status code with LTSV
-        __zplug::io::print::f "repo:%s\tstatus:%s\n" \
-            "$repo" \
-            "$status_code" \
-            >>|"$_zplug_config[install_status]"
-        )
+        __zplug::job::state::flock \
+            "$_zplug_config[install_status]" \
+            "repo:$repo\tstatus:$status_code"
     } &
 
     repo_pids[$repo]=$!
