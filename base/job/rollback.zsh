@@ -45,3 +45,23 @@ __zplug::job::rollback::build()
     printf "%s\n" "$failed[@]" >|"$_zplug_config[build_rollback]"
     printf "Run '$fg_bold[default]zplug --log$reset_color' if you find cause of the failure of these build\n"
 }
+
+__zplug::job::rollback::message()
+{
+    if [[ -s $_zplug_config[build_rollback] ]]; then
+        if [[ -f $_zplug_config[build_failure] ]] || [[ -f $_zplug_config[build_timeout] ]]; then
+            __zplug::io::print::f \
+                --zplug \
+                "\n$fg_bold[red]These hook-build were failed to run:$reset_color\n"
+            # Listing the packages that have failed to build
+            {
+                sed 's/^/ - /g' "$_zplug_config[build_failure]"
+                sed 's/^/ - /g' "$_zplug_config[build_timeout]"
+            } 2>/dev/null
+            __zplug::io::print::f \
+                --zplug \
+                "To retry these hook-build, please run '$fg_bold[default]%s$reset_color'.\n" \
+                "zplug --rollback=build"
+        fi
+    fi
+}
