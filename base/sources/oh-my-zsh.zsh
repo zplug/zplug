@@ -51,7 +51,8 @@ __zplug::sources::oh-my-zsh::update()
 
     __zplug::utils::git::merge \
         --dir    "$tags[dir]" \
-        --branch "$tags[at]"
+        --branch "$tags[at]" \
+        --repo "$repo"
 
     return $status
 }
