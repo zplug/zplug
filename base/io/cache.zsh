@@ -87,7 +87,7 @@ __zplug::io::cache::update()
                 "${(uk)load_commands[@]}"
             for load_command in "${(uk)load_commands[@]}"
             do
-                __zplug::io::print::put '\\ln -snf "%s" "%s"\n' \
+                __zplug::io::print::put '\\ln -snf "%s" "%s" 2>/dev/null\n' \
                     "$load_command" \
                     "$load_commands[$load_command]"
             done
