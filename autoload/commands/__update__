@@ -153,7 +153,6 @@ do
                 __zplug::job::hook::build "$repo"
                 ;;
             $_ZPLUG_STATUS_FAILURE)
-                echo fail
                 __zplug::job::spinner::echo "$fg[red]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
                     --die \
                     "Failed to update" \
