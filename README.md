@@ -18,7 +18,7 @@
 - Can manage everything
   - Zsh plugins/UNIX commands on [GitHub](https://github.com) and [Bitbucket](https://bitbucket.org)
   - Gist files ([gist.github.com](https://gist.github.com))
-  - Externally managed plugins e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) and [prezto](https://github.com/sorin-ionescu/prezto) plugins/themes
+  - Externally managed plugins e.g., [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh), [prezto](https://github.com/sorin-ionescu/prezto), and [zim](https://github.com/Eriner/zim) plugins/themes
   - Binary artifacts on [GitHub Releases](https://help.github.com/articles/about-releases/)
   - Local plugins
   - etc. (you can add your [own sources](https://github.com/zplug/zplug/blob/master/doc/guide/External-Sources.md)!)
@@ -113,6 +113,11 @@ zplug "plugins/git",   from:oh-my-zsh
 
 # Also prezto
 zplug "modules/prompt", from:prezto
+
+# And zim
+zplug 'modules/archive', from:zim
+zplug 'modules/prompt', from:zim
+zprompt_theme='magicmace'
 
 # Load if "if" tag returns true
 zplug "lib/clipboard", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"

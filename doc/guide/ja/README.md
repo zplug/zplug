@@ -18,7 +18,7 @@
 - 何でも管理できる
   - [GitHub](https://github.com) や [Bitbucket](https://bitbucket.org) にあるプラグインや UNIX コマンド
   - Gist ファイル ([gist.github.com](https://gist.github.com))
-  - 外部フレームワークなどのプラグイン (例: [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) や [prezto](https://github.com/sorin-ionescu/prezto) のプラグイン・テーマ)
+  - 外部フレームワークなどのプラグイン (例: [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh)、 [prezto](https://github.com/sorin-ionescu/prezto) や [zim](https://github.com/Eriner/zim) のプラグイン・テーマ)
   - [GitHub Releases](https://help.github.com/articles/about-releases/) のバイナリファイル
   - ローカルプラグイン
   - その他 ([カスタムソース](https://github.com/zplug/zplug/blob/master/doc/zplug/External-Sources.md)によって追加できる)
@@ -119,6 +119,11 @@ zplug "modules/osx", from:prezto, if:"[[ $OSTYPE == *darwin* ]]"
 zplug "modules/prompt", from:prezto
 # zstyle は zplug load の前に設定する
 zstyle ':prezto:module:prompt' theme 'sorin'
+
+# zim のプラグインを使用する
+zplug 'modules/prompt', from:zim
+zprompt_theme='magicmace'
+zplug 'modules/archive', from:zim
 
 # インストール・アップデート後に実行されるフック
 # この場合は以下のような設定が別途必要

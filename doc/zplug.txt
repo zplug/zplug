@@ -316,6 +316,13 @@ zplug "modules/prompt", from:prezto
 # Set zstyle before zplug load
 zstyle ':prezto:module:prompt' theme 'sorin'
 
+# And zim plugins
+zplug 'modules/prompt', from:zim
+zprompt_theme='magicmace'
+zplug 'modules/archive', from:zim
+
+zim_prompt
+
 # Run a command after a plugin is installed/updated
 zplug "tj/n", hook-build:"make install"
 
