@@ -99,7 +99,7 @@ __zplug::sources::github::load_plugin()
 {
     local    repo="$1"
     local -A tags default_tags
-    local -a plugins_ext themes_ext
+    local -a plugins_ext
     local -a unclassified_plugins
     local    ext
 
@@ -133,7 +133,6 @@ __zplug::sources::github::load_plugin()
     else
     # Default load behavior for plugins
     plugins_ext=("plugin.zsh" "zsh-theme" "theme-zsh")
-    themes_ext=("zsh-theme" "theme-zsh")
 
     # In order to find main file of the plugin,
     # narrow down the candidates in three stages
@@ -241,4 +240,32 @@ __zplug::sources::github::load_command()
     [[ -n $load_commands ]] && reply+=( load_commands "${(F)load_commands}" )
 
     return 0
+}
+
+__zplug::sources::github::load_theme()
+{
+    local    repo="$1" ext
+    local -A tags
+    local -a themes_ext
+    local -a load_themes
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
+
+    __zplug::core::tags::parse "$repo"
+    tags=( "${reply[@]}" )
+
+    # Default load behavior for themes
+    themes_ext=("zsh-theme" "theme-zsh")
+
+    for ext in "${themes_ext[@]}"
+    do
+        load_themes+=( "$tags[dir]"/*.$ext(N-.) )
+    done
+
+    reply=()
+    [[ -n $load_themes ]] && reply+=( load_themes "${(F)load_themes}" )
 }

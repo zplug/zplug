@@ -141,3 +141,8 @@ __zplug::sources::oh-my-zsh::load_plugin()
 
     return 0
 }
+
+__zplug::sources::oh-my-zsh::load_theme()
+{
+    __zplug::sources::oh-my-zsh::load_plugin "$argv[@]"
+}

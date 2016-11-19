@@ -11,6 +11,7 @@ local -a candidates
 candidates=(
 "$default"
 "command"
+"theme"
 "itself"
 )
 

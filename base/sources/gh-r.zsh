@@ -89,3 +89,8 @@ __zplug::sources::gh-r::load_command()
 {
     __zplug::sources::github::load_command "$argv[@]"
 }
+
+__zplug::sources::gh-r::load_theme()
+{
+    __zplug::sources::github::load_theme "$argv[@]"
+}

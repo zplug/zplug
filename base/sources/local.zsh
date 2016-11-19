@@ -176,3 +176,8 @@ __zplug::sources::local::load_command()
 
     return 0
 }
+
+__zplug::sources::local::load_theme()
+{
+    __zplug::sources::local::load_plugin "$argv[@]"
+}

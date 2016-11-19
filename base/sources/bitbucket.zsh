@@ -40,3 +40,8 @@ __zplug::sources::bitbucket::load_command()
 {
     __zplug::sources::github::load_command "$argv[@]"
 }
+
+__zplug::sources::bitbucket::load_theme()
+{
+    __zplug::sources::github::load_theme "$argv[@]"
+}
