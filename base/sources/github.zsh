@@ -132,7 +132,7 @@ __zplug::sources::github::load_plugin()
         fi
     else
     # Default load behavior for plugins
-    plugins_ext=("plugin.zsh" "zsh-theme" "theme-zsh")
+    plugins_ext=("plugin.zsh")
 
     # In order to find main file of the plugin,
     # narrow down the candidates in three stages
