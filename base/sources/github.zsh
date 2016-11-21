@@ -246,6 +246,7 @@ __zplug::sources::github::load_theme()
 {
     local    repo="$1" ext
     local -A tags
+    local -A default_tags
     local -a themes_ext
     local -a load_themes
 
@@ -261,10 +262,21 @@ __zplug::sources::github::load_theme()
     # Default load behavior for themes
     themes_ext=("zsh-theme" "theme-zsh")
 
-    for ext in "${themes_ext[@]}"
-    do
-        load_themes+=( "$tags[dir]"/*.$ext(N-.) )
-    done
+    if [[ -n $tags[use] ]]; then
+        # e.g. zplug 'foo/bar', as:theme, use:'*.zsh'
+        load_themes=( ${(@f)"$( \
+            __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
+        )"} )
+        if (( $#load_themes == 0 )); then
+            # e.g. zplug 'foo/bar', as:theme, use:dir
+            load_themes=( ${(@f)"$( \
+                __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]/*.${^themes_ext}" "(N-.)"
+            )"} )
+        fi
+    else
+        # e.g. zplug 'foo/bar', as:theme
+        load_themes+=( "$tags[dir]"/*.${^themes_ext}(N-.) )
+    fi
 
     reply=()
     [[ -n $load_themes ]] && reply+=( load_themes "${(F)load_themes}" )
