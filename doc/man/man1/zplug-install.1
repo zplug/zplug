@@ -2,12 +2,12 @@
 .\"     Title: zplug-install
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 05/04/2016
+.\"      Date: 11/21/2016
 .\"    Manual: ZPLUG Manual
 .\"    Source: ZPLUG Manual
 .\"  Language: English
 .\"
-.TH "ZPLUG\-INSTALL" "1" "05/04/2016" "ZPLUG Manual" "ZPLUG Manual"
+.TH "ZPLUG\-INSTALL" "1" "11/21/2016" "ZPLUG Manual" "ZPLUG Manual"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -23,7 +23,7 @@ zplug-install \- Install packages in parallel
 .SH "SYNOPSIS"
 .sp
 .nf
-\fIzplug install\fR [\-\-verbose] [\-\-select] [\fI"username/reponame"\fR]
+\fIzplug install\fR [\fI"username/reponame"\fR]
 .fi
 .sp
 .nf
@@ -34,14 +34,9 @@ The word \'package\' refers to the string in the format: "username/reponame"\&.
 Install the package that has not yet been installed, even though it is described in the file\&.
 .SH "OPTIONS"
 .PP
-\fB\-\-verbose\fR
+\fB(None)\fR
 .RS 4
-Be verbose\&.
-.RE
-.PP
-\fB\-\-select\fR
-.RS 4
-Choose the package that is not installed from the list and install it\&.
+no options
 .RE
 .SH "EXAMPLES"
 .sp
@@ -57,13 +52,13 @@ $ zplug install
 .RE
 .\}
 .sp
-Install a particular package verbosely:
+Install a paticular package verbosely:
 .sp
 .if n \{\
 .RS 4
 .\}
 .nf
-$ zplug install \-\-verbose \'some_author/some_repo\'
+$ zplug install \'some_author/some_repo\'
 Installing\&.\&.\&.        some_author/some_repo
 Installed!           some_author/some_repo (2\&.59s)
  ==> Installation finished successfully!
@@ -97,10 +92,10 @@ Which remote URL should I use? \- GitHub Help
 See the references in official wiki page to get started using zplug\&. The wiki may perhaps be overwhelming for first\-time users\&.
 .SH "AUTHORS"
 .sp
-zplug was originally written by Masaki Ishi (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
+zplug was originally written by Masaki Ishiyama (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
 .SH "COPYING"
 .sp
-Copyright (C) 2015\-2016 Masaki Ishi
+Copyright (C) 2015\-2016 Masaki Ishiyama
 .sp
 MIT License
 .SH "REPORTING BUGS"

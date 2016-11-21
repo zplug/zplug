@@ -2,12 +2,12 @@
 .\"     Title: zplug-update
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 05/04/2016
+.\"      Date: 11/21/2016
 .\"    Manual: ZPLUG Manual
 .\"    Source: ZPLUG Manual
 .\"  Language: English
 .\"
-.TH "ZPLUG\-UPDATE" "1" "05/04/2016" "ZPLUG Manual" "ZPLUG Manual"
+.TH "ZPLUG\-UPDATE" "1" "11/21/2016" "ZPLUG Manual" "ZPLUG Manual"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -23,7 +23,7 @@ zplug-update \- Update installed packages in parallel
 .SH "SYNOPSIS"
 .sp
 .nf
-\fIzplug update\fR [\-\-self|\-\-select [\fI"username/reponame"\fR]]
+\fIzplug update\fR [\-\-force] [\-\-self|\-\-select [\fI"username/reponame"\fR]]
 .fi
 .sp
 .nf
@@ -42,6 +42,11 @@ Use this command to update your copy of zplug\&.
 \fB\-\-select\fR
 .RS 4
 Choose the package that is not updated from the list and update it\&.
+.RE
+.PP
+\fB\-\-force\fR
+.RS 4
+Forcibly\&. To update as it is frozen repo without confirmation
 .RE
 .SH "EXAMPLES"
 .sp
@@ -91,10 +96,10 @@ Everything is ready\&. (~/\&.zplug/zplug)
 See the references in official wiki page to get started using zplug\&. The wiki may perhaps be overwhelming for first\-time users\&.
 .SH "AUTHORS"
 .sp
-zplug was originally written by Masaki Ishi (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
+zplug was originally written by Masaki Ishiyama (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
 .SH "COPYING"
 .sp
-Copyright (C) 2015\-2016 Masaki Ishi
+Copyright (C) 2015\-2016 Masaki Ishiyama
 .sp
 MIT License
 .SH "REPORTING BUGS"
