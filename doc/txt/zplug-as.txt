@@ -23,10 +23,10 @@ will be installed as the plugin or as the command.
 
 .zplug as tag
 [options="header"]
-|================================
-| Possive Values  | Default value
-| plugin, command | plugin
-|================================
+|=======================================
+| Possive Values         | Default value
+| plugin, command, theme | plugin
+|=======================================
 
 Besides, by using `zstyle` command, you can change default value:
 
@@ -52,6 +52,14 @@ $ zplug "stedolan/jq" \
     as:command, \
     from:gh-r, \
     use:"*darwin*"
+------------
+
+As a theme:
+
+------------
+$ zplug 'themes/apple', \
+    as:theme, \
+    from:oh-my-zsh
 ------------
 
 
