@@ -146,7 +146,6 @@ __zplug::sources::oh-my-zsh::load_theme()
         return 1
     fi
 
-    __zplug::core::tags::parse "$repo"
     tags[dir]="${$(
     __zplug::core::core::run_interfaces \
         'dir' \
