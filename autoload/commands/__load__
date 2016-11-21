@@ -161,7 +161,6 @@ do
                     "$tags[from]" \
                     "$repo"
                 reply_hash=( "$reply[@]" )
-                unclassified_plugins=( ${(@f)reply_hash[unclassified_plugins]} ) # for sources/oh-my-zsh.zsh
                 load_themes=( ${(@f)reply_hash[load_themes]} "$unclassified_plugins[@]" )
             fi
             setopt prompt_subst

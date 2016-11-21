@@ -47,8 +47,3 @@ __zplug::utils::omz::depends()
     # Return dependency list
     print -l "${depends[@]}"
 }
-
-__zplug::utils::omz::theme()
-{
-    setopt prompt_subst
-}

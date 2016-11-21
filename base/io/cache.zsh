@@ -123,7 +123,12 @@ __zplug::io::cache::update()
             __zplug::io::print::put '%s\n' "${hook_load_cmds[@]}"
             __zplug::io::print::put '\n'
         fi
-        __zplug::io::print::put '\nreturn 0\n'
+        if (( $#load_themes > 0 )); then
+            __zplug::io::print::put '# Themes\n'
+            __zplug::io::print::put 'source %s\n' "${(uqqq)load_themes[@]}"
+            __zplug::io::print::put '\n'
+        fi
+        __zplug::io::print::put 'return 0\n'
         __zplug::io::print::put '%s\n' "$(__zplug::io::cache::create)"
     } >|"$ZPLUG_CACHE_FILE"
 

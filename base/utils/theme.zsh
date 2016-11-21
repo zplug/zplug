@@ -161,7 +161,7 @@ git_prompt_status()
     INDEX="$(git status --porcelain -b 2>/dev/null)"
     _status=""
 
-    if $echo "$INDEX" | grep -E '^\?\? ' &>/dev/null; then
+    if echo "$INDEX" | grep -E '^\?\? ' &>/dev/null; then
         _status="$ZSH_THEME_GIT_PROMPT_UNTRACKED$_status"
     fi
 
