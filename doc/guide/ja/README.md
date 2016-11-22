@@ -168,6 +168,9 @@ zplug "zsh-users/zsh-syntax-highlighting", nice:10
 # ローカルプラグインも読み込める
 zplug "~/.zsh", from:local
 
+# テーマファイルを読み込む
+zplug 'dracula/zsh', as:theme
+
 # 未インストール項目をインストールする
 if ! zplug check --verbose; then
     printf "Install? [y/N]: "
@@ -249,7 +252,7 @@ zplug "zplug/zplug"
 
 | タグ | 説明 | 値 (デフォルト値) | 例 |
 |-----|-------------|-----------------|---------|
-| `as`          | プラグインとして、またはコマンドとして追加するか指定する | `plugin`,`command` (`plugin`) | `as:command` |
+| `as`          | プラグインとして、またはコマンドとして追加するか指定する | `plugin`,`command`,`theme` (`plugin`) | `as:command` |
 | `use`         | 読み込むファイルパターンを指定する (`plugin` のとき) か `$PATH` に追加したいコマンドの相対パスを指定する (`command` のとき) / `from:gh-r` の場合は zplug が自動で OS のアーキテクチャを判別するが、意図しない結果の場合 `use:"*darwin*{amd,386}*"` のようにすると良い | *グロブ・パターン* (`use:"*.zsh"`) | `use:bin`,`use:"*.sh"`, `use:*darwin*` |
 | `ignore`      | `use` タグと似ているが無視したいファイルパターンを指定する ([#56](https://github.com/zplug/zplug/issues/56) 参照) | *グロブ・パターン* (-) | `ignore:"some_*.zsh"` |
 | `from`        | どこからインストールするか指定する | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`prezto`,`local` (`github`) | `from:gh-r` |

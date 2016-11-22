@@ -176,3 +176,34 @@ __zplug::sources::local::load_command()
 
     return 0
 }
+
+__zplug::sources::local::load_theme()
+{
+    local    repo="$1" ext
+    local -a load_themes
+    local -a themes_ext
+
+    themes_ext=("zsh-theme" "theme-zsh")
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
+
+    for ext in "$themes_ext[@]"
+    do
+        if [[ $repo =~ $ext$ ]]; then
+            load_themes+=(
+                ${(@f)"$( \
+                    __zplug::utils::shell::expand_glob "${repo}" "(N-.)"
+                )"}
+            )
+        fi
+    done
+
+    reply=()
+    [[ -n $load_themes ]] && reply+=( load_themes "${(F)load_themes}" )
+
+    return 0
+}

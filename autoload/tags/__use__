@@ -6,6 +6,7 @@ local    arg="$1" package
 local -a parsed_zplugs
 local    use
 local    default="*.zsh"
+local -A tags
 
 package="${arg}, ${zplugs[$arg]%, }"
 parsed_zplugs=(${(s/, /)package/,  */, })
@@ -15,13 +16,18 @@ if [[ -z $use ]]; then
     zstyle -s ":zplug:tag" use use
 fi
 
-local from
+tags[from]="$(
 __zplug::core::core::run_interfaces \
     'from' \
-    "$arg" \
-    | read from
+    "$arg"
+)"
+tags[as]="$(
+__zplug::core::core::run_interfaces \
+    'as' \
+    "$arg"
+)"
 
-if [[ $from == "gh-r" ]]; then
+if [[ $tags[from] == "gh-r" ]]; then
     default=""
     if [[ -n $use ]]; then
         use="$(__zplug::utils::shell::glob2regexp "$use")"
@@ -31,6 +37,10 @@ if [[ $from == "gh-r" ]]; then
             use="(darwin|osx)"
         fi
     fi
+fi
+
+if [[ $tags[as] == "theme" ]]; then
+    default=""
 fi
 
 echo "${use:-$default}"

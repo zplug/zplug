@@ -153,6 +153,19 @@ do
             fi
             ;;
 
+        "theme")
+            if __zplug::core::sources::is_handler_defined "load_theme" "$tags[from]"; then
+                # Custom handler for loading
+                __zplug::core::sources::use_handler \
+                    "load_theme" \
+                    "$tags[from]" \
+                    "$repo"
+                reply_hash=( "$reply[@]" )
+                load_themes=( ${(@f)reply_hash[load_themes]} "$unclassified_plugins[@]" )
+            fi
+            setopt prompt_subst
+            ;;
+
         "itself")
             __zplug::core::self::load "$repo"
             continue
@@ -239,7 +252,7 @@ done
 # Plugins
 {
     # Normal plugins
-    for pkg in "${(u)load_plugins[@]}"
+    for pkg in "${(u)load_plugins[@]}" "${(u)load_themes[@]}"
     do
         if [[ -f $pkg ]]; then
             source "$pkg"

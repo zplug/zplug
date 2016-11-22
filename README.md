@@ -166,6 +166,9 @@ zplug "zsh-users/zsh-syntax-highlighting", nice:10
 # Can manage local plugins
 zplug "~/.zsh", from:local
 
+# Load theme file
+zplug 'dracula/zsh', as:theme
+
 # Install plugins if there are plugins that have not been installed
 if ! zplug check --verbose; then
     printf "Install? [y/N]: "
@@ -247,7 +250,7 @@ All that's left is to run `zplug update`.
 
 | Tag | Description | Value (default) | Example |
 |-----|-------------|-----------------|---------|
-| `as`          | Specify whether to register the package as plugins or commands | `plugin`,`command` (`plugin`) | `as:command` |
+| `as`          | Specify whether to register the package as plugins or commands | `plugin`,`command`,`theme` (`plugin`) | `as:command` |
 | `use`         | Specify the pattern of the files to source (for `plugin`) or the relative path to add to the `$PATH` (for `command`) / With `from:gh-r`, zplug tries to guess which file to use from your OS and architecture. You can manually specify `use:"*darwin*{amd,386}*"` if that doesn't get the right file. | *glob* (`use:"*.zsh"`) | `use:bin`,`use:"*.sh"`, `use:*darwin*` |
 | `ignore`      | Similar to `use` tag, but specify pattern of files you want to ignore (see also [#56](https://github.com/zplug/zplug/issues/56)) | *glob* (-) | `ignore:"some_*.zsh"` |
 | `from`        | Specify where to get the package from | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`prezto`,`local` (`github`) | `from:gh-r` |

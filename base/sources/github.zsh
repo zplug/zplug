@@ -99,7 +99,7 @@ __zplug::sources::github::load_plugin()
 {
     local    repo="$1"
     local -A tags default_tags
-    local -a plugins_ext themes_ext
+    local -a plugins_ext
     local -a unclassified_plugins
     local    ext
 
@@ -132,8 +132,7 @@ __zplug::sources::github::load_plugin()
         fi
     else
     # Default load behavior for plugins
-    plugins_ext=("plugin.zsh" "zsh-theme" "theme-zsh")
-    themes_ext=("zsh-theme" "theme-zsh")
+    plugins_ext=("plugin.zsh")
 
     # In order to find main file of the plugin,
     # narrow down the candidates in three stages
@@ -241,4 +240,44 @@ __zplug::sources::github::load_command()
     [[ -n $load_commands ]] && reply+=( load_commands "${(F)load_commands}" )
 
     return 0
+}
+
+__zplug::sources::github::load_theme()
+{
+    local    repo="$1" ext
+    local -A tags
+    local -A default_tags
+    local -a themes_ext
+    local -a load_themes
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
+
+    __zplug::core::tags::parse "$repo"
+    tags=( "${reply[@]}" )
+
+    # Default load behavior for themes
+    themes_ext=("zsh-theme" "theme-zsh")
+
+    if [[ -n $tags[use] ]]; then
+        # e.g. zplug 'foo/bar', as:theme, use:'*.zsh'
+        load_themes=( ${(@f)"$( \
+            __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
+        )"} )
+        if (( $#load_themes == 0 )); then
+            # e.g. zplug 'foo/bar', as:theme, use:dir
+            load_themes=( ${(@f)"$( \
+                __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]/*.${^themes_ext}" "(N-.)"
+            )"} )
+        fi
+    else
+        # e.g. zplug 'foo/bar', as:theme
+        load_themes+=( "$tags[dir]"/*.${^themes_ext}(N-.) )
+    fi
+
+    reply=()
+    [[ -n $load_themes ]] && reply+=( load_themes "${(F)load_themes}" )
 }

@@ -113,7 +113,7 @@ Values 'truthy' and 'falsy' mean any of "true, yes, on, 1" and "false, no, off, 
 |Tag |Description |Value (default) |Example
 
 |*as* | Whether to register the package as commands or as plugins
-| `plugin`,`command` (`plugin`) | `as:command`
+| `plugin`,`command`,`theme` (`plugin`) | `as:command`
 
 |*use* | Specify the pattern of the files to source (for `plugin`) or the relative path
 from the package root of the file to add to `$PATH` (for `command`) / Useful,
@@ -307,7 +307,7 @@ zplug "junegunn/fzf-bin", \
 
 # Support oh-my-zsh plugins and the like
 zplug "plugins/git",   from:oh-my-zsh, if:"(( $+commands[git] ))"
-zplug "themes/duellj", from:oh-my-zsh
+zplug "themes/duellj", from:oh-my-zsh, as:theme
 zplug "lib/clipboard", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
 
 # Also supports prezto plugins
@@ -354,6 +354,9 @@ zplug "zsh-users/zsh-syntax-highlighting", nice:10
 # Can manage local plugins
 zplug "~/.zsh", from:local
 
+# Load theme file
+zplug 'dracula/zsh', as:theme
+
 # Install plugins if there are plugins that have not been installed
 if ! zplug check --verbose; then
     printf "Install? [y/N]: "
@@ -379,13 +382,13 @@ The wiki may perhaps be overwhelming for first-time users.
 
 Authors
 -------
-zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+zplug was originally written by Masaki Ishiyama (a.k.a @b4b4r07).
 Many people have contributed to it.
 
 
 Copying
 -------
-Copyright \(C) 2015-2016 Masaki Ishi
+Copyright \(C) 2015-2016 Masaki Ishiyama
 
 MIT License
 

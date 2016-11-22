@@ -52,3 +52,8 @@ __zplug::sources::gist::load_command()
 {
     __zplug::sources::github::load_command "$@"
 }
+
+__zplug::sources::gist::load_theme()
+{
+    __zplug::sources::github::load_theme "$argv[@]"
+}

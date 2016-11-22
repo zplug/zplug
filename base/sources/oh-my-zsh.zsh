@@ -69,7 +69,6 @@ __zplug::sources::oh-my-zsh::load_plugin()
     local -A default_tags
     local -a load_fpaths
     local -a unclassified_plugins
-    local -a themes_ext
 
     if (( $# < 1 )); then
         __zplug::io::log::error \
@@ -83,22 +82,11 @@ __zplug::sources::oh-my-zsh::load_plugin()
 
     load_fpaths=()
     unclassified_plugins=()
-    # Themes' extensions for Oh-My-Zsh
-    themes_ext=("zsh-theme" "theme-zsh")
 
     # Check if omz is loaded and set some necessary settings
     if [[ -z $ZSH ]]; then
         export ZSH="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
         export ZSH_CACHE_DIR="$ZSH/cache/"
-        # Insert to the top of unclassified_plugins
-        # unclassified_plugins=(
-        #     "$ZSH/oh-my-zsh.sh"
-        #     "${unclassified_plugins[@]}"
-        # )
-    fi
-
-    if [[ $tags[name] =~ ^themes ]]; then
-        __zplug::utils::omz::theme
     fi
 
     case $tags[name] in
@@ -138,6 +126,51 @@ __zplug::sources::oh-my-zsh::load_plugin()
     reply=()
     [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
     [[ -n $unclassified_plugins ]] && reply+=( unclassified_plugins "${(F)unclassified_plugins}" )
+
+    return 0
+}
+
+__zplug::sources::oh-my-zsh::load_theme()
+{
+    local    repo="$1"
+    local -A tags
+    local -A default_tags
+    local -a load_themes
+    local -a themes_ext
+
+    themes_ext=("zsh-theme" "theme-zsh")
+
+    if (( $# < 1 )); then
+        __zplug::io::log::error \
+            "too few arguments"
+        return 1
+    fi
+
+    tags[dir]="${$(
+    __zplug::core::core::run_interfaces \
+        'dir' \
+        "$repo"
+    )}"
+
+    # Check if omz is loaded and set some necessary settings
+    if [[ -z $ZSH ]]; then
+        export ZSH="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
+        export ZSH_CACHE_DIR="$ZSH/cache/"
+    fi
+
+    case "$repo" in
+        themes/*)
+            load_themes=(
+                ${(@f)"$(__zplug::utils::omz::depends "$repo")"}
+                ${(@f)"$( \
+                    __zplug::utils::shell::expand_glob "$tags[dir]/${repo}.${^themes_ext}" "(N-.)"
+                )"}
+            )
+            ;;
+    esac
+
+    reply=()
+    [[ -n $load_themes ]] && reply+=( load_themes "${(F)load_themes}" )
 
     return 0
 }
