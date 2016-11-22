@@ -396,9 +396,9 @@ page](https://github.com/zplug/zplug/wiki/Migration).
 [license]: http://b4b4r07.mit-license.org
 [travis-link]: https://travis-ci.org/zplug/zplug
 [travis-badge]: https://img.shields.io/travis/zplug/zplug.svg?style=flat-square
-[latest-badge]: https://img.shields.io/badge/latest-v2.3.2-ca7f85.svg?style=flat-square
+[latest-badge]: https://img.shields.io/badge/latest-v2.3.3-ca7f85.svg?style=flat-square
 [latest-link]: https://github.com/zplug/zplug/releases/latest
-[stable-badge]: https://img.shields.io/badge/stable-v2.3.2-e9a326.svg?style=flat-square
-[stable-link]: https://github.com/zplug/zplug/releases/tag/2.3.2
+[stable-badge]: https://img.shields.io/badge/stable-v2.3.3-e9a326.svg?style=flat-square
+[stable-link]: https://github.com/zplug/zplug/releases/tag/2.3.3
 [slack-link]: https://zplug.herokuapp.com
 [slack-badge]: https://img.shields.io/badge/slack-join-ca7f85.svg?style=flat-square
