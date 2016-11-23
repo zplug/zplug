@@ -179,6 +179,9 @@ __zplug::sources::local::load_command()
 
 __zplug::sources::local::load_theme()
 {
+    __zplug::sources::github::load_theme "$argv[@]"
+    return $status
+
     local    repo="$1" ext
     local -a load_themes
     local -a themes_ext
@@ -191,16 +194,21 @@ __zplug::sources::local::load_theme()
         return 1
     fi
 
-    for ext in "$themes_ext[@]"
-    do
-        if [[ $repo =~ $ext$ ]]; then
-            load_themes+=(
-                ${(@f)"$( \
-                    __zplug::utils::shell::expand_glob "${repo}" "(N-.)"
-                )"}
-            )
+    if [[ -n $tags[use] ]]; then
+        # e.g. zplug 'foo/bar', as:theme, use:'*.zsh'
+        load_themes=( ${(@f)"$( \
+            __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
+        )"} )
+        if (( $#load_themes == 0 )); then
+            # e.g. zplug 'foo/bar', as:theme, use:dir
+            load_themes=( ${(@f)"$( \
+                __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]/*.${^themes_ext}" "(N-.)"
+            )"} )
         fi
-    done
+    else
+        # e.g. zplug 'foo/bar', as:theme
+        load_themes+=( "$tags[dir]"/*.${^themes_ext}(N-.) )
+    fi
 
     reply=()
     [[ -n $load_themes ]] && reply+=( load_themes "${(F)load_themes}" )
