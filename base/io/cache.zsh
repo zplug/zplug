@@ -73,7 +73,7 @@ __zplug::io::cache::update()
         __zplug::io::print::put 'if $is_verbose; then\n'
         __zplug::io::print::put '  echo "Static loading..." >&2\n'
         __zplug::io::print::put 'fi\n'
-        if [[ -o prompt_subst ]]; then
+        if [[ ! -o prompt_subst ]]; then
             __zplug::io::print::put '\nsetopt prompt_subst\n'
         fi
         if (( $+functions[pmodload] )); then
