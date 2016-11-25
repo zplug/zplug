@@ -38,11 +38,11 @@ __zplug::sources::oh-my-zsh::update()
         return 1
     fi
 
-    tags[dir]="${$(
+    tags[dir]="$(
     __zplug::core::core::run_interfaces \
         'dir' \
         "$repo"
-    )}"
+    )"
     tags[at]="$(
     __zplug::core::core::run_interfaces \
         'at' \
@@ -64,24 +64,15 @@ __zplug::sources::oh-my-zsh::get_url()
 
 __zplug::sources::oh-my-zsh::load_plugin()
 {
-    local    repo="$1"
-    local -A tags
-    local -A default_tags
-    local -a load_fpaths
-    local -a unclassified_plugins
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
+    local    repo="${1:?}"
+    local -A tags default_tags
+    local -a unclassified_plugins load_fpaths
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
     default_tags[use]="$(__zplug::core::core::run_interfaces 'use')"
-
-    load_fpaths=()
     unclassified_plugins=()
+    load_fpaths=()
 
     # Check if omz is loaded and set some necessary settings
     if [[ -z $ZSH ]]; then
@@ -89,7 +80,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
         export ZSH_CACHE_DIR="$ZSH/cache/"
     fi
 
-    case $tags[name] in
+    case "$repo" in
         plugins/*)
             unclassified_plugins=(
                 ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"}
@@ -97,11 +88,11 @@ __zplug::sources::oh-my-zsh::load_plugin()
             # No USE tag specified
             if [[ $tags[use] == $default_tags[use] ]]; then
                 unclassified_plugins+=( ${(@f)"$( \
-                    __zplug::utils::shell::expand_glob "$tags[dir]/${tags[name]}/*.plugin.zsh" "(N-.)"
+                    __zplug::utils::shell::expand_glob "$tags[dir]/$tags[name]/*.plugin.zsh" "(N-.)"
                 )"} )
             else
                 unclassified_plugins+=( ${(@f)"$( \
-                    __zplug::utils::shell::expand_glob "$tags[dir]/${tags[name]}/${tags[use]}" "(N-.)"
+                    __zplug::utils::shell::expand_glob "$tags[dir]/$tags[name]/$tags[use]" "(N-.)"
                 )"} )
             fi
             ;;
@@ -109,23 +100,23 @@ __zplug::sources::oh-my-zsh::load_plugin()
             unclassified_plugins=(
                 ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"}
                 ${(@f)"$( \
-                    __zplug::utils::shell::expand_glob "$tags[dir]/${tags[name]}.${^themes_ext}" "(N-.)"
+                    __zplug::utils::shell::expand_glob "$tags[dir]/$tags[name].${^themes_ext}" "(N-.)"
                 )"}
             )
             ;;
         lib/*)
             unclassified_plugins+=( ${(@f)"$( \
-                __zplug::utils::shell::expand_glob "$tags[dir]/${tags[name]}.zsh" "(N-.)"
+                __zplug::utils::shell::expand_glob "$tags[dir]/$tags[name].zsh" "(N-.)"
             )"} )
             ;;
     esac
     load_fpaths+=(
-        ${tags[dir]}/${tags[name]}/{_*,**/_*}(N-.:h)
+        "$tags[dir]/$tags[name]"/{_*,**/_*}(N-.:h)
     )
 
     reply=()
-    [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
-    [[ -n $unclassified_plugins ]] && reply+=( unclassified_plugins "${(F)unclassified_plugins}" )
+    [[ -n $unclassified_plugins ]] && reply+=( "unclassified_plugins" "${(F)unclassified_plugins}" )
+    [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
 
     return 0
 }
@@ -133,9 +124,8 @@ __zplug::sources::oh-my-zsh::load_plugin()
 __zplug::sources::oh-my-zsh::load_theme()
 {
     local    repo="$1"
-    local -A tags
-    local -A default_tags
-    local -a load_themes
+    local -A tags default_tags
+    local -a load_themes load_fpaths
     local -a themes_ext
 
     themes_ext=("zsh-theme" "theme-zsh")
@@ -170,7 +160,8 @@ __zplug::sources::oh-my-zsh::load_theme()
     esac
 
     reply=()
-    [[ -n $load_themes ]] && reply+=( load_themes "${(F)load_themes}" )
+    [[ -n $load_themes ]] && reply+=( "load_themes" "${(F)load_themes}" )
+    [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
 
     return 0
 }

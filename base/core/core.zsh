@@ -195,6 +195,18 @@ __zplug::core::core::variable()
     typeset -gx -i _ZPLUG_STATUS_ZPLUG_IS_LATEST=101
     typeset -gx -i _ZPLUG_STATUS_=255
 
+    typeset -gx -A _zplug_cache
+    _zplug_cache=(
+    "before_plugin" "$ZPLUG_CACHE_FILE/before_plugin"
+    "after_plugin"  "$ZPLUG_CACHE_FILE/after_plugin"
+    "plugin"        "$ZPLUG_CACHE_FILE/plugin"
+    "lazy_plugin"   "$ZPLUG_CACHE_FILE/lazy_plugin"
+    "theme"         "$ZPLUG_CACHE_FILE/theme"
+    "command"       "$ZPLUG_CACHE_FILE/command"
+    "hook-load"     "$ZPLUG_CACHE_FILE/hook-load"
+    "fpath"         "$ZPLUG_CACHE_FILE/fpath"
+    )
+
     if (( $+ZPLUG_SHALLOW )); then
         __zplug::io::print::f \
             --die \

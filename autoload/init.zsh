@@ -14,3 +14,5 @@ autoload -Uz compinit
 autoload -Uz zplug
 
 colors
+
+zmodload zsh/system

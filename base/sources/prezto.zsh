@@ -38,11 +38,11 @@ __zplug::sources::prezto::update()
         return 1
     fi
 
-    tags[dir]="${$(
+    tags[dir]="$(
     __zplug::core::core::run_interfaces \
         'dir' \
         "$repo"
-    )}"
+    )"
     tags[at]="$(
     __zplug::core::core::run_interfaces \
         'at' \
@@ -52,7 +52,7 @@ __zplug::sources::prezto::update()
     __zplug::utils::git::merge \
         --dir    "$tags[dir]" \
         --branch "$tags[at]" \
-        --repo "$repo"
+        --repo   "$repo"
 
     return $status
 }
@@ -64,7 +64,7 @@ __zplug::sources::prezto::get_url()
 
 __zplug::sources::prezto::load_plugin()
 {
-    local    repo="$1"
+    local    repo="${1:?}"
     local -A tags
     local -A default_tags
     local -a load_fpaths
@@ -72,12 +72,7 @@ __zplug::sources::prezto::load_plugin()
     local -a lazy_plugins
     local -a nice_plugins
     local    module_name
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
+    local    dependency
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
@@ -103,13 +98,13 @@ __zplug::sources::prezto::load_plugin()
 
     for dependency in ${(@f)"$( __zplug::utils::prezto::depends "$module_name" )"}
     do
-        unclassified_plugins+=( "$tags[dir]/modules/$dependency/"init.zsh(N-.) )
+        unclassified_plugins+=( "$tags[dir]/modules/$dependency"/init.zsh(N-.) )
     done
 
     if [[ $tags[use] != $default_tags[use] ]]; then
-        unclassified_plugins+=( "$tags[dir]/"${~tags[use]}(N-.) )
+        unclassified_plugins+=( "$tags[dir]"/${~tags[use]}(N-.) )
     elif [[ -f $tags[dir]/$tags[name]/init.zsh ]]; then
-        unclassified_plugins+=( "$tags[dir]/$tags[name]/"init.zsh(N-.) )
+        unclassified_plugins+=( "$tags[dir]/$tags[name]"/init.zsh(N-.) )
     fi
 
     # modules/prompt's init.zsh must be sourced AFTER fpath is added (i.e.
@@ -129,7 +124,7 @@ __zplug::sources::prezto::load_plugin()
             setopt local_options extended_glob
 
             local pfunction_glob='^([_.]*|prompt_*_setup|README*)(-.N:t)'
-            lazy_plugins=( "$tags[dir]/$tags[name]/functions/"$~pfunction_glob )
+            lazy_plugins=( "$tags[dir]/$tags[name]/functions"/${~pfunction_glob} )
         }
     fi
 
@@ -141,10 +136,10 @@ __zplug::sources::prezto::load_plugin()
     fi
 
     reply=()
-    [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
-    [[ -n $unclassified_plugins ]] && reply+=( unclassified_plugins "${(F)unclassified_plugins}" )
-    [[ -n $nice_plugins ]] && reply+=( nice_plugins "${(F)nice_plugins}" )
-    [[ -n $lazy_plugins ]] && reply+=( lazy_plugins "${(F)lazy_plugins}" )
+    [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
+    [[ -n $unclassified_plugins ]] && reply+=( "unclassified_plugins" "${(F)unclassified_plugins}" )
+    [[ -n $nice_plugins ]] && reply+=( "nice_plugins" "${(F)nice_plugins}" )
+    [[ -n $lazy_plugins ]] && reply+=( "lazy_plugins" "${(F)lazy_plugins}" )
 
     return 0
 }
