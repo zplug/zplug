@@ -1,5 +1,12 @@
 #!/bin/zsh
 
+# Check if cache is up-to-date
+if __zplug::core::cache::loadable; then
+    echo "zplug: load from cache"
+    __zplug::core::load::cache
+    return $status
+fi
+
 local repo
 local -a repos
 local is_verbose=false
@@ -39,14 +46,14 @@ if [[ -f $ZPLUG_CACHE_FILE ]]; then
     rm -rf "$ZPLUG_CACHE_FILE"
 fi
 mkdir -p "$ZPLUG_CACHE_FILE"
-rm "$_zplug_cache[before_plugin]"
-rm "$_zplug_cache[after_plugin]"
-rm "$_zplug_cache[plugin]"
-rm "$_zplug_cache[lazy_plugin]"
-rm "$_zplug_cache[theme]"
-rm "$_zplug_cache[command]"
-rm "$_zplug_cache[fpath]"
-rm "$_zplug_cache[hook-load]"
+rm -f "$_zplug_cache[before_plugin]"
+rm -f "$_zplug_cache[after_plugin]"
+rm -f "$_zplug_cache[plugin]"
+rm -f "$_zplug_cache[lazy_plugin]"
+rm -f "$_zplug_cache[theme]"
+rm -f "$_zplug_cache[command]"
+rm -f "$_zplug_cache[fpath]"
+rm -f "$_zplug_cache[hook-load]"
 touch "$_zplug_cache[before_plugin]"
 touch "$_zplug_cache[after_plugin]"
 touch "$_zplug_cache[plugin]"
@@ -55,12 +62,6 @@ touch "$_zplug_cache[theme]"
 touch "$_zplug_cache[command]"
 touch "$_zplug_cache[fpath]"
 touch "$_zplug_cache[hook-load]"
-
-# Check if cache is up-to-date
-#if __zplug::core::cache::loadable; then
-#    __zplug::core::load::cache --verbose
-#    return $status
-#fi
 
 local -F SECONDS
 set +m
@@ -97,5 +98,5 @@ done
 wait
 
 # Load packages from cache
-#__zplug::core::load::cache --verbose
+__zplug::core::load::cache --verbose
 return $status

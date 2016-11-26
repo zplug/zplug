@@ -1,7 +1,11 @@
 __zplug::core::cache::loadable()
 {
     # Check if cache is up-to-date
-    :
+    if [[ -e $ZPLUG_CACHE_FILE ]]; then
+        # TODO:
+        return 0
+    fi
+    return 1
 }
 
 __zplug::core::cache::plugins()
@@ -12,7 +16,8 @@ __zplug::core::cache::plugins()
     local -aU load_plugins load_fpaths lazy_plugins nice_plugins
     local -aU ignore_patterns
     local -A reply_hash
-    local plugin
+    local -A hook_load
+    local pkg hook
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
@@ -71,29 +76,40 @@ __zplug::core::cache::plugins()
         # fpath
         load_fpaths=( ${(@f)reply_hash[load_fpaths]} )
 
+        for pair in ${(@f)reply_hash[hook_load]}
+        do
+            hook_load+=( ${(@s:\0:)pair} )
+        done
+
         if (( $#load_plugins > 0 )); then
-            for plugin in "$load_plugins[@]"
+            for pkg in "$load_plugins[@]"
             do
-                __zplug::job::state::flock "$_zplug_cache[plugin]" "$plugin"
+                __zplug::job::state::flock "$_zplug_cache[plugin]" "source ${(qqq)pkg}"
             done
         fi
         if (( $#nice_plugins > 0 )); then
-            for plugin in "$nice_plugins[@]"
+            for pkg in "$nice_plugins[@]"
             do
-                __zplug::job::state::flock "$_zplug_cache[before_plugin]" "$plugin"
-                __zplug::job::state::flock "$_zplug_cache[after_plugin]" "$plugin"
+                __zplug::job::state::flock "$_zplug_cache[before_plugin]" "source ${(qqq)pkg}"
+                __zplug::job::state::flock "$_zplug_cache[after_plugin]" "source ${(qqq)pkg}"
             done
         fi
         if (( $#lazy_plugins > 0 )); then
-            for plugin in "$lazy_plugin[@]"
+            for pkg in "$lazy_plugin[@]"
             do
-                __zplug::job::state::flock "$_zplug_cache[lazy_plugin]" "$plugin"
+                __zplug::job::state::flock "$_zplug_cache[lazy_plugin]" "source ${(qqq)pkg}"
             done
         fi
         if (( $#load_fpaths > 0 )); then
-            for plugin in "$load_fpaths[@]"
+            for pkg in "$load_fpaths[@]"
             do
-                __zplug::job::state::flock "$_zplug_cache[fpath]" "$plugin"
+                __zplug::job::state::flock "$_zplug_cache[fpath]" "fpath+=(${(qqq)pkg})"
+            done
+        fi
+        if (( $#hook_load > 0 )); then
+            for hook in "${(k)hook_load[@]}"
+            do
+                __zplug::job::state::flock "$_zplug_cache[hook-load]" "$hook_load[$hook]"
             done
         fi
     fi
@@ -104,11 +120,13 @@ __zplug::core::cache::commands()
     local repo="${1:?}"
     local -A tags
     local -aU unclassified_plugins
-    local -aU load_plugins load_fpaths lazy_plugins nice_plugins
     local -aU ignore_patterns
     local -A reply_hash
     local -A load_commands
-    local pkg
+    local pkg hook
+    local pair
+    local -aU load_plugins load_fpaths lazy_plugins nice_plugins
+    local -A hook_load
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
@@ -157,22 +175,35 @@ __zplug::core::cache::commands()
         reply_hash=( "$reply[@]" )
 
         load_fpaths+=( ${(@f)reply_hash[load_fpaths]} )
+
         for pair in ${(@f)reply_hash[load_commands]}
         do
             # Each line (pair) is null character-separated
             load_commands+=( ${(@s:\0:)pair} )
         done
 
+        for pair in ${(@f)reply_hash[hook_load]}
+        do
+            hook_load+=( ${(@s:\0:)pair} )
+        done
+
         if (( $#load_commands > 0 )); then
             for pkg in "${(k)load_commands[@]}"
             do
-                __zplug::job::state::flock "$_zplug_cache[command]" "$pkg $load_commands[$pkg]"
+                __zplug::job::state::flock "$_zplug_cache[command]" "chmod 755 ${(qqq)pkg}"
+                __zplug::job::state::flock "$_zplug_cache[command]" "ln -snf ${(qqq)pkg} ${(qqq)load_commands[$pkg]}"
             done
         fi
         if (( $#load_fpaths > 0 )); then
             for pkg in "$load_fpaths[@]"
             do
-                __zplug::job::state::flock "$_zplug_cache[fpath]" "$pkg"
+                __zplug::job::state::flock "$_zplug_cache[fpath]" "fpath+=(${(qqq)pkg})"
+            done
+        fi
+        if (( $#hook_load > 0 )); then
+            for hook in "${(k)hook_load[@]}"
+            do
+                __zplug::job::state::flock "$_zplug_cache[hook-load]" "$hook_load[$hook]"
             done
         fi
     fi
@@ -186,7 +217,8 @@ __zplug::core::cache::themes()
     local -aU load_plugins load_fpaths lazy_plugins nice_plugins
     local -aU ignore_patterns
     local -A reply_hash
-    local pkg
+    local pkg hook
+    local -A hook_load
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
@@ -236,10 +268,21 @@ __zplug::core::cache::themes()
         reply_hash=( "$reply[@]" )
         load_themes=( ${(@f)reply_hash[load_themes]} "$unclassified_plugins[@]" )
 
+        for pair in ${(@f)reply_hash[hook_load]}
+        do
+            hook_load+=( ${(@s:\0:)pair} )
+        done
+
         if (( $#load_themes > 0 )); then
             for pkg in "$load_themes[@]"
             do
-                __zplug::job::state::flock "$_zplug_cache[theme]" "$pkg"
+                __zplug::job::state::flock "$_zplug_cache[theme]" "source ${(qqq)pkg}"
+            done
+        fi
+        if (( $#hook_load > 0 )); then
+            for hook in "${(k)hook_load[@]}"
+            do
+                __zplug::job::state::flock "$_zplug_cache[hook-load]" "$hook_load[$hook]"
             done
         fi
     fi

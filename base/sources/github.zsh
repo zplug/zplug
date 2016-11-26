@@ -188,6 +188,7 @@ __zplug::sources::github::load_plugin()
     [[ -n $nice_plugins ]] && reply+=( "nice_plugins" "${(F)nice_plugins}" )
     [[ -n $lazy_plugins ]] && reply+=( "lazy_plugins" "${(F)lazy_plugins}" )
     [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
+    [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")
 }
 
 __zplug::sources::github::load_command()
@@ -244,11 +245,12 @@ __zplug::sources::github::load_command()
     done
 
     # Add parent directories to fpath if any files starting in _* exist
-    load_fpaths+=(${tags[dir]}/{_*,/**/_*}(N-.:h))
+    load_fpaths+=("$tags[dir]"/{_*,/**/_*}(N-.:h))
 
     reply=()
-    [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
-    [[ -n $load_commands ]] && reply+=( load_commands "${(F)load_commands}" )
+    [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
+    [[ -n $load_commands ]] && reply+=( "load_commands" "${(F)load_commands}" )
+    [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")
 
     return 0
 }
@@ -284,6 +286,7 @@ __zplug::sources::github::load_theme()
     load_fpaths+=( "$tags[dir]"/_*(N.:h) )
 
     reply=()
-    [[ -n $load_themes ]] && reply+=( load_themes "${(F)load_themes}" )
-    [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
+    [[ -n $load_themes ]] && reply+=( "load_themes" "${(F)load_themes}" )
+    [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
+    [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")
 }

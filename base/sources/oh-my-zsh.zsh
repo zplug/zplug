@@ -66,7 +66,12 @@ __zplug::sources::oh-my-zsh::load_plugin()
 {
     local    repo="${1:?}"
     local -A tags default_tags
-    local -a unclassified_plugins load_fpaths
+    local -a \
+        unclassified_plugins \
+        load_fpaths \
+        nice_plugins \
+        load_plugins \
+        lazy_plugins
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
@@ -114,9 +119,46 @@ __zplug::sources::oh-my-zsh::load_plugin()
         "$tags[dir]/$tags[name]"/{_*,**/_*}(N-.:h)
     )
 
+    # unclassified_plugins -> {nice_plugins,lazy_plugins,load_plugins}
+    if [[ $tags[nice] -gt 9 ]]; then
+        # the order of loading of plugin files
+        nice_plugins+=( "${unclassified_plugins[@]}" )
+    else
+        # autoload plugin / regular plugin
+        if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
+            lazy_plugins+=( "${unclassified_plugins[@]}" )
+        else
+            load_plugins+=( "${unclassified_plugins[@]}" )
+        fi
+    fi
+    unclassified_plugins=()
+
+    if [[ -n $tags[ignore] ]]; then
+        ignore_patterns=( $(
+        zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${tags[dir]}/${~tags[ignore]}" \
+            2> >(__zplug::io::log::capture)
+        )(N) )
+        for ignore in "${ignore_patterns[@]}"
+        do
+            # Commands
+            if [[ -n $load_commands[(i)$ignore] ]]; then
+                unset "load_commands[$ignore]"
+            fi
+            # Plugins
+            load_plugins=( "${(R)load_plugins[@]:#$ignore}" )
+            nice_plugins=( "${(R)nice_plugins[@]:#$ignore}" )
+            lazy_plugins=( "${(R)lazy_plugins[@]:#$ignore}" )
+            # fpath
+            load_fpaths=( "${(R)load_fpaths[@]:#$ignore}" )
+        done
+    fi
+
     reply=()
-    [[ -n $unclassified_plugins ]] && reply+=( "unclassified_plugins" "${(F)unclassified_plugins}" )
+    [[ -n $load_plugins ]] && reply+=( "load_plugins" "${(F)load_plugins}" )
+    [[ -n $nice_plugins ]] && reply+=( "nice_plugins" "${(F)nice_plugins}" )
+    [[ -n $lazy_plugins ]] && reply+=( "lazy_plugins" "${(F)lazy_plugins}" )
     [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
+    [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")
 
     return 0
 }
@@ -128,19 +170,14 @@ __zplug::sources::oh-my-zsh::load_theme()
     local -a load_themes load_fpaths
     local -a themes_ext
 
-    themes_ext=("zsh-theme" "theme-zsh")
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
-    tags[dir]="${$(
+    tags[dir]="$(
     __zplug::core::core::run_interfaces \
         'dir' \
         "$repo"
-    )}"
+    )"
+    themes_ext=("zsh-theme" "theme-zsh")
+    load_fpaths=()
+    load_themes=()
 
     # Check if omz is loaded and set some necessary settings
     if [[ -z $ZSH ]]; then
@@ -162,6 +199,7 @@ __zplug::sources::oh-my-zsh::load_theme()
     reply=()
     [[ -n $load_themes ]] && reply+=( "load_themes" "${(F)load_themes}" )
     [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
+    [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]"\0"$tags[hook-load]")
 
     return 0
 }
