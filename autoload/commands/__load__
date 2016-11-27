@@ -1,28 +1,20 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
+# Description:
+#   Source installed plugins and add installed commands to $PATH
 
-# Check if cache is up-to-date
-if __zplug::core::cache::loadable; then
-    echo "zplug: load from cache"
-    __zplug::core::load::cache
-    return $status
-fi
-
-local repo
+local    repo arg
 local -a repos
-local is_verbose=false
-local arg
 local -A tags
+local -F SECONDS
 
-repos=(
-    "${(k)zplugs[@]}"
-)
+repos=( "${(k)zplugs[@]}" )
 
 while (( $# > 0 ))
 do
     arg="$1"
     case "$arg" in
         --verbose)
-            is_verbose=true
+            zstyle ':zplug:core:load' verbose yes
             ;;
         -*|--*)
             __zplug::core::options::unknown "$arg"
@@ -42,30 +34,14 @@ do
     shift
 done
 
-if [[ -f $ZPLUG_CACHE_FILE ]]; then
-    rm -rf "$ZPLUG_CACHE_FILE"
+# Check if cache is up-to-date
+if __zplug::core::cache::loadable; then
+    return 0
 fi
-mkdir -p "$ZPLUG_CACHE_FILE"
-rm -f "$_zplug_cache[before_plugin]"
-rm -f "$_zplug_cache[after_plugin]"
-rm -f "$_zplug_cache[plugin]"
-rm -f "$_zplug_cache[lazy_plugin]"
-rm -f "$_zplug_cache[theme]"
-rm -f "$_zplug_cache[command]"
-rm -f "$_zplug_cache[fpath]"
-rm -f "$_zplug_cache[hook-load]"
-touch "$_zplug_cache[before_plugin]"
-touch "$_zplug_cache[after_plugin]"
-touch "$_zplug_cache[plugin]"
-touch "$_zplug_cache[lazy_plugin]"
-touch "$_zplug_cache[theme]"
-touch "$_zplug_cache[command]"
-touch "$_zplug_cache[fpath]"
-touch "$_zplug_cache[hook-load]"
 
-local -F SECONDS
-set +m
-for repo in "$repos[@]"
+__zplug::core::load::prepare
+
+for repo in "${repos[@]}"
 do
     # Generate cache for each as:type in parallel
     {
@@ -89,7 +65,6 @@ do
                     --func \
                     "as tag is invalid value (%s)\n" \
                     "$fg[green]$repo$reset_color"
-                return 1
                 ;;
         esac
         #echo "$repo ($SECONDS) - $tags[as]"
@@ -97,6 +72,7 @@ do
 done
 wait
 
+zstyle ':zplug:core:load' verbose no
 # Load packages from cache
-__zplug::core::load::cache --verbose
+__zplug::core::load::from_cache
 return $status

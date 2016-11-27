@@ -29,5 +29,6 @@ done
 
 rm -rf \
     "$ZPLUG_CACHE_FILE" \
+    "$ZPLUG_CACHE_FILE/cache" \
     "$ZPLUG_HOME/zcompdump" \
     "$ZPLUG_HOME/zcompdump.zwc"
