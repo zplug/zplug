@@ -2,7 +2,7 @@
 # Description:
 #   Source installed plugins and add installed commands to $PATH
 
-local    repo arg
+local    repo arg is_profile=false
 local -a repos
 local -A tags
 local -F SECONDS
@@ -15,6 +15,10 @@ do
     case "$arg" in
         --verbose)
             zstyle ':zplug:core:load' verbose yes
+            ;;
+        --profile)
+            __zplug::core::core::run_interfaces 'clear'
+            is_profile=true
             ;;
         -*|--*)
             __zplug::core::options::unknown "$arg"
@@ -35,7 +39,7 @@ do
 done
 
 # Check if cache is up-to-date
-if __zplug::core::cache::loadable; then
+if __zplug::core::cache::load_if_available; then
     return 0
 fi
 
@@ -67,12 +71,16 @@ do
                     "$fg[green]$repo$reset_color"
                 ;;
         esac
-        #echo "$repo ($SECONDS) - $tags[as]"
+        if $is_profile; then
+            __zplug::core::load::profile "$repo\t($SECONDS)"
+        fi
     } &
 done
 wait
 
-zstyle ':zplug:core:load' verbose no
-# Load packages from cache
-__zplug::core::load::from_cache
+if $is_profile; then
+    ${=PAGER:-less} "$_zplug_cache[profile]"
+fi
+
+__zplug::core::load::load
 return $status

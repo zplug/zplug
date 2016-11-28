@@ -16,6 +16,14 @@ __zplug::core::load::prepare()
     done
 }
 
+__zplug::core::load::load()
+{
+    # Suppress verbose message
+    zstyle ':zplug:core:load' verbose no
+    # Load from cache
+    __zplug::core::load::from_cache
+}
+
 __zplug::core::load::from_cache()
 {
     local is_verbose=false
@@ -63,4 +71,56 @@ __zplug::core::load::as_command()
 __zplug::core::load::as_theme()
 {
     :
+}
+
+__zplug::core::load::profile()
+{
+    if [[ ! -f $_zplug_cache[profile] ]] || [[ -z $argv[1] ]]; then
+        return 1
+    fi
+
+    __zplug::job::state::flock \
+        "$_zplug_cache[profile]" \
+        "$argv[@]"
+}
+
+__zplug::core::load::skip_condition()
+{
+    # Returns true if there are conditions to skip,
+    # returns false otherwise
+
+    local    repo="${1:?}"
+    local -A tags
+
+    __zplug::core::tags::parse "$repo"
+    tags=( "${reply[@]}" )
+
+    if __zplug::core::sources::is_handler_defined check "$tags[from]"; then
+        if ! __zplug::core::sources::use_handler check "$tags[from]" "$repo"; then
+            return 0
+        fi
+    else
+        if [[ ! -d $tags[dir] ]]; then
+            return 0
+        fi
+    fi
+
+    if [[ -n $tags[if] ]]; then
+        if ! eval "$tags[if]" 2> >(__zplug::io::log::capture) >/dev/null; then
+            $is_verbose && __zplug::io::print::die "$tags[name]: (not loaded)\n"
+            return 0
+        fi
+    fi
+
+    if [[ -n $tags[on] ]]; then
+        __zplug::core::core::run_interfaces \
+            'check' \
+            ${~tags[on]}
+        if (( $status != 0 )); then
+            $is_verbose && __zplug::io::print::die "$tags[name]: (not loaded)\n"
+            return 0
+        fi
+    fi
+
+    return 1
 }

@@ -205,6 +205,7 @@ __zplug::core::core::variable()
     "command"       "$ZPLUG_CACHE_FILE/command"
     "hook-load"     "$ZPLUG_CACHE_FILE/hook-load"
     "fpath"         "$ZPLUG_CACHE_FILE/fpath"
+    "profile"       "$ZPLUG_CACHE_FILE/profile"
     )
 
     if (( $+ZPLUG_SHALLOW )); then

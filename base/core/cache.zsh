@@ -13,10 +13,10 @@ __zplug::core::cache::update()
 
 __zplug::core::cache::commit()
 {
-    local    pkg hook pair
-    local -A hook_load
-    local -A reply_hash
-    local -A load_commands
+    local     pkg hook pair
+    local -A  hook_load
+    local -A  reply_hash
+    local -A  load_commands
     local -aU load_plugins load_fpaths lazy_plugins nice_plugins
     local -aU unclassified_plugins
 
@@ -83,7 +83,7 @@ __zplug::core::cache::commit()
     fi
 }
 
-__zplug::core::cache::loadable()
+__zplug::core::cache::load_if_available()
 {
     local key
 
@@ -120,41 +120,9 @@ __zplug::core::cache::plugins()
     local repo="${1:?}"
     local -A tags
 
-    __zplug::core::tags::parse "$repo"
-    tags=( "${reply[@]}" )
+    __zplug::core::load::skip_condition "$repo" && return 0
 
-    # Packages to skip loading
-    {
-        # FROM tag
-        if __zplug::core::sources::is_handler_defined check "$tags[from]"; then
-            if ! __zplug::core::sources::use_handler check "$tags[from]" "$repo"; then
-                return 1
-            fi
-        else
-            if [[ ! -d $tags[dir] ]]; then
-                return 1
-            fi
-        fi
-
-        # IF tag
-        if [[ -n $tags[if] ]]; then
-            if ! eval "$tags[if]" 2> >(__zplug::io::log::capture) >/dev/null; then
-                $is_verbose && __zplug::io::print::die "$tags[name]: (not loaded)\n"
-                return 1
-            fi
-        fi
-
-        # ON tag
-        if [[ -n $tags[on] ]]; then
-            __zplug::core::core::run_interfaces \
-                'check' \
-                ${~tags[on]}
-            if (( $status != 0 )); then
-                $is_verbose && __zplug::io::print::die "$tags[name]: (not loaded)\n"
-                return 1
-            fi
-        fi
-    }
+    tags[from]="$(__zplug::core::core::run_interfaces "from" "$repo")"
 
     # Switch to the revision specified by its tags
     __zplug::utils::git::checkout "$repo"
@@ -175,41 +143,9 @@ __zplug::core::cache::commands()
     local repo="${1:?}"
     local -A tags
 
-    __zplug::core::tags::parse "$repo"
-    tags=( "${reply[@]}" )
+    __zplug::core::load::skip_condition "$repo" && return 0
 
-    # Packages to skip loading
-    {
-        # FROM tag
-        if __zplug::core::sources::is_handler_defined check "$tags[from]"; then
-            if ! __zplug::core::sources::use_handler check "$tags[from]" "$repo"; then
-                return 1
-            fi
-        else
-            if [[ ! -d $tags[dir] ]]; then
-                return 1
-            fi
-        fi
-
-        # IF tag
-        if [[ -n $tags[if] ]]; then
-            if ! eval "$tags[if]" 2> >(__zplug::io::log::capture) >/dev/null; then
-                $is_verbose && __zplug::io::print::die "$tags[name]: (not loaded)\n"
-                return 1
-            fi
-        fi
-
-        # ON tag
-        if [[ -n $tags[on] ]]; then
-            __zplug::core::core::run_interfaces \
-                'check' \
-                ${~tags[on]}
-            if (( $status != 0 )); then
-                $is_verbose && __zplug::io::print::die "$tags[name]: (not loaded)\n"
-                return 1
-            fi
-        fi
-    }
+    tags[from]="$(__zplug::core::core::run_interfaces "from" "$repo")"
 
     # Switch to the revision specified by its tags
     __zplug::utils::git::checkout "$repo"
@@ -229,41 +165,9 @@ __zplug::core::cache::themes()
     local repo="${1:?}"
     local -A tags
 
-    __zplug::core::tags::parse "$repo"
-    tags=( "${reply[@]}" )
+    __zplug::core::load::skip_condition "$repo" && return 0
 
-    # Packages to skip loading
-    {
-        # FROM tag
-        if __zplug::core::sources::is_handler_defined check "$tags[from]"; then
-            if ! __zplug::core::sources::use_handler check "$tags[from]" "$repo"; then
-                return 1
-            fi
-        else
-            if [[ ! -d $tags[dir] ]]; then
-                return 1
-            fi
-        fi
-
-        # IF tag
-        if [[ -n $tags[if] ]]; then
-            if ! eval "$tags[if]" 2> >(__zplug::io::log::capture) >/dev/null; then
-                $is_verbose && __zplug::io::print::die "$tags[name]: (not loaded)\n"
-                return 1
-            fi
-        fi
-
-        # ON tag
-        if [[ -n $tags[on] ]]; then
-            __zplug::core::core::run_interfaces \
-                'check' \
-                ${~tags[on]}
-            if (( $status != 0 )); then
-                $is_verbose && __zplug::io::print::die "$tags[name]: (not loaded)\n"
-                return 1
-            fi
-        fi
-    }
+    tags[from]="$(__zplug::core::core::run_interfaces "from" "$repo")"
 
     # Switch to the revision specified by its tags
     __zplug::utils::git::checkout "$repo"
