@@ -140,7 +140,7 @@ __zplug::sources::prezto::load_plugin()
     [[ -n $unclassified_plugins ]] && reply+=( "unclassified_plugins" "${(F)unclassified_plugins}" )
     [[ -n $nice_plugins ]] && reply+=( "nice_plugins" "${(F)nice_plugins}" )
     [[ -n $lazy_plugins ]] && reply+=( "lazy_plugins" "${(F)lazy_plugins}" )
-    [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]"\0"$tags[hook-load]")
+    [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")
 
     return 0
 }

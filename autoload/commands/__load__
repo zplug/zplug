@@ -71,8 +71,9 @@ do
                     "$fg[green]$repo$reset_color"
                 ;;
         esac
+        # Report load profile
         if $is_profile; then
-            __zplug::core::load::profile "$repo\t($SECONDS)"
+            __zplug::core::load::profile "$SECONDS: load ${(qqq)repo}"
         fi
     } &
 done

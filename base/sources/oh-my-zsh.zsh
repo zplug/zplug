@@ -199,7 +199,7 @@ __zplug::sources::oh-my-zsh::load_theme()
     reply=()
     [[ -n $load_themes ]] && reply+=( "load_themes" "${(F)load_themes}" )
     [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
-    [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]"\0"$tags[hook-load]")
+    [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")
 
     return 0
 }

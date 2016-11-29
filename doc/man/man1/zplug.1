@@ -627,7 +627,7 @@ $ZPLUG_HOME/packages\&.zsh\&. This file is used to add packages from zplug on th
 .RS 4
 Defaults to
 true\&. If this variable is true, zplug uses a cache file to speed up the loading process\&. The cache file is located at
-$ZPLUG_CACHE_FILE
+$ZPLUG_CACHE_DIR
 ($ZPLUG_HOME/\&.cache
 by default)\&. If you want to clear the cache, please run
 zplug clear
@@ -644,7 +644,7 @@ $ ZPLUG_USE_CACHE=false zplug load
 .RE
 .\}
 .PP
-\fIZPLUG_CACHE_FILE\fR
+\fIZPLUG_CACHE_DIR\fR
 .RS 4
 Defaults to
 $ZPLUG_HOME/\&.cache\&. Specifies where to save the cache\&. For example, you can set this to

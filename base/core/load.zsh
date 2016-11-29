@@ -2,11 +2,11 @@ __zplug::core::load::prepare()
 {
     unsetopt monitor
 
-    if [[ -f $ZPLUG_CACHE_FILE ]]; then
-        rm -rf "$ZPLUG_CACHE_FILE"
+    if [[ -f $ZPLUG_CACHE_DIR ]]; then
+        rm -f "$ZPLUG_CACHE_DIR"
     fi
 
-    mkdir -p "$ZPLUG_CACHE_FILE"
+    mkdir -p "$ZPLUG_CACHE_DIR"
 
     local file
     for file in "${(k)_zplug_cache[@]}"
@@ -60,17 +60,22 @@ __zplug::core::load::from_cache()
 
 __zplug::core::load::as_plugin()
 {
-    :
+    source "$1"
 }
 
 __zplug::core::load::as_command()
 {
-    :
+    local command_path="$1" bin_path="$2"
+    chmod 755 "$command_path"
+    ln -snf "$command_path" "$bin_path"
 }
 
 __zplug::core::load::as_theme()
 {
-    :
+    __zplug::core::load::as_plugin "$argv[@]"
+    if [[ ! -o prompt_subst ]]; then
+        setopt prompt_subst
+    fi
 }
 
 __zplug::core::load::profile()

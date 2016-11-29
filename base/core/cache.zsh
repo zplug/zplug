@@ -1,14 +1,14 @@
 __zplug::core::cache::expose()
 {
-    if [[ -f $ZPLUG_HOME/.cache/cache ]]; then
-        cat "$ZPLUG_HOME/.cache/cache"
+    if [[ -f $_zplug_cache[file] ]]; then
+        cat "$_zplug_cache[file]"
     fi
 }
 
 __zplug::core::cache::update()
 {
     __zplug::core::interface::expose \
-        >|"$ZPLUG_HOME/.cache/cache"
+        >|"$_zplug_cache[file]"
 }
 
 __zplug::core::cache::commit()
@@ -40,20 +40,20 @@ __zplug::core::cache::commit()
     if (( $#load_plugins > 0 )); then
         for pkg in "$load_plugins[@]"
         do
-            __zplug::job::state::flock "$_zplug_cache[plugin]" "source ${(qqq)pkg}"
+            __zplug::job::state::flock "$_zplug_cache[plugin]" "__zplug::core::load::as_plugin ${(qqq)pkg}"
         done
     fi
     if (( $#nice_plugins > 0 )); then
         for pkg in "$nice_plugins[@]"
         do
-            __zplug::job::state::flock "$_zplug_cache[before_plugin]" "source ${(qqq)pkg}"
-            __zplug::job::state::flock "$_zplug_cache[after_plugin]" "source ${(qqq)pkg}"
+            __zplug::job::state::flock "$_zplug_cache[before_plugin]" "__zplug::core::load::as_plugin ${(qqq)pkg}"
+            __zplug::job::state::flock "$_zplug_cache[after_plugin]" "__zplug::core::load::as_plugin ${(qqq)pkg}"
         done
     fi
     if (( $#lazy_plugins > 0 )); then
         for pkg in "$lazy_plugin[@]"
         do
-            __zplug::job::state::flock "$_zplug_cache[lazy_plugin]" "source ${(qqq)pkg}"
+            __zplug::job::state::flock "$_zplug_cache[lazy_plugin]" "__zplug::core::load::as_plugin ${(qqq)pkg}"
         done
     fi
     if (( $#load_fpaths > 0 )); then
@@ -71,14 +71,15 @@ __zplug::core::cache::commit()
     if (( $#load_commands > 0 )); then
         for pkg in "${(k)load_commands[@]}"
         do
-            __zplug::job::state::flock "$_zplug_cache[command]" "chmod 755 ${(qqq)pkg}"
-            __zplug::job::state::flock "$_zplug_cache[command]" "ln -snf ${(qqq)pkg} ${(qqq)load_commands[$pkg]}"
+            __zplug::job::state::flock \
+                "$_zplug_cache[command]" \
+                "__zplug::core::load::as_command ${(qqq)pkg} ${(qqq)load_commands[$pkg]}"
         done
     fi
     if (( $#load_themes > 0 )); then
         for pkg in "$load_themes[@]"
         do
-            __zplug::job::state::flock "$_zplug_cache[theme]" "source ${(qqq)pkg}"
+            __zplug::job::state::flock "$_zplug_cache[theme]" "__zplug::core::load::as_theme ${(qqq)pkg}"
         done
     fi
 }
@@ -89,7 +90,7 @@ __zplug::core::cache::load_if_available()
 
     $ZPLUG_USE_CACHE || return 2
 
-    if [[ -e $ZPLUG_CACHE_FILE ]]; then
+    if [[ -d $ZPLUG_CACHE_DIR ]]; then
         2> >(__zplug::io::log::capture) >/dev/null \
             diff -b \
             <(__zplug::core::cache::expose) \

@@ -11,7 +11,7 @@ zplug-load - Source installed plugins and add installed commands to `$PATH`
 SYNOPSIS
 --------
 [verse]
-'zplug load' [--verbose]
+'zplug load' [--verbose][--profile]
 
     The word 'package' refers to the string in the format: "username/reponame".
 
@@ -25,6 +25,9 @@ OPTIONS
 -------
 *--verbose*::
     Be verbose.
+
+*--profile*::
+    Measure processing time by load command.
 
 
 EXAMPLES
@@ -50,14 +53,14 @@ ENVIRONMENT VARIABLES
 'ZPLUG_USE_CACHE'::
     Defaults to `true`.
     If this variable is true, zplug uses a cache file to speed up the loading process.
-    The cache file is located at `$ZPLUG_CACHE_FILE` (`$ZPLUG_HOME/.cache` by default).
+    The cache file is located at `$ZPLUG_CACHE_DIR` (`$ZPLUG_HOME/.cache` by default).
     If you want to clear the cache, please run `zplug clear` or do the following:
 
 ------------
 $ ZPLUG_USE_CACHE=false zplug load
 ------------
 
-'ZPLUG_CACHE_FILE'::
+'ZPLUG_CACHE_DIR'::
     Defaults to `$ZPLUG_HOME/.cache`.
     Specifies where to save the cache. For example, you can set this to
     `$HOME/.cache/zplug/cache` to follow XDG Base Directory Specification

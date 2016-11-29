@@ -2,12 +2,12 @@
 .\"     Title: zplug-load
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 11/21/2016
+.\"      Date: 11/29/2016
 .\"    Manual: ZPLUG Manual
 .\"    Source: ZPLUG Manual
 .\"  Language: English
 .\"
-.TH "ZPLUG\-LOAD" "1" "11/21/2016" "ZPLUG Manual" "ZPLUG Manual"
+.TH "ZPLUG\-LOAD" "1" "11/29/2016" "ZPLUG Manual" "ZPLUG Manual"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -23,7 +23,7 @@ zplug-load \- Source installed plugins and add installed commands to `$PATH`
 .SH "SYNOPSIS"
 .sp
 .nf
-\fIzplug load\fR [\-\-verbose]
+\fIzplug load\fR [\-\-verbose][\-\-profile]
 .fi
 .sp
 .nf
@@ -37,6 +37,11 @@ Be able to use a package that has been installed on the current shell\&.
 \fB\-\-verbose\fR
 .RS 4
 Be verbose\&.
+.RE
+.PP
+\fB\-\-profile\fR
+.RS 4
+Measure processing time by load command\&.
 .RE
 .SH "EXAMPLES"
 .sp
@@ -64,7 +69,7 @@ $ZPLUG_HOME/packages\&.zsh\&. This file is used to add packages from zplug on th
 .RS 4
 Defaults to
 true\&. If this variable is true, zplug uses a cache file to speed up the loading process\&. The cache file is located at
-$ZPLUG_CACHE_FILE
+$ZPLUG_CACHE_DIR
 ($ZPLUG_HOME/\&.cache
 by default)\&. If you want to clear the cache, please run
 zplug clear
@@ -81,7 +86,7 @@ $ ZPLUG_USE_CACHE=false zplug load
 .RE
 .\}
 .PP
-\fIZPLUG_CACHE_FILE\fR
+\fIZPLUG_CACHE_DIR\fR
 .RS 4
 Defaults to
 $ZPLUG_HOME/\&.cache\&. Specifies where to save the cache\&. For example, you can set this to

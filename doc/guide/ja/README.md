@@ -198,7 +198,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 |  サブコマンド  | 説明 | そのオプション |
 |-----------|-------------|---------|
 | `install` | 並列インストール | (なし) |
-| `load`    | インストール済みプラグインを読み込み、インストール済みコマンドを `$PATH` に追加する | `--verbose` |
+| `load`    | インストール済みプラグインを読み込み、インストール済みコマンドを `$PATH` に追加する | `--verbose`,`--profile` |
 | `list`    | インストール済みパッケージを表示する (端的に連想配列 `$zplugs` を表示する) | `--select` |
 | `update`  | インストール済みパッケージを並列でアップデートする | `--self`,`--select`,`--force` |
 | `check`   | 未インストールなパッケージがないなら真を返し、そうでなければ偽を返す | `--verbose` |
@@ -338,15 +338,15 @@ $ZPLUG_HOME
 
 #### `ZPLUG_USE_CACHE`
 
-デフォルトは `true`。true の場合、zplug はロードの高速化のためにキャッシュを利用するようになる。キャッシュファイルは `$ZPLUG_CACHE_FILE` も保存されている。キャッシュをクリアする場合は、`zplug clear` を実行するか以下のようにすると良い:
+デフォルトは `true`。true の場合、zplug はロードの高速化のためにキャッシュを利用するようになる。キャッシュファイルは `$ZPLUG_CACHE_DIR` に保存されている。キャッシュをクリアする場合は、`zplug clear` を実行するか以下のようにすると良い:
 
 ```console
 $ ZPLUG_USE_CACHE=false zplug load
 ```
 
-#### `ZPLUG_CACHE_FILE`
+#### `ZPLUG_CACHE_DIR`
 
-デフォルトは `$ZPLUG_HOME/.cache`。キャッシュの保存先を変更することができる。例えば `$HOME/.cache/zplug/cache` とか。
+デフォルトは `$ZPLUG_HOME/.cache`。キャッシュの保存先を変更することができる。例えば `~/.cache/zplug` とか。
 
 #### `ZPLUG_REPOS`
 

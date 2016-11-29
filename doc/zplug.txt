@@ -82,12 +82,13 @@ COMMANDS
     List installed packages.
     `--select` do the same as what's described above.
 
-*load* [--verbose]::
+*load* [--verbose][--profile]::
     Load packages. All packages registered with 'as:plugin' are sourced into
     the current zsh process, and its parent directory is added to `$fpath`.  In
     addition, all packages with 'as:command' are linked to `$ZPLUG_HOME/bin`
     and the bin directory is added to `$PATH`.
-    `--verbose` does the same as what's described above.
+    `--verbose` does the same as what's described above. `--profile` option
+    measures processing time by load command.
 
 *info* <package>::
     Show the information such as source URL and tag values of the 'package'.
@@ -219,17 +220,17 @@ the `$PATH`, you can run that command from anywhere just like any other commands
 'ZPLUG_USE_CACHE'::
     Defaults to `true`.
     If this variable is true, zplug uses a cache file to speed up the loading process.
-    The cache file is located at `$ZPLUG_CACHE_FILE` (`$ZPLUG_HOME/.cache` by default).
+    The cache file is located at `$ZPLUG_CACHE_DIR` (`$ZPLUG_HOME/.cache` by default).
     If you want to clear the cache, please run `zplug clear` or do the following:
 
 ------------
 $ ZPLUG_USE_CACHE=false zplug load
 ------------
 
-'ZPLUG_CACHE_FILE'::
+'ZPLUG_CACHE_DIR'::
     Defaults to `$ZPLUG_HOME/.cache`.
     Specifies where to save the cache. For example, you can set this to
-    `$HOME/.cache/zplug/cache` to follow XDG Base Directory Specification
+    `$HOME/.cache/zplug` to follow XDG Base Directory Specification
 
 'ZPLUG_REPOS'::
     Defaults to `$ZPLUG_HOME/repos`. You can change where the repositories are

@@ -170,7 +170,7 @@ __zplug::core::core::variable()
     typeset -gx    ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:fzy:zaw"}
     typeset -gx    ZPLUG_LOADFILE=${ZPLUG_LOADFILE:-$ZPLUG_HOME/packages.zsh}
     typeset -gx    ZPLUG_USE_CACHE=${ZPLUG_USE_CACHE:-true}
-    typeset -gx    ZPLUG_CACHE_FILE=${ZPLUG_CACHE_FILE:-$ZPLUG_HOME/.cache}
+    typeset -gx    ZPLUG_CACHE_DIR=${ZPLUG_CACHE_DIR:-$ZPLUG_HOME/.cache}
     typeset -gx    ZPLUG_REPOS=${ZPLUG_REPOS:-$ZPLUG_HOME/repos}
     typeset -gx    ZPLUG_SUDO_PASSWORD
     typeset -gx    ZPLUG_ERROR_LOG=${ZPLUG_ERROR_LOG:-$ZPLUG_HOME/.error_log}
@@ -197,15 +197,16 @@ __zplug::core::core::variable()
 
     typeset -gx -A _zplug_cache
     _zplug_cache=(
-    "before_plugin" "$ZPLUG_CACHE_FILE/before_plugin"
-    "after_plugin"  "$ZPLUG_CACHE_FILE/after_plugin"
-    "plugin"        "$ZPLUG_CACHE_FILE/plugin"
-    "lazy_plugin"   "$ZPLUG_CACHE_FILE/lazy_plugin"
-    "theme"         "$ZPLUG_CACHE_FILE/theme"
-    "command"       "$ZPLUG_CACHE_FILE/command"
-    "hook-load"     "$ZPLUG_CACHE_FILE/hook-load"
-    "fpath"         "$ZPLUG_CACHE_FILE/fpath"
-    "profile"       "$ZPLUG_CACHE_FILE/profile"
+    "file"          "$ZPLUG_CACHE_DIR/file"
+    "before_plugin" "$ZPLUG_CACHE_DIR/before_plugin.zsh"
+    "after_plugin"  "$ZPLUG_CACHE_DIR/after_plugin.zsh"
+    "plugin"        "$ZPLUG_CACHE_DIR/plugin.zsh"
+    "lazy_plugin"   "$ZPLUG_CACHE_DIR/lazy_plugin.zsh"
+    "theme"         "$ZPLUG_CACHE_DIR/theme.zsh"
+    "command"       "$ZPLUG_CACHE_DIR/command.zsh"
+    "hook-load"     "$ZPLUG_CACHE_DIR/hook-load.zsh"
+    "fpath"         "$ZPLUG_CACHE_DIR/fpath.zsh"
+    "profile"       "$ZPLUG_CACHE_DIR/profile"
     )
 
     if (( $+ZPLUG_SHALLOW )); then

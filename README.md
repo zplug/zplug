@@ -196,7 +196,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 |  Command  | Description | Options |
 |-----------|-------------|---------|
 | `install` | Install packages in parallel | (None) |
-| `load`    | Source installed plugins and add installed commands to `$PATH` | `--verbose` |
+| `load`    | Source installed plugins and add installed commands to `$PATH` | `--verbose`,`--profile` |
 | `list`    | List installed packages (more specifically, view the associative array `$zplugs`) | `--select` |
 | `update`  | Update installed packages in parallel | `--self`,`--select`,`--force` |
 | `check`   | Return true if all packages are installed, false otherwise | `--verbose` |
@@ -337,15 +337,15 @@ Defaults to `$ZPLUG_HOME/packages.zsh`. This file is used to add plugins from zp
 
 #### `ZPLUG_USE_CACHE`
 
-Defaults to `true`. If this variable is true, zplug will use a cache file to speed up the load process. The cache file is located at `$ZPLUG_CACHE_FILE`. If you want to clear the cache, please run `zplug clear` or do the following:
+Defaults to `true`. If this variable is true, zplug will use cache files to speed up the load process. The cache files are saved under the `$ZPLUG_CACHE_DIR` directory. If you want to clear the cache, please run `zplug clear` or do the following:
 
 ```console
 $ ZPLUG_USE_CACHE=false zplug load
 ```
 
-#### `ZPLUG_CACHE_FILE`
+#### `ZPLUG_CACHE_DIR`
 
-Defaults to `$ZPLUG_HOME/.cache`. You can change where the cache file is saved, for example, `$HOME/.cache/zplug/cache`.
+Defaults to `$ZPLUG_HOME/.cache`. You can change where the cache file is saved, for example, `~/.cache/zplug`.
 
 #### `ZPLUG_REPOS`
 
