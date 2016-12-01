@@ -204,9 +204,7 @@ __zplug::core::core::variable()
     "lazy_plugin"   "$ZPLUG_CACHE_DIR/lazy_plugin.zsh"
     "theme"         "$ZPLUG_CACHE_DIR/theme.zsh"
     "command"       "$ZPLUG_CACHE_DIR/command.zsh"
-    "hook-load"     "$ZPLUG_CACHE_DIR/hook-load.zsh"
     "fpath"         "$ZPLUG_CACHE_DIR/fpath.zsh"
-    "profile"       "$ZPLUG_CACHE_DIR/profile"
     )
 
     if (( $+ZPLUG_SHALLOW )); then

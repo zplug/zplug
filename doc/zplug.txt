@@ -82,13 +82,12 @@ COMMANDS
     List installed packages.
     `--select` do the same as what's described above.
 
-*load* [--verbose][--profile]::
+*load* [--verbose]::
     Load packages. All packages registered with 'as:plugin' are sourced into
     the current zsh process, and its parent directory is added to `$fpath`.  In
     addition, all packages with 'as:command' are linked to `$ZPLUG_HOME/bin`
     and the bin directory is added to `$PATH`.
-    `--verbose` does the same as what's described above. `--profile` option
-    measures processing time by load command.
+    `--verbose` does the same as what's described above.
 
 *info* <package>::
     Show the information such as source URL and tag values of the 'package'.

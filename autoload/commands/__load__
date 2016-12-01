@@ -2,10 +2,11 @@
 # Description:
 #   Source installed plugins and add installed commands to $PATH
 
-local    repo arg is_profile=false
+__zplug::core::load::prepare
+
+local    repo arg
 local -a repos
 local -A tags
-local -F SECONDS
 
 repos=( "${(k)zplugs[@]}" )
 
@@ -14,11 +15,7 @@ do
     arg="$1"
     case "$arg" in
         --verbose)
-            zstyle ':zplug:core:load' verbose yes
-            ;;
-        --profile)
-            __zplug::core::core::run_interfaces 'clear'
-            is_profile=true
+            zstyle ':zplug:core:load' 'verbose' yes
             ;;
         -*|--*)
             __zplug::core::options::unknown "$arg"
@@ -43,13 +40,10 @@ if __zplug::core::cache::load_if_available; then
     return 0
 fi
 
-__zplug::core::load::prepare
-
 for repo in "${repos[@]}"
 do
     # Generate cache for each as:type in parallel
     {
-        __zplug::core::tags::parse "$repo"
         tags[as]="$(__zplug::core::core::run_interfaces 'as' "$repo")"
 
         case "$tags[as]" in
@@ -71,17 +65,9 @@ do
                     "$fg[green]$repo$reset_color"
                 ;;
         esac
-        # Report load profile
-        if $is_profile; then
-            __zplug::core::load::profile "$SECONDS: load ${(qqq)repo}"
-        fi
     } &
 done
 wait
 
-if $is_profile; then
-    ${=PAGER:-less} "$_zplug_cache[profile]"
-fi
-
-__zplug::core::load::load
+__zplug::core::load::from_cache
 return $status

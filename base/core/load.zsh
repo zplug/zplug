@@ -1,40 +1,13 @@
 __zplug::core::load::prepare()
 {
     unsetopt monitor
-
-    if [[ -f $ZPLUG_CACHE_DIR ]]; then
-        rm -f "$ZPLUG_CACHE_DIR"
-    fi
-
-    mkdir -p "$ZPLUG_CACHE_DIR"
-
-    local file
-    for file in "${(k)_zplug_cache[@]}"
-    do
-        rm -f "$_zplug_cache[$file]"
-        touch "$_zplug_cache[$file]"
-    done
-}
-
-__zplug::core::load::load()
-{
-    # Suppress verbose message
-    zstyle ':zplug:core:load' verbose no
-    # Load from cache
-    __zplug::core::load::from_cache
+    zstyle ':zplug:core:load' 'verbose' no
 }
 
 __zplug::core::load::from_cache()
 {
-    local is_verbose=false
-
-    zstyle -s ':zplug:core:load' verbose is_verbose
-
-    if (( $_zplug_boolean_true[(I)$is_verbose] )); then
-        __zplug::io::print::f \
-            --zplug \
-            "$fg[yellow]Load from cache$reset_color\n"
-    fi
+    local is_verbose
+    zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
     # Default
     setopt monitor
@@ -46,11 +19,14 @@ __zplug::core::load::from_cache()
         source "$_zplug_cache[lazy_plugin]"
         source "$_zplug_cache[theme]"
         source "$_zplug_cache[command]"
-        source "$_zplug_cache[hook-load]"
         compinit -C -d /Users/b4b4r07/.zplug/zcompdump
+        if (( $_zplug_boolean_true[(I)$is_verbose] )); then
+            __zplug::io::print::f \
+                --zplug "$fg[yellow]Run compinit$reset_color\n"
+        fi
         source "$_zplug_cache[before_plugin]"
         source "$_zplug_cache[after_plugin]"
-    } &>/dev/null
+    }
 
     # Cache in background
     {
@@ -60,14 +36,69 @@ __zplug::core::load::from_cache()
 
 __zplug::core::load::as_plugin()
 {
-    source "$1"
+    local key value repo load_path hook
+    local is_verbose
+    zstyle -s ':zplug:core:load' 'verbose' is_verbose
+
+    __zplug::utils::shell::getopts "$argv[@]" \
+        | while read key value; \
+    do
+        case "$key" in
+            _)
+                load_path="$value"
+                ;;
+            repo)
+                repo="$value"
+                ;;
+            hook)
+                hook="$value"
+                ;;
+        esac
+    done
+
+    if source "$load_path" &>/dev/null; then
+        if (( $_zplug_boolean_true[(I)$is_verbose] )); then
+            print -nP -- " %F{148}Load %F{15}${(qqq)repo}%f (${load_path/$HOME/~})\n"
+        fi
+        if [[ -n $hook ]]; then
+            ${=hook}
+        fi
+    fi
 }
 
 __zplug::core::load::as_command()
 {
-    local command_path="$1" bin_path="$2"
-    chmod 755 "$command_path"
-    ln -snf "$command_path" "$bin_path"
+    local key value repo load_path _path hook
+    local is_verbose
+    zstyle -s ':zplug:core:load' 'verbose' is_verbose
+
+    __zplug::utils::shell::getopts "$argv[@]" \
+        | while read key value; \
+    do
+        case "$key" in
+            _)
+                load_path="$value"
+                ;;
+            repo)
+                repo="$value"
+                ;;
+            path)
+                _path="$value"
+                ;;
+            hook)
+                hook="$value"
+                ;;
+        esac
+    done
+
+    if chmod 755 "$load_path"; ln -snf "$load_path" "$_path"; then
+        if (( $_zplug_boolean_true[(I)$is_verbose] )); then
+            print -nP -- " %F{148}Link %F{15}${(qqq)repo}%f (${load_path/$HOME/~})\n"
+        fi
+        if [[ -n $hook ]]; then
+            ${=hook}
+        fi
+    fi
 }
 
 __zplug::core::load::as_theme()
@@ -78,23 +109,12 @@ __zplug::core::load::as_theme()
     fi
 }
 
-__zplug::core::load::profile()
-{
-    if [[ ! -f $_zplug_cache[profile] ]] || [[ -z $argv[1] ]]; then
-        return 1
-    fi
-
-    __zplug::job::state::flock \
-        "$_zplug_cache[profile]" \
-        "$argv[@]"
-}
-
 __zplug::core::load::skip_condition()
 {
     # Returns true if there are conditions to skip,
     # returns false otherwise
 
-    local    repo="${1:?}"
+    local repo="${1:?}"
     local -A tags
 
     __zplug::core::tags::parse "$repo"

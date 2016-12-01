@@ -19,6 +19,7 @@ __zplug::core::cache::commit()
     local -A  load_commands
     local -aU load_plugins load_fpaths lazy_plugins nice_plugins
     local -aU unclassified_plugins
+    local     repo param params
 
     reply_hash=( "$argv[@]" )
     lazy_plugins=( ${(@f)reply_hash[lazy_plugins]} )
@@ -27,61 +28,47 @@ __zplug::core::cache::commit()
     load_themes=( ${(@f)reply_hash[load_themes]} "$unclassified_plugins[@]" )
     nice_plugins=( ${(@f)reply_hash[nice_plugins]} )
     unclassified_plugins=( ${(@f)reply_hash[unclassified_plugins]} )
-    for pair in ${(@f)reply_hash[load_commands]}
-    do
-        load_commands+=( ${(@s:\0:)pair} ) # Each line (pair) is null character-separated
-    done
-    for pair in ${(@f)reply_hash[hook_load]}
-    do
-        hook_load+=( ${(@s:\0:)pair} ) # Each line (pair) is null character-separated
-    done
+    for pair (${(@f)reply_hash[load_commands]}) load_commands+=( ${(@s:\0:)pair} )
+    for pair (${(@f)reply_hash[hook_load]}) hook_load+=( ${(@s:\0:)pair} )
+    repo="$reply_hash[repo]"
+
+    # Common parameter
+    param="--repo ${(qqq)repo}"
+    if [[ -n $hook_load[$repo] ]]; then
+        param+=" --hook ${(qqq)hook_load[$repo]}"
+    fi
 
     # Record packages to cache file
-    if (( $#load_plugins > 0 )); then
-        for pkg in "$load_plugins[@]"
-        do
-            __zplug::job::state::flock "$_zplug_cache[plugin]" "__zplug::core::load::as_plugin ${(qqq)pkg}"
-        done
-    fi
-    if (( $#nice_plugins > 0 )); then
-        for pkg in "$nice_plugins[@]"
-        do
-            __zplug::job::state::flock "$_zplug_cache[before_plugin]" "__zplug::core::load::as_plugin ${(qqq)pkg}"
-            __zplug::job::state::flock "$_zplug_cache[after_plugin]" "__zplug::core::load::as_plugin ${(qqq)pkg}"
-        done
-    fi
-    if (( $#lazy_plugins > 0 )); then
-        for pkg in "$lazy_plugin[@]"
-        do
-            __zplug::job::state::flock "$_zplug_cache[lazy_plugin]" "__zplug::core::load::as_plugin ${(qqq)pkg}"
-        done
-    fi
-    if (( $#load_fpaths > 0 )); then
-        for pkg in "$load_fpaths[@]"
-        do
-            __zplug::job::state::flock "$_zplug_cache[fpath]" "fpath+=(${(qqq)pkg})"
-        done
-    fi
-    if (( $#hook_load > 0 )); then
-        for hook in "${(k)hook_load[@]}"
-        do
-            __zplug::job::state::flock "$_zplug_cache[hook-load]" "$hook_load[$hook]"
-        done
-    fi
-    if (( $#load_commands > 0 )); then
-        for pkg in "${(k)load_commands[@]}"
-        do
-            __zplug::job::state::flock \
-                "$_zplug_cache[command]" \
-                "__zplug::core::load::as_command ${(qqq)pkg} ${(qqq)load_commands[$pkg]}"
-        done
-    fi
-    if (( $#load_themes > 0 )); then
-        for pkg in "$load_themes[@]"
-        do
-            __zplug::job::state::flock "$_zplug_cache[theme]" "__zplug::core::load::as_theme ${(qqq)pkg}"
-        done
-    fi
+    for pkg in "$load_plugins[@]"
+    do
+        params="$param ${(qqq)pkg}"
+        __zplug::job::state::flock "$_zplug_cache[plugin]" "__zplug::core::load::as_plugin $params"
+    done
+    for pkg in "$nice_plugins[@]"
+    do
+        params="$param ${(qqq)pkg}"
+        __zplug::job::state::flock "$_zplug_cache[before_plugin]" "__zplug::core::load::as_plugin $params"
+        __zplug::job::state::flock "$_zplug_cache[after_plugin]" "__zplug::core::load::as_plugin $params"
+    done
+    for pkg in "$lazy_plugin[@]"
+    do
+        params="$param ${(qqq)pkg}"
+        __zplug::job::state::flock "$_zplug_cache[lazy_plugin]" "__zplug::core::load::as_plugin $params"
+    done
+    for pkg in "$load_fpaths[@]"
+    do
+        __zplug::job::state::flock "$_zplug_cache[fpath]" "fpath+=(${(qqq)pkg})"
+    done
+    for pkg in "${(k)load_commands[@]}"
+    do
+        params="$param --path ${(qqq)load_commands[$pkg]} ${(qqq)pkg}"
+        __zplug::job::state::flock "$_zplug_cache[command]" "__zplug::core::load::as_command $params"
+    done
+    for pkg in "$load_themes[@]"
+    do
+        params="$param ${(qqq)pkg}"
+        __zplug::job::state::flock "$_zplug_cache[theme]" "__zplug::core::load::as_theme $params"
+    done
 }
 
 __zplug::core::cache::load_if_available()
@@ -111,6 +98,17 @@ __zplug::core::cache::load_if_available()
         esac
     fi
 
+    if [[ -f $ZPLUG_CACHE_DIR ]]; then
+        rm -f "$ZPLUG_CACHE_DIR"
+    fi
+    mkdir -p "$ZPLUG_CACHE_DIR"
+    local file
+    for file in "${(k)_zplug_cache[@]}"
+    do
+        rm -f "$_zplug_cache[$file]"
+        touch "$_zplug_cache[$file]"
+    done
+
     # if cache file doesn't find,
     # returns non-zero exit code
     return 1
@@ -135,7 +133,7 @@ __zplug::core::cache::plugins()
             "$tags[from]" \
             "$repo"
 
-        __zplug::core::cache::commit "$reply[@]"
+        __zplug::core::cache::commit repo "$repo" "$reply[@]"
     fi
 }
 
@@ -157,7 +155,7 @@ __zplug::core::cache::commands()
             "$tags[from]" \
             "$repo"
 
-        __zplug::core::cache::commit "$reply[@]"
+        __zplug::core::cache::commit repo "$repo" "$reply[@]"
     fi
 }
 
@@ -180,7 +178,7 @@ __zplug::core::cache::themes()
             "$tags[from]" \
             "$repo"
 
-        __zplug::core::cache::commit "$reply[@]"
+        __zplug::core::cache::commit repo "$repo" "$reply[@]"
     fi
 
     setopt prompt_subst

@@ -196,7 +196,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 |  Command  | Description | Options |
 |-----------|-------------|---------|
 | `install` | Install packages in parallel | (None) |
-| `load`    | Source installed plugins and add installed commands to `$PATH` | `--verbose`,`--profile` |
+| `load`    | Source installed plugins and add installed commands to `$PATH` | `--verbose` |
 | `list`    | List installed packages (more specifically, view the associative array `$zplugs`) | `--select` |
 | `update`  | Update installed packages in parallel | `--self`,`--select`,`--force` |
 | `check`   | Return true if all packages are installed, false otherwise | `--verbose` |

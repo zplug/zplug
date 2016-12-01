@@ -67,8 +67,7 @@ case "$words[1]" in
         ;;
     load)
         _arguments \
-            '(--verbose)--verbose[display loading files]' \
-            '(--profile)--profile[record loading profile]'
+            '(--verbose)--verbose[display loading files]'
         ret=0
         ;;
     status|list)

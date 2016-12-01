@@ -11,7 +11,7 @@ zplug-load - Source installed plugins and add installed commands to `$PATH`
 SYNOPSIS
 --------
 [verse]
-'zplug load' [--verbose][--profile]
+'zplug load' [--verbose]
 
     The word 'package' refers to the string in the format: "username/reponame".
 
@@ -25,9 +25,6 @@ OPTIONS
 -------
 *--verbose*::
     Be verbose.
-
-*--profile*::
-    Measure processing time by load command.
 
 
 EXAMPLES
