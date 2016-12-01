@@ -24,8 +24,9 @@ __zplug::core::load::from_cache()
             __zplug::io::print::f \
                 --zplug "$fg[yellow]Run compinit$reset_color\n"
         fi
-        source "$_zplug_cache[before_plugin]"
-        source "$_zplug_cache[after_plugin]"
+        source "$_zplug_cache[defer_1_plugin]"
+        source "$_zplug_cache[defer_2_plugin]"
+        source "$_zplug_cache[defer_3_plugin]"
     }
 
     # Cache in background

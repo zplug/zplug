@@ -69,7 +69,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
     local -a \
         unclassified_plugins \
         load_fpaths \
-        nice_plugins \
+        defer_1_plugins \
         load_plugins \
         lazy_plugins
 
@@ -119,10 +119,10 @@ __zplug::sources::oh-my-zsh::load_plugin()
         "$tags[dir]/$tags[name]"/{_*,**/_*}(N-.:h)
     )
 
-    # unclassified_plugins -> {nice_plugins,lazy_plugins,load_plugins}
-    if [[ $tags[nice] -gt 9 ]]; then
+    # unclassified_plugins -> {defer_1_plugins,lazy_plugins,load_plugins}
+    if [[ $tags[defer] -gt 9 ]]; then
         # the order of loading of plugin files
-        nice_plugins+=( "${unclassified_plugins[@]}" )
+        defer_1_plugins+=( "${unclassified_plugins[@]}" )
     else
         # autoload plugin / regular plugin
         if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
@@ -146,7 +146,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
             fi
             # Plugins
             load_plugins=( "${(R)load_plugins[@]:#$ignore}" )
-            nice_plugins=( "${(R)nice_plugins[@]:#$ignore}" )
+            defer_1_plugins=( "${(R)defer_1_plugins[@]:#$ignore}" )
             lazy_plugins=( "${(R)lazy_plugins[@]:#$ignore}" )
             # fpath
             load_fpaths=( "${(R)load_fpaths[@]:#$ignore}" )
@@ -155,7 +155,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
 
     reply=()
     [[ -n $load_plugins ]] && reply+=( "load_plugins" "${(F)load_plugins}" )
-    [[ -n $nice_plugins ]] && reply+=( "nice_plugins" "${(F)nice_plugins}" )
+    [[ -n $defer_1_plugins ]] && reply+=( "defer_1_plugins" "${(F)defer_1_plugins}" )
     [[ -n $lazy_plugins ]] && reply+=( "lazy_plugins" "${(F)lazy_plugins}" )
     [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
     [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")

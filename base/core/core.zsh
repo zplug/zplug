@@ -197,14 +197,15 @@ __zplug::core::core::variable()
 
     typeset -gx -A _zplug_cache
     _zplug_cache=(
-    "file"          "$ZPLUG_CACHE_DIR/file"
-    "before_plugin" "$ZPLUG_CACHE_DIR/before_plugin.zsh"
-    "after_plugin"  "$ZPLUG_CACHE_DIR/after_plugin.zsh"
-    "plugin"        "$ZPLUG_CACHE_DIR/plugin.zsh"
-    "lazy_plugin"   "$ZPLUG_CACHE_DIR/lazy_plugin.zsh"
-    "theme"         "$ZPLUG_CACHE_DIR/theme.zsh"
-    "command"       "$ZPLUG_CACHE_DIR/command.zsh"
-    "fpath"         "$ZPLUG_CACHE_DIR/fpath.zsh"
+    "file"           "$ZPLUG_CACHE_DIR/file"
+    "plugin"         "$ZPLUG_CACHE_DIR/plugin.zsh"
+    "lazy_plugin"    "$ZPLUG_CACHE_DIR/lazy_plugin.zsh"
+    "theme"          "$ZPLUG_CACHE_DIR/theme.zsh"
+    "command"        "$ZPLUG_CACHE_DIR/command.zsh"
+    "fpath"          "$ZPLUG_CACHE_DIR/fpath.zsh"
+    "defer_1_plugin" "$ZPLUG_CACHE_DIR/defer_1_plugin.zsh"
+    "defer_2_plugin" "$ZPLUG_CACHE_DIR/defer_2_plugin.zsh"
+    "defer_3_plugin" "$ZPLUG_CACHE_DIR/defer_3_plugin.zsh"
     )
 
     if (( $+ZPLUG_SHALLOW )); then

@@ -46,7 +46,7 @@ __zplug::core::add::to_zplugs()
 
         if (( $+_zplug_tags[$key] )); then
             case $key in
-                "of" | "file" | "commit" | "do")
+                "of" | "file" | "commit" | "do" | "nice")
                     # DEPRECATED: old tags
                     __zplug::core::v1::tags "$key"
                     ;;

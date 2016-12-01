@@ -17,7 +17,10 @@ __zplug::core::cache::commit()
     local -A  hook_load
     local -A  reply_hash
     local -A  load_commands
-    local -aU load_plugins load_fpaths lazy_plugins nice_plugins
+    local -aU load_plugins load_fpaths lazy_plugins \
+        defer_1_plugins \
+        defer_2_plugins \
+        defer_3_plugins
     local -aU unclassified_plugins
     local     repo param params
 
@@ -26,7 +29,9 @@ __zplug::core::cache::commit()
     load_fpaths=( ${(@f)reply_hash[load_fpaths]} )
     load_plugins=( ${(@f)reply_hash[load_plugins]} )
     load_themes=( ${(@f)reply_hash[load_themes]} "$unclassified_plugins[@]" )
-    nice_plugins=( ${(@f)reply_hash[nice_plugins]} )
+    defer_1_plugins=( ${(@f)reply_hash[defer_1_plugins]} )
+    defer_2_plugins=( ${(@f)reply_hash[defer_2_plugins]} )
+    defer_3_plugins=( ${(@f)reply_hash[defer_3_plugins]} )
     unclassified_plugins=( ${(@f)reply_hash[unclassified_plugins]} )
     for pair (${(@f)reply_hash[load_commands]}) load_commands+=( ${(@s:\0:)pair} )
     for pair (${(@f)reply_hash[hook_load]}) hook_load+=( ${(@s:\0:)pair} )
@@ -44,11 +49,20 @@ __zplug::core::cache::commit()
         params="$param ${(qqq)pkg}"
         __zplug::job::state::flock "$_zplug_cache[plugin]" "__zplug::core::load::as_plugin $params"
     done
-    for pkg in "$nice_plugins[@]"
+    for pkg in "$defer_1_plugins[@]"
     do
         params="$param ${(qqq)pkg}"
-        __zplug::job::state::flock "$_zplug_cache[before_plugin]" "__zplug::core::load::as_plugin $params"
-        __zplug::job::state::flock "$_zplug_cache[after_plugin]" "__zplug::core::load::as_plugin $params"
+        __zplug::job::state::flock "$_zplug_cache[defer_1_plugin]" "__zplug::core::load::as_plugin $params"
+    done
+    for pkg in "$defer_2_plugins[@]"
+    do
+        params="$param ${(qqq)pkg}"
+        __zplug::job::state::flock "$_zplug_cache[defer_2_plugin]" "__zplug::core::load::as_plugin $params"
+    done
+    for pkg in "$defer_3_plugins[@]"
+    do
+        params="$param ${(qqq)pkg}"
+        __zplug::job::state::flock "$_zplug_cache[defer_3_plugin]" "__zplug::core::load::as_plugin $params"
     done
     for pkg in "$lazy_plugins[@]"
     do

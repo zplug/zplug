@@ -21,6 +21,9 @@ __zplug::core::v1::tags()
         "do")
             new_key="hook-build"
             ;;
+        "nice")
+            new_key="defer"
+            ;;
         *)
             # Not old tag
             __zplug::io::print::f \

@@ -70,7 +70,7 @@ __zplug::sources::prezto::load_plugin()
     local -a load_fpaths
     local -a unclassified_plugins
     local -a lazy_plugins
-    local -a nice_plugins
+    local -a defer_1_plugins defer_2_plugins defer_3_plugins
     local    module_name
     local    dependency
 
@@ -81,7 +81,9 @@ __zplug::sources::prezto::load_plugin()
     load_fpaths=()
     unclassified_plugins=()
     lazy_plugins=()
-    nice_plugins=()
+    defer_1_plugins=()
+    defer_2_plugins=()
+    defer_3_plugins=()
 
     module_name="${tags[name]#*/}"
 
@@ -110,7 +112,7 @@ __zplug::sources::prezto::load_plugin()
     # modules/prompt's init.zsh must be sourced AFTER fpath is added (i.e.
     # after compinit in __load__)
     if [[ $tags[name] == modules/prompt ]]; then
-        nice_plugins=( $unclassified_plugins[@] )
+        defer_1_plugins=( $unclassified_plugins[@] )
         unclassified_plugins=()
     fi
 
@@ -138,7 +140,9 @@ __zplug::sources::prezto::load_plugin()
     reply=()
     [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
     [[ -n $unclassified_plugins ]] && reply+=( "unclassified_plugins" "${(F)unclassified_plugins}" )
-    [[ -n $nice_plugins ]] && reply+=( "nice_plugins" "${(F)nice_plugins}" )
+    [[ -n $defer_1_plugins ]] && reply+=( "defer_1_plugins" "${(F)defer_1_plugins}" )
+    [[ -n $defer_2_plugins ]] && reply+=( "defer_2_plugins" "${(F)defer_2_plugins}" )
+    [[ -n $defer_3_plugins ]] && reply+=( "defer_3_plugins" "${(F)defer_3_plugins}" )
     [[ -n $lazy_plugins ]] && reply+=( "lazy_plugins" "${(F)lazy_plugins}" )
     [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")
 
