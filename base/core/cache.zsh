@@ -50,7 +50,7 @@ __zplug::core::cache::commit()
         __zplug::job::state::flock "$_zplug_cache[before_plugin]" "__zplug::core::load::as_plugin $params"
         __zplug::job::state::flock "$_zplug_cache[after_plugin]" "__zplug::core::load::as_plugin $params"
     done
-    for pkg in "$lazy_plugin[@]"
+    for pkg in "$lazy_plugins[@]"
     do
         params="$param ${(qqq)pkg}"
         __zplug::job::state::flock "$_zplug_cache[lazy_plugin]" "__zplug::core::load::as_plugin $params"

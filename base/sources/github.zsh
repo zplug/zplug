@@ -218,7 +218,7 @@ __zplug::sources::github::load_command()
 
     # Try again assuming executable file name is the same as repo name
     if (( $#sources == 0 )); then
-        sources=( "$tags[dir]/$basename" )
+        sources=( "$tags[dir]/$basename"(N-.) )
     fi
 
     # Append dst to each element so that load_commands becomes:

@@ -36,8 +36,9 @@ __zplug::core::load::from_cache()
 
 __zplug::core::load::as_plugin()
 {
-    local key value repo load_path hook
-    local is_verbose
+    local    key value repo load_path hook
+    local    is_verbose
+    local -i status_code=0
     zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
     __zplug::utils::shell::getopts "$argv[@]" \
@@ -56,20 +57,26 @@ __zplug::core::load::as_plugin()
         esac
     done
 
-    if source "$load_path" &>/dev/null; then
-        if (( $_zplug_boolean_true[(I)$is_verbose] )); then
-            print -nP -- " %F{148}Load %F{15}${(qqq)repo}%f (${load_path/$HOME/~})\n"
+    source "$load_path" &>/dev/null
+    status_code=$status
+
+    if (( $_zplug_boolean_true[(I)$is_verbose] )); then
+        if (( $status_code == 0 )); then
+            print -nP -- " %F{148}Load %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
+        else
+            print -nP -- " %F{5}Failed to load %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
         fi
-        if [[ -n $hook ]]; then
-            ${=hook}
-        fi
+    fi
+    if (( $status_code == 0 )) && [[ -n $hook ]]; then
+        ${=hook}
     fi
 }
 
 __zplug::core::load::as_command()
 {
-    local key value repo load_path _path hook
-    local is_verbose
+    local    key value repo load_path _path hook
+    local    is_verbose
+    local -i status_code=0
     zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
     __zplug::utils::shell::getopts "$argv[@]" \
@@ -91,13 +98,21 @@ __zplug::core::load::as_command()
         esac
     done
 
-    if chmod 755 "$load_path"; ln -snf "$load_path" "$_path"; then
-        if (( $_zplug_boolean_true[(I)$is_verbose] )); then
-            print -nP -- " %F{148}Link %F{15}${(qqq)repo}%f (${load_path/$HOME/~})\n"
+    {
+        chmod 755 "$load_path"
+        ln -snf "$load_path" "$_path"
+    } &>/dev/null
+    status_code=$status
+
+    if (( $_zplug_boolean_true[(I)$is_verbose] )); then
+        if (( $status_code == 0 )); then
+            print -nP -- " %F{148}Link %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
+        else
+            print -nP -- " %F{5}Failed to link %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
         fi
-        if [[ -n $hook ]]; then
-            ${=hook}
-        fi
+    fi
+    if (( $status_code == 0 )) && [[ -n $hook ]]; then
+        ${=hook}
     fi
 }
 
