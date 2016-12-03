@@ -7,7 +7,7 @@ __zplug::core::add::to_zplugs()
 
     # DEPRECATED: pipe
     if [[ -p /dev/stdin ]]; then
-        __zplug::core::v1::pipe
+        __zplug::core::migration::pipe
         return $status
     fi
 
@@ -41,7 +41,7 @@ __zplug::core::add::to_zplugs()
             case $key in
                 "of" | "file" | "commit" | "do" | "nice")
                     # DEPRECATED: old tags
-                    __zplug::core::v1::tags "$key"
+                    __zplug::core::migration::tags "$key"
                     ;;
                 "from")
                     __zplug::core::sources::call "$val"

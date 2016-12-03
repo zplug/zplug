@@ -1,4 +1,4 @@
-__zplug::core::v1::tags()
+__zplug::core::migration::tags()
 {
     local key="$1" new_key
 
@@ -45,7 +45,7 @@ __zplug::core::v1::tags()
     return 1
 }
 
-__zplug::core::v1::pipe()
+__zplug::core::migration::pipe()
 {
     __zplug::io::print::f \
         --die \
@@ -56,7 +56,7 @@ __zplug::core::v1::pipe()
     return 1
 }
 
-__zplug::core::v1::cache_file_dir()
+__zplug::core::migration::cache_file_dir()
 {
     # If ZPLUG_CACHE_FIEL is defined
     if [[ -f $ZPLUG_CACHE_DIR ]]; then

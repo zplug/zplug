@@ -168,8 +168,10 @@ __zplug::core::load::skip_condition()
     # Returns true if there are conditions to skip,
     # returns false otherwise
 
-    local repo="${1:?}"
+    local    repo="${1:?}" is_verbose
     local -A tags
+
+    zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
@@ -186,7 +188,9 @@ __zplug::core::load::skip_condition()
 
     if [[ -n $tags[if] ]]; then
         if ! eval "$tags[if]" 2> >(__zplug::io::log::capture) >/dev/null; then
-            $is_verbose && __zplug::io::print::die "$tags[name]: (not loaded)\n"
+            if (( $_zplug_boolean_true[(I)$is_verbose] )); then
+                __zplug::io::print::die "$tags[name]: (not loaded)\n"
+            fi
             return 0
         fi
     fi
@@ -196,7 +200,9 @@ __zplug::core::load::skip_condition()
             'check' \
             ${~tags[on]}
         if (( $status != 0 )); then
-            $is_verbose && __zplug::io::print::die "$tags[name]: (not loaded)\n"
+            if (( $_zplug_boolean_true[(I)$is_verbose] )); then
+                __zplug::io::print::die "$tags[name]: (not loaded)\n"
+            fi
             return 0
         fi
     fi

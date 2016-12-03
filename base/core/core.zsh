@@ -218,6 +218,15 @@ __zplug::core::core::variable()
             "Please use 'zstyle :zplug:tag depth 1' instead.\n"
     fi
 
+    if (( $+ZPLUG_CACHE_FILE )); then
+        __zplug::io::print::f \
+            --die \
+            --zplug \
+            --warn \
+            "ZPLUG_CACHE_FILE is deprecated." \
+            "Please use 'ZPLUG_CACHE_DIR' instead.\n"
+    fi
+
     if (( $+ZPLUG_CLONE_DEPTH )); then
         __zplug::io::print::f \
             --die \
