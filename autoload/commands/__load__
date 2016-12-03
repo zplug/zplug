@@ -36,8 +36,9 @@ do
 done
 
 # Check if cache is up-to-date
-if __zplug::core::cache::load_if_available; then
-    return 0
+if __zplug::core::cache::diff; then
+    __zplug::core::load::from_cache
+    return $status
 fi
 
 for repo in "${repos[@]}"

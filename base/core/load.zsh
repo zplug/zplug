@@ -2,6 +2,8 @@ __zplug::core::load::prepare()
 {
     unsetopt monitor
     zstyle ':zplug:core:load' 'verbose' no
+
+    __zplug::core::cache::set_file "failed_repos"
 }
 
 __zplug::core::load::from_cache()
@@ -30,12 +32,23 @@ __zplug::core::load::from_cache()
         source "$_zplug_cache[defer_2_plugin]"
         source "$_zplug_cache[defer_3_plugin]"
     }
+
+    if [[ -s $_zplug_cache[failed_repos] ]]; then
+        # If there are repos failed to load,
+        # show those repos and return false
+        __zplug::io::print::f \
+            --zplug \
+            "These repos are failed to load:\n$fg_bold[red]"
+        sed -e 's/^/- /g' "$_zplug_cache[failed_repos]"
+        __zplug::io::print::f "$reset_color"
+        return 1
+    fi
 }
 
 __zplug::core::load::as_plugin()
 {
-    local    key value repo load_path hook
-    local    is_verbose
+    local    key value repo load_path hook is_lazy=false
+    local    is_verbose msg
     local -i status_code=0
     zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
@@ -52,22 +65,38 @@ __zplug::core::load::as_plugin()
             hook)
                 hook="$value"
                 ;;
+            lazy)
+                is_lazy=true
+                ;;
         esac
     done
 
-    source "$load_path" &>/dev/null
-    status_code=$status
+    if $is_lazy; then
+        msg="Lazy"
+        autoload -Uz "${load_path:t}"
+        status_code=$status
+    else
+        msg="Load"
+        source "$load_path" &>/dev/null
+        status_code=$status
+    fi
 
     if (( $_zplug_boolean_true[(I)$is_verbose] )); then
         if (( $status_code == 0 )); then
-            print -nP -- " %F{148}Load %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
+            print -nP -- " %F{148}$msg %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
         else
             print -nP -- " %F{5}Failed to load %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
         fi
     fi
-    if (( $status_code == 0 )) && [[ -n $hook ]]; then
-        ${=hook}
+    if (( $status_code == 0 )); then
+        if [[ -n $hook ]]; then
+            ${=hook}
+        fi
+    else
+        __zplug::job::handle::flock "$_zplug_cache[failed_repos]" "$repo"
     fi
+
+    return $status_code
 }
 
 __zplug::core::load::as_command()
@@ -109,17 +138,29 @@ __zplug::core::load::as_command()
             print -nP -- " %F{5}Failed to link %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
         fi
     fi
-    if (( $status_code == 0 )) && [[ -n $hook ]]; then
-        ${=hook}
+    if (( $status_code == 0 )); then
+        if [[ -n $hook ]]; then
+            ${=hook}
+        fi
+    else
+        __zplug::job::handle::flock "$_zplug_cache[failed_repos]" "$repo"
     fi
+
+    return $status_code
 }
 
 __zplug::core::load::as_theme()
 {
+    local -i ret=0
+
     __zplug::core::load::as_plugin "$argv[@]"
+    ret=$status
+
     if [[ ! -o prompt_subst ]]; then
         setopt prompt_subst
     fi
+
+    return $ret
 }
 
 __zplug::core::load::skip_condition()

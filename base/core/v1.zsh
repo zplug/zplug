@@ -55,3 +55,12 @@ __zplug::core::v1::pipe()
         "$fg[blue]on$reset_color"
     return 1
 }
+
+__zplug::core::v1::cache_file_dir()
+{
+    # If ZPLUG_CACHE_FIEL is defined
+    if [[ -f $ZPLUG_CACHE_DIR ]]; then
+        rm -f "$ZPLUG_CACHE_DIR"
+    fi
+    mkdir -p "$ZPLUG_CACHE_DIR"
+}

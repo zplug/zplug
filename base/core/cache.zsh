@@ -1,14 +1,29 @@
+__zplug::core::cache::set_file()
+{
+    local file="${1:?}"
+
+    if (( ! $+_zplug_cache[$file] )); then
+        return 1
+    fi
+
+    # Keep compatible with version 2.3.3 or lower
+    __zplug::core::v1::cache_file_dir
+
+    rm -f "$_zplug_cache[$file]"
+    touch "$_zplug_cache[$file]"
+}
+
 __zplug::core::cache::expose()
 {
-    if [[ -f $_zplug_cache[file] ]]; then
-        cat "$_zplug_cache[file]"
+    if [[ -f $_zplug_cache[interface] ]]; then
+        cat "$_zplug_cache[interface]"
     fi
 }
 
 __zplug::core::cache::update()
 {
     __zplug::core::interface::expose \
-        >|"$_zplug_cache[file]"
+        >|"$_zplug_cache[interface]"
 }
 
 __zplug::core::cache::commit()
@@ -66,7 +81,7 @@ __zplug::core::cache::commit()
     done
     for pkg in "$lazy_plugins[@]"
     do
-        params="$param ${(qqq)pkg}"
+        params="$param ${(qqq)pkg} --lazy"
         __zplug::job::handle::flock "$_zplug_cache[lazy_plugin]" "__zplug::core::load::as_plugin $params"
     done
     for pkg in "$load_fpaths[@]"
@@ -85,7 +100,7 @@ __zplug::core::cache::commit()
     done
 }
 
-__zplug::core::cache::load_if_available()
+__zplug::core::cache::diff()
 {
     local key file
 
@@ -101,8 +116,7 @@ __zplug::core::cache::load_if_available()
             0)
                 # same
                 print -P "[zplug] %F{202}Load from cache ($ZPLUG_CACHE_DIR)%f"
-                __zplug::core::load::from_cache
-                return $status
+                return 0
                 ;;
             1)
                 # differ
@@ -113,14 +127,9 @@ __zplug::core::cache::load_if_available()
         esac
     fi
 
-    if [[ -f $ZPLUG_CACHE_DIR ]]; then
-        rm -f "$ZPLUG_CACHE_DIR"
-    fi
-    mkdir -p "$ZPLUG_CACHE_DIR"
     for file in "${(k)_zplug_cache[@]}"
     do
-        rm -f "$_zplug_cache[$file]"
-        touch "$_zplug_cache[$file]"
+        __zplug::core::cache::set_file "$file"
     done
 
     # if cache file doesn't find,
