@@ -12,6 +12,8 @@ __zplug::core::load::from_cache()
     # Default
     setopt monitor
 
+    __zplug::core::cache::update
+
     # Load the cache in order
     {
         source "$_zplug_cache[fpath]"
@@ -28,11 +30,6 @@ __zplug::core::load::from_cache()
         source "$_zplug_cache[defer_2_plugin]"
         source "$_zplug_cache[defer_3_plugin]"
     }
-
-    # Cache in background
-    {
-        __zplug::core::cache::update
-    } &!
 }
 
 __zplug::core::load::as_plugin()

@@ -1,4 +1,4 @@
-__zplug::job::state::flock()
+__zplug::job::handle::flock()
 {
     local file="${1:?}" contents="${2:?}"
 

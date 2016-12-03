@@ -28,7 +28,7 @@ __zplug::core::cache::commit()
     lazy_plugins=( ${(@f)reply_hash[lazy_plugins]} )
     load_fpaths=( ${(@f)reply_hash[load_fpaths]} )
     load_plugins=( ${(@f)reply_hash[load_plugins]} )
-    load_themes=( ${(@f)reply_hash[load_themes]} "$unclassified_plugins[@]" )
+    load_themes=( ${(@f)reply_hash[load_themes]} )
     defer_1_plugins=( ${(@f)reply_hash[defer_1_plugins]} )
     defer_2_plugins=( ${(@f)reply_hash[defer_2_plugins]} )
     defer_3_plugins=( ${(@f)reply_hash[defer_3_plugins]} )
@@ -47,47 +47,47 @@ __zplug::core::cache::commit()
     for pkg in "$load_plugins[@]"
     do
         params="$param ${(qqq)pkg}"
-        __zplug::job::state::flock "$_zplug_cache[plugin]" "__zplug::core::load::as_plugin $params"
+        __zplug::job::handle::flock "$_zplug_cache[plugin]" "__zplug::core::load::as_plugin $params"
     done
     for pkg in "$defer_1_plugins[@]"
     do
         params="$param ${(qqq)pkg}"
-        __zplug::job::state::flock "$_zplug_cache[defer_1_plugin]" "__zplug::core::load::as_plugin $params"
+        __zplug::job::handle::flock "$_zplug_cache[defer_1_plugin]" "__zplug::core::load::as_plugin $params"
     done
     for pkg in "$defer_2_plugins[@]"
     do
         params="$param ${(qqq)pkg}"
-        __zplug::job::state::flock "$_zplug_cache[defer_2_plugin]" "__zplug::core::load::as_plugin $params"
+        __zplug::job::handle::flock "$_zplug_cache[defer_2_plugin]" "__zplug::core::load::as_plugin $params"
     done
     for pkg in "$defer_3_plugins[@]"
     do
         params="$param ${(qqq)pkg}"
-        __zplug::job::state::flock "$_zplug_cache[defer_3_plugin]" "__zplug::core::load::as_plugin $params"
+        __zplug::job::handle::flock "$_zplug_cache[defer_3_plugin]" "__zplug::core::load::as_plugin $params"
     done
     for pkg in "$lazy_plugins[@]"
     do
         params="$param ${(qqq)pkg}"
-        __zplug::job::state::flock "$_zplug_cache[lazy_plugin]" "__zplug::core::load::as_plugin $params"
+        __zplug::job::handle::flock "$_zplug_cache[lazy_plugin]" "__zplug::core::load::as_plugin $params"
     done
     for pkg in "$load_fpaths[@]"
     do
-        __zplug::job::state::flock "$_zplug_cache[fpath]" "fpath+=(${(qqq)pkg})"
+        __zplug::job::handle::flock "$_zplug_cache[fpath]" "fpath+=(${(qqq)pkg})"
     done
     for pkg in "${(k)load_commands[@]}"
     do
         params="$param --path ${(qqq)load_commands[$pkg]} ${(qqq)pkg}"
-        __zplug::job::state::flock "$_zplug_cache[command]" "__zplug::core::load::as_command $params"
+        __zplug::job::handle::flock "$_zplug_cache[command]" "__zplug::core::load::as_command $params"
     done
     for pkg in "$load_themes[@]"
     do
         params="$param ${(qqq)pkg}"
-        __zplug::job::state::flock "$_zplug_cache[theme]" "__zplug::core::load::as_theme $params"
+        __zplug::job::handle::flock "$_zplug_cache[theme]" "__zplug::core::load::as_theme $params"
     done
 }
 
 __zplug::core::cache::load_if_available()
 {
-    local key
+    local key file
 
     $ZPLUG_USE_CACHE || return 2
 
@@ -100,6 +100,7 @@ __zplug::core::cache::load_if_available()
         case $status in
             0)
                 # same
+                print -P "[zplug] %F{202}Load from cache ($ZPLUG_CACHE_DIR)%f"
                 __zplug::core::load::from_cache
                 return $status
                 ;;
@@ -116,7 +117,6 @@ __zplug::core::cache::load_if_available()
         rm -f "$ZPLUG_CACHE_DIR"
     fi
     mkdir -p "$ZPLUG_CACHE_DIR"
-    local file
     for file in "${(k)_zplug_cache[@]}"
     do
         rm -f "$_zplug_cache[$file]"
