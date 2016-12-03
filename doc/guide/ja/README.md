@@ -158,12 +158,12 @@ zplug "stedolan/jq", \
     rename-to:jq
 zplug "b4b4r07/emoji-cli", \
     on:"stedolan/jq"
-# ノート: 読み込み順序を指定するなら nice タグを使いましょう
+# ノート: 読み込み順序を遅らせるなら defer タグを使いましょう
 
 # 読み込み順序を設定する
 # 例: "zsh-syntax-highlighting" は compinit の前に読み込まれる必要がある
-# （10 以上は compinit 後に読み込まれるようになる）
-zplug "zsh-users/zsh-syntax-highlighting", nice:10
+# （2 以上は compinit 後に読み込まれるようになる）
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
 # ローカルプラグインも読み込める
 zplug "~/.zsh", from:local
@@ -264,7 +264,7 @@ zplug "zplug/zplug"
 | `hook-load`   | ロード後に実行するコマンド | *コマンド* (-) | `hook-load:"echo 'Loaded!'"` |
 | `frozen`      | 明示的に指定するとアップデート対象から省く | truthy または falsy (false) | `frozen:1` |
 | `on`          | 指定されたパッケージがインストールされているときのみロードする | *package* | `on:user/repo` |
-| `nice`        | プラグインの読み込み順序を指定する。 10 以上を指定すると、`compinit` コマンドの実行後に読まれることになる ([#26](https://github.com/zplug/zplug/issues/26) 参照) | -20 から 19 (0) | `nice:19` |
+| `defer`        | プラグインの読み込みを遅らせる。 2 以上を指定すると、`compinit` コマンドの実行後に読まれることになる ([#26](https://github.com/zplug/zplug/issues/26) 参照) | 0 から 3 (0) | `defer:2` |
 | `lazy`        | 遅延読み込みするかどうかを指定する | truthy または falsy (false) | `lazy:true` |
 | `depth`       | リポジトリをクローンするときのヒストリサイズ。0 はすべてのヒストリをクローンする | 0 と正の整数 | `depth:10` |
 

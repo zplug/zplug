@@ -1,37 +1,37 @@
-zplug-nice(5)
-===========
+zplug-defer(5)
+==============
 Masaki Ishiyama b4b4r07@gmail.com
 :man manual: ZPLUG Manual
 
 NAME
 ----
-zplug-nice - Priority of loading the plugins
+zplug-defer - Defers the loading of a package
 
 
 SYNOPSIS
 --------
 [verse]
-'zplug' '"username/reponame"', 'nice:11'
+'zplug' '"username/reponame"', 'defer:1'
 
     The word 'package' refers to the string in the format: "username/reponame".
 
 
 DESCRIPTION
 -----------
-By using `nice` tag, you can set the priority of loading the plugins.
-If the value is 10 or more, zplug will source the plugin after `compinit`.
+By using `defer` tag, you can set the priority of loading the packages.
+If the value is 2 or above, zplug will source the plugin after `compinit`.
 
-.zplug nice tag
+.zplug defer tag
 [options="header"]
 |================================
 | Possive Values  | Default value
-| -20..19         | 0
+| 0..3            | 0
 |================================
 
 Besides, by using `zstyle` command, you can change default value:
 
 ------------
-$ zstyle ":zplug:tag" nice -1
+$ zstyle ":zplug:tag" defer 1
 ------------
 
 
@@ -42,7 +42,7 @@ Priority:
 ------------
 $ zplug "~/.zsh", \
     as:plugin, \
-    nice:1
+    defer:1
 ------------
 
 

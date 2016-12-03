@@ -160,10 +160,10 @@ zplug clear
     )
 }
 
-# nice
+# defer
 {
     zplug "zsh-users/zsh-syntax-highlighting", \
-        nice:19
+        defer:2
 
     tests+=(
     '(( $+functions[_zsh_highlight] ))'

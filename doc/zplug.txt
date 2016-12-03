@@ -1,6 +1,6 @@
 zplug(1)
-======
-Masaki Ishiyama (@b4b4r07) b4b4r07@gmail.com
+========
+Masaki Ishiyama b4b4r07@gmail.com
 :man manual: ZPLUG Manual
 
 NAME
@@ -147,9 +147,9 @@ and so on. If you want to use extended glob, see later section for setting the z
 
 |*depth* | The number of commits to include in the cloned repository. 0 means the whole history. | Any non-negative integer | `depth:10` |
 
-|*nice* | Priority of loading the plugins. If the value is 10 or more,
+|*defer* | Defers the loading of a package. If the value is 2 or above,
 zplug will source the plugin after `compinit` (see also https://github.com/zplug/zplug/issues/26[#26])
-| -20..19 (0) | `nice:19`
+| 0..3 (0) | `defer:2`
 
 |*ignore* | Similar to `use`, but specify exception pattern of files that you
 don't want to load (see also https://github.com/zplug/zplug/issues/56[#56])
@@ -346,10 +346,10 @@ zplug "stedolan/jq", \
     rename-to:jq, \
     on:"b4b4r07/emoji-cli"
 
-# Set priority to load command like a nice command
+# Defers the loading of a package
 # e.g., zsh-syntax-highlighting must be loaded
 # after executing compinit command and sourcing other plugins
-zplug "zsh-users/zsh-syntax-highlighting", nice:10
+zplug "zsh-users/zsh-syntax-highlighting", defer:3
 
 # Can manage local plugins
 zplug "~/.zsh", from:local

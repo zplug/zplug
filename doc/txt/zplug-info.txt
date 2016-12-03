@@ -50,7 +50,7 @@ $ zplug info b4b4r07/enhancd
  - hook-load:""
  - file:""
  - name:"~/enhancd"
- - nice:"0"
+ - defer:"0"
  - if:""
  - depth:"0"
  - frozen:"no"

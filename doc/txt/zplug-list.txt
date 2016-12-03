@@ -35,7 +35,7 @@ List:
 ------------
 $ zplug list
 zplug/zplug  =>  nil
-/Users/b4b4r07/.modules  =>  from:local, nice:1, use:*.sh
+/Users/b4b4r07/.modules  =>  from:local, use:*.sh
 b4b4r07/zsh-gomi  =>  as:command, use:bin/gomi
 glidenote/hub-zsh-completion  =>  nil
 peco/peco  =>  as:command, from:gh-r, frozen:1
