@@ -1,4 +1,5 @@
 #!/usr/bin/env zsh
+# vim: ft=zplug
 
 # Prepare
 tests=()
@@ -60,18 +61,20 @@ zplug clear
         hook-build:"chmod 755 *.sh", \
         use:"*.sh"
     # oh-my-zsh
-    zplug "plugins/git", \
-        from:oh-my-zsh
-    zplug "plugins/cp", \
-        from:oh-my-zsh
-    zplug "plugins/emoji", \
-        from:oh-my-zsh
+    zplug "plugins/emoji", from:oh-my-zsh
+    zplug "plugins/git", from:oh-my-zsh
+    zplug "plugins/cp", from:oh-my-zsh
+    # prezto
+    zplug "modules/tmux", from:prezto
     # gh-r
     zplug "junegunn/fzf-bin", \
         as:command, \
         from:gh-r, \
-        rename-to:fzf, \
-        use:"*darwin*amd64*"
+        rename-to:fzf
+    zplug "peco/peco", \
+        as:command, \
+        from:gh-r, \
+        rename-to:peco
     # gist
     zplug "b4b4r07/79ee61f7c140c63d2786", \
         from:gist, \
@@ -87,7 +90,9 @@ zplug clear
     '(( $+aliases[gba] ))'
     '(( $+functions[cpv] ))'
     '(( $+functions[random_emoji] ))'
+    '(( $+aliases[tmuxa] ))'
     '[[ -x $ZPLUG_HOME/bin/fzf ]]'
+    '[[ -x $ZPLUG_HOME/bin/peco ]]'
     '[[ -x $ZPLUG_HOME/bin/get_last_pane_path.sh ]]'
     )
 }
