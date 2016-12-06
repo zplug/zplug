@@ -138,12 +138,13 @@ __zplug::sources::prezto::load_plugin()
     fi
 
     reply=()
+    #[[ -n $unclassified_plugins ]] && reply+=( "unclassified_plugins" "${(F)unclassified_plugins}" )
     [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
-    [[ -n $unclassified_plugins ]] && reply+=( "unclassified_plugins" "${(F)unclassified_plugins}" )
+    [[ -n $load_plugins ]] && reply+=( "load_plugins" "${(F)unclassified_plugins}" ) # TODO
+    [[ -n $lazy_plugins ]] && reply+=( "lazy_plugins" "${(F)lazy_plugins}" )
     [[ -n $defer_1_plugins ]] && reply+=( "defer_1_plugins" "${(F)defer_1_plugins}" )
     [[ -n $defer_2_plugins ]] && reply+=( "defer_2_plugins" "${(F)defer_2_plugins}" )
     [[ -n $defer_3_plugins ]] && reply+=( "defer_3_plugins" "${(F)defer_3_plugins}" )
-    [[ -n $lazy_plugins ]] && reply+=( "lazy_plugins" "${(F)lazy_plugins}" )
     [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")
 
     return 0
