@@ -5,9 +5,9 @@
 git_prompt_info()
 {
     local ref hide_status
-    hide_status="$(git config --get oh-my-zsh.hide-status)"
+    hide_status="$(git config --get oh-my-zsh.hide-status 2>/dev/null)"
     if [[ $hide_status != 1 ]]; then
-        ref="$(git symbolic-ref HEAD)" || ref="$(git rev-parse --short HEAD)" || return 0
+        ref="$(git symbolic-ref HEAD 2>/dev/null)" || ref="$(git rev-parse --short HEAD 2>/dev/null)" || return 0
         echo "$ZSH_THEME_GIT_PROMPT_PREFIX${ref#refs/heads/}$(parse_git_dirty)$ZSH_THEME_GIT_PROMPT_SUFFIX"
     fi
 }
