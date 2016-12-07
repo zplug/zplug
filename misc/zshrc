@@ -66,6 +66,7 @@ zplug clear
     zplug "plugins/cp", from:oh-my-zsh
     # prezto
     zplug "modules/tmux", from:prezto
+    zplug "modules/git", from:prezto
     # gh-r
     zplug "junegunn/fzf-bin", \
         as:command, \
@@ -90,7 +91,9 @@ zplug clear
     '(( $+aliases[gba] ))'
     '(( $+functions[cpv] ))'
     '(( $+functions[random_emoji] ))'
-    '(( $+aliases[tmuxa] ))'
+    '(( $+aliases[tmuxa] ))'      # "prezto" modules/tmux
+    '(( $+aliases[gbS] ))'        # "prezto" modules/git
+    '(( $+functions[git-dir] ))'  # "prezto" modules/git
     '[[ -x $ZPLUG_HOME/bin/fzf ]]'
     '[[ -x $ZPLUG_HOME/bin/peco ]]'
     '[[ -x $ZPLUG_HOME/bin/get_last_pane_path.sh ]]'

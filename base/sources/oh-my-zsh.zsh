@@ -69,15 +69,22 @@ __zplug::sources::oh-my-zsh::load_plugin()
     local -a \
         unclassified_plugins \
         load_fpaths \
-        defer_1_plugins \
         load_plugins \
-        lazy_plugins
+        lazy_plugins \
+        defer_1_plugins \
+        defer_2_plugins \
+        defer_3_plugins
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
     default_tags[use]="$(__zplug::core::core::run_interfaces 'use')"
     unclassified_plugins=()
     load_fpaths=()
+    load_plugins=()
+    lazy_plugins=()
+    defer_1_plugins=()
+    defer_2_plugins=()
+    defer_3_plugins=()
 
     # Check if omz is loaded and set some necessary settings
     if [[ -z $ZSH ]]; then
@@ -119,18 +126,29 @@ __zplug::sources::oh-my-zsh::load_plugin()
         "$tags[dir]/$tags[name]"/{_*,**/_*}(N-.:h)
     )
 
-    # unclassified_plugins -> {defer_1_plugins,lazy_plugins,load_plugins}
-    if [[ $tags[defer] -gt 9 ]]; then
-        # the order of loading of plugin files
-        defer_1_plugins+=( "${unclassified_plugins[@]}" )
-    else
-        # autoload plugin / regular plugin
-        if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
-            lazy_plugins+=( "${unclassified_plugins[@]}" )
-        else
-            load_plugins+=( "${unclassified_plugins[@]}" )
-        fi
-    fi
+    # unclassified_plugins -> {defer_N_plugins,lazy_plugins,load_plugins}
+    # the order of loading of plugin files
+    case "$tags[defer]" in
+        0)
+            if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
+                lazy_plugins+=( "${unclassified_plugins[@]}" )
+            else
+                load_plugins+=( "${unclassified_plugins[@]}" )
+            fi
+            ;;
+        1)
+            defer_1_plugins+=( "${unclassified_plugins[@]}" )
+            ;;
+        2)
+            defer_2_plugins+=( "${unclassified_plugins[@]}" )
+            ;;
+        3)
+            defer_3_plugins+=( "${unclassified_plugins[@]}" )
+            ;;
+        *)
+            : # Error
+            ;;
+    esac
     unclassified_plugins=()
 
     if [[ -n $tags[ignore] ]]; then
@@ -147,6 +165,8 @@ __zplug::sources::oh-my-zsh::load_plugin()
             # Plugins
             load_plugins=( "${(R)load_plugins[@]:#$ignore}" )
             defer_1_plugins=( "${(R)defer_1_plugins[@]:#$ignore}" )
+            defer_2_plugins=( "${(R)defer_2_plugins[@]:#$ignore}" )
+            defer_3_plugins=( "${(R)defer_3_plugins[@]:#$ignore}" )
             lazy_plugins=( "${(R)lazy_plugins[@]:#$ignore}" )
             # fpath
             load_fpaths=( "${(R)load_fpaths[@]:#$ignore}" )
