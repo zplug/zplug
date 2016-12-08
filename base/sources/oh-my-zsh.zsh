@@ -73,7 +73,9 @@ __zplug::sources::oh-my-zsh::load_plugin()
         lazy_plugins \
         defer_1_plugins \
         defer_2_plugins \
-        defer_3_plugins
+        defer_3_plugins \
+        load_themes
+    local -a themes_ext
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
@@ -85,6 +87,8 @@ __zplug::sources::oh-my-zsh::load_plugin()
     defer_1_plugins=()
     defer_2_plugins=()
     defer_3_plugins=()
+    load_themes=()
+    themes_ext=("zsh-theme" "theme-zsh")
 
     # Check if omz is loaded and set some necessary settings
     if [[ -z $ZSH ]]; then
@@ -109,8 +113,8 @@ __zplug::sources::oh-my-zsh::load_plugin()
             fi
             ;;
         themes/*)
-            unclassified_plugins=(
-                ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"}
+            unclassified_plugins=( ${(@f)"$(__zplug::utils::omz::depends "$tags[name]")"} )
+            load_themes=(
                 ${(@f)"$( \
                     __zplug::utils::shell::expand_glob "$tags[dir]/$tags[name].${^themes_ext}" "(N-.)"
                 )"}
@@ -181,6 +185,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
     [[ -n $defer_2_plugins ]] && reply+=( "defer_2_plugins" "${(F)defer_2_plugins}" )
     [[ -n $defer_3_plugins ]] && reply+=( "defer_3_plugins" "${(F)defer_3_plugins}" )
     [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")
+    [[ -n $load_themes ]] && reply+=( "load_themes" "${(F)load_themes}" )
 
     return 0
 }
