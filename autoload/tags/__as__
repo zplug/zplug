@@ -12,7 +12,6 @@ candidates=(
 "$default"
 "command"
 "theme"
-"itself"
 )
 
 package="${arg}, ${zplugs[$arg]%, }"
@@ -41,17 +40,6 @@ if [[ -z $as ]]; then
             # undefined
             ;;
     esac
-fi
-
-if [[ $arg != "zplug/zplug" ]] && [[ $as == "itself" ]]; then
-    __zplug::io::print::f \
-        --die \
-        --zplug \
-        --func \
-        "%s: cannot set since it's reserved value (%s)\n" \
-        "$as" \
-        "$arg"
-    return 1
 fi
 
 : ${as:=$default}

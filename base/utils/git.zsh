@@ -90,7 +90,7 @@ __zplug::utils::git::checkout()
     tags[dir]="$(__zplug::core::core::run_interfaces 'dir' "$repo")"
     tags[from]="$(__zplug::core::core::run_interfaces 'from' "$repo")"
 
-    do_not_checkout=( "gh-r" )
+    do_not_checkout=( "gh-r" "prezto" )
     if [[ ! -d $tags[dir]/.git ]]; then
         do_not_checkout+=( "local" )
     fi

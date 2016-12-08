@@ -1,22 +1,13 @@
 '\" t
 .\"     Title: zplug
-.\"    Author: Masaki Ishiyama (@b4b4r07) b4b4r07@gmail.com
-.\" Generator: DocBook XSL Stylesheets v1.79.0 <http://docbook.sf.net/>
-.\"      Date: 10/10/2016
+.\"    Author: [see the "Authors" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 12/03/2016
 .\"    Manual: ZPLUG Manual
-.\"    Source: \ \&
+.\"    Source: ZPLUG Manual
 .\"  Language: English
 .\"
-.TH "ZPLUG" "1" "10/10/2016" "\ \&" "ZPLUG Manual"
-.\" -----------------------------------------------------------------
-.\" * Define some portability stuff
-.\" -----------------------------------------------------------------
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" http://bugs.debian.org/507673
-.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.ie \n(.g .ds Aq \(aq
-.el       .ds Aq '
+.TH "ZPLUG" "1" "12/03/2016" "ZPLUG Manual" "ZPLUG Manual"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -33,11 +24,11 @@ zplug \- A next\-generation plugin manager for zsh
 .sp
 .nf
 \fIzplug\fR [\fI"username/reponame"\fR[, \fItag:"value"\fR[,\&...]]]
-    [<command> [<options>] [<\*(Aqpackage\*(Aq>]]
+    [<command> [<options>] [<\fIpackage\fR>]]
 .fi
 .sp
 .nf
-The word \*(Aqpackage\*(Aq refers to the string in the format: "username/reponame"\&.
+The word \'package\' refers to the string in the format: "username/reponame"\&.
 .fi
 .SH "DESCRIPTION"
 .sp
@@ -365,7 +356,7 @@ T}:T{
 Whether to register the package as commands or as plugins
 T}:T{
 .sp
-plugin,command (plugin)
+plugin,command,theme (plugin)
 T}:T{
 .sp
 as:command
@@ -472,7 +463,7 @@ T}:T{
 \fBcommands\fR (\-)
 T}:T{
 .sp
-hook\-load:"echo \*(AqBoo!\*(Aq"
+hook\-load:"echo \'Boo!\'"
 T}
 T{
 .sp
@@ -530,17 +521,17 @@ T{
 .sp
 T}:T{
 .sp
-\fBnice\fR
+\fBdefer\fR
 T}:T{
 .sp
-Priority of loading the plugins\&. If the value is 10 or more, zplug will source the plugin after compinit (see also #26)
+Defers the loading of a package\&. If the value is 2 or above, zplug will source the plugin after compinit (see also #26)
 T}:T{
 .sp
-\-20\&.\&.19 (0)
+0\&.\&.3 (0)
 T}
 T{
 .sp
-nice:19
+defer:2
 T}:T{
 .sp
 \fBignore\fR
@@ -627,7 +618,7 @@ $ZPLUG_HOME/packages\&.zsh\&. This file is used to add packages from zplug on th
 .RS 4
 Defaults to
 true\&. If this variable is true, zplug uses a cache file to speed up the loading process\&. The cache file is located at
-$ZPLUG_CACHE_FILE
+$ZPLUG_CACHE_DIR
 ($ZPLUG_HOME/\&.cache
 by default)\&. If you want to clear the cache, please run
 zplug clear
@@ -644,11 +635,11 @@ $ ZPLUG_USE_CACHE=false zplug load
 .RE
 .\}
 .PP
-\fIZPLUG_CACHE_FILE\fR
+\fIZPLUG_CACHE_DIR\fR
 .RS 4
 Defaults to
 $ZPLUG_HOME/\&.cache\&. Specifies where to save the cache\&. For example, you can set this to
-$HOME/\&.cache/zplug/cache
+$HOME/\&.cache/zplug
 to follow XDG Base Directory Specification
 .RE
 .PP
@@ -661,7 +652,7 @@ $ZPLUG_HOME/repos\&. You can change where the repositories are cloned in case yo
 \fIZPLUG_SUDO_PASSWORD\fR
 .RS 4
 Defaults to
-\*(Aq\*(Aq\&. You can set sudo password for zplug\(cqs
+\'\'\&. You can set sudo password for zplug\(cqs
 hook\-build
 tag\&. However, this variable shoud not be managed in dotfiles and so on\&.
 .RE
@@ -708,6 +699,7 @@ Register packages with the zplug command (zplug "username/reponame")
 .sp -1
 .IP "  2." 4.2
 .\}
+
 zplug load
 to source the plugins and add its commands to your
 $PATH
@@ -726,7 +718,7 @@ zplug "zsh\-users/zsh\-history\-substring\-search"
 # And accept glob patterns (e\&.g\&., brace, wildcard, \&.\&.\&.)
 zplug "Jxck/dotfiles", as:command, use:"bin/{histuniq,color}"
 
-# Can manage everything e\&.g\&., other person\*(Aqs zshrc
+# Can manage everything e\&.g\&., other person\'s zshrc
 zplug "tcnksm/docker\-alias", use:zshrc
 
 # Prohibit updates to a plugin by using the "frozen:" tag
@@ -742,14 +734,14 @@ zplug "junegunn/fzf\-bin", \e
 
 # Support oh\-my\-zsh plugins and the like
 zplug "plugins/git",   from:oh\-my\-zsh, if:"(( $+commands[git] ))"
-zplug "themes/duellj", from:oh\-my\-zsh
+zplug "themes/duellj", from:oh\-my\-zsh, as:theme
 zplug "lib/clipboard", from:oh\-my\-zsh, if:"[[ $OSTYPE == *darwin* ]]"
 
 # Also supports prezto plugins
 zplug "modules/osx", from:prezto, if:"[[ $OSTYPE == *darwin* ]]"
 zplug "modules/prompt", from:prezto
 # Set zstyle before zplug load
-zstyle \*(Aq:prezto:module:prompt\*(Aq theme \*(Aqsorin\*(Aq
+zstyle \':prezto:module:prompt\' theme \'sorin\'
 
 # Run a command after a plugin is installed/updated
 zplug "tj/n", hook\-build:"make install"
@@ -781,13 +773,16 @@ zplug "stedolan/jq", \e
     rename\-to:jq, \e
     on:"b4b4r07/emoji\-cli"
 
-# Set priority to load command like a nice command
+# Defers the loading of a package
 # e\&.g\&., zsh\-syntax\-highlighting must be loaded
 # after executing compinit command and sourcing other plugins
-zplug "zsh\-users/zsh\-syntax\-highlighting", nice:10
+zplug "zsh\-users/zsh\-syntax\-highlighting", defer:3
 
 # Can manage local plugins
 zplug "~/\&.zsh", from:local
+
+# Load theme file
+zplug \'dracula/zsh\', as:theme
 
 # Install plugins if there are plugins that have not been installed
 if ! zplug check \-\-verbose; then
@@ -810,18 +805,12 @@ Finally, use zplug install to install your plugins and reload \&.zshrc\&.
 See the references in official wiki page to get started using zplug\&. The wiki may perhaps be overwhelming for first\-time users\&.
 .SH "AUTHORS"
 .sp
-zplug was originally written by Masaki Ishi (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
+zplug was originally written by Masaki Ishiyama (a\&.k\&.a @b4b4r07)\&. Many people have contributed to it\&.
 .SH "COPYING"
 .sp
-Copyright (C) 2015\-2016 Masaki Ishi
+Copyright (C) 2015\-2016 Masaki Ishiyama
 .sp
 MIT License
 .SH "REPORTING BUGS"
 .sp
 Report bugs to the zplug issues
-.SH "AUTHOR"
-.PP
-\fBMasaki Ishiyama (@b4b4r07) b4b4r07@gmail\&.com\fR
-.RS 4
-Author.
-.RE

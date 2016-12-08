@@ -97,70 +97,47 @@ __zplug::sources::github::get_url()
 
 __zplug::sources::github::load_plugin()
 {
-    local    repo="$1"
+    local    repo="${1:?}"
     local -A tags default_tags
-    local -a plugins_ext
-    local -a unclassified_plugins
-    local    ext
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
+    local -a \
+        unclassified_plugins \
+        load_fpaths \
+        defer_1_plugins \
+        defer_2_plugins \
+        defer_3_plugins \
+        load_plugins \
+        lazy_plugins
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
     default_tags[use]="$(__zplug::core::core::run_interfaces 'use')"
+    load_fpaths=()
 
     # If that is an autoload plugin
     if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
-        if [[ $tags[use] != $default_tags[use] ]]; then
+        if [[ $tags[use] == $default_tags[use] ]]; then
+            unclassified_plugins+=( \
+                "$tags[dir]/autoload"/*(N.) \
+                "$tags[dir]/functions"/*(N.) \
+                )
+            load_fpaths+=( \
+                "$tags[dir]/autoload"(N/) \
+                "$tags[dir]/functions"(N/) \
+                )
+        else
             unclassified_plugins+=( ${(@f)"$( \
                 __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
             )"} )
             load_fpaths+=( $unclassified_plugins:h(N/) )
-        else
-            unclassified_plugins+=( \
-                "$tags[dir]/autoload"/*(N.) \
-                "$tags[dir]/functions"/*(N.) \
-            )
-            load_fpaths+=( \
-                "$tags[dir]/autoload"(N/) \
-                "$tags[dir]/functions"(N/) \
-            )
         fi
     else
-    # Default load behavior for plugins
-    plugins_ext=("plugin.zsh")
-
-    # In order to find main file of the plugin,
-    # narrow down the candidates in three stages
-    # 1. use $plugins_ext[@] ==> foo.plugin.zsh
-    # 2. use $tags[use] as a file like "*.zsh" ==> bar.zsh
-    # 3. use in combination
-    #    - tags[use] as a directory like "bin"
-    #    - and *.zsh files ==> bar.zsh
-    for ext in "${plugins_ext[@]}"
-    do
         if [[ $tags[use] == $default_tags[use] ]]; then
-            # NOTE: step 1
-            unclassified_plugins+=( "$tags[dir]"/*.$ext(N-.) )
-            # Add the parent directory to fpath
-            load_fpaths+=( $tags[dir]/_*(N.:h) )
+            unclassified_plugins+=( "$tags[dir]"/*.plugin.zsh(N-.) )
         fi
-
         if (( $#unclassified_plugins == 0 )); then
-            # NOTE: step 2
-            # If $tags[use] is a regular file,
-            # expect to expand to $tags[dir]/*.zsh
             unclassified_plugins+=( ${(@f)"$( \
                 __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
             )"} )
-            # Add the parent directory to fpath
-            load_fpaths+=( $tags[dir]/_*(N.:h) )
-
-            # NOTE: step 3
             # If $tags[use] is a directory,
             # expect to expand to $tags[dir]/*.zsh
             if (( $#unclassified_plugins == 0 )); then
@@ -168,36 +145,84 @@ __zplug::sources::github::load_plugin()
                     __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]/$default_tags[use]" "(N-.)"
                 )"} )
                 # Add the parent directory to fpath
-                load_fpaths+=( $tags[dir]/$tags[use]/_*(N.:h) )
+                load_fpaths+=( "$tags[dir]/$tags[use]"/_*(N.:h) )
             fi
         fi
-    done
+        load_fpaths+=( "$tags[dir]"/_*(N.:h) )
+    fi
+
+    # unclassified_plugins -> {defer_N_plugins,lazy_plugins,load_plugins}
+    # the order of loading of plugin files
+    case "$tags[defer]" in
+        0)
+            if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
+                lazy_plugins+=( "${unclassified_plugins[@]}" )
+            else
+                load_plugins+=( "${unclassified_plugins[@]}" )
+            fi
+            ;;
+        1)
+            defer_1_plugins+=( "${unclassified_plugins[@]}" )
+            ;;
+        2)
+            defer_2_plugins+=( "${unclassified_plugins[@]}" )
+            ;;
+        3)
+            defer_3_plugins+=( "${unclassified_plugins[@]}" )
+            ;;
+        *)
+            : # Error
+            ;;
+    esac
+    unclassified_plugins=()
+
+    if [[ -n $tags[ignore] ]]; then
+        ignore_patterns=( $(
+        zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${tags[dir]}/${~tags[ignore]}" \
+            2> >(__zplug::io::log::capture)
+        )(N) )
+        for ignore in "${ignore_patterns[@]}"
+        do
+            # Commands
+            if [[ -n $load_commands[(i)$ignore] ]]; then
+                unset "load_commands[$ignore]"
+            fi
+            # Plugins
+            load_plugins=( "${(R)load_plugins[@]:#$ignore}" )
+            defer_1_plugins=( "${(R)defer_1_plugins[@]:#$ignore}" )
+            defer_2_plugins=( "${(R)defer_2_plugins[@]:#$ignore}" )
+            defer_3_plugins=( "${(R)defer_3_plugins[@]:#$ignore}" )
+            lazy_plugins=( "${(R)lazy_plugins[@]:#$ignore}" )
+            # fpath
+            load_fpaths=( "${(R)load_fpaths[@]:#$ignore}" )
+        done
     fi
 
     reply=()
-    [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
-    [[ -n $unclassified_plugins ]] && reply+=( unclassified_plugins "${(F)unclassified_plugins}" )
+    [[ -n $load_plugins ]] && reply+=( "load_plugins" "${(F)load_plugins}" )
+    [[ -n $defer_1_plugins ]] && reply+=( "defer_1_plugins" "${(F)defer_1_plugins}" )
+    [[ -n $defer_2_plugins ]] && reply+=( "defer_2_plugins" "${(F)defer_2_plugins}" )
+    [[ -n $defer_3_plugins ]] && reply+=( "defer_3_plugins" "${(F)defer_3_plugins}" )
+    [[ -n $lazy_plugins ]] && reply+=( "lazy_plugins" "${(F)lazy_plugins}" )
+    [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
+    [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")
 }
 
 __zplug::sources::github::load_command()
 {
-    local    repo="$1"
-    local -A tags
-    local -A default_tags
-    local    dst basename
+    local    repo="${1:?}"
+    local -A tags default_tags
+    local    src dst basename
     local -a sources
     local -a load_fpaths load_commands
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
     default_tags[use]="$(__zplug::core::core::run_interfaces 'use')"
-
     basename="${repo:t}"
     tags[dir]="${tags[dir]%/}"
-    dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
-
-    # Add parent directories to fpath if any files starting in _* exist
-    load_fpaths+=(${tags[dir]}/{_*,/**/_*}(N-.:h))
+    load_commands=()
+    load_fpaths=()
 
     # If no USE is specified, link all executables in $tags[dir] to $dst
     if [[ $tags[use] == $default_tags[use] ]]; then
@@ -210,7 +235,7 @@ __zplug::sources::github::load_command()
 
     # Try again assuming executable file name is the same as repo name
     if (( $#sources == 0 )); then
-        sources=( $tags[dir]/$basename )
+        sources=( "$tags[dir]/$basename"(N-.) )
     fi
 
     # Append dst to each element so that load_commands becomes:
@@ -230,37 +255,35 @@ __zplug::sources::github::load_command()
     #
     # becomes an element where the key is "path/to/cmd" and the value is
     # "dst".
+    dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
     for src in "${sources[@]}"
     do
         load_commands+=("$src\0$dst")
     done
 
+    # Add parent directories to fpath if any files starting in _* exist
+    load_fpaths+=("$tags[dir]"/{_*,/**/_*}(N-.:h))
+
     reply=()
-    [[ -n $load_fpaths ]] && reply+=( load_fpaths "${(F)load_fpaths}" )
-    [[ -n $load_commands ]] && reply+=( load_commands "${(F)load_commands}" )
+    [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
+    [[ -n $load_commands ]] && reply+=( "load_commands" "${(F)load_commands}" )
+    [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")
 
     return 0
 }
 
 __zplug::sources::github::load_theme()
 {
-    local    repo="$1" ext
-    local -A tags
-    local -A default_tags
+    local    repo="${1:?}"
+    local -A tags default_tags
     local -a themes_ext
-    local -a load_themes
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
+    local -a load_themes load_fpaths
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
-
-    # Default load behavior for themes
     themes_ext=("zsh-theme" "theme-zsh")
+    load_themes=()
+    load_fpaths=()
 
     if [[ -n $tags[use] ]]; then
         # e.g. zplug 'foo/bar', as:theme, use:'*.zsh'
@@ -277,7 +300,10 @@ __zplug::sources::github::load_theme()
         # e.g. zplug 'foo/bar', as:theme
         load_themes+=( "$tags[dir]"/*.${^themes_ext}(N-.) )
     fi
+    load_fpaths+=( "$tags[dir]"/_*(N.:h) )
 
     reply=()
-    [[ -n $load_themes ]] && reply+=( load_themes "${(F)load_themes}" )
+    [[ -n $load_themes ]] && reply+=( "load_themes" "${(F)load_themes}" )
+    [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
+    [[ -n $tags[hook-load] ]] && reply+=( "hook_load" "$tags[name]\0$tags[hook-load]")
 }
