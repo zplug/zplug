@@ -28,6 +28,9 @@ case "$from" in
     "prezto")
         dir="$ZPLUG_REPOS/$_ZPLUG_PREZTO"
         ;;
+    "zim")
+        dir="$ZPLUG_REPOS/$_ZPLUG_ZIM"
+        ;;
     "local")
         dir="$arg"
         ;;

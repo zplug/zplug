@@ -179,6 +179,7 @@ __zplug::core::core::variable()
     typeset -gx    _ZPLUG_URL="https://github.com/zplug/zplug"
     typeset -gx    _ZPLUG_OHMYZSH="robbyrussell/oh-my-zsh"
     typeset -gx    _ZPLUG_PREZTO="sorin-ionescu/prezto"
+    typeset -gx    _ZPLUG_ZIM="Eriner/zim"
     typeset -gx    _ZPLUG_AWKPATH="$ZPLUG_ROOT/misc/contrib"
 
     typeset -gx -i _ZPLUG_STATUS_SUCCESS=0

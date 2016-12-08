@@ -2,12 +2,12 @@
 .\"     Title: zplug
 .\"    Author: Masaki Ishiyama (@b4b4r07) b4b4r07@gmail.com
 .\" Generator: DocBook XSL Stylesheets v1.79.0 <http://docbook.sf.net/>
-.\"      Date: 10/10/2016
+.\"      Date: 11/17/2016
 .\"    Manual: ZPLUG Manual
 .\"    Source: \ \&
 .\"  Language: English
 .\"
-.TH "ZPLUG" "1" "10/10/2016" "\ \&" "ZPLUG Manual"
+.TH "ZPLUG" "1" "11/17/2016" "\ \&" "ZPLUG Manual"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -750,6 +750,13 @@ zplug "modules/osx", from:prezto, if:"[[ $OSTYPE == *darwin* ]]"
 zplug "modules/prompt", from:prezto
 # Set zstyle before zplug load
 zstyle \*(Aq:prezto:module:prompt\*(Aq theme \*(Aqsorin\*(Aq
+
+# And zim plugins
+zplug \*(Aqmodules/prompt\*(Aq, from:zim
+zprompt_theme=\*(Aqmagicmace\*(Aq
+zplug \*(Aqmodules/archive\*(Aq, from:zim
+
+zim_prompt
 
 # Run a command after a plugin is installed/updated
 zplug "tj/n", hook\-build:"make install"
