@@ -1,0 +1,29 @@
+{
+  "name": "zplug",
+  "version": "2.3.4",
+  "description": "A next-generation plugin manager for zsh",
+  "main": "init.zsh",
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zplug/zplug.git"
+  },
+  "keywords": [
+    "zsh",
+    "plugin",
+    "package",
+    "manager"
+  ],
+  "author": "b4b4r07",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zplug/zplug/issues"
+  },
+  "homepage": "https://zplug.sh"
+}
