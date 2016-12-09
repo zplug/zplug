@@ -155,16 +155,20 @@ zplug "stedolan/jq", \
     rename-to:jq
 zplug "b4b4r07/emoji-cli", \
     on:"stedolan/jq"
-# Note: To specify the order in which packages should be loaded, use the nice
+# Note: To specify the order in which packages should be loaded, use the defer
 #       tag described in the next section
 
 # Set the priority when loading
 # e.g., zsh-syntax-highlighting must be loaded
 # after executing compinit command and sourcing other plugins
-zplug "zsh-users/zsh-syntax-highlighting", nice:10
+# (If the defer tag is given 2 or above, run after cominit command)
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
 # Can manage local plugins
 zplug "~/.zsh", from:local
+
+# Load theme file
+zplug 'dracula/zsh', as:theme
 
 # Install plugins if there are plugins that have not been installed
 if ! zplug check --verbose; then
@@ -247,7 +251,7 @@ All that's left is to run `zplug update`.
 
 | Tag | Description | Value (default) | Example |
 |-----|-------------|-----------------|---------|
-| `as`          | Specify whether to register the package as plugins or commands | `plugin`,`command` (`plugin`) | `as:command` |
+| `as`          | Specify whether to register the package as plugins or commands | `plugin`,`command`,`theme` (`plugin`) | `as:command` |
 | `use`         | Specify the pattern of the files to source (for `plugin`) or the relative path to add to the `$PATH` (for `command`) / With `from:gh-r`, zplug tries to guess which file to use from your OS and architecture. You can manually specify `use:"*darwin*{amd,386}*"` if that doesn't get the right file. | *glob* (`use:"*.zsh"`) | `use:bin`,`use:"*.sh"`, `use:*darwin*` |
 | `ignore`      | Similar to `use` tag, but specify pattern of files you want to ignore (see also [#56](https://github.com/zplug/zplug/issues/56)) | *glob* (-) | `ignore:"some_*.zsh"` |
 | `from`        | Specify where to get the package from | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`prezto`,`local` (`github`) | `from:gh-r` |
@@ -259,7 +263,7 @@ All that's left is to run `zplug update`.
 | `hook-load`   | Commands to after loading | *commands* (-) | `hook-load:"echo 'Loaded!'"` |
 | `frozen`      | Do not update unless explicitly specified | truthy,falsy (false) | `frozen:1` |
 | `on`          | Load this package only if a different package is installed | *package* | `on:user/repo` |
-| `nice`        | Priority of loading the plugins. If this tag is specified 10 or more, zplug will load plugins after `compinit` (see also [#26](https://github.com/zplug/zplug/issues/26)) | -20..19 (0) | `nice:19` |
+| `defer`        | Defers the loading of a package. If the value is 2 or above, zplug will source the plugin after `compinit` (see also [#26](https://github.com/zplug/zplug/issues/26)) | 0..3 (0) | `defer:2` |
 | `lazy`        | Whether it is an autoload function or not | truthy,falsy (false) | `lazy:true` |
 | `depth`       | The number of commits to include in the cloned repository. 0 means the whole history. | Any non-negative integer | `depth:10` |
 
@@ -334,15 +338,15 @@ Defaults to `$ZPLUG_HOME/packages.zsh`. This file is used to add plugins from zp
 
 #### `ZPLUG_USE_CACHE`
 
-Defaults to `true`. If this variable is true, zplug will use a cache file to speed up the load process. The cache file is located at `$ZPLUG_CACHE_FILE`. If you want to clear the cache, please run `zplug clear` or do the following:
+Defaults to `true`. If this variable is true, zplug will use cache files to speed up the load process. The cache files are saved under the `$ZPLUG_CACHE_DIR` directory. If you want to clear the cache, please run `zplug clear` or do the following:
 
 ```console
 $ ZPLUG_USE_CACHE=false zplug load
 ```
 
-#### `ZPLUG_CACHE_FILE`
+#### `ZPLUG_CACHE_DIR`
 
-Defaults to `$ZPLUG_HOME/.cache`. You can change where the cache file is saved, for example, `$HOME/.cache/zplug/cache`.
+Defaults to `$ZPLUG_HOME/.cache`. You can change where the cache file is saved, for example, `~/.cache/zplug`.
 
 #### `ZPLUG_REPOS`
 
@@ -393,7 +397,7 @@ page](https://github.com/zplug/zplug/wiki/Migration).
 [license]: http://b4b4r07.mit-license.org
 [travis-link]: https://travis-ci.org/zplug/zplug
 [travis-badge]: https://img.shields.io/travis/zplug/zplug.svg?style=flat-square
-[latest-badge]: https://img.shields.io/badge/latest-v2.3.2-ca7f85.svg?style=flat-square
+[latest-badge]: https://img.shields.io/badge/latest-v2.3.4-ca7f85.svg?style=flat-square
 [latest-link]: https://github.com/zplug/zplug/releases/latest
 [stable-badge]: https://img.shields.io/badge/stable-v2.3.2-e9a326.svg?style=flat-square
 [stable-link]: https://github.com/zplug/zplug/releases/tag/2.3.2

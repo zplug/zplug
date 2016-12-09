@@ -76,13 +76,13 @@ The wiki may perhaps be overwhelming for first-time users.
 
 Authors
 -------
-zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+zplug was originally written by Masaki Ishiyama (a.k.a @b4b4r07).
 Many people have contributed to it.
 
 
 Copying
 -------
-Copyright \(C) 2015-2016 Masaki Ishi
+Copyright \(C) 2015-2016 Masaki Ishiyama
 
 MIT License
 
@@ -93,4 +93,3 @@ Report bugs to the https://github.com/zplug/zplug/issues[zplug issues]
 
 
 // vim:ft=asciidoc
-

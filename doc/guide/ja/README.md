@@ -158,15 +158,18 @@ zplug "stedolan/jq", \
     rename-to:jq
 zplug "b4b4r07/emoji-cli", \
     on:"stedolan/jq"
-# ノート: 読み込み順序を指定するなら nice タグを使いましょう
+# ノート: 読み込み順序を遅らせるなら defer タグを使いましょう
 
 # 読み込み順序を設定する
 # 例: "zsh-syntax-highlighting" は compinit の前に読み込まれる必要がある
-# （10 以上は compinit 後に読み込まれるようになる）
-zplug "zsh-users/zsh-syntax-highlighting", nice:10
+# （2 以上は compinit 後に読み込まれるようになる）
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
 # ローカルプラグインも読み込める
 zplug "~/.zsh", from:local
+
+# テーマファイルを読み込む
+zplug 'dracula/zsh', as:theme
 
 # 未インストール項目をインストールする
 if ! zplug check --verbose; then
@@ -249,7 +252,7 @@ zplug "zplug/zplug"
 
 | タグ | 説明 | 値 (デフォルト値) | 例 |
 |-----|-------------|-----------------|---------|
-| `as`          | プラグインとして、またはコマンドとして追加するか指定する | `plugin`,`command` (`plugin`) | `as:command` |
+| `as`          | プラグインとして、またはコマンドとして追加するか指定する | `plugin`,`command`,`theme` (`plugin`) | `as:command` |
 | `use`         | 読み込むファイルパターンを指定する (`plugin` のとき) か `$PATH` に追加したいコマンドの相対パスを指定する (`command` のとき) / `from:gh-r` の場合は zplug が自動で OS のアーキテクチャを判別するが、意図しない結果の場合 `use:"*darwin*{amd,386}*"` のようにすると良い | *グロブ・パターン* (`use:"*.zsh"`) | `use:bin`,`use:"*.sh"`, `use:*darwin*` |
 | `ignore`      | `use` タグと似ているが無視したいファイルパターンを指定する ([#56](https://github.com/zplug/zplug/issues/56) 参照) | *グロブ・パターン* (-) | `ignore:"some_*.zsh"` |
 | `from`        | どこからインストールするか指定する | `github`,`bitbucket`,<br>`gh-r`,`gist`,<br>`oh-my-zsh`,`prezto`,`local` (`github`) | `from:gh-r` |
@@ -261,7 +264,7 @@ zplug "zplug/zplug"
 | `hook-load`   | ロード後に実行するコマンド | *コマンド* (-) | `hook-load:"echo 'Loaded!'"` |
 | `frozen`      | 明示的に指定するとアップデート対象から省く | truthy または falsy (false) | `frozen:1` |
 | `on`          | 指定されたパッケージがインストールされているときのみロードする | *package* | `on:user/repo` |
-| `nice`        | プラグインの読み込み順序を指定する。 10 以上を指定すると、`compinit` コマンドの実行後に読まれることになる ([#26](https://github.com/zplug/zplug/issues/26) 参照) | -20 から 19 (0) | `nice:19` |
+| `defer`        | プラグインの読み込みを遅らせる。 2 以上を指定すると、`compinit` コマンドの実行後に読まれることになる ([#26](https://github.com/zplug/zplug/issues/26) 参照) | 0 から 3 (0) | `defer:2` |
 | `lazy`        | 遅延読み込みするかどうかを指定する | truthy または falsy (false) | `lazy:true` |
 | `depth`       | リポジトリをクローンするときのヒストリサイズ。0 はすべてのヒストリをクローンする | 0 と正の整数 | `depth:10` |
 
@@ -335,15 +338,15 @@ $ZPLUG_HOME
 
 #### `ZPLUG_USE_CACHE`
 
-デフォルトは `true`。true の場合、zplug はロードの高速化のためにキャッシュを利用するようになる。キャッシュファイルは `$ZPLUG_CACHE_FILE` も保存されている。キャッシュをクリアする場合は、`zplug clear` を実行するか以下のようにすると良い:
+デフォルトは `true`。true の場合、zplug はロードの高速化のためにキャッシュを利用するようになる。キャッシュファイルは `$ZPLUG_CACHE_DIR` に保存されている。キャッシュをクリアする場合は、`zplug clear` を実行するか以下のようにすると良い:
 
 ```console
 $ ZPLUG_USE_CACHE=false zplug load
 ```
 
-#### `ZPLUG_CACHE_FILE`
+#### `ZPLUG_CACHE_DIR`
 
-デフォルトは `$ZPLUG_HOME/.cache`。キャッシュの保存先を変更することができる。例えば `$HOME/.cache/zplug/cache` とか。
+デフォルトは `$ZPLUG_HOME/.cache`。キャッシュの保存先を変更することができる。例えば `~/.cache/zplug` とか。
 
 #### `ZPLUG_REPOS`
 
@@ -391,7 +394,7 @@ antigen や zgen、もしくは zplug v1 から移行するための情報は [z
 [license]: http://b4b4r07.mit-license.org
 [travis-link]: https://travis-ci.org/zplug/zplug
 [travis-badge]: https://img.shields.io/travis/zplug/zplug.svg?style=flat-square
-[latest-badge]: https://img.shields.io/badge/latest-v2.3.2-ca7f85.svg?style=flat-square
+[latest-badge]: https://img.shields.io/badge/latest-v2.3.4-ca7f85.svg?style=flat-square
 [latest-link]: https://github.com/zplug/zplug/releases/latest
 [stable-badge]: https://img.shields.io/badge/stable-v2.3.2-e9a326.svg?style=flat-square
 [stable-link]: https://github.com/zplug/zplug/releases/tag/2.3.2

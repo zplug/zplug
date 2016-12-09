@@ -1,0 +1,32 @@
+#!/usr/bin/env zsh
+# Description:
+#   defer tag
+
+local    arg="$1" package
+local -a parsed_zplugs
+local    defer
+local -i default=0
+
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+defer="${parsed_zplugs[(k)defer:*]#defer:*}"
+if [[ -z $defer ]]; then
+    zstyle -s ":zplug:tag" defer defer
+fi
+
+: ${defer:=$default}
+if [[ $defer =~ ^[[:digit:]]+$ ]] && \
+    (( $defer >= 0 )) && (( $defer <= 3 )); then
+    :
+else
+    __zplug::io::print::f \
+        --die \
+        --zplug \
+        --error \
+        --func \
+        "defer tag must be {0..3} ($fg[green]$arg$reset_color)\n"
+    return 1
+fi
+
+echo "$defer"

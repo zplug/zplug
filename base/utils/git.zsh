@@ -99,7 +99,7 @@ __zplug::utils::git::checkout()
     tags[dir]="$(__zplug::core::core::run_interfaces 'dir' "$repo")"
     tags[from]="$(__zplug::core::core::run_interfaces 'from' "$repo")"
 
-    do_not_checkout=( "gh-r" )
+    do_not_checkout=( "gh-r" "prezto" )
     if [[ ! -d $tags[dir]/.git ]]; then
         do_not_checkout+=( "local" )
     fi
@@ -163,6 +163,9 @@ __zplug::utils::git::merge()
             branch)
                 git[branch]="$value"
                 ;;
+            repo)
+                git[repo]="$value"
+                ;;
         esac
     done
 
@@ -206,8 +209,13 @@ __zplug::utils::git::merge()
         failed=true
 
     else
-        # Diverged
-        failed=true
+        # Diverged (e.g. conflicts)
+        __zplug::utils::shell::cd "$HOME"
+        rm -rf "$git[dir]"
+        __zplug::core::core::run_interfaces \
+            "install" \
+            "$git[repo]" &>/dev/null
+        __zplug::job::spinner::lock # For showing message of update command
     fi
 
     if $failed; then

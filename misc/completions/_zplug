@@ -107,7 +107,7 @@ case "$words[1]" in
             "hook-load[Commands to run after loading]:hook-load:" \
             "frozen[Do not update unless explicitly specified]:frozen:->boolean" \
             "on[Dependencies (RO)]:on:->on" \
-            "nice[Priority of loading the plugins]:nice:->nice" \
+            "defer[Priority of loading the plugins]:defer:->defer" \
             "ignore[Specify exception pattern so as not to load the files]:ignore:" \
             "lazy[Lazy loading]:lazy:->boolean" \
             "depth[Clone depth]:depth:({0..10})" && ret=0
@@ -132,11 +132,10 @@ case "$words[1]" in
                     'darwin' \
                     'linux'
                 ;;
-            nice)
+            defer)
                 compadd -V 'default' -X "%F{yellow}Completing%f %Bpriority (default)%b" 0
-                compadd -V 'high' -X "%F{yellow}Completing%f %Bpriority (high)%b" -- {-1..-20}
-                compadd -V 'low' -X "%F{yellow}Completing%f %Bpriority (low)%b" {1..9}
-                compadd -V 'lowest' -X "%F{yellow}Completing%f %Bpriority (low) after compinit%b" {10..19}
+                compadd -V 'defer' -X "%F{yellow}Completing%f %Bpriority%b" -- 1
+                compadd -V 'after_compinit' -X "%F{yellow}Completing%f %Bpriority (after compinit)%b" 2 3
                 ;;
             boolean)
                 compadd -J 'boolean/true' -X "%F{yellow}Completing%f %Btrue word%b" $_zplug_boolean_true

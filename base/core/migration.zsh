@@ -1,4 +1,4 @@
-__zplug::core::v1::tags()
+__zplug::core::migration::tags()
 {
     local key="$1" new_key
 
@@ -21,6 +21,9 @@ __zplug::core::v1::tags()
         "do")
             new_key="hook-build"
             ;;
+        "nice")
+            new_key="defer"
+            ;;
         *)
             # Not old tag
             __zplug::io::print::f \
@@ -42,7 +45,7 @@ __zplug::core::v1::tags()
     return 1
 }
 
-__zplug::core::v1::pipe()
+__zplug::core::migration::pipe()
 {
     __zplug::io::print::f \
         --die \
@@ -51,4 +54,13 @@ __zplug::core::v1::pipe()
         "pipe syntax is deprecated! Please use '%s' tag instead.\n" \
         "$fg[blue]on$reset_color"
     return 1
+}
+
+__zplug::core::migration::cache_file_dir()
+{
+    # If ZPLUG_CACHE_FIEL is defined
+    if [[ -f $ZPLUG_CACHE_DIR ]]; then
+        rm -f "$ZPLUG_CACHE_DIR"
+    fi
+    mkdir -p "$ZPLUG_CACHE_DIR"
 }

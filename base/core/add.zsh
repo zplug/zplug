@@ -7,7 +7,7 @@ __zplug::core::add::to_zplugs()
 
     # DEPRECATED: pipe
     if [[ -p /dev/stdin ]]; then
-        __zplug::core::v1::pipe
+        __zplug::core::migration::pipe
         return $status
     fi
 
@@ -26,13 +26,6 @@ __zplug::core::add::to_zplugs()
         __zplug::core::add::on_cli "$argv[@]"
     fi
 
-    # Automatically add "as:itself" to tag array
-    # if $name is zplug repository
-    # $name can be "zplug/zplug" or "zplug/zplug,"
-    if [[ ${name%,} == "zplug/zplug" ]]; then
-        re_tags+=( "as:itself" )
-    fi
-
     # Parse argv
     tags=( ${(s/, /)argv[@]:gs/,  */, } )
     name="$(__zplug::core::add::proc_at-sign "$tags[1]")"
@@ -46,9 +39,9 @@ __zplug::core::add::to_zplugs()
 
         if (( $+_zplug_tags[$key] )); then
             case $key in
-                "of" | "file" | "commit" | "do")
+                "of" | "file" | "commit" | "do" | "nice")
                     # DEPRECATED: old tags
-                    __zplug::core::v1::tags "$key"
+                    __zplug::core::migration::tags "$key"
                     ;;
                 "from")
                     __zplug::core::sources::call "$val"

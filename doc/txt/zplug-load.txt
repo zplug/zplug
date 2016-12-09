@@ -50,14 +50,14 @@ ENVIRONMENT VARIABLES
 'ZPLUG_USE_CACHE'::
     Defaults to `true`.
     If this variable is true, zplug uses a cache file to speed up the loading process.
-    The cache file is located at `$ZPLUG_CACHE_FILE` (`$ZPLUG_HOME/.cache` by default).
+    The cache file is located at `$ZPLUG_CACHE_DIR` (`$ZPLUG_HOME/.cache` by default).
     If you want to clear the cache, please run `zplug clear` or do the following:
 
 ------------
 $ ZPLUG_USE_CACHE=false zplug load
 ------------
 
-'ZPLUG_CACHE_FILE'::
+'ZPLUG_CACHE_DIR'::
     Defaults to `$ZPLUG_HOME/.cache`.
     Specifies where to save the cache. For example, you can set this to
     `$HOME/.cache/zplug/cache` to follow XDG Base Directory Specification
@@ -77,13 +77,13 @@ The wiki may perhaps be overwhelming for first-time users.
 
 Authors
 -------
-zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+zplug was originally written by Masaki Ishiyama (a.k.a @b4b4r07).
 Many people have contributed to it.
 
 
 Copying
 -------
-Copyright \(C) 2015-2016 Masaki Ishi
+Copyright \(C) 2015-2016 Masaki Ishiyama
 
 MIT License
 

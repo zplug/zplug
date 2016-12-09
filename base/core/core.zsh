@@ -158,7 +158,7 @@ __zplug::core::core::prepare()
 
     # Run compinit if zplug comp file hasn't load
     if (( ! $+functions[_zplug] )); then
-        compinit
+        compinit -C -d "$ZPLUG_HOME/zcompdump"
     fi
 }
 
@@ -173,12 +173,12 @@ __zplug::core::core::variable()
     typeset -gx    ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:fzy:zaw"}
     typeset -gx    ZPLUG_LOADFILE=${ZPLUG_LOADFILE:-$ZPLUG_HOME/packages.zsh}
     typeset -gx    ZPLUG_USE_CACHE=${ZPLUG_USE_CACHE:-true}
-    typeset -gx    ZPLUG_CACHE_FILE=${ZPLUG_CACHE_FILE:-$ZPLUG_HOME/.cache}
+    typeset -gx    ZPLUG_CACHE_DIR=${ZPLUG_CACHE_DIR:-$ZPLUG_HOME/.cache}
     typeset -gx    ZPLUG_REPOS=${ZPLUG_REPOS:-$ZPLUG_HOME/repos}
     typeset -gx    ZPLUG_SUDO_PASSWORD
     typeset -gx    ZPLUG_ERROR_LOG=${ZPLUG_ERROR_LOG:-$ZPLUG_HOME/.error_log}
 
-    typeset -gx    _ZPLUG_VERSION="2.3.2"
+    typeset -gx    _ZPLUG_VERSION="2.3.4"
     typeset -gx    _ZPLUG_URL="https://github.com/zplug/zplug"
     typeset -gx    _ZPLUG_OHMYZSH="robbyrussell/oh-my-zsh"
     typeset -gx    _ZPLUG_PREZTO="sorin-ionescu/prezto"
@@ -269,6 +269,20 @@ __zplug::core::core::variable()
     "execution_log"  "$ZPLUG_MANAGE/var/log/execution_log"
     )
 
+    typeset -gx -A _zplug_cache
+    _zplug_cache=(
+    "interface"      "$ZPLUG_CACHE_DIR/interface"
+    "failed_repos"   "$ZPLUG_CACHE_DIR/failed_repos"
+    "plugin"         "$ZPLUG_CACHE_DIR/plugin.zsh"
+    "lazy_plugin"    "$ZPLUG_CACHE_DIR/lazy_plugin.zsh"
+    "theme"          "$ZPLUG_CACHE_DIR/theme.zsh"
+    "command"        "$ZPLUG_CACHE_DIR/command.zsh"
+    "fpath"          "$ZPLUG_CACHE_DIR/fpath.zsh"
+    "defer_1_plugin" "$ZPLUG_CACHE_DIR/defer_1_plugin.zsh"
+    "defer_2_plugin" "$ZPLUG_CACHE_DIR/defer_2_plugin.zsh"
+    "defer_3_plugin" "$ZPLUG_CACHE_DIR/defer_3_plugin.zsh"
+    )
+
     if (( $+ZPLUG_SHALLOW )); then
         __zplug::io::print::f \
             --die \
@@ -276,6 +290,15 @@ __zplug::core::core::variable()
             --warn \
             "ZPLUG_SHALLOW is deprecated." \
             "Please use 'zstyle :zplug:tag depth 1' instead.\n"
+    fi
+
+    if (( $+ZPLUG_CACHE_FILE )); then
+        __zplug::io::print::f \
+            --die \
+            --zplug \
+            --warn \
+            "ZPLUG_CACHE_FILE is deprecated." \
+            "Please use 'ZPLUG_CACHE_DIR' instead.\n"
     fi
 
     if (( $+ZPLUG_CLONE_DEPTH )); then

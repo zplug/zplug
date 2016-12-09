@@ -50,7 +50,7 @@ $ zplug info b4b4r07/enhancd
  - hook-load:""
  - file:""
  - name:"~/enhancd"
- - nice:"0"
+ - defer:"0"
  - if:""
  - depth:"0"
  - frozen:"no"
@@ -74,13 +74,13 @@ The wiki may perhaps be overwhelming for first-time users.
 
 Authors
 -------
-zplug was originally written by Masaki Ishi (a.k.a @b4b4r07).
+zplug was originally written by Masaki Ishiyama (a.k.a @b4b4r07).
 Many people have contributed to it.
 
 
 Copying
 -------
-Copyright \(C) 2015-2016 Masaki Ishi
+Copyright \(C) 2015-2016 Masaki Ishiyama
 
 MIT License
 
