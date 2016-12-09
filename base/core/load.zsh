@@ -35,11 +35,11 @@ __zplug::core::load::from_cache()
     }
 
     if [[ -s $_zplug_cache[failed_repos] ]]; then
-        # If there are repos failed to load,
+        # If there are repos that failed to load,
         # show those repos and return false
         __zplug::io::print::f \
             --zplug \
-            "These repos are failed to load:\n$fg_bold[red]"
+            "These repos have failed to load:\n$fg_bold[red]"
         sed -e 's/^/- /g' "$_zplug_cache[failed_repos]"
         __zplug::io::print::f "$reset_color"
         return 1
