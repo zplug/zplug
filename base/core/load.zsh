@@ -23,12 +23,13 @@ __zplug::core::load::from_cache()
         source "$_zplug_cache[lazy_plugin]"
         source "$_zplug_cache[theme]"
         source "$_zplug_cache[command]"
-        compinit -C -d /Users/b4b4r07/.zplug/zcompdump
+
+        source "$_zplug_cache[defer_1_plugin]"
+        compinit -C -d "$ZPLUG_HOME/zcompdump"
         if (( $_zplug_boolean_true[(I)$is_verbose] )); then
             __zplug::io::print::f \
                 --zplug "$fg[yellow]Run compinit$reset_color\n"
         fi
-        source "$_zplug_cache[defer_1_plugin]"
         source "$_zplug_cache[defer_2_plugin]"
         source "$_zplug_cache[defer_3_plugin]"
     }
