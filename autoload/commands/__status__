@@ -35,7 +35,6 @@ do
             ;;
         */*)
             repos+=( "${arg:gs:@::}" )
-            return 1
             ;;
         *)
             return 1
@@ -69,22 +68,21 @@ if (( $#repos == 0 )); then
     repos=( "${(k)zplugs[@]:gs:@::}" )
 fi
 
+for repo in "${repos[@]}"
+do
+    if ! __zplug::base::base::zpluged "$repo"; then
+        __zplug::io::print::f \
+            --die \
+            --zplug \
+            --func \
+            "$repo: no such package\n"
+        return 1
+    fi
+done
+
 # Check the number of arguments
 if (( $#repos > 1 )); then
     is_parallel=true
-fi
-
-if (( ($#repos + 2) >= $LINES )); then
-    # TODO:
-    __zplug::io::print::f \
-        --zplug \
-        --die \
-        --warn \
-        "Cannot acquire your terminal screen for display\n" \
-        "Needs %d lines\n" \
-        -- \
-        $(($#repos + 2))
-    return 1
 fi
 
 rm -f "$_zplug_config[status_status]"
@@ -94,18 +92,15 @@ touch "$_zplug_config[status_status]"
 setopt nonotify nomonitor
 tput civis
 
+__zplug::io::print::f \
+    --zplug \
+    "Start to get remote status %d plugin${is_parallel:+"s"} %s\n\n" \
+    $#repos \
+    "${is_parallel:+"in parallel"}"
+
 for repo in "${repos[@]}"
 do
     {
-        if ! __zplug::base::base::zpluged "$repo"; then
-            __zplug::io::print::f \
-                --die \
-                --zplug \
-                --func \
-                "$repo: no such package\n"
-            return 1
-        fi
-
         __zplug::core::tags::parse "$repo"
         tags=( "${reply[@]}" )
 
@@ -141,93 +136,89 @@ do
     repo_dir[$repo]="$tags[dir]"
     states[$repo]="unfinished"
     status_codes[$repo]=""
-done
 
-__zplug::io::print::f \
-    --zplug \
-    "Start to get remote status %d plugin${is_parallel:+"s"} %s\n\n" \
-    $#repos \
-    "${is_parallel:+"in parallel"}"
+    if ( (( $#repos >= $queue_max )) && (( $#repo_pids >= $queue_max )) ) ||
+        ( (( $#repos >= $queue_max )) && (( $#status_codes == $#repos )) ) ||
+        ( (( $#repos < $queue_max )) && (( $#repo_pids == $#repos )) ) ; then
+        repeat $(($#repo_pids + 2)); do printf "\n"; done
+        #
+        # Multiple progress bars
+        #
+        # Use printf command (not builtin) instead of __zplug::io::print::f function,
+        # because this loop is run the processing by interval of 0.1 second
+        # and there is a need to be called faster
+        while __zplug::job::state::running "$repo_pids[@]" || (( ${(k)#states[(R)fetching]} > 0 ))
+        do
+            sleep 0.1
+            __zplug::utils::ansi::cursor_up $(($#repo_pids + 2)) #$(($#repos + 2))
 
-repeat $(($#repos + 2))
-do
-    printf "\n"
-done
-
-#
-# Multiple progress bars
-#
-# Use printf command (not builtin) instead of __zplug::io::print::f function,
-# because this loop is run the processing by interval of 0.1 second
-# and there is a need to be called faster
-while __zplug::job::state::running "$repo_pids[@]" || (( ${(k)#states[(R)fetching]} > 0 ))
-do
-    sleep 0.1
-    __zplug::utils::ansi::cursor_up $(($#repos + 2))
-
-    # Count up within spinners index
-    if (( ( spinner_idx+=1 ) > $#spinners )); then
-        spinner_idx=1
-    fi
-
-    # Processing pids
-    for repo in "${(k)repo_pids[@]}"
-    do
-        if __zplug::job::state::running "$repo_pids[$repo]"; then
-            __zplug::job::message::fetching \
-                $spinners[$spinner_idx] \
-                "$repo"
-            states[$repo]="fetching"
-        else
-            # Save status code for process cache
-            if [[ -z $status_codes[$repo] ]]; then
-                status_codes[$repo]="$(__zplug::job::state::get "$repo" status)"
+            # Count up within spinners index
+            if (( ( spinner_idx+=1 ) > $#spinners )); then
+                spinner_idx=1
             fi
-            case $status_codes[$repo] in
-                $_zplug_status[status_up_to_date])
-                    __zplug::job::message::up_to_date "$repo"
-                    ;;
-                $_zplug_status[status_local_out_of_date])
-                    __zplug::job::message::local_out_of_date "$repo"
-                    ;;
-                $_zplug_status[status_not_on_any_branch])
-                    __zplug::job::message::not_on_any_branch "$repo"
-                    ;;
-                $_zplug_status[status_not_git_repo])
-                    __zplug::job::message::not_git_repo "$repo"
-                    ;;
-                $_zplug_status[status_repo_not_found])
-                    __zplug::job::message::repo_not_found "$repo"
-                    ;;
-                $_zplug_status[status_skip_local_repo])
-                    __zplug::job::message::skip_local_repo "$repo"
-                    ;;
-                *)
-                    __zplug::job::message::unknown "$repo"
-                    ;;
-            esac
-            states[$repo]="finished"
-        fi
-    done
 
-    printf "\n"
-    if __zplug::job::state::running "$repo_pids[@]"; then
-        __zplug::io::print::f \
-            --zplug \
-            "Finished: %d/%d plugin%s\n" \
-            ${(k)#states[(R)finished]} \
-            $#states \
-            ${is_parallel:+"s"}
-    else
-        __zplug::utils::ansi::erace_current_line
-        __zplug::io::print::f \
-            --zplug \
-            "Elapsed time: %.4f sec.\n" \
-            $SECONDS
+            # Processing pids
+            for repo in "${(k)repo_pids[@]}"
+            do
+                if __zplug::job::state::running "$repo_pids[$repo]"; then
+                    __zplug::job::message::fetching \
+                        $spinners[$spinner_idx] \
+                        "$repo"
+                    states[$repo]="fetching"
+                else
+                    # Save status code for process cache
+                    if [[ -z $status_codes[$repo] ]]; then
+                        status_codes[$repo]="$(__zplug::job::state::get "$repo" status)"
+                    fi
+                    case $status_codes[$repo] in
+                        $_zplug_status[status_up_to_date])
+                            __zplug::job::message::up_to_date "$repo"
+                            ;;
+                        $_zplug_status[status_local_out_of_date])
+                            __zplug::job::message::local_out_of_date "$repo"
+                            ;;
+                        $_zplug_status[status_not_on_any_branch])
+                            __zplug::job::message::not_on_any_branch "$repo"
+                            ;;
+                        $_zplug_status[status_not_git_repo])
+                            __zplug::job::message::not_git_repo "$repo"
+                            ;;
+                        $_zplug_status[status_repo_not_found])
+                            __zplug::job::message::repo_not_found "$repo"
+                            ;;
+                        $_zplug_status[status_skip_local_repo])
+                            __zplug::job::message::skip_local_repo "$repo"
+                            ;;
+                        *)
+                            __zplug::job::message::unknown "$repo"
+                            ;;
+                    esac
+                    states[$repo]="finished"
+                fi
+            done
+
+            if __zplug::job::state::running "$repo_pids[@]"; then
+                printf "\n"
+                __zplug::io::print::f \
+                    --zplug \
+                    "Finished: %d/%d plugin%s\n" \
+                    ${(k)#states[(R)finished]} \
+                    $#repos \
+                    ${is_parallel:+"s"}
+            else
+                repo_pids=()
+            fi
+        done
     fi
 done
 
 tput cnorm
+printf "\n"
+__zplug::utils::ansi::erace_current_line
+__zplug::io::print::f \
+    --zplug \
+    "Elapsed time: %.4f sec.\n" \
+    $SECONDS
 
 if (( ${(k)#status_codes[(R)1]} == 0 )); then
     printf "$fg_bold[default] ==> All packages are up-to-date!$reset_color\n"

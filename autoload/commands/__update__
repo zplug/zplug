@@ -8,7 +8,6 @@ local -A  tags
 local -a  failed_packages
 local -A  checked_packages
 local -i  max=0 ret=0
-local -F  SECONDS=0 start_time finish_time
 local     is_select=false is_force=false
 
 # All variables are treated as local variable
@@ -17,18 +16,17 @@ local     is_select=false is_force=false
 
 local -aU repos
 local -A  tags
-local -i  status_code=0 cant_lock=0
+local -A  repo_pids states hook_build hook_finished hook_pids status_codes repo_dir
+local -F  SECONDS=0
+local -a  spinners sub_spinners
+local -i  spinner_idx subspinner_idx status_code=0
+local -i  timeout=60
+local     is_parallel=""
 
-local -A repo_pids states hook_build hook_finished hook_pids status_codes repo_dir
-local -F SECONDS=0
-local -a spinners sub_spinners
-local -i spinner_idx subspinner_idx
-local -i timeout=60
-local    is_parallel=""
+local -i queue_max=$ZPLUG_THREADS
 
 spinners=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
 sub_spinners=(⠁ ⠁ ⠉ ⠙ ⠚ ⠒ ⠂ ⠂ ⠒ ⠲ ⠴ ⠤ ⠄ ⠄ ⠤ ⠠ ⠠ ⠤ ⠦ ⠖ ⠒ ⠐ ⠐ ⠒ ⠓ ⠋ ⠉ ⠈ ⠈)
-
 
 while (( $# > 0 ))
 do
@@ -102,6 +100,12 @@ done
 setopt nonotify nomonitor
 tput civis
 
+__zplug::io::print::f \
+    --zplug \
+    "Start to update %d plugin${is_parallel:+"s"} %s\n\n" \
+    $#repos \
+    "${is_parallel:+"in parallel"}"
+
 for repo in "$repos[@]"
 do
     if ! __zplug::base::base::zpluged "$repo"; then
@@ -120,19 +124,19 @@ do
 
     {
         if [[ -d $tags[dir] ]]; then
-        if (( $_zplug_boolean_true[(I)$tags[frozen]] )); then
-            status_code=$_zplug_status[update_skip_frozen]
-        else
-            if __zplug::core::sources::is_handler_defined "update" "$tags[from]"; then
-                __zplug::core::sources::use_handler \
-                    "update" \
-                    "$tags[from]" \
-                    "$repo"
-                status_code=$status
+            if (( $_zplug_boolean_true[(I)$tags[frozen]] )); then
+                status_code=$_zplug_status[update_skip_frozen]
             else
-                status_code=$_zplug_status[update_local_repo]
+                if __zplug::core::sources::is_handler_defined "update" "$tags[from]"; then
+                    __zplug::core::sources::use_handler \
+                        "update" \
+                        "$tags[from]" \
+                        "$repo"
+                    status_code=$status
+                else
+                    status_code=$_zplug_status[update_local_repo]
+                fi
             fi
-        fi
         else
             status_code=$_zplug_status[update_repo_not_found]
         fi
@@ -150,186 +154,182 @@ do
     hook_finished[$repo]=false
     states[$repo]="unfinished"
     status_codes[$repo]=""
-done
 
-__zplug::io::print::f \
-    --zplug \
-    "Start to update %d plugin${is_parallel:+"s"} %s\n\n" \
-    $#repos \
-    "${is_parallel:+"in parallel"}"
+    if ( (( $#repos >= $queue_max )) && (( $#repo_pids >= $queue_max )) ) ||
+        ( (( $#repos >= $queue_max )) && (( $#status_codes == $#repos )) ) ||
+        ( (( $#repos < $queue_max )) && (( $#repo_pids == $#repos )) ) ; then
+        repeat $(($#repo_pids + 2)); do printf "\n"; done
+        #
+        # Multiple progress bars
+        #
+        # Use printf command (not builtin) instead of __zplug::io::print::f function,
+        # because this loop is run the processing by interval of 0.1 second
+        # and there is a need to be called faster
+        while __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]" || (( ${(k)#states[(R)updating]} > 0 ))
+        do
+            sleep 0.1
+            __zplug::utils::ansi::cursor_up $(($#repo_pids + 2)) #$(($#repos + 2))
 
-repeat $(($#repos + 2))
-do
-    printf "\n"
-done
-
-#
-# Multiple progress bars
-#
-# Use printf command (not builtin) instead of __zplug::io::print::f function,
-# because this loop is run the processing by interval of 0.1 second
-# and there is a need to be called faster
-while __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]" || (( ${(k)#states[(R)updating]} > 0 ))
-do
-    sleep 0.1
-    __zplug::utils::ansi::cursor_up $(($#repos + 2))
-
-    # Count up within spinners index
-    if (( ( spinner_idx+=1 ) > $#spinners )); then
-        spinner_idx=1
-    fi
-    # Count up within sub_spinners index
-    if (( ( subspinner_idx+=1 ) > $#sub_spinners )); then
-        subspinner_idx=1
-    fi
-
-    # Processing pids
-    for repo in "${(k)repo_pids[@]}"
-    do
-        if __zplug::job::state::running "$repo_pids[$repo]"; then
-            __zplug::job::message::updating \
-                $spinners[$spinner_idx] \
-                "$repo"
-            states[$repo]="updating"
-        else
-            # If $repo has build-hook tag
-            if [[ -n $hook_build[$repo] ]]; then
-                # Save status code for process cache
-                if [[ -z $status_codes[$repo] ]]; then
-                    status_codes[$repo]="$(__zplug::job::state::get "$repo" update)"
-                fi
-                if [[ $status_codes[$repo] != 0 ]]; then
-                    #__zplug::job::message::failed_to_update_with_hook "$repo"
-                    case $status_codes[$repo] in
-                        $_zplug_status[update_success])
-                            __zplug::job::message::updated "$repo"
-                            ;;
-                        $_zplug_status[update_failure])
-                            __zplug::job::message::failed_to_update "$repo"
-                            ;;
-                        $_zplug_status[update_skip_if])
-                            __zplug::job::message::skipped_due_to_if_tag "$repo"
-                            ;;
-                        $_zplug_status[update_up_to_date])
-                            __zplug::job::message::up_to_date "$repo"
-                            ;;
-                        $_zplug_status[update_skip_frozen])
-                            __zplug::job::message::skipped_due_to_frozen_tag "$repo"
-                            ;;
-                        $_zplug_status[update_local_repo])
-                            __zplug::job::message::local_repo "$repo"
-                            ;;
-                        $_zplug_status[update_repo_not_found])
-                            __zplug::job::message::repo_not_found "$repo"
-                            ;;
-                        *)
-                            __zplug::job::message::unknown "$repo"
-                            ;;
-                    esac
-                    states[$repo]="finished"
-                    continue
-                fi
-
-                if ! $hook_finished[$repo]; then
-                    hook_finished[$repo]=true
-                    # Run the hook-build in background
-                    {
-                        __zplug::job::hook::build "$repo"
-                        if (( $status > 0 )); then
-                            printf "$repo\n" >>|"$_zplug_config[build_failure]"
-                            printf "$repo\n" >>|"$_zplug_config[build_rollback]"
-                        else
-                            printf "$repo\n" >>|"$_zplug_config[build_success]"
-                        fi
-                    } & hook_pids[$repo]=$!
-                    # Run the timeout process in background
-                    {
-                        # kill the process for hook-build after sleeping
-                        # during the number of seconds that has been set as a timeout
-                        sleep "$timeout"
-
-                        # Check if $repo_pids don't run
-                        # and check if the process ($hook_pids[$repo]) that has should be killed
-                        if __zplug::job::state::running $hook_pids[$repo] && ! __zplug::job::state::running "$repo_pids[@]"; then
-                            __zplug::job::state::kill $hook_pids[$repo]
-                            printf "$repo\n" >>|"$_zplug_config[build_timeout]"
-                            printf "$repo\n" >>|"$_zplug_config[build_rollback]"
-                        fi
-                    } &
-                fi
-
-                if __zplug::job::state::running "$hook_pids[$repo]"; then
-                    # running build-hook
-                    __zplug::utils::ansi::erace_current_line
-                    __zplug::job::message::updated_with_hook_spinning \
-                        "$spinners[$spinner_idx]" \
-                        "$repo" \
-                        "$sub_spinners[$subspinner_idx]"
-                else
-                    # finished build-hook
-                    __zplug::utils::ansi::erace_current_line
-                    if __zplug::job::hook::build_failure "$repo"; then
-                        __zplug::job::message::updated_with_hook_failure "$repo"
-                    elif __zplug::job::hook::build_timeout "$repo"; then
-                        __zplug::job::message::updated_with_hook_timeout "$repo"
-                    else
-                        __zplug::job::message::updated_with_hook_success "$repo"
-                    fi
-                fi
-            else
-                # Save status code for process cache
-                if [[ -z $status_codes[$repo] ]]; then
-                    status_codes[$repo]="$(__zplug::job::state::get "$repo" update)"
-                fi
-                case $status_codes[$repo] in
-                    $_zplug_status[update_success])
-                        __zplug::job::message::updated "$repo"
-                        ;;
-                    $_zplug_status[update_failure])
-                        __zplug::job::message::failed_to_update "$repo"
-                        ;;
-                    $_zplug_status[update_skip_if])
-                        __zplug::job::message::skipped_due_to_if_tag "$repo"
-                        ;;
-                    $_zplug_status[update_up_to_date])
-                        __zplug::job::message::up_to_date "$repo"
-                        ;;
-                    $_zplug_status[update_skip_frozen])
-                        __zplug::job::message::skipped_due_to_frozen_tag "$repo"
-                        ;;
-                    $_zplug_status[update_local_repo])
-                        __zplug::job::message::local_repo "$repo"
-                        ;;
-                    $_zplug_status[update_repo_not_found])
-                        __zplug::job::message::repo_not_found "$repo"
-                        ;;
-                    *)
-                        __zplug::job::message::unknown "$repo"
-                        ;;
-                esac
+            # Count up within spinners index
+            if (( ( spinner_idx+=1 ) > $#spinners )); then
+                spinner_idx=1
             fi
-            states[$repo]="finished"
-        fi
-    done
+            # Count up within sub_spinners index
+            if (( ( subspinner_idx+=1 ) > $#sub_spinners )); then
+                subspinner_idx=1
+            fi
 
-    printf "\n"
-    if __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]"; then
-        __zplug::io::print::f \
-            --zplug \
-            "Finished: %d/%d plugin%s\n" \
-            ${(k)#states[(R)finished]} \
-            $#states \
-            ${is_parallel:+"s"}
-    else
-        __zplug::utils::ansi::erace_current_line
-        __zplug::io::print::f \
-            --zplug \
-            "Elapsed time: %.4f sec.\n" \
-            $SECONDS
+            # Processing pids
+            for repo in "${(k)repo_pids[@]}"
+            do
+                if __zplug::job::state::running "$repo_pids[$repo]"; then
+                    __zplug::job::message::updating \
+                        $spinners[$spinner_idx] \
+                        "$repo"
+                    states[$repo]="updating"
+                else
+                    # If $repo has build-hook tag
+                    if [[ -n $hook_build[$repo] ]]; then
+                        # Save status code for process cache
+                        if [[ -z $status_codes[$repo] ]]; then
+                            status_codes[$repo]="$(__zplug::job::state::get "$repo" update)"
+                        fi
+                        if [[ $status_codes[$repo] != 0 ]]; then
+                            #__zplug::job::message::failed_to_update_with_hook "$repo"
+                            case $status_codes[$repo] in
+                                $_zplug_status[update_success])
+                                    __zplug::job::message::updated "$repo"
+                                    ;;
+                                $_zplug_status[update_failure])
+                                    __zplug::job::message::failed_to_update "$repo"
+                                    ;;
+                                $_zplug_status[update_skip_if])
+                                    __zplug::job::message::skipped_due_to_if_tag "$repo"
+                                    ;;
+                                $_zplug_status[update_up_to_date])
+                                    __zplug::job::message::up_to_date "$repo"
+                                    ;;
+                                $_zplug_status[update_skip_frozen])
+                                    __zplug::job::message::skipped_due_to_frozen_tag "$repo"
+                                    ;;
+                                $_zplug_status[update_local_repo])
+                                    __zplug::job::message::local_repo "$repo"
+                                    ;;
+                                $_zplug_status[update_repo_not_found])
+                                    __zplug::job::message::repo_not_found "$repo"
+                                    ;;
+                                *)
+                                    __zplug::job::message::unknown "$repo"
+                                    ;;
+                            esac
+                            states[$repo]="finished"
+                            continue
+                        fi
+
+                        if ! $hook_finished[$repo]; then
+                            hook_finished[$repo]=true
+                            # Run the hook-build in background
+                            {
+                                __zplug::job::hook::build "$repo"
+                                if (( $status > 0 )); then
+                                    printf "$repo\n" >>|"$_zplug_config[build_failure]"
+                                    printf "$repo\n" >>|"$_zplug_config[build_rollback]"
+                                else
+                                    printf "$repo\n" >>|"$_zplug_config[build_success]"
+                                fi
+                            } & hook_pids[$repo]=$!
+                            # Run the timeout process in background
+                            {
+                                # kill the process for hook-build after sleeping
+                                # during the number of seconds that has been set as a timeout
+                                sleep "$timeout"
+
+                                # Check if $repo_pids don't run
+                                # and check if the process ($hook_pids[$repo]) that has should be killed
+                                if __zplug::job::state::running $hook_pids[$repo] && ! __zplug::job::state::running "$repo_pids[@]"; then
+                                    __zplug::job::state::kill $hook_pids[$repo]
+                                    printf "$repo\n" >>|"$_zplug_config[build_timeout]"
+                                    printf "$repo\n" >>|"$_zplug_config[build_rollback]"
+                                fi
+                            } &
+                        fi
+
+                        if __zplug::job::state::running "$hook_pids[$repo]"; then
+                            # running build-hook
+                            __zplug::utils::ansi::erace_current_line
+                            __zplug::job::message::updated_with_hook_spinning \
+                                "$spinners[$spinner_idx]" \
+                                "$repo" \
+                                "$sub_spinners[$subspinner_idx]"
+                        else
+                            # finished build-hook
+                            __zplug::utils::ansi::erace_current_line
+                            if __zplug::job::hook::build_failure "$repo"; then
+                                __zplug::job::message::updated_with_hook_failure "$repo"
+                            elif __zplug::job::hook::build_timeout "$repo"; then
+                                __zplug::job::message::updated_with_hook_timeout "$repo"
+                            else
+                                __zplug::job::message::updated_with_hook_success "$repo"
+                            fi
+                        fi
+                    else
+                        # Save status code for process cache
+                        if [[ -z $status_codes[$repo] ]]; then
+                            status_codes[$repo]="$(__zplug::job::state::get "$repo" update)"
+                        fi
+                        case $status_codes[$repo] in
+                            $_zplug_status[update_success])
+                                __zplug::job::message::updated "$repo"
+                                ;;
+                            $_zplug_status[update_failure])
+                                __zplug::job::message::failed_to_update "$repo"
+                                ;;
+                            $_zplug_status[update_skip_if])
+                                __zplug::job::message::skipped_due_to_if_tag "$repo"
+                                ;;
+                            $_zplug_status[update_up_to_date])
+                                __zplug::job::message::up_to_date "$repo"
+                                ;;
+                            $_zplug_status[update_skip_frozen])
+                                __zplug::job::message::skipped_due_to_frozen_tag "$repo"
+                                ;;
+                            $_zplug_status[update_local_repo])
+                                __zplug::job::message::local_repo "$repo"
+                                ;;
+                            $_zplug_status[update_repo_not_found])
+                                __zplug::job::message::repo_not_found "$repo"
+                                ;;
+                            *)
+                                __zplug::job::message::unknown "$repo"
+                                ;;
+                        esac
+                    fi
+                    states[$repo]="finished"
+                fi
+            done
+
+            if __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]"; then
+                printf "\n"
+                __zplug::io::print::f \
+                    --zplug \
+                    "Finished: %d/%d plugin%s\n" \
+                    ${(k)#states[(R)finished]} \
+                    $#repos \
+                    ${is_parallel:+"s"}
+            else
+                repo_pids=()
+            fi
+        done
     fi
 done
 
 tput cnorm
+printf "\n"
+__zplug::utils::ansi::erace_current_line
+__zplug::io::print::f \
+    --zplug \
+    "Elapsed time: %.4f sec.\n" \
+    $SECONDS
 
 if (( ${(k)#status_codes[(R)1]} == 0 )); then
     printf "$fg_bold[default] ==> Updating finished successfully!$reset_color\n"
