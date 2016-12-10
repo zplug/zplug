@@ -2,31 +2,16 @@
 # Description:
 #   Update installed packages in parallel
 
-local     repo arg f_pkg c_pkg filter
-local -aU repos
-local -A  tags
-local -a  failed_packages
-local -A  checked_packages
-local -i  max=0 ret=0
+local     is_parallel=""
 local     is_select=false is_force=false
-
-# All variables are treated as local variable
-# because of background job (subprocess)
-#local    key
-
-local -aU repos
+local     repo arg filter
+local -A  repo_pids proc_states hook_build hook_finished hook_pids status_codes repo_dir
 local -A  tags
-local -A  repo_pids states hook_build hook_finished hook_pids status_codes repo_dir
 local -F  SECONDS=0
-local -a  spinners sub_spinners
+local -aU repos
+local -i  queue_max=$ZPLUG_THREADS
 local -i  spinner_idx subspinner_idx status_code=0
 local -i  timeout=60
-local     is_parallel=""
-
-local -i queue_max=$ZPLUG_THREADS
-
-spinners=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
-sub_spinners=(⠁ ⠁ ⠉ ⠙ ⠚ ⠒ ⠂ ⠂ ⠒ ⠲ ⠴ ⠤ ⠄ ⠄ ⠤ ⠠ ⠠ ⠤ ⠦ ⠖ ⠒ ⠐ ⠐ ⠒ ⠓ ⠋ ⠉ ⠈ ⠈)
 
 while (( $# > 0 ))
 do
@@ -152,7 +137,7 @@ do
     repo_dir[$repo]="$tags[dir]"
     hook_build[$repo]="$tags[hook-build]"
     hook_finished[$repo]=false
-    states[$repo]="unfinished"
+    proc_states[$repo]="created"
     status_codes[$repo]=""
 
     if ( (( $#repos >= $queue_max )) && (( $#repo_pids >= $queue_max )) ) ||
@@ -165,17 +150,17 @@ do
         # Use printf command (not builtin) instead of __zplug::io::print::f function,
         # because this loop is run the processing by interval of 0.1 second
         # and there is a need to be called faster
-        while __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]" || (( ${(k)#states[(R)updating]} > 0 ))
+        while __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]" || (( ${(k)#proc_states[(R)running]} > 0 ))
         do
             sleep 0.1
             __zplug::utils::ansi::cursor_up $(($#repo_pids + 2)) #$(($#repos + 2))
 
-            # Count up within spinners index
-            if (( ( spinner_idx+=1 ) > $#spinners )); then
+            # Count up within _zplug_spinners index
+            if (( ( spinner_idx+=1 ) > $#_zplug_spinners )); then
                 spinner_idx=1
             fi
-            # Count up within sub_spinners index
-            if (( ( subspinner_idx+=1 ) > $#sub_spinners )); then
+            # Count up within _zplug_sub__zplug_spinners index
+            if (( ( subspinner_idx+=1 ) > $#_zplug_sub__zplug_spinners )); then
                 subspinner_idx=1
             fi
 
@@ -184,9 +169,9 @@ do
             do
                 if __zplug::job::state::running "$repo_pids[$repo]"; then
                     __zplug::job::message::updating \
-                        $spinners[$spinner_idx] \
+                        $_zplug_spinners[$spinner_idx] \
                         "$repo"
-                    states[$repo]="updating"
+                    proc_states[$repo]="running"
                 else
                     # If $repo has build-hook tag
                     if [[ -n $hook_build[$repo] ]]; then
@@ -222,7 +207,7 @@ do
                                     __zplug::job::message::unknown "$repo"
                                     ;;
                             esac
-                            states[$repo]="finished"
+                            proc_states[$repo]="terminated"
                             continue
                         fi
 
@@ -258,9 +243,9 @@ do
                             # running build-hook
                             __zplug::utils::ansi::erace_current_line
                             __zplug::job::message::updated_with_hook_spinning \
-                                "$spinners[$spinner_idx]" \
+                                "$_zplug_spinners[$spinner_idx]" \
                                 "$repo" \
-                                "$sub_spinners[$subspinner_idx]"
+                                "$_zplug_sub__zplug_spinners[$subspinner_idx]"
                         else
                             # finished build-hook
                             __zplug::utils::ansi::erace_current_line
@@ -304,7 +289,7 @@ do
                                 ;;
                         esac
                     fi
-                    states[$repo]="finished"
+                    proc_states[$repo]="terminated"
                 fi
             done
 
@@ -313,7 +298,7 @@ do
                 __zplug::io::print::f \
                     --zplug \
                     "Finished: %d/%d plugin%s\n" \
-                    ${(k)#states[(R)finished]} \
+                    ${(k)#proc_states[(R)terminated]} \
                     $#repos \
                     ${is_parallel:+"s"}
             else
