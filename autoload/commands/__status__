@@ -2,8 +2,6 @@
 # Description:
 #   Check if the remote repositories are up to date
 
-local    is_parallel=""
-local    is_releases=false is_select=false
 local    state arg filter repo
 local -A repo_pids proc_states status_codes repo_dir
 local -A tags
@@ -17,7 +15,7 @@ do
     arg="$1"
     case "$arg" in
         --select)
-            is_select=true
+            zstyle ':zplug:core:status' 'select' yes
             ;;
         -*|--*)
             __zplug::core::options::unknown "$arg"
@@ -37,60 +35,12 @@ do
     shift
 done
 
-if $is_select; then
-    __zplug::utils::shell::search_commands \
-        "$ZPLUG_FILTER" \
-        | read filter
-    if [[ -z $filter ]]; then
-        __zplug::io::print::f \
-            --die \
-            --zplug \
-            --error \
-            --func \
-            "There is no available filter in ZPLUG_FILTER\n"
-        return 1
-    fi
-    repos=( ${(@f)"$(echo "${(Fk)zplugs[@]}" | eval "$filter")"} )
-
-    # Cace of type Ctrl-C
-    if (( $#repos == 0 )); then
-        return 0
-    fi
+if ! __zplug::core::share::init_parallel --status "$repos[@]"; then
+    # Since the initialization has failed, this command is terminated.
+    # The error message etc. should be done within that function.
+    return 1
 fi
-
-if (( $#repos == 0 )); then
-    repos=( "${(k)zplugs[@]:gs:@::}" )
-fi
-
-for repo in "${repos[@]}"
-do
-    if ! __zplug::base::base::zpluged "$repo"; then
-        __zplug::io::print::f \
-            --die \
-            --zplug \
-            --func \
-            "$repo: no such package\n"
-        return 1
-    fi
-done
-
-# Check the number of arguments
-if (( $#repos > 1 )); then
-    is_parallel=true
-fi
-
-rm -f "$_zplug_config[status_status]"
-touch "$_zplug_config[status_status]"
-
-# Suppress outputs
-setopt nonotify nomonitor
-tput civis
-
-__zplug::io::print::f \
-    --zplug \
-    "Start to get remote status %d plugin${is_parallel:+"s"} %s\n\n" \
-    $#repos \
-    "${is_parallel:+"in parallel"}"
+repos=( "$reply[@]" )
 
 for repo in "${repos[@]}"
 do
@@ -133,7 +83,7 @@ do
 
     if ( (( $#repos >= $queue_max )) && (( $#repo_pids >= $queue_max )) ) ||
         ( (( $#repos >= $queue_max )) && (( $#status_codes == $#repos )) ) ||
-        ( (( $#repos < $queue_max )) && (( $#repo_pids == $#repos )) ) ; then
+        ( (( $#repos < $queue_max )) && (( $#repo_pids == $#repos )) ); then
         repeat $(($#repo_pids + 2)); do printf "\n"; done
         #
         # Multiple progress bars
@@ -195,10 +145,9 @@ do
                 printf "\n"
                 __zplug::io::print::f \
                     --zplug \
-                    "Finished: %d/%d plugin%s\n" \
+                    "Finished: %d/%d plugins\n" \
                     ${(k)#proc_states[(R)terminated]} \
-                    $#repos \
-                    ${is_parallel:+"s"}
+                    $#repos
             else
                 repo_pids=()
             fi

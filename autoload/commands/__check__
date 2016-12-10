@@ -2,7 +2,7 @@
 # Description:
 #   Return true if all packages are installed, false otherwise
 
-local     is_verbose=false
+local     is_verbose=false is_debug=false
 local     arg repo
 local -aU repos not_installed_repos not_found_repos
 local -A  tags
@@ -14,6 +14,9 @@ do
     case "$arg" in
         --verbose)
             is_verbose=true
+            ;;
+        --debug)
+            is_debug=true
             ;;
         -*|--*)
             __zplug::core::options::unknown "$arg"
@@ -91,10 +94,16 @@ if (( $#not_found_repos > 0 )); then
     ret=0
 fi
 
+# Initialize
 if (( $#not_installed_repos > 0 )); then
     # Share not installed repos information
     # e.g. for __install__ command
-    reply=( "${not_installed_repos[@]}" )
+    #reply=( "${not_installed_repos[@]}" )
+
+    if $is_debug; then
+        echo "$not_installed_repos[@]"
+        return 0
+    fi
 
     if $is_verbose; then
         __zplug::io::print::put \

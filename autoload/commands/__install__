@@ -35,53 +35,15 @@ do
     shift
 done
 
-# If no argument is given,
-# use non-installed plugins as an installation target
-if (( $#repos == 0 )); then
-    __zplug::core::core::run_interfaces \
-        "check" \
-        2> >(__zplug::io::log::capture) >/dev/null \
-        || repos=( "${reply[@]}" )
+if ! __zplug::core::share::init_parallel --install "$repos[@]"; then
+    # Since the initialization has failed, this command is terminated.
+    # The error message etc. should be done within that function.
+    return 1
 fi
-
-# No plugin to install
-if (( $#repos == 0 )); then
-    return 0
-fi
-
-# Check the number of arguments
-if (( $#repos > 1 )); then
-    is_parallel=true
-fi
-
-rm -f \
-    "$_zplug_config[build_success]" \
-    "$_zplug_config[build_failure]" \
-    "$_zplug_config[build_timeout]" \
-    "$_zplug_config[install_status]"
-touch "$_zplug_config[install_status]"
-
-# Suppress outputs
-setopt nonotify nomonitor
-tput civis
-
-__zplug::io::print::f \
-    --zplug \
-    "Start to install %d plugin${is_parallel:+"s"} %s\n\n" \
-    $#repos \
-    "${is_parallel:+"in parallel"}"
+repos=( "$reply[@]" )
 
 for repo in "$repos[@]"
 do
-    if ! __zplug::base::base::zpluged "$repo"; then
-        __zplug::io::print::f \
-            --die \
-            --zplug \
-            --func \
-            "$repo: no such package\n"
-        return 1
-    fi
-
     tags[hook-build]="$(
     __zplug::core::core::run_interfaces \
         'hook-build' \
@@ -129,7 +91,7 @@ do
 
     if ( (( $#repos >= $queue_max )) && (( $#repo_pids >= $queue_max )) ) ||
         ( (( $#repos >= $queue_max )) && (( $#status_codes == $#repos )) ) ||
-        ( (( $#repos < $queue_max )) && (( $#repo_pids == $#repos )) ) ; then
+        ( (( $#repos < $queue_max )) && (( $#repo_pids == $#repos )) ); then
         repeat $(($#repo_pids + 2)); do printf "\n"; done
         #
         # Multiple progress bars
@@ -249,10 +211,9 @@ do
                 printf "\n"
                 __zplug::io::print::f \
                     --zplug \
-                    "Finished: %d/%d plugin%s\n" \
+                    "Finished: %d/%d plugins\n" \
                     ${(k)#proc_states[(R)terminated]} \
-                    $#repos \
-                    ${is_parallel:+"s"}
+                    $#repos
             else
                 repo_pids=()
             fi
