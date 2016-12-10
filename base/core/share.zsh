@@ -108,3 +108,16 @@ __zplug::core::share::init_parallel()
 
     reply=("$repos[@]")
 }
+
+__zplug::core::share::elapsed_time()
+{
+    local -F elapsed_time="$1"
+
+    tput cnorm
+    __zplug::utils::ansi::erace_current_line
+    printf "\n"
+    __zplug::io::print::f \
+        --zplug \
+        "Elapsed time: %.4f sec.\n" \
+        $elapsed_time
+}

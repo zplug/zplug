@@ -1,3 +1,42 @@
+__zplug::job::message::running()
+{
+    local spinner="$1" message="$2" repo="$3"
+
+    builtin printf " $fg[white]%s$reset_color  %s  %s\n" \
+        "$spinner" \
+        ${(r,20,):-"$message"} \
+        "$repo"
+}
+
+__zplug::job::message::terminated()
+{
+    local message="$1" repo="$2"
+
+    builtin printf " $fg[white]\U2714$reset_color  %s  %s\n" \
+        ${(r,20,):-"$message"} \
+        "$repo"
+}
+
+__zplug::job::message::zombie()
+{
+    local message="$1" repo="$2"
+
+    printf " $fg_bold[red]\U2718$reset_color  $fg[red]%s$reset_color  %s\n" \
+        ${(r,20,):-"$message"} \
+        "$repo"
+}
+
+__zplug::job::message::waiting()
+{
+    local message="$1" repo="$2"
+
+    printf " $fg_bold[yellow]\U279C$reset_color  $fg[yellow]%s$reset_color  %s\n" \
+        ${(r,20,):-"$message"} \
+        "$repo"
+}
+
+###############################################################################
+
 __zplug::job::message::installing()
 {
     local \
@@ -161,6 +200,7 @@ __zplug::job::message::repo_not_found()
         ${(r,20,):-"Not found"} \
         "$repo"
 }
+
 __zplug::job::message::skip_local_repo()
 {
     local repo="$1"

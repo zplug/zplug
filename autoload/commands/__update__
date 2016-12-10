@@ -253,13 +253,7 @@ do
     fi
 done
 
-tput cnorm
-printf "\n"
-__zplug::utils::ansi::erace_current_line
-__zplug::io::print::f \
-    --zplug \
-    "Elapsed time: %.4f sec.\n" \
-    $SECONDS
+__zplug::core::share::elapsed_time $SECONDS
 
 if (( ${(k)#status_codes[(R)1]} == 0 )); then
     printf "$fg_bold[default] ==> Updating finished successfully!$reset_color\n"
