@@ -34,9 +34,9 @@ __zplug::job::handle::state()
         $_zplug_status[success])
             case "$caller" in
                 install)
-                    __zplug::job::message::terminated "Installed!" "$repo" ;;
+                    __zplug::job::message::green "Installed!" "$repo" ;;
                 update)
-                    __zplug::job::message::terminated "Updated!" "$repo" ;;
+                    __zplug::job::message::green "Updated!" "$repo" ;;
                 status)
                     __zplug::job::message::terminated "Up-to-date" "$repo" ;;
             esac

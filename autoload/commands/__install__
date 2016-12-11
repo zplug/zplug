@@ -35,7 +35,7 @@ do
     shift
 done
 
-if ! __zplug::core::share::init_parallel --install "$repos[@]"; then
+if ! __zplug::core::share::init_parallel "$repos[@]"; then
     # Since the initialization has failed, this command is terminated.
     # The error message etc. should be done within that function.
     return 1

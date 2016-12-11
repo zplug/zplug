@@ -8,6 +8,15 @@ __zplug::job::message::running()
         "$repo"
 }
 
+__zplug::job::message::green()
+{
+    local message="$1" repo="$2"
+
+    builtin printf " $fg[white]\U2714$reset_color  $fg[green]%s$reset_color  %s\n" \
+        ${(r,20,):-"$message"} \
+        "$repo"
+}
+
 __zplug::job::message::terminated()
 {
     local message="$1" repo="$2"

@@ -1,58 +1,55 @@
 __zplug::core::share::init_parallel()
 {
-    local    is_install_command=false
-    local    repo is_parallel=false is_select=false
+    local    caller="${${(M)funcstack[@]:#__*__}:gs:_:}"
+    local    is_parallel=false is_select=false
+    local    filter repo starting_message
     local -a repos
-    local    filter
 
-    while (( $#argv > 0 ))
-    do
-        case "$argv[1]" in
-            --install)
-                rm -f \
-                    "$_zplug_config[build_success]" \
-                    "$_zplug_config[build_failure]" \
-                    "$_zplug_config[build_timeout]" \
-                    "$_zplug_config[install_status]"
-                touch "$_zplug_config[install_status]"
-                is_install_command=true
-                ;;
-            --update)
-                zstyle -s ':zplug:core:update' 'select' is_select
-                zstyle ':zplug:core:update' 'select' no
-                rm -f \
-                    "$_zplug_config[build_success]" \
-                    "$_zplug_config[build_failure]" \
-                    "$_zplug_config[build_timeout]" \
-                    "$_zplug_config[update_status]"
-                touch "$_zplug_config[update_status]"
-                ;;
-            --status)
-                zstyle -s ':zplug:core:status' 'select' is_select
-                zstyle ':zplug:core:status' 'select' no
-                rm -f "$_zplug_config[status_status]"
-                touch "$_zplug_config[status_status]"
-                ;;
-            *)
-                repos+=( "$argv[1]" )
-                ;;
-        esac
-        shift
-    done
+    repos=( "$argv[@]" )
 
-    if $is_install_command; then
-        # If no argument is given,
-        # use non-installed plugins as an installation target
-        if (( $#repos == 0 )); then
-            repos=( $(__zplug::core::core::run_interfaces 'check' '--debug') )
+    case "$caller" in
+        install)
+            starting_message="install"
+            # If no argument is given,
+            # use non-installed plugins as an installation target
             if (( $#repos == 0 )); then
-                __zplug::io::print::f \
-                    --zplug --die \
-                    "no packages to install\n"
-                return 1
+                repos=( $(__zplug::core::core::run_interfaces 'check' '--debug') )
+                if (( $#repos == 0 )); then
+                    __zplug::io::print::f \
+                        --zplug --die \
+                        "no packages to install\n"
+                    return 1
+                fi
             fi
-        fi
-    fi
+            rm -f \
+                "$_zplug_config[build_success]" \
+                "$_zplug_config[build_failure]" \
+                "$_zplug_config[build_timeout]" \
+                "$_zplug_config[install_status]"
+            touch "$_zplug_config[install_status]"
+            ;;
+        update)
+            starting_message="update"
+            zstyle -s ':zplug:core:update' 'select' is_select
+            zstyle ':zplug:core:update' 'select' no
+            rm -f \
+                "$_zplug_config[build_success]" \
+                "$_zplug_config[build_failure]" \
+                "$_zplug_config[build_timeout]" \
+                "$_zplug_config[update_status]"
+            touch "$_zplug_config[update_status]"
+            ;;
+        status)
+            starting_message="get remote status"
+            zstyle -s ':zplug:core:status' 'select' is_select
+            zstyle ':zplug:core:status' 'select' no
+            rm -f "$_zplug_config[status_status]"
+            touch "$_zplug_config[status_status]"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
 
     if (( $_zplug_boolean_true[(I)$is_select] )); then
         filter="$(
@@ -98,11 +95,13 @@ __zplug::core::share::init_parallel()
 
     # Suppress outputs
     setopt nonotify nomonitor
+    # Hide the cursor
     tput civis
 
     __zplug::io::print::f \
         --zplug \
-        "Start to get remote status %d plugin${is_parallel:+"s"} %s\n\n" \
+        "Start to %s %d plugin${is_parallel:+"s"} %s\n\n" \
+        "$starting_message" \
         $#repos \
         "${is_parallel:+"in parallel"}"
 
@@ -113,7 +112,6 @@ __zplug::core::share::elapsed_time()
 {
     local -F elapsed_time="$1"
 
-    tput cnorm
     __zplug::utils::ansi::erace_current_line
     printf "\n"
     __zplug::io::print::f \
@@ -174,4 +172,7 @@ __zplug::core::share::finalize_parallel()
             fi
             ;;
     esac
+
+    # Display the cursor
+    tput cnorm
 }
