@@ -1,4 +1,4 @@
-__zplug::core::share::init_parallel()
+__zplug::job::parallel::init()
 {
     local    caller="${${(M)funcstack[@]:#__*__}:gs:_:}"
     local    is_parallel=false is_select=false
@@ -108,32 +108,20 @@ __zplug::core::share::init_parallel()
     reply=("$repos[@]")
 }
 
-__zplug::core::share::elapsed_time()
-{
-    local -F elapsed_time="$1"
-
-    __zplug::utils::ansi::erace_current_line
-    printf "\n"
-    __zplug::io::print::f \
-        --zplug \
-        "Elapsed time: %.4f sec.\n" \
-        $elapsed_time
-}
-
-__zplug::core::share::finalize_parallel()
+__zplug::job::parallel::deinit()
 {
     local caller="${${(M)funcstack[@]:#__*__}:gs:_:}"
 
     case "$caller" in
         update)
-            if (( ${(k)#status_codes[(R)1]} == 0 )); then
+            if (( ${(k)#status_codes[(R)$_zplug_status[failure]]} == 0 )); then
                 printf "$fg_bold[default] ==> Updating finished successfully!$reset_color\n"
             else
                 printf "$fg_bold[red] ==> Updating failed for following packages:$reset_color\n"
                 # Listing the packages that have failed to update
                 for repo in "${(k)status_codes[@]}"
                 do
-                    if [[ $status_codes[$repo] == 1 ]]; then
+                    if [[ $status_codes[$repo] == $_zplug_status[failure] ]]; then
                         printf " - %s\n" "$repo"
                     fi
                 done
@@ -142,14 +130,14 @@ __zplug::core::share::finalize_parallel()
             __zplug::job::rollback::message
             ;;
         install)
-            if (( ${(k)#status_codes[(R)1]} == 0 )); then
+            if (( ${(k)#status_codes[(R)$_zplug_status[failure]]} == 0 )); then
                 printf "$fg_bold[default] ==> Installation finished successfully!$reset_color\n"
             else
                 printf "$fg_bold[red] ==> Installation failed for following packages:$reset_color\n"
                 # Listing the packages that have failed to install
                 for repo in "${(k)status_codes[@]}"
                 do
-                    if [[ $status_codes[$repo] == 1 ]]; then
+                    if [[ $status_codes[$repo] == $_zplug_status[failure] ]]; then
                         printf " - %s\n" "$repo"
                     fi
                 done
@@ -158,14 +146,14 @@ __zplug::core::share::finalize_parallel()
             __zplug::job::rollback::message
             ;;
         status)
-            if (( ${(k)#status_codes[(R)1]} == 0 )); then
+            if (( ${(k)#status_codes[(R)$_zplug_status[out_of_date]]} == 0 )); then
                 printf "$fg_bold[default] ==> All packages are up-to-date!$reset_color\n"
             else
                 printf "$fg_bold[red] ==> Run 'zplug update'. These packages are local out of date:$reset_color\n"
                 # Listing the packages that have failed to install
                 for repo in "${(k)status_codes[@]}"
                 do
-                    if [[ $status_codes[$repo] == 1 ]]; then
+                    if [[ $status_codes[$repo] == $_zplug_status[out_of_date] ]]; then
                         printf " - %s\n" "$repo"
                     fi
                 done

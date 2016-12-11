@@ -2,16 +2,12 @@
 # Description:
 #   Install packages in parallel
 
-local     is_parallel=""
 local     repo arg
 local -A  repo_pids proc_states hook_build hook_finished hook_pids status_codes repo_dir
 local -A  tags
 local -F  SECONDS=0
 local -aU repos
-local -i  queue_max=$ZPLUG_THREADS
-local -i  spinner_idx subspinner_idx
 local -i  status_code=0
-local -i  timeout=60
 
 while (( $# > 0 ))
 do
@@ -35,7 +31,7 @@ do
     shift
 done
 
-if ! __zplug::core::share::init_parallel "$repos[@]"; then
+if ! __zplug::job::parallel::init "$repos[@]"; then
     # Since the initialization has failed, this command is terminated.
     # The error message etc. should be done within that function.
     return 1
@@ -80,5 +76,5 @@ do
     __zplug::job::handle::wait
 done
 
-__zplug::core::share::elapsed_time $SECONDS
-__zplug::core::share::finalize_parallel
+__zplug::job::handle::elapsed_time $SECONDS
+__zplug::job::parallel::deinit

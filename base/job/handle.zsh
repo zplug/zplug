@@ -76,12 +76,20 @@ __zplug::job::handle::state()
 
 __zplug::job::handle::wait()
 {
-    local caller="${${(M)funcstack[@]:#__*__}:gs:_:}"
+    local    caller="${${(M)funcstack[@]:#__*__}:gs:_:}"
+    local -i queue_max=$ZPLUG_THREADS
+    local -i screen_size=$(($#repo_pids + 2))
+    local -i spinner_idx=1 sub_spinner_idx=1
+    local -a spinners sub_spinners
+    local -F latency=0.05
+
+    spinners=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
+    sub_spinners=(⠁ ⠁ ⠉ ⠙ ⠚ ⠒ ⠂ ⠂ ⠒ ⠲ ⠴ ⠤ ⠄ ⠄ ⠤ ⠠ ⠠ ⠤ ⠦ ⠖ ⠒ ⠐ ⠐ ⠒ ⠓ ⠋ ⠉ ⠈ ⠈)
 
     if ( (( $#repos >= $queue_max )) && (( $#repo_pids >= $queue_max )) ) ||
         ( (( $#repos >= $queue_max )) && (( $#status_codes == $#repos )) ) ||
         ( (( $#repos < $queue_max )) && (( $#repo_pids == $#repos )) ); then
-        repeat $(($#repo_pids + 2)); do printf "\n"; done
+        repeat $screen_size; do printf "\n"; done
         #
         # Multiple progress bars
         #
@@ -90,16 +98,16 @@ __zplug::job::handle::wait()
         # and there is a need to be called faster
         while __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]" || (( ${(k)#proc_states[(R)running]} > 0 ))
         do
-            sleep 0.1
-            __zplug::utils::ansi::cursor_up $(($#repo_pids + 2))
+            sleep "$latency"
+            __zplug::utils::ansi::cursor_up $screen_size
 
-            # Count up within _zplug_spinners index
-            if (( ( spinner_idx+=1 ) > $#_zplug_spinners )); then
+            # Count up within spinners index
+            if (( ( spinner_idx+=1 ) > $#spinners )); then
                 spinner_idx=1
             fi
-            # Count up within _zplug_sub_spinners index
-            if (( ( subspinner_idx+=1 ) > $#_zplug_sub_spinners )); then
-                subspinner_idx=1
+            # Count up within sub_spinners index
+            if (( ( sub_spinner_idx+=1 ) > $#sub_spinners )); then
+                sub_spinner_idx=1
             fi
 
             # Processing pids
@@ -109,18 +117,21 @@ __zplug::job::handle::wait()
                     __zplug::job::handle::running "$repo" "$caller"
                     proc_states[$repo]="running"
                 else
-                    # If $repo has build-hook tag
                     if [[ -n $hook_build[$repo] ]]; then
                         __zplug::job::handle::hook "$repo" "$caller"
+                        # If the repo has a hook-build,
+                        # it can not be said that the processing has ended yet,
+                        # so do not set a flag.
+                        # ==> proc_states[$repo]="terminated"
                     else
                         __zplug::job::handle::state "$repo" "$caller"
+                        proc_states[$repo]="terminated"
                     fi
-                    proc_states[$repo]="terminated"
                 fi
             done
 
             if __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]"; then
-                printf "\n"
+                builtin printf "\n"
                 __zplug::io::print::f \
                     --zplug \
                     "Finished: %d/%d plugins\n" \
@@ -136,34 +147,48 @@ __zplug::job::handle::wait()
 __zplug::job::handle::running()
 {
     local repo="$argv[1]" caller="$argv[2]"
+    local message
 
     case "$caller" in
         install)
-            __zplug::job::message::running \
-                "$_zplug_spinners[$spinner_idx]" \
-                "Installing..." "$repo"
+            message="Installing..."
             ;;
         update)
-            __zplug::job::message::running \
-                "$_zplug_spinners[$spinner_idx]" \
-                "Updating..." "$repo"
+            message="Updating..."
             ;;
         status)
-            __zplug::job::message::running \
-                "$_zplug_spinners[$spinner_idx]" \
-                "Fetching..." "$repo"
+            message="Fetching..."
             ;;
     esac
+
+    __zplug::job::message::running \
+        "$spinners[$spinner_idx]" \
+        "$message" \
+        "$repo"
 }
 
 __zplug::job::handle::hook()
 {
-    local repo="$argv[1]" caller="$argv[2]"
+    local    repo="$argv[1]" caller="$argv[2]"
+    local -i timeout=60
+    local    message
+
+    case "$caller" in
+        install)
+            message="Installed!"
+            ;;
+        update)
+            message="Updated!"
+            ;;
+    esac
 
     # Save status code for process cache
     if [[ -z $status_codes[$repo] ]]; then
         status_codes[$repo]="$(__zplug::job::state::get "$repo" "$caller")"
     fi
+
+    # If the installation or updating fails in the first place,
+    # exits the loop here to stop the hook-build
     if [[ $status_codes[$repo] != 0 ]]; then
         __zplug::job::handle::state "$repo" "$caller"
         proc_states[$repo]="terminated"
@@ -190,53 +215,50 @@ __zplug::job::handle::hook()
 
             # Check if $repo_pids don't run
             # and check if the process ($hook_pids[$repo]) that has should be killed
-            if __zplug::job::state::running $hook_pids[$repo] && ! __zplug::job::state::running "$repo_pids[@]"; then
-                __zplug::job::state::kill $hook_pids[$repo]
+            if __zplug::job::state::running "$hook_pids[$repo]" && ! __zplug::job::state::running "$repo_pids[@]"; then
+                __zplug::job::state::kill "$hook_pids[$repo]"
                 printf "$repo\n" >>|"$_zplug_config[build_timeout]"
                 printf "$repo\n" >>|"$_zplug_config[build_rollback]"
             fi
         } &
     fi
 
+    __zplug::utils::ansi::erace_current_line
     if __zplug::job::state::running "$hook_pids[$repo]"; then
-        # running build-hook
-        __zplug::utils::ansi::erace_current_line
-        case "$caller" in
-            install)
-                __zplug::job::message::installed_with_hook_spinning \
-                    "$_zplug_spinners[$spinner_idx]" \
-                    "$repo" \
-                    "$_zplug_sub_spinners[$subspinner_idx]"
-                ;;
-            update)
-                __zplug::job::message::updated_with_hook_spinning \
-                    "$_zplug_spinners[$spinner_idx]" \
-                    "$repo" \
-                    "$_zplug_sub_spinners[$subspinner_idx]"
-                ;;
-        esac
+        __zplug::job::message::green \
+            --spinner "$spinners[$spinner_idx]" \
+            --message "$message" \
+            --repo "$repo" \
+            --hook "$sub_spinners[$sub_spinner_idx]"
     else
-        # finished build-hook
-        __zplug::utils::ansi::erace_current_line
-        case "$caller" in
-            install)
-                if __zplug::job::hook::build_failure "$repo"; then
-                    __zplug::job::message::installed_with_hook_failure "$repo"
-                elif __zplug::job::hook::build_timeout "$repo"; then
-                    __zplug::job::message::installed_with_hook_timeout "$repo"
-                else
-                    __zplug::job::message::installed_with_hook_success "$repo"
-                fi
-                ;;
-            update)
-                if __zplug::job::hook::build_failure "$repo"; then
-                    __zplug::job::message::updated_with_hook_failure "$repo"
-                elif __zplug::job::hook::build_timeout "$repo"; then
-                    __zplug::job::message::updated_with_hook_timeout "$repo"
-                else
-                    __zplug::job::message::updated_with_hook_success "$repo"
-                fi
-                ;;
-        esac
+        if __zplug::job::hook::build_failure "$repo"; then
+            __zplug::job::message::green \
+                --message "$message" \
+                --repo "$repo" \
+                --hook=failure
+        elif __zplug::job::hook::build_timeout "$repo"; then
+            __zplug::job::message::green \
+                --message "$message" \
+                --repo "$repo" \
+                --hook=timeout
+        else
+            __zplug::job::message::green \
+                --message "$message" \
+                --repo "$repo" \
+                --hook=success
+        fi
+        proc_states[$repo]="terminated"
     fi
+}
+
+__zplug::job::handle::elapsed_time()
+{
+    local -F elapsed_time="$1"
+
+    __zplug::utils::ansi::erace_current_line
+    printf "\n"
+    __zplug::io::print::f \
+        --zplug \
+        "Elapsed time: %.4f sec.\n" \
+        $elapsed_time
 }

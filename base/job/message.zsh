@@ -10,11 +10,53 @@ __zplug::job::message::running()
 
 __zplug::job::message::green()
 {
-    local message="$1" repo="$2"
+    local key value
+    local spinner repo message hook color="white"
 
-    builtin printf " $fg[white]\U2714$reset_color  $fg[green]%s$reset_color  %s\n" \
+    __zplug::utils::shell::getopts "$argv[@]" \
+        | while read key value; \
+    do
+        case "$key" in
+            _)
+                ;;
+            spinner)
+                spinner="$value"
+                ;;
+            repo)
+                repo="$value"
+                ;;
+            message)
+                message="$value"
+                ;;
+            hook)
+                hook="$value"
+                case "$hook" in
+                    failure)
+                        color="red"
+                        ;;
+                    success)
+                        color="green"
+                        ;;
+                    timeout)
+                        color="yellow"
+                        ;;
+                    cancel)
+                        color="red"
+                        ;;
+                esac
+                ;;
+        esac
+    done
+
+    builtin printf " $fg_bold[white]${spinner:-\U2714}$reset_color  $fg[green]%s$reset_color  %s" \
         ${(r,20,):-"$message"} \
         "$repo"
+
+    if [[ -n $hook ]]; then
+        builtin printf " --> hook-build: $fg[$color]%s$reset_color\n" "$hook"
+    else
+        builtin printf "\n"
+    fi
 }
 
 __zplug::job::message::terminated()
@@ -42,6 +84,16 @@ __zplug::job::message::waiting()
     printf " $fg_bold[yellow]\U279C$reset_color  $fg[yellow]%s$reset_color  %s\n" \
         ${(r,20,):-"$message"} \
         "$repo"
+}
+
+__zplug::job::message::failure_cancel()
+{
+    local message="$1" repo="$2"
+
+    builtin printf " $fg_bold[red]\U2718$reset_color  $fg[red]%s$reset_color  %s" \
+        ${(r,20,):-"$message"} \
+        "$repo"
+    builtin printf " --> hook-build: $fg[red]cancel$reset_color\n"
 }
 
 ###############################################################################

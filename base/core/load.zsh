@@ -12,7 +12,7 @@ __zplug::core::load::from_cache()
     zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
     # Default
-    setopt monitor
+    #setopt monitor # TODO
 
     __zplug::core::cache::update
 
