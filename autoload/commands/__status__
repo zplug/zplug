@@ -56,7 +56,7 @@ do
 
             case "$tags[from]" in
                 "local")
-                    status_code=$_zplug_status[status_skip_local_repo]
+                    status_code=$_zplug_status[skip_local]
                     ;;
                 "gh-r")
                     __zplug::utils::releases::get_state "$tags[name]" "$tags[dir]"
@@ -68,7 +68,7 @@ do
                     ;;
             esac
         else
-            status_code=$_zplug_status[status_repo_not_found]
+            status_code=$_zplug_status[repo_not_found]
         fi
 
         # Manage the status codes in a file

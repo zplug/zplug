@@ -212,7 +212,7 @@ __zplug::core::core::variable()
     "failure"            1
     "true"               0
     "false"              1
-    "repo_not_found"     2
+    #"repo_not_found"     2
     "repo_frozen"        3
     "repo_up_to_date"    4
     "repo_local"         5
@@ -256,12 +256,24 @@ __zplug::core::core::variable()
     "error_signal_int"       130
     "error_signal_kill"      137
     # TODO: add others
+    # parallel status
+    #"success"          0
+    #"failure"          1
+    "up_to_date"      10
+    "out_of_date"     11
+    "unknown"         12
+    "repo_not_found"  13
+    "skip_if"         14
+    "skip_frozen"     15
+    "skip_local"      16
+    "not_git_repo"    17
+    "not_on_branch"   18
     )
 
     typeset -gx -A _zplug_config
     _zplug_config=(
-    "install_status" "$ZPLUG_MANAGE/tmp/installed"
-    "update_status"  "$ZPLUG_MANAGE/tmp/updated"
+    "install_status" "$ZPLUG_MANAGE/tmp/install_status"
+    "update_status"  "$ZPLUG_MANAGE/tmp/update_status"
     "status_status"  "$ZPLUG_MANAGE/tmp/status_status"
 
     "build_success"  "$ZPLUG_MANAGE/tmp/build_success"

@@ -17,14 +17,14 @@ do
                 --die \
                 --zplug \
                 "argument is required\n"
-            return $_zplug_status[error]
+            return $_zplug_status[failure]
             ;;
         *)
             __zplug::io::print::f \
                 --die \
                 --zplug \
                 "$arg: no such rollback operation\n"
-            return $_zplug_status[error]
+            return $_zplug_status[failure]
             ;;
     esac
     shift

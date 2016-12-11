@@ -42,13 +42,13 @@ __zplug::utils::releases::get_state()
 
     case "$state" in
         "up to date")
-            return $_zplug_status[status_up_to_date]
+            return $_zplug_status[up_to_date]
             ;;
         "local out of date")
-            return $_zplug_status[status_local_out_of_date]
+            return $_zplug_status[out_of_date]
             ;;
         *)
-            return $_zplug_status[status_unknown]
+            return $_zplug_status[unknown]
             ;;
     esac
 }

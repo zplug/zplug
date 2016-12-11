@@ -27,7 +27,7 @@ __zplug::utils::git::clone()
     tags=( "${reply[@]}" )
 
     if [[ -d $tags[dir] ]]; then
-        return $_zplug_status[install_already]
+        return $_zplug_status[already]
     fi
 
     if [[ $tags[depth] == 0 ]]; then
@@ -77,9 +77,9 @@ __zplug::utils::git::clone()
     __zplug::utils::git::checkout "$repo"
 
     if (( $ret == 0 )); then
-        return $_zplug_status[install_success]
+        return $_zplug_status[success]
     else
-        return $_zplug_status[install_failure]
+        return $_zplug_status[failure]
     fi
 }
 
@@ -170,7 +170,7 @@ __zplug::utils::git::merge()
     done
 
     __zplug::utils::shell::cd \
-        "$git[dir]" || return $_ZPLUG_STATUS_REPO_NOT_FOUND
+        "$git[dir]" || return $_zplug_status[repo_not_found]
 
     {
         if [[ -e $git[dir]/.git/shallow ]]; then
@@ -187,7 +187,7 @@ __zplug::utils::git::merge()
 
     if [[ $git[local] == $git[upstream] ]]; then
         # up-to-date
-        return $_ZPLUG_STATUS_REPO_UP_TO_DATE
+        return $_zplug_status[up_to_date]
 
     elif [[ $git[local] == $git[base] ]]; then
         # need to pull
@@ -219,9 +219,9 @@ __zplug::utils::git::merge()
     fi
 
     if $failed; then
-        return $_ZPLUG_STATUS_FAILURE
+        return $_zplug_status[failure]
     fi
-    return $_ZPLUG_STATUS_SUCCESS
+    return $_zplug_status[success]
 }
 
 __zplug::utils::git::status()
@@ -359,7 +359,7 @@ __zplug::utils::git::get_state()
     local    state url
 
     if [[ ! -e .git ]]; then
-        return $_zplug_status[status_not_git_repo]
+        return $_zplug_status[not_git_repo]
     fi
 
     state="not on any branch"
@@ -372,16 +372,16 @@ __zplug::utils::git::get_state()
 
     case "$state" in
         "up to date")
-            return $_zplug_status[status_up_to_date]
+            return $_zplug_status[up_to_date]
             ;;
         "local out of date")
-            return $_zplug_status[status_local_out_of_date]
+            return $_zplug_status[out_of_date]
             ;;
         "not on any branch")
-            return $_zplug_status[status_not_on_any_branch]
+            return $_zplug_status[not_on_branch]
             ;;
         *)
-            return $_zplug_status[status_unknown]
+            return $_zplug_status[unknown]
             ;;
     esac
 }
