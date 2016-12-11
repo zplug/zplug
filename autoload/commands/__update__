@@ -90,19 +90,4 @@ do
 done
 
 __zplug::core::share::elapsed_time $SECONDS
-
-if (( ${(k)#status_codes[(R)1]} == 0 )); then
-    printf "$fg_bold[default] ==> Updating finished successfully!$reset_color\n"
-else
-    printf "$fg_bold[red] ==> Updating failed for following packages:$reset_color\n"
-    # Listing the packages that have failed to update
-    for repo in "${(k)status_codes[@]}"
-    do
-        if [[ $status_codes[$repo] == 1 ]]; then
-            printf " - %s\n" "$repo"
-        fi
-    done
-fi
-
-# Run rollback if hook-build failed
-__zplug::job::rollback::message
+__zplug::core::share::finalize_parallel

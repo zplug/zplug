@@ -3,7 +3,6 @@
 #   Check if the remote repositories are up to date
 
 local    state arg filter repo
-#local -A repo_pids proc_states status_codes repo_dir
 local -A repo_pids proc_states hook_build hook_finished hook_pids status_codes repo_dir
 local -A tags
 local -F SECONDS=0
@@ -86,16 +85,4 @@ do
 done
 
 __zplug::core::share::elapsed_time $SECONDS
-
-if (( ${(k)#status_codes[(R)1]} == 0 )); then
-    printf "$fg_bold[default] ==> All packages are up-to-date!$reset_color\n"
-else
-    printf "$fg_bold[red] ==> Run 'zplug update'. These packages are local out of date:$reset_color\n"
-    # Listing the packages that have failed to install
-    for repo in "${(k)status_codes[@]}"
-    do
-        if [[ $status_codes[$repo] == 1 ]]; then
-            printf " - %s\n" "$repo"
-        fi
-    done
-fi
+__zplug::core::share::finalize_parallel

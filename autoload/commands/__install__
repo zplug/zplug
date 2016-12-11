@@ -44,21 +44,9 @@ repos=( "$reply[@]" )
 
 for repo in "$repos[@]"
 do
-    tags[hook-build]="$(
-    __zplug::core::core::run_interfaces \
-        'hook-build' \
-        "$repo"
-    )"
-    tags[dir]="$(
-    __zplug::core::core::run_interfaces \
-        'dir' \
-        "$repo"
-    )"
-    tags[from]="$(
-    __zplug::core::core::run_interfaces \
-        'from' \
-        "$repo"
-    )"
+    tags[dir]="$(__zplug::core::core::run_interfaces 'dir' "$repo")"
+    tags[from]="$(__zplug::core::core::run_interfaces 'from' "$repo")"
+    tags[hook-build]="$(__zplug::core::core::run_interfaces 'hook-build' "$repo")"
 
     # Run the installation in background
     {
@@ -93,19 +81,4 @@ do
 done
 
 __zplug::core::share::elapsed_time $SECONDS
-
-if (( ${(k)#status_codes[(R)1]} == 0 )); then
-    printf "$fg_bold[default] ==> Installation finished successfully!$reset_color\n"
-else
-    printf "$fg_bold[red] ==> Installation failed for following packages:$reset_color\n"
-    # Listing the packages that have failed to install
-    for repo in "${(k)status_codes[@]}"
-    do
-        if [[ $status_codes[$repo] == 1 ]]; then
-            printf " - %s\n" "$repo"
-        fi
-    done
-fi
-
-# Run rollback if hook-build failed
-__zplug::job::rollback::message
+__zplug::core::share::finalize_parallel

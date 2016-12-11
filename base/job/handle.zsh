@@ -91,7 +91,7 @@ __zplug::job::handle::wait()
         while __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]" || (( ${(k)#proc_states[(R)running]} > 0 ))
         do
             sleep 0.1
-            __zplug::utils::ansi::cursor_up $(($#repo_pids + 2)) #$(($#repos + 2))
+            __zplug::utils::ansi::cursor_up $(($#repo_pids + 2))
 
             # Count up within _zplug_spinners index
             if (( ( spinner_idx+=1 ) > $#_zplug_spinners )); then
@@ -106,23 +106,7 @@ __zplug::job::handle::wait()
             for repo in "${(k)repo_pids[@]}"
             do
                 if __zplug::job::state::running "$repo_pids[$repo]"; then
-                    case "$caller" in
-                        install)
-                            __zplug::job::message::installing \
-                                $_zplug_spinners[$spinner_idx] \
-                                "$repo"
-                            ;;
-                        update)
-                            __zplug::job::message::updating \
-                                $_zplug_spinners[$spinner_idx] \
-                                "$repo"
-                            ;;
-                        status)
-                            __zplug::job::message::fetching \
-                                $_zplug_spinners[$spinner_idx] \
-                                "$repo"
-                            ;;
-                    esac
+                    __zplug::job::handle::running "$repo" "$caller"
                     proc_states[$repo]="running"
                 else
                     # If $repo has build-hook tag
@@ -147,6 +131,29 @@ __zplug::job::handle::wait()
             fi
         done
     fi
+}
+
+__zplug::job::handle::running()
+{
+    local repo="$argv[1]" caller="$argv[2]"
+
+    case "$caller" in
+        install)
+            __zplug::job::message::running \
+                "$_zplug_spinners[$spinner_idx]" \
+                "Installing..." "$repo"
+            ;;
+        update)
+            __zplug::job::message::running \
+                "$_zplug_spinners[$spinner_idx]" \
+                "Updating..." "$repo"
+            ;;
+        status)
+            __zplug::job::message::running \
+                "$_zplug_spinners[$spinner_idx]" \
+                "Fetching..." "$repo"
+            ;;
+    esac
 }
 
 __zplug::job::handle::hook()

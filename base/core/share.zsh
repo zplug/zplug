@@ -121,3 +121,57 @@ __zplug::core::share::elapsed_time()
         "Elapsed time: %.4f sec.\n" \
         $elapsed_time
 }
+
+__zplug::core::share::finalize_parallel()
+{
+    local caller="${${(M)funcstack[@]:#__*__}:gs:_:}"
+
+    case "$caller" in
+        update)
+            if (( ${(k)#status_codes[(R)1]} == 0 )); then
+                printf "$fg_bold[default] ==> Updating finished successfully!$reset_color\n"
+            else
+                printf "$fg_bold[red] ==> Updating failed for following packages:$reset_color\n"
+                # Listing the packages that have failed to update
+                for repo in "${(k)status_codes[@]}"
+                do
+                    if [[ $status_codes[$repo] == 1 ]]; then
+                        printf " - %s\n" "$repo"
+                    fi
+                done
+            fi
+            # Run rollback if hook-build failed
+            __zplug::job::rollback::message
+            ;;
+        install)
+            if (( ${(k)#status_codes[(R)1]} == 0 )); then
+                printf "$fg_bold[default] ==> Installation finished successfully!$reset_color\n"
+            else
+                printf "$fg_bold[red] ==> Installation failed for following packages:$reset_color\n"
+                # Listing the packages that have failed to install
+                for repo in "${(k)status_codes[@]}"
+                do
+                    if [[ $status_codes[$repo] == 1 ]]; then
+                        printf " - %s\n" "$repo"
+                    fi
+                done
+            fi
+            # Run rollback if hook-build failed
+            __zplug::job::rollback::message
+            ;;
+        status)
+            if (( ${(k)#status_codes[(R)1]} == 0 )); then
+                printf "$fg_bold[default] ==> All packages are up-to-date!$reset_color\n"
+            else
+                printf "$fg_bold[red] ==> Run 'zplug update'. These packages are local out of date:$reset_color\n"
+                # Listing the packages that have failed to install
+                for repo in "${(k)status_codes[@]}"
+                do
+                    if [[ $status_codes[$repo] == 1 ]]; then
+                        printf " - %s\n" "$repo"
+                    fi
+                done
+            fi
+            ;;
+    esac
+}
