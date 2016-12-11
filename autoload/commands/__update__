@@ -105,8 +105,8 @@ do
             if (( ( spinner_idx+=1 ) > $#_zplug_spinners )); then
                 spinner_idx=1
             fi
-            # Count up within _zplug_sub__zplug_spinners index
-            if (( ( subspinner_idx+=1 ) > $#_zplug_sub__zplug_spinners )); then
+            # Count up within _zplug_sub_spinners index
+            if (( ( subspinner_idx+=1 ) > $#_zplug_sub_spinners )); then
                 subspinner_idx=1
             fi
 
@@ -191,7 +191,7 @@ do
                             __zplug::job::message::updated_with_hook_spinning \
                                 "$_zplug_spinners[$spinner_idx]" \
                                 "$repo" \
-                                "$_zplug_sub__zplug_spinners[$subspinner_idx]"
+                                "$_zplug_sub_spinners[$subspinner_idx]"
                         else
                             # finished build-hook
                             __zplug::utils::ansi::erace_current_line

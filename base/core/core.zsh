@@ -200,9 +200,9 @@ __zplug::core::core::variable()
 
     typeset -gx     ZPLUG_MANAGE="$ZPLUG_HOME/.zplug"
 
-    typeset -gx -a _zplug__zplug_spinners _zplug__zplug_sub__zplug_spinners
+    typeset -gx -a _zplug__zplug_spinners _zplug__zplug_sub_spinners
     _zplug_spinners=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
-    _zplug_sub__zplug_spinners=(⠁ ⠁ ⠉ ⠙ ⠚ ⠒ ⠂ ⠂ ⠒ ⠲ ⠴ ⠤ ⠄ ⠄ ⠤ ⠠ ⠠ ⠤ ⠦ ⠖ ⠒ ⠐ ⠐ ⠒ ⠓ ⠋ ⠉ ⠈ ⠈)
+    _zplug_sub_spinners=(⠁ ⠁ ⠉ ⠙ ⠚ ⠒ ⠂ ⠂ ⠒ ⠲ ⠴ ⠤ ⠄ ⠄ ⠤ ⠠ ⠠ ⠤ ⠦ ⠖ ⠒ ⠐ ⠐ ⠒ ⠓ ⠋ ⠉ ⠈ ⠈)
 
     # user-defined exit code 64..113
     typeset -gx -A _zplug_status

@@ -183,7 +183,7 @@ __zplug::job::handle::hook()
         __zplug::job::message::updated_with_hook_spinning \
             "$_zplug_spinners[$spinner_idx]" \
             "$repo" \
-            "$_zplug_sub__zplug_spinners[$subspinner_idx]"
+            "$_zplug_sub_spinners[$subspinner_idx]"
     else
         # finished build-hook
         __zplug::utils::ansi::erace_current_line
