@@ -24,6 +24,7 @@ __zplug::job::handle::flock()
 __zplug::job::handle::state()
 {
     local repo="$argv[1]" caller="$argv[2]"
+    local message
 
     # Save status code for process cache
     if [[ -z $status_codes[$repo] ]]; then
@@ -34,42 +35,65 @@ __zplug::job::handle::state()
         $_zplug_status[success])
             case "$caller" in
                 install)
-                    __zplug::job::message::green "Installed!" "$repo" ;;
+                    message="Installed!"
+                    ;;
                 update)
-                    __zplug::job::message::green "Updated!" "$repo" ;;
-                status)
-                    __zplug::job::message::terminated "Up-to-date" "$repo" ;;
+                    message="Updated!"
+                    ;;
             esac
-            ;;
-        $_zplug_status[failure])
-            __zplug::job::message::zombie "Failed to $caller" "$repo"
+            __zplug::job::message::green \
+                --message "$message" \
+                --repo "$repo"
             ;;
         $_zplug_status[up_to_date])
-            __zplug::job::message::terminated "Up-to-date" "$repo"
+            __zplug::job::message::terminated \
+                --message "Up-to-date" \
+                --repo "$repo"
             ;;
         $_zplug_status[skip_local])
-            __zplug::job::message::waiting "Skip local repo" "$repo"
+            __zplug::job::message::yellow \
+                --message "Skip local repo" \
+                --repo "$repo"
             ;;
         $_zplug_status[skip_frozen])
-            __zplug::job::message::waiting "Skip frozen repo" "$repo"
+            __zplug::job::message::yellow \
+                --message "Skip frozen repo" \
+                --repo "$repo"
             ;;
         $_zplug_status[skip_if])
-            __zplug::job::message::waiting "Skip due to if" "$repo"
+            __zplug::job::message::yellow \
+                --message "Skip due to if" \
+                --repo "$repo"
+            ;;
+        $_zplug_status[failure])
+            __zplug::job::message::red \
+                --message "Failed to $caller" \
+                --repo "$repo"
             ;;
         $_zplug_status[out_of_date])
-            __zplug::job::message::zombie "Local out of date" "$repo"
+            __zplug::job::message::red \
+                --message "Local out of date" \
+                --repo "$repo"
             ;;
         $_zplug_status[not_on_branch])
-            __zplug::job::message::zombie "Not on any branch" "$repo"
+            __zplug::job::message::red \
+                --message "Not on any branch" \
+                --repo "$repo"
             ;;
         $_zplug_status[not_git_repo])
-            __zplug::job::message::zombie "Not git repo" "$repo"
+            __zplug::job::message::red \
+                --message "Not git repo" \
+                --repo "$repo"
             ;;
         $_zplug_status[repo_not_found])
-            __zplug::job::message::zombie "Repo not found" "$repo"
+            __zplug::job::message::red \
+                --message "Repo not found" \
+                --repo "$repo"
             ;;
         $_zplug_status[unknown] | *)
-            __zplug::job::message::zombie "Unknown repo" "$repo"
+            __zplug::job::message::red \
+                --message "Unknown error" \
+                --repo "$repo"
             ;;
     esac
 }
@@ -162,9 +186,9 @@ __zplug::job::handle::running()
     esac
 
     __zplug::job::message::running \
-        "$spinners[$spinner_idx]" \
-        "$message" \
-        "$repo"
+        --spinner "$spinners[$spinner_idx]" \
+        --message "$message" \
+        --repo "$repo"
 }
 
 __zplug::job::handle::hook()

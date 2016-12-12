@@ -4,7 +4,7 @@
 
 local     is_force=false
 local     repo arg filter
-local -A  repo_pids proc_states hook_build hook_finished hook_pids status_codes repo_dir
+local -A  repo_pids proc_states hook_build hook_finished hook_pids status_codes
 local -A  tags
 local -F  SECONDS=0
 local -aU repos
@@ -47,10 +47,10 @@ repos=( "$reply[@]" )
 
 for repo in "$repos[@]"
 do
-    # Run installation in subprocess
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
 
+    # Run the updating in subprocess
     {
         if [[ -d $tags[dir] ]]; then
             if (( $_zplug_boolean_true[(I)$tags[frozen]] )); then
@@ -78,7 +78,6 @@ do
     } &
 
     repo_pids[$repo]=$!
-    repo_dir[$repo]="$tags[dir]"
     hook_build[$repo]="$tags[hook-build]"
     hook_finished[$repo]=false
     proc_states[$repo]="created"

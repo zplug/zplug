@@ -3,7 +3,7 @@
 #   Check if the remote repositories are up to date
 
 local    state arg filter repo
-local -A repo_pids proc_states hook_build hook_finished hook_pids status_codes repo_dir
+local -A repo_pids proc_states hook_build hook_finished hook_pids status_codes
 local -A tags
 local -F SECONDS=0
 local -a repos
@@ -42,13 +42,14 @@ repos=( "$reply[@]" )
 
 for repo in "${repos[@]}"
 do
+    # Run in parallel
     {
         __zplug::core::tags::parse "$repo"
         tags=( "${reply[@]}" )
 
         if [[ -d $tags[dir] ]]; then
-            # Get package status in subprocess
-            # Change directory to get the remote status
+            # Get the package status in subprocess
+            # Change the directory to get the remote status
             __zplug::utils::shell::cd "$tags[dir]"
 
             case "$tags[from]" in
@@ -74,8 +75,8 @@ do
             "$_zplug_config[status_status]" \
             "repo:$repo\tstatus:$status_code"
     } &
+
     repo_pids[$repo]=$!
-    repo_dir[$repo]="$tags[dir]"
     proc_states[$repo]="created"
     status_codes[$repo]=""
 

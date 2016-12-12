@@ -3,7 +3,7 @@
 #   Install packages in parallel
 
 local     repo arg
-local -A  repo_pids proc_states hook_build hook_finished hook_pids status_codes repo_dir
+local -A  repo_pids proc_states hook_build hook_finished hook_pids status_codes
 local -A  tags
 local -F  SECONDS=0
 local -aU repos
@@ -40,16 +40,14 @@ repos=( "$reply[@]" )
 
 for repo in "$repos[@]"
 do
-    tags[dir]="$(__zplug::core::core::run_interfaces 'dir' "$repo")"
-    tags[from]="$(__zplug::core::core::run_interfaces 'from' "$repo")"
-    tags[hook-build]="$(__zplug::core::core::run_interfaces 'hook-build' "$repo")"
+    __zplug::core::tags::parse "$repo"
+    tags=( "${reply[@]}" )
 
     # Run the installation in background
     {
         if [[ -n $tags[if] ]]; then
             status_code=$_zplug_status[skip_if]
         else
-            # Run 'install' handler
             if __zplug::core::sources::is_handler_defined "install" "$tags[from]"; then
                 __zplug::core::sources::use_handler \
                     "install" \
@@ -67,7 +65,6 @@ do
     } &
 
     repo_pids[$repo]=$!
-    repo_dir[$repo]="$tags[dir]"
     hook_build[$repo]="$tags[hook-build]"
     hook_finished[$repo]=false
     proc_states[$repo]="created"
