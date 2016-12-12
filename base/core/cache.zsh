@@ -118,7 +118,7 @@ __zplug::core::cache::diff()
             0)
                 # same
                 if (( $_zplug_boolean_true[(I)$is_verbose] )); then
-                    __zplug::io::print::f "[zplug] Loaded from cache ($ZPLUG_CACHE_DIR)\n"
+                    __zplug::io::print::f --zplug "Loaded from cache ($ZPLUG_CACHE_DIR)\n"
                 fi
                 return 0
                 ;;
