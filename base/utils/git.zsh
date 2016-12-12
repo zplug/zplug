@@ -78,6 +78,7 @@ __zplug::utils::git::checkout()
 {
     local    repo="$1"
     local -a do_not_checkout
+    local -a ignore_checkout_errors
     local -A tags
 
     if (( $# < 1 )); then
@@ -90,7 +91,8 @@ __zplug::utils::git::checkout()
     tags[dir]="$(__zplug::core::core::run_interfaces 'dir' "$repo")"
     tags[from]="$(__zplug::core::core::run_interfaces 'from' "$repo")"
 
-    do_not_checkout=( "gh-r" "prezto" )
+    do_not_checkout=( "gh-r" )
+    ignore_checkout_errors=( "prezto" "oh-my-zsh" )
     if [[ ! -d $tags[dir]/.git ]]; then
         do_not_checkout+=( "local" )
     fi
@@ -118,7 +120,7 @@ __zplug::utils::git::checkout()
 
     git checkout -q "$tags[at]" \
         2> >(__zplug::io::log::capture) >/dev/null
-    if (( $status != 0 )); then
+    if (( $status != 0 )) && ! (( $ignore_checkout_errors[(I)$tags[from]] )); then
         __zplug::io::print::f \
             --die \
             --zplug \
