@@ -103,6 +103,8 @@ __zplug::core::cache::commit()
 __zplug::core::cache::diff()
 {
     local key file
+    local is_verbose
+    zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
     $ZPLUG_USE_CACHE || return 2
 
@@ -115,7 +117,9 @@ __zplug::core::cache::diff()
         case $status in
             0)
                 # same
-                __zplug::io::print::f "[zplug] Loaded from cache ($ZPLUG_CACHE_DIR)\n"
+                if (( $_zplug_boolean_true[(I)$is_verbose] )); then
+                    __zplug::io::print::f "[zplug] Loaded from cache ($ZPLUG_CACHE_DIR)\n"
+                fi
                 return 0
                 ;;
             1)
