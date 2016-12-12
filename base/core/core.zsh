@@ -150,7 +150,7 @@ __zplug::core::core::prepare()
     # Release zplug variables and export
     __zplug::core::core::variable || return 1
 
-    mkdir -p "$ZPLUG_HOME"{,bin,log}
+    mkdir -p "$ZPLUG_HOME"/{,bin,log}
     mkdir -p "$ZPLUG_CACHE_DIR"
     mkdir -p "$ZPLUG_REPOS"
 
