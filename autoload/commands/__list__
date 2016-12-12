@@ -113,7 +113,6 @@ else
 fi
 
 dq='"'
-dq="$(print -nP -- "%F{000}$dq%f")"
 for copy in "${(k)copy_zplugs[@]}"
 do
     tag="nil"

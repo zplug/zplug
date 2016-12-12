@@ -84,9 +84,9 @@ __zplug::core::load::as_plugin()
 
     if (( $_zplug_boolean_true[(I)$is_verbose] )); then
         if (( $status_code == 0 )); then
-            print -nP -- " %F{148}$msg %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
+            __zplug::io::print::f " $msg ${(qqq)load_path/$HOME/~} ($repo)\n"
         else
-            print -nP -- " %F{5}Failed to load %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
+            __zplug::io::print::f --warn " Failed to load ${(qqq)load_path/$HOME/~} ($repo)\n"
         fi
     fi
     if (( $status_code == 0 )); then
@@ -134,9 +134,9 @@ __zplug::core::load::as_command()
 
     if (( $_zplug_boolean_true[(I)$is_verbose] )); then
         if (( $status_code == 0 )); then
-            print -nP -- " %F{148}Link %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
+            __zplug::io::print::f " Link ${(qqq)load_path/$HOME/~} ($repo)\n"
         else
-            print -nP -- " %F{5}Failed to link %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
+            __zplug::io::print::f --warn " Failed to link ${(qqq)load_path/$HOME/~} ($repo)\n"
         fi
     fi
     if (( $status_code == 0 )); then

@@ -115,7 +115,7 @@ __zplug::core::cache::diff()
         case $status in
             0)
                 # same
-                print -P "[zplug] %F{202}Load from cache ($ZPLUG_CACHE_DIR)%f"
+                __zplug::io::print::f "[zplug] Loaded from cache ($ZPLUG_CACHE_DIR)\n"
                 return 0
                 ;;
             1)
