@@ -72,7 +72,7 @@ do
         # Manage the status codes in a file
         # to lock the file in order to write asynchronously
         __zplug::job::handle::flock \
-            "$_zplug_config[status_status]" \
+            "$_zplug_log[status]" \
             "repo:$repo\tstatus:$status_code"
     } &
 

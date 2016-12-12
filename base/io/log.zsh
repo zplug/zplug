@@ -110,13 +110,13 @@ __zplug::io::log::capture()
 __zplug::io::log::capture_error()
 {
     __zplug::io::log::with_json "ERROR" \
-        | >>|"$_zplug_config[error_log]"
+        | >>|"$_zplug_log[error]"
 }
 
 __zplug::io::log::capture_execution()
 {
     __zplug::io::log::with_json "DEBUG" \
-        | >>|"$_zplug_config[execution_log]"
+        | >>|"$_zplug_log[execution]"
 }
 
 __zplug::io::log::info()
