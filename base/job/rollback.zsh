@@ -3,7 +3,7 @@ __zplug::job::rollback::build()
     local    repo
     local -a failed
 
-    if [[ ! -f $_zplug_config[build_rollback] ]] || [[ ! -s $_zplug_config[build_rollback] ]]; then
+    if [[ ! -f $_zplug_build_log[rollback] ]] || [[ ! -s $_zplug_build_log[rollback] ]]; then
         __zplug::io::print::f \
             --die \
             --zplug \
@@ -34,29 +34,29 @@ __zplug::job::rollback::build()
                 ${(r,20,):-"Built successfully!"} \
                 "$repo"
         fi
-    done <"$_zplug_config[build_rollback]"
+    done <"$_zplug_build_log[rollback]"
 
     # Overwrite
     if (( $#failed == 0 )); then
-        rm -f "$_zplug_config[build_rollback]"
+        rm -f "$_zplug_build_log[rollback]"
         return 0
     fi
 
-    printf "%s\n" "$failed[@]" >|"$_zplug_config[build_rollback]"
+    printf "%s\n" "$failed[@]" >|"$_zplug_build_log[rollback]"
     printf "Run '$fg_bold[default]zplug --log$reset_color' if you find cause of the failure of these build\n"
 }
 
 __zplug::job::rollback::message()
 {
-    if [[ -s $_zplug_config[build_rollback] ]]; then
-        if [[ -f $_zplug_config[build_failure] ]] || [[ -f $_zplug_config[build_timeout] ]]; then
+    if [[ -s $_zplug_build_log[rollback] ]]; then
+        if [[ -f $_zplug_build_log[failure] ]] || [[ -f $_zplug_build_log[timeout] ]]; then
             __zplug::io::print::f \
                 --zplug \
                 "\n$fg_bold[red]These hook-build were failed to run:$reset_color\n"
             # Listing the packages that have failed to build
             {
-                sed 's/^/ - /g' "$_zplug_config[build_failure]"
-                sed 's/^/ - /g' "$_zplug_config[build_timeout]"
+                sed 's/^/ - /g' "$_zplug_build_log[failure]"
+                sed 's/^/ - /g' "$_zplug_build_log[timeout]"
             } 2>/dev/null
             __zplug::io::print::f \
                 --zplug \

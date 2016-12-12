@@ -1,20 +1,26 @@
 __zplug::job::handle::flock()
 {
-    local file="${1:?}" contents="${2:?}"
+    local    file="${1:?}" contents="${2:?}"
+    local -i retry=0 max=15 cant_lock
 
     (
-    zsystem flock -t 30 "$file"
-    cant_lock=$status
-    if (( cant_lock > 0 )); then
-        {
-            printf "Can't acquire lock for ${file}."
-            if (( cant_lock == 2 )); then
-                printf " timeout."
+    until zsystem flock -t 3 "$file"
+    do
+        cant_lock=$status
+        if (( (++retry) > max )); then
+            if (( cant_lock > 0 )); then
+                {
+                    printf "Can't acquire lock for ${file}."
+                    if (( cant_lock == 2 )); then
+                        printf " timeout."
+                    fi
+                    printf "\n"
+                } 1> >(__zplug::io::log::capture)
+                return 1
             fi
-            printf "\n"
-        } 1> >(__zplug::io::log::capture)
-        return 1
-    fi
+            break
+        fi
+    done
 
     # Save the status code with LTSV
     __zplug::io::print::f "$contents\n" >>|"$file"
@@ -225,10 +231,10 @@ __zplug::job::handle::hook()
         {
             __zplug::job::hook::build "$repo"
             if (( $status > 0 )); then
-                printf "$repo\n" >>|"$_zplug_config[build_failure]"
-                printf "$repo\n" >>|"$_zplug_config[build_rollback]"
+                printf "$repo\n" >>|"$_zplug_build_log[failure]"
+                printf "$repo\n" >>|"$_zplug_build_log[rollback]"
             else
-                printf "$repo\n" >>|"$_zplug_config[build_success]"
+                printf "$repo\n" >>|"$_zplug_build_log[success]"
             fi
         } & hook_pids[$repo]=$!
         # Run the timeout process in background
@@ -241,8 +247,8 @@ __zplug::job::handle::hook()
             # and check if the process ($hook_pids[$repo]) that has should be killed
             if __zplug::job::state::running "$hook_pids[$repo]" && ! __zplug::job::state::running "$repo_pids[@]"; then
                 __zplug::job::state::kill "$hook_pids[$repo]"
-                printf "$repo\n" >>|"$_zplug_config[build_timeout]"
-                printf "$repo\n" >>|"$_zplug_config[build_rollback]"
+                printf "$repo\n" >>|"$_zplug_build_log[timeout]"
+                printf "$repo\n" >>|"$_zplug_build_log[rollback]"
             fi
         } &
     fi

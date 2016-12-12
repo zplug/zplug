@@ -13,15 +13,14 @@ __zplug::job::state::running()
 }
 
 __zplug::job::state::get() {
-    local repo="${1:?}"
-    local target="${2:-"install"}"
+    local repo="${1:?}" target="${2:?}"
 
-    if [[ ! -f $_zplug_config[${target}_status] ]]; then
+    if [[ ! -f $_zplug_log[$target] ]]; then
         # TODO
         return 1
     fi
 
-    cat "$_zplug_config[${target}_status]" \
+    cat "$_zplug_log[$target]" \
         | grep "^repo:$repo" \
         | awk '{print $2}' \
         | cut -d: -f2

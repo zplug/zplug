@@ -150,11 +150,9 @@ __zplug::core::core::prepare()
     # Release zplug variables and export
     __zplug::core::core::variable || return 1
 
+    mkdir -p "$ZPLUG_HOME"{,bin,log}
+    mkdir -p "$ZPLUG_CACHE_DIR"
     mkdir -p "$ZPLUG_REPOS"
-    mkdir -p "$ZPLUG_HOME/bin"
-
-    # Setup manage directory
-    mkdir -p "$ZPLUG_MANAGE"/{var,tmp}/log
 
     # Run compinit if zplug comp file hasn't load
     if (( ! $+functions[_zplug] )); then
@@ -173,10 +171,12 @@ __zplug::core::core::variable()
     typeset -gx    ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:fzy:zaw"}
     typeset -gx    ZPLUG_LOADFILE=${ZPLUG_LOADFILE:-$ZPLUG_HOME/packages.zsh}
     typeset -gx    ZPLUG_USE_CACHE=${ZPLUG_USE_CACHE:-true}
-    typeset -gx    ZPLUG_CACHE_DIR=${ZPLUG_CACHE_DIR:-$ZPLUG_HOME/.cache}
-    typeset -gx    ZPLUG_REPOS=${ZPLUG_REPOS:-$ZPLUG_HOME/repos}
     typeset -gx    ZPLUG_SUDO_PASSWORD
+
     typeset -gx    ZPLUG_ERROR_LOG=${ZPLUG_ERROR_LOG:-$ZPLUG_HOME/.error_log}
+
+    typeset -gx    ZPLUG_CACHE_DIR=${ZPLUG_CACHE_DIR:-$ZPLUG_HOME/cache}
+    typeset -gx    ZPLUG_REPOS=${ZPLUG_REPOS:-$ZPLUG_HOME/repos}
 
     typeset -gx    _ZPLUG_VERSION="2.3.4"
     typeset -gx    _ZPLUG_URL="https://github.com/zplug/zplug"
@@ -184,62 +184,16 @@ __zplug::core::core::variable()
     typeset -gx    _ZPLUG_PREZTO="sorin-ionescu/prezto"
     typeset -gx    _ZPLUG_AWKPATH="$ZPLUG_ROOT/misc/contrib"
 
-    typeset -gx -i _ZPLUG_STATUS_SUCCESS=0
-    typeset -gx -i _ZPLUG_STATUS_FAILURE=1
-    typeset -gx -i _ZPLUG_STATUS_TRUE=0
-    typeset -gx -i _ZPLUG_STATUS_FALSE=1
-    typeset -gx -i _ZPLUG_STATUS_REPO_NOT_FOUND=2
-    typeset -gx -i _ZPLUG_STATUS_REPO_FROZEN=3
-    typeset -gx -i _ZPLUG_STATUS_REPO_UP_TO_DATE=4
-    typeset -gx -i _ZPLUG_STATUS_REPO_LOCAL=5
-    typeset -gx -i _ZPLUG_STATUS_INVALID_ARGUMENT=6
-    typeset -gx -i _ZPLUG_STATUS_INVALID_OPTION=7
-    typeset -gx -i _ZPLUG_STATUS_ERROR_PARSE=8
-    typeset -gx -i _ZPLUG_STATUS_ZPLUG_IS_LATEST=101
-    typeset -gx -i _ZPLUG_STATUS_=255
-
-    typeset -gx     ZPLUG_MANAGE="$ZPLUG_HOME/.zplug"
-
     # user-defined exit code 64..113
     typeset -gx -A _zplug_status
     _zplug_status=(
     # compatible
-    "success"            0
-    "failure"            1
-    "true"               0
-    "false"              1
-    #"repo_not_found"     2
-    "repo_frozen"        3
-    "repo_up_to_date"    4
-    "repo_local"         5
-    "invalid_argument"   6
-    "invalid_option"     7
-    "parse_error"        8
-    "latest_version"     101
-    # installation
-    "install_success"    0
-    "install_failure"    1
-    "install_already"    2
-    "install_skip_if"    3
-    "install_unknown"    4
-    # update
-    "update_success"         0
-    "update_failure"         1
-    "update_already"         2
-    "update_skip_if"         5
-    "update_up_to_date"      4
-    "update_skip_frozen"     3
-    "update_local_repo"      7
-    "update_repo_not_found"  9
-    "update_unknown"         8
-    # status
-    "status_up_to_date"         0
-    "status_local_out_of_date"  1
-    "status_not_on_any_branch"  2 # TODO
-    "status_not_git_repo"       3 # TODO
-    "status_unknown"            4
-    "status_repo_not_found"     5 # TODO
-    "status_skip_local_repo"    6 # TODO
+    "success"     0
+    "failure"     1
+    "true"        0
+    "false"       1
+    "self_return" 101
+
     # based on bash scripting
     # - http://tldp.org/LDP/abs/html/exitcodes.html
     "error"                  1
@@ -251,34 +205,31 @@ __zplug::core::core::variable()
     "error_signal_hup"       129
     "error_signal_int"       130
     "error_signal_kill"      137
-    # TODO: add others
-    # parallel status
-    #"success"          0
-    #"failure"          1
-    "up_to_date"      10
-    "out_of_date"     11
-    "unknown"         12
-    "repo_not_found"  13
-    "skip_if"         14
-    "skip_frozen"     15
-    "skip_local"      16
-    "not_git_repo"    17
-    "not_on_branch"   18
+
+    "up_to_date"     10
+    "out_of_date"    11
+    "unknown"        12
+    "repo_not_found" 13
+    "skip_if"        14
+    "skip_frozen"    15
+    "skip_local"     16
+    "not_git_repo"   17
+    "not_on_branch"  18
     )
 
-    typeset -gx -A _zplug_config
-    _zplug_config=(
-    "install_status" "$ZPLUG_MANAGE/tmp/install_status"
-    "update_status"  "$ZPLUG_MANAGE/tmp/update_status"
-    "status_status"  "$ZPLUG_MANAGE/tmp/status_status"
-
-    "build_success"  "$ZPLUG_MANAGE/tmp/build_success"
-    "build_failure"  "$ZPLUG_MANAGE/tmp/build_failure"
-    "build_timeout"  "$ZPLUG_MANAGE/tmp/build_timeout"
-    "build_rollback" "$ZPLUG_MANAGE/tmp/build_rollback"
-
-    "error_log"      "$ZPLUG_MANAGE/var/log/error_log"
-    "execution_log"  "$ZPLUG_MANAGE/var/log/execution_log"
+    typeset -gx -A _zplug_log _zplug_build_log
+    _zplug_log=(
+    "error"     "$ZPLUG_HOME/log/error.log"
+    "execution" "$ZPLUG_HOME/log/execution.log"
+    "install"   "$ZPLUG_HOME/log/install.log"
+    "update"    "$ZPLUG_HOME/log/update.log"
+    "status"    "$ZPLUG_HOME/log/status.log"
+    )
+    _zplug_build_log=(
+    "success"   "$ZPLUG_HOME/log/success.log"
+    "failure"   "$ZPLUG_HOME/log/failure.log"
+    "timeout"   "$ZPLUG_HOME/log/timeout.log"
+    "rollback"  "$ZPLUG_HOME/log/rollback.log"
     )
 
     typeset -gx -A _zplug_cache

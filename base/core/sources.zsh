@@ -24,7 +24,7 @@ __zplug::core::sources::is_handler_defined()
     fi
 
     if ! __zplug::core::sources::is_exists "$source_name"; then
-        return $_ZPLUG_STATUS_FALSE
+        return $_zplug_status[failure]
     fi
 
     (( $+functions[$handler_name] ))
@@ -48,7 +48,7 @@ __zplug::core::sources::use_handler()
 
             if ! __zplug::core::sources::is_handler_defined "$subcommand" "$source_name"; then
                 # Callback function is undefined
-                return $_ZPLUG_STATUS_FAILURE
+                return $_zplug_status[failure]
             fi
 
     eval "$handler_name '$repo'"

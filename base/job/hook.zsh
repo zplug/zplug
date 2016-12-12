@@ -82,7 +82,7 @@ __zplug::job::hook::build_failure()
 {
     local repo="$1"
 
-    [[ -f $_zplug_config[build_failure] ]] && grep -x "$repo" "$_zplug_config[build_failure]" &>/dev/null
+    [[ -f $_zplug_build_log[failure] ]] && grep -x "$repo" "$_zplug_build_log[failure]" &>/dev/null
     return $status
 }
 
@@ -90,6 +90,6 @@ __zplug::job::hook::build_timeout()
 {
     local repo="$1"
 
-    [[ -f $_zplug_config[build_timeout] ]] && grep -x "$repo" "$_zplug_config[build_timeout]" &>/dev/null
+    [[ -f $_zplug_build_log[timeout] ]] && grep -x "$repo" "$_zplug_build_log[timeout]" &>/dev/null
     return $status
 }
