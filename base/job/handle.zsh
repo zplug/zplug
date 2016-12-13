@@ -47,59 +47,37 @@ __zplug::job::handle::state()
                     message="Updated!"
                     ;;
             esac
-            __zplug::job::message::green \
-                --message "$message" \
-                --repo "$repo"
+            __zplug::job::message::green "$repo" "$message"
             ;;
         $_zplug_status[up_to_date])
-            __zplug::job::message::terminated \
-                --message "Up-to-date" \
-                --repo "$repo"
+            __zplug::job::message::terminated "$repo" "Up-to-date"
             ;;
         $_zplug_status[skip_local])
-            __zplug::job::message::yellow \
-                --message "Skip local repo" \
-                --repo "$repo"
+            __zplug::job::message::yellow "$repo" "Skip local repo"
             ;;
         $_zplug_status[skip_frozen])
-            __zplug::job::message::yellow \
-                --message "Skip frozen repo" \
-                --repo "$repo"
+            __zplug::job::message::yellow "$repo" "Skip frozen repo"
             ;;
         $_zplug_status[skip_if])
-            __zplug::job::message::yellow \
-                --message "Skip due to if" \
-                --repo "$repo"
+            __zplug::job::message::yellow "$repo" "Skip due to if"
             ;;
         $_zplug_status[failure])
-            __zplug::job::message::red \
-                --message "Failed to $caller" \
-                --repo "$repo"
+            __zplug::job::message::red "$repo" "Failed to $caller"
             ;;
         $_zplug_status[out_of_date])
-            __zplug::job::message::red \
-                --message "Local out of date" \
-                --repo "$repo"
+            __zplug::job::message::red "$repo" "Local out of date"
             ;;
         $_zplug_status[not_on_branch])
-            __zplug::job::message::red \
-                --message "Not on any branch" \
-                --repo "$repo"
+            __zplug::job::message::red "$repo" "Not on any branch"
             ;;
         $_zplug_status[not_git_repo])
-            __zplug::job::message::red \
-                --message "Not git repo" \
-                --repo "$repo"
+            __zplug::job::message::red "$repo" "Not git repo"
             ;;
         $_zplug_status[repo_not_found])
-            __zplug::job::message::red \
-                --message "Repo not found" \
-                --repo "$repo"
+            __zplug::job::message::red "$repo" "Repo not found"
             ;;
         $_zplug_status[unknown] | *)
-            __zplug::job::message::red \
-                --message "Unknown error" \
-                --repo "$repo"
+            __zplug::job::message::red "$repo" "Unknown error"
             ;;
     esac
 }
@@ -188,16 +166,7 @@ __zplug::job::handle::running()
             ;;
     esac
 
-    # __zplug::job::message::running \
-    #     --spinner "$spinners[$spinner_idx]" \
-    #     --message "$message" \
-    #     --repo "$repo"
-
-    # TODO:
-    builtin printf " $fg[white]%s$reset_color  %s  %s\n" \
-        "$spinners[$spinner_idx]" \
-        ${(r,20,):-"$message"} \
-        "$repo"
+     __zplug::job::message::running "$repo" "$message" "$spinners[$spinner_idx]"
 }
 
 __zplug::job::handle::hook()
@@ -259,26 +228,17 @@ __zplug::job::handle::hook()
     __zplug::utils::ansi::erace_current_line
     if __zplug::job::state::running "$hook_pids[$repo]"; then
         __zplug::job::message::green \
-            --spinner "$spinners[$spinner_idx]" \
-            --message "$message" \
-            --repo "$repo" \
-            --hook "$sub_spinners[$sub_spinner_idx]"
+            "$repo" "$message" "$spinners[$spinner_idx]" "$sub_spinners[$sub_spinner_idx]"
     else
         if __zplug::job::hook::build_failure "$repo"; then
             __zplug::job::message::green \
-                --message "$message" \
-                --repo "$repo" \
-                --hook=failure
+                "$repo" "$message" "" "failure"
         elif __zplug::job::hook::build_timeout "$repo"; then
             __zplug::job::message::green \
-                --message "$message" \
-                --repo "$repo" \
-                --hook=timeout
+                "$repo" "$message" "" "timeout"
         else
             __zplug::job::message::green \
-                --message "$message" \
-                --repo "$repo" \
-                --hook=success
+                "$repo" "$message" "" "success"
         fi
         proc_states[$repo]="terminated"
     fi

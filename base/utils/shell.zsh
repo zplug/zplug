@@ -212,6 +212,9 @@ __zplug::utils::shell::eval()
 
 __zplug::utils::shell::json_escape()
 {
+    python -c 'import json,sys; print json.dumps(sys.stdin.read())'
+    return $status
+
     #| perl -pe 's/\//\\\//g' \
     if [[ -z $1 ]]; then
         cat <&0

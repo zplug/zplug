@@ -1,47 +1,6 @@
-__zplug::job::message::parser()
-{
-    __zplug::utils::shell::getopts "$argv[@]" \
-        | while read key value; \
-    do
-        case "$key" in
-            _)
-                ;;
-            spinner)
-                spinner="$value"
-                ;;
-            repo)
-                repo="$value"
-                ;;
-            message)
-                message="$value"
-                ;;
-            hook)
-                hook="$value"
-                case "$hook" in
-                    failure)
-                        color="red"
-                        ;;
-                    success)
-                        color="green"
-                        ;;
-                    timeout)
-                        color="yellow"
-                        ;;
-                    cancel)
-                        color="red"
-                        ;;
-                esac
-                ;;
-        esac
-    done
-}
-
 __zplug::job::message::running()
 {
-    local key value
-    local spinner repo message hook color="white"
-    __zplug::job::message::parser "$argv[@]"
-
+    local repo="$1" message="$2" spinner="$3"
     builtin printf " $fg[white]%s$reset_color  %s  %s\n" \
         "$spinner" \
         ${(r,20,):-"$message"} \
@@ -50,9 +9,15 @@ __zplug::job::message::running()
 
 __zplug::job::message::green()
 {
-    local key value
-    local spinner repo message hook color="white"
-    __zplug::job::message::parser "$argv[@]"
+    local repo="$1" message="$2" spinner="$3" hook="$4"
+    local color=white
+
+    case "$hook" in
+        success) color=green  ;;
+        failure) color=red    ;;
+        timeout) color=yellow ;;
+        cancel)  color=red    ;;
+    esac
 
     builtin printf " $fg_bold[white]${spinner:-\U2714}$reset_color  $fg[green]%s$reset_color  %s" \
         ${(r,20,):-"$message"} \
@@ -67,10 +32,7 @@ __zplug::job::message::green()
 
 __zplug::job::message::terminated()
 {
-    local key value
-    local spinner repo message hook color="white"
-    __zplug::job::message::parser "$argv[@]"
-
+    local repo="$1" message="$2"
     builtin printf " $fg[white]\U2714$reset_color  %s  %s\n" \
         ${(r,20,):-"$message"} \
         "$repo"
@@ -78,10 +40,7 @@ __zplug::job::message::terminated()
 
 __zplug::job::message::red()
 {
-    local key value
-    local spinner repo message hook color="white"
-    __zplug::job::message::parser "$argv[@]"
-
+    local repo="$1" message="$2"
     printf " $fg_bold[red]\U2718$reset_color  $fg[red]%s$reset_color  %s\n" \
         ${(r,20,):-"$message"} \
         "$repo"
@@ -89,10 +48,7 @@ __zplug::job::message::red()
 
 __zplug::job::message::yellow()
 {
-    local key value
-    local spinner repo message hook color="white"
-    __zplug::job::message::parser "$argv[@]"
-
+    local repo="$1" message="$2"
     printf " $fg_bold[yellow]\U279C$reset_color  $fg[yellow]%s$reset_color  %s\n" \
         ${(r,20,):-"$message"} \
         "$repo"
