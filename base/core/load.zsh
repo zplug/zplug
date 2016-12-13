@@ -53,23 +53,25 @@ __zplug::core::load::as_plugin()
     local -i status_code=0
     zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
-    __zplug::utils::shell::getopts "$argv[@]" \
-        | while read key value; \
+    while (( $#argv > 0 ))
     do
-        case "$key" in
-            _)
-                load_path="$value"
+        case "$argv[1]" in
+            --repo)
+                repo="$argv[2]"
+                shift
                 ;;
-            repo)
-                repo="$value"
+            --hook)
+                hook="$argv[2]"
+                shift
                 ;;
-            hook)
-                hook="$value"
-                ;;
-            lazy)
+            --lazy)
                 is_lazy=true
                 ;;
+            *)
+                load_path="$argv[1]"
+                ;;
         esac
+        shift
     done
 
     if $is_lazy; then
@@ -91,7 +93,7 @@ __zplug::core::load::as_plugin()
     fi
     if (( $status_code == 0 )); then
         if [[ -n $hook ]]; then
-            ${=hook}
+            eval ${=hook}
         fi
     else
         __zplug::job::handle::flock "$_zplug_cache[failed_repos]" "$repo"
@@ -107,23 +109,26 @@ __zplug::core::load::as_command()
     local -i status_code=0
     zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
-    __zplug::utils::shell::getopts "$argv[@]" \
-        | while read key value; \
+    while (( $#argv > 0 ))
     do
-        case "$key" in
-            _)
-                load_path="$value"
+        case "$argv[1]" in
+            --repo)
+                repo="$argv[2]"
+                shift
                 ;;
-            repo)
-                repo="$value"
+            --hook)
+                hook="$argv[2]"
+                shift
                 ;;
-            path)
-                _path="$value"
+            --path)
+                _path="$argv[2]"
+                shift
                 ;;
-            hook)
-                hook="$value"
+            *)
+                load_path="$argv[1]"
                 ;;
         esac
+        shift
     done
 
     {
@@ -141,7 +146,7 @@ __zplug::core::load::as_command()
     fi
     if (( $status_code == 0 )); then
         if [[ -n $hook ]]; then
-            ${=hook}
+            eval ${=hook}
         fi
     else
         __zplug::job::handle::flock "$_zplug_cache[failed_repos]" "$repo"
