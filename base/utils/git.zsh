@@ -215,7 +215,6 @@ __zplug::utils::git::merge()
         __zplug::core::core::run_interfaces \
             "install" \
             "$git[repo]" &>/dev/null
-        __zplug::job::spinner::lock # For showing message of update command
     fi
 
     if $failed; then
