@@ -107,18 +107,15 @@ __zplug::job::handle::state()
 __zplug::job::handle::wait()
 {
     local    caller="${${(M)funcstack[@]:#__*__}:gs:_:}"
-    local -i queue_max=$ZPLUG_THREADS
     local -i screen_size=$(($#repo_pids + 2))
     local -i spinner_idx=1 sub_spinner_idx=1
     local -a spinners sub_spinners
-    local -F latency=0.05
+    local -F latency=0.1
 
     spinners=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
     sub_spinners=(⠁ ⠁ ⠉ ⠙ ⠚ ⠒ ⠂ ⠂ ⠒ ⠲ ⠴ ⠤ ⠄ ⠄ ⠤ ⠠ ⠠ ⠤ ⠦ ⠖ ⠒ ⠐ ⠐ ⠒ ⠓ ⠋ ⠉ ⠈ ⠈)
 
-    if ( (( $#repos >= $queue_max )) && (( $#repo_pids >= $queue_max )) ) ||
-        ( (( $#repos >= $queue_max )) && (( $#status_codes == $#repos )) ) ||
-        ( (( $#repos < $queue_max )) && (( $#repo_pids == $#repos )) ); then
+    if __zplug::job::queue::is_overflow || __zplug::job::queue::permissible_range; then
         repeat $screen_size; do printf "\n"; done
         #
         # Multiple progress bars
@@ -191,10 +188,16 @@ __zplug::job::handle::running()
             ;;
     esac
 
-    __zplug::job::message::running \
-        --spinner "$spinners[$spinner_idx]" \
-        --message "$message" \
-        --repo "$repo"
+    # __zplug::job::message::running \
+    #     --spinner "$spinners[$spinner_idx]" \
+    #     --message "$message" \
+    #     --repo "$repo"
+
+    # TODO:
+    builtin printf " $fg[white]%s$reset_color  %s  %s\n" \
+        "$spinners[$spinner_idx]" \
+        ${(r,20,):-"$message"} \
+        "$repo"
 }
 
 __zplug::job::handle::hook()

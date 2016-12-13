@@ -4,6 +4,7 @@ __zplug::job::state::running()
 
     for job in "$argv[@]"
     do
+        [[ $job == "" ]] && return 1
         if kill -0 "$job" &>/dev/null; then
             return 0
         fi

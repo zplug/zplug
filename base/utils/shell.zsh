@@ -154,8 +154,7 @@ __zplug::utils::shell::cd()
             [[ -d $dir ]] || mkdir -p "$dir"
         fi
 
-        builtin cd "$dir" \
-            2> >(__zplug::io::log::capture) >/dev/null
+        builtin cd "$dir" &>/dev/null
         return $status
     done
 

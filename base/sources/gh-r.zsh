@@ -64,7 +64,7 @@ __zplug::sources::gh-r::update()
     if [[ -d $tags[dir] ]]; then
         # Update
         if [[ -f $tags[dir]/INDEX ]]; then
-            index="$(<"$tags[dir]/INDEX")"
+            index="$(cat "$tags[dir]/INDEX" 2>/dev/null)"
             if [[ $tags[at] == "latest" ]]; then
                 if grep -q "$index" <<<"$url"; then
                     # up-to-date

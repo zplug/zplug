@@ -1,4 +1,4 @@
-export PERIOD=10
+#export PERIOD=10
 
 __zplug::job::polling::finalizer()
 {
@@ -7,4 +7,4 @@ __zplug::job::polling::finalizer()
     # TODO
 }
 
-add-zsh-hook periodic __zplug::job::polling::finalizer
+#add-zsh-hook periodic __zplug::job::polling::finalizer
