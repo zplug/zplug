@@ -7,14 +7,14 @@ __zplug::io::log::with_json()
     # - $functrace[@]
 
     local -i i
-    local -a message
     local    date level="${1:-"ERROR"}"
 
     # Assume the stdin that should be discarded to /dev/null
-    message=( ${(@f)"$(<&0)"} )
-    if (( $#message == 0 )); then
-        return 1
-    fi
+    #message=( ${(@f)"$(<&0)"} )
+    #if (( $#message == 0 )); then
+    #    return 1
+    #fi
+    local message="$(<&0)"
 
     # https://tools.ietf.org/html/rfc3339#section-5.6
     date="$(date +%FT%T%z | sed -E 's/(.*)([0-9][0-9])([0-9][0-9])/\1\2:\3/')"
@@ -25,9 +25,11 @@ __zplug::io::log::with_json()
     printf '"shlvl": %d,' "$SHLVL"
     printf '"level": "%s",' "$level"
     printf '"dir": "%s",' "$PWD"
-    printf '"message": "'
-    printf "${(F)message[@]}" | __zplug::utils::shell::json_escape
-    printf '",'
+    if (( $+commands[python] )); then
+        printf '"message": '
+        printf "$message" | __zplug::utils::shell::json_escape
+        printf ','
+    fi
     printf '"trace": {'
     for ((i = 1; i < $#functrace; i++))
     do
