@@ -3,12 +3,6 @@ __zplug::sources::github::check()
     local    repo="$1"
     local -A tags
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     tags[dir]="$(
     __zplug::core::core::run_interfaces \
         'dir' \
@@ -23,12 +17,6 @@ __zplug::sources::github::install()
 {
     local repo="$1"
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     __zplug::utils::git::clone "$repo"
     return $status
 }
@@ -38,12 +26,6 @@ __zplug::sources::github::update()
     local    repo="$1"
     local    rev_local rev_remote rev_base
     local -A tags
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
 
     tags[dir]="$(__zplug::core::core::run_interfaces 'dir' "$repo")"
     tags[at]="$(__zplug::core::core::run_interfaces 'at' "$repo")"
@@ -59,12 +41,6 @@ __zplug::sources::github::update()
 __zplug::sources::github::get_url()
 {
     local repo="$1" url_format
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
 
     case "$ZPLUG_PROTOCOL" in
         HTTPS | https)
@@ -179,7 +155,7 @@ __zplug::sources::github::load_plugin()
     if [[ -n $tags[ignore] ]]; then
         ignore_patterns=( $(
         zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${tags[dir]}/${~tags[ignore]}" \
-            2> >(__zplug::io::log::capture)
+            2> >(__zplug::log::capture::error)
         )(N) )
         for ignore in "${ignore_patterns[@]}"
         do

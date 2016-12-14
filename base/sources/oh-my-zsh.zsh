@@ -32,12 +32,6 @@ __zplug::sources::oh-my-zsh::update()
     local    repo="$1"
     local -A tags
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     tags[dir]="$(
     __zplug::core::core::run_interfaces \
         'dir' \
@@ -158,7 +152,7 @@ __zplug::sources::oh-my-zsh::load_plugin()
     if [[ -n $tags[ignore] ]]; then
         ignore_patterns=( $(
         zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo ${tags[dir]}/${~tags[ignore]}" \
-            2> >(__zplug::io::log::capture)
+            2> >(__zplug::log::capture::error)
         )(N) )
         for ignore in "${ignore_patterns[@]}"
         do

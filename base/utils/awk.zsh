@@ -14,7 +14,7 @@ __zplug::utils::awk::path()
 
     # There is no awk execute file in this PATH
     if (( $#awk_paths == 0 )); then
-        __zplug::io::log::warn \
+        __zplug::log::write::error \
             "gawk or nawk is not found"
         return 1
     fi
@@ -42,7 +42,7 @@ __zplug::utils::awk::path()
     done
 
     if [[ $awk == "" || $variant == "mawk" ]]; then
-        __zplug::io::log::warn \
+        __zplug::log::write::error \
             "gawk or nawk is not found"
         return 1
     fi

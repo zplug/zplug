@@ -5,12 +5,6 @@ __zplug::utils::git::clone()
     local -i ret=1
     local -A tags default_tags
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     # A validation of ZPLUG_PROTOCOL
     # - HTTPS (recommended)
     # - SSH
@@ -69,7 +63,7 @@ __zplug::utils::git::clone()
             --recursive \
             ${=depth_option} \
             "$url_format" "$tags[dir]" \
-            2> >(__zplug::io::log::capture) >/dev/null
+            2> >(__zplug::log::capture::error) >/dev/null
         ret=$status
     fi
 
@@ -88,12 +82,6 @@ __zplug::utils::git::checkout()
     local    repo="$1"
     local -a do_not_checkout
     local -A tags
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
 
     tags[at]="$(__zplug::core::core::run_interfaces 'at' "$repo")"
     tags[dir]="$(__zplug::core::core::run_interfaces 'dir' "$repo")"
@@ -126,7 +114,7 @@ __zplug::utils::git::checkout()
     fi
 
     git checkout -q "$tags[at]" \
-        2> >(__zplug::io::log::capture) >/dev/null
+        2> >(__zplug::log::capture::error) >/dev/null
     if (( $status != 0 )); then
         __zplug::io::print::f \
             --die \
@@ -179,7 +167,7 @@ __zplug::utils::git::merge()
             git fetch
         fi
         git checkout -q "$git[branch]"
-    } 2> >(__zplug::io::log::capture) >/dev/null
+    } 2> >(__zplug::log::capture::error) >/dev/null
 
     git[local]="$(git rev-parse HEAD)"
     git[upstream]="$(git rev-parse "@{upstream}")"
@@ -202,7 +190,7 @@ __zplug::utils::git::merge()
                 failed=true
             fi
         } \
-            2> >(__zplug::io::log::capture) >/dev/null
+            2> >(__zplug::log::capture::error) >/dev/null
 
     elif [[ $git[upstream] == $git[base] ]]; then
         # need to push
@@ -228,12 +216,6 @@ __zplug::utils::git::status()
     local    repo="$1"
     local    key val line
     local -A tags revisions
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
 
     git ls-remote --heads --tags https://github.com/"$repo".git \
         | awk '{print $2,$1}' \
@@ -285,15 +267,9 @@ __zplug::utils::git::get_remote_name()
 {
     local branch="$1" remote_name
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     remote_name="$(git config branch.${branch}.remote)"
     if [[ -z $remote_name ]]; then
-        __zplug::io::log::warn \
+        __zplug::log::write::error \
             "no remote repository"
         return 1
     fi
@@ -331,7 +307,7 @@ __zplug::utils::git::get_remote_state()
                 origin_head="${$(git ls-remote origin HEAD)[1]}"
 
                 git rev-parse -q "$origin_head" \
-                    2> >(__zplug::io::log::capture) >/dev/null
+                    2> >(__zplug::log::capture::error) >/dev/null
                 if (( $status != 0 )); then
                     state="local out of date"
                 elif (( $ahead > 0 )); then

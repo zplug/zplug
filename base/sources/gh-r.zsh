@@ -22,12 +22,6 @@ __zplug::sources::gh-r::install()
 {
     local repo="$1" url
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     url="$(
     __zplug::utils::releases::get_url \
         "$repo"
@@ -42,12 +36,6 @@ __zplug::sources::gh-r::update()
 {
     local repo="$1" index url
     local -A tags
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
 
     tags[dir]="$(__zplug::core::core::run_interfaces 'dir' "$repo")"
     tags[use]="$(__zplug::core::core::run_interfaces 'use' "$repo")"

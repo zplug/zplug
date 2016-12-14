@@ -2,12 +2,6 @@ __zplug::core::migration::tags()
 {
     local key="$1" new_key
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     case "$key" in
         "of")
             new_key="use"

@@ -69,12 +69,6 @@ __zplug::core::core::run_interfaces()
     local    interface
     local -i ret=0
 
-    if [[ -z $arg ]]; then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     interface="__${arg:gs:_:}__"
 
     # Do autoload if not exists in $functions
@@ -219,8 +213,7 @@ __zplug::core::core::variable()
 
     typeset -gx -A _zplug_log _zplug_build_log
     _zplug_log=(
-    "error"     "$ZPLUG_HOME/log/error.log"
-    "execution" "$ZPLUG_HOME/log/execution.log"
+    "trace"     "$ZPLUG_HOME/log/trace.log"
     "install"   "$ZPLUG_HOME/log/install.log"
     "update"    "$ZPLUG_HOME/log/update.log"
     "status"    "$ZPLUG_HOME/log/status.log"

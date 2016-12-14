@@ -3,12 +3,6 @@ __zplug::job::hook::service()
     local    repo="$1" hook="$2"
     local -A tags
 
-    if (( $# < 2 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
 
@@ -30,18 +24,9 @@ __zplug::job::hook::service()
 
         # Save a result to the log file (stdout/stderr)
         eval "$tags[$hook]" \
-            2> >(__zplug::io::log::capture_error) \
-            1> >(__zplug::io::log::capture_execution)
+            2> >(__zplug::log::capture::error) \
+            1> >(__zplug::log::capture::debug)
         return $status
-
-        #if (( $status != 0 )); then
-        #    __zplug::io::print::f \
-        #        --die \
-        #        --zplug \
-        #        --error \
-        #        "'%s' failed\n" \
-        #        "$tags[$hook]"
-        #fi
         )
     fi
 }
@@ -49,12 +34,6 @@ __zplug::job::hook::service()
 __zplug::job::hook::build()
 {
     local repo="$1"
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
 
     __zplug::job::hook::service \
         "$repo" \
@@ -65,12 +44,6 @@ __zplug::job::hook::build()
 __zplug::job::hook::load()
 {
     local repo="$1"
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
 
     __zplug::job::hook::service \
         "$repo" \

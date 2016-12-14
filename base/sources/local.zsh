@@ -5,12 +5,6 @@ __zplug::sources::local::check()
     local    expanded_path
     local -a expanded_paths
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
 
@@ -27,7 +21,7 @@ __zplug::sources::local::check()
         fi
     done
 
-    __zplug::io::log::warn \
+    __zplug::log::write::error \
         "no matching file or directory in $tags[dir]"
     return 1
 }

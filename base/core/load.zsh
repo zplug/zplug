@@ -193,7 +193,7 @@ __zplug::core::load::skip_condition()
     fi
 
     if [[ -n $tags[if] ]]; then
-        if ! eval "$tags[if]" 2> >(__zplug::io::log::capture) >/dev/null; then
+        if ! eval "$tags[if]" 2> >(__zplug::log::capture::error) >/dev/null; then
             if (( $_zplug_boolean_true[(I)$is_verbose] )); then
                 __zplug::io::print::die "$tags[name]: (not loaded)\n"
             fi

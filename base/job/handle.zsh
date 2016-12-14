@@ -15,10 +15,10 @@ __zplug::job::handle::flock()
                         printf " timeout."
                     fi
                     printf "\n"
-                } 1> >(__zplug::io::log::capture)
+                } 1> >(__zplug::log::capture::error)
                 return 1
             fi
-            break
+            return 1
         fi
     done
 

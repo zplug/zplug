@@ -138,7 +138,7 @@ __zplug::io::print::f()
     } >&$fd
 
     if $is_log; then
-        __zplug::io::log::error \
-            "${(q)texts[@]}"
+        __zplug::log::write::error \
+            "$texts[@]"
     fi
 }
