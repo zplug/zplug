@@ -212,23 +212,9 @@ __zplug::utils::shell::eval()
 
 __zplug::utils::shell::json_escape()
 {
-    python -c 'import json,sys; print json.dumps(sys.stdin.read())'
-    return $status
-
-    #| perl -pe 's/\//\\\//g' \
-    if [[ -z $1 ]]; then
-        cat <&0
+    if (( $+commands[python] )); then
+        python -c 'import json,sys; print json.dumps(sys.stdin.read())'
     else
-        if [[ -f $1 ]]; then
-            cat "$1"
-        else
-            echo "$1"
-        fi
-    fi \
-        | perl -pe 's/\\/\\\\/g' \
-        | perl -pe 's/"/\\"/g' \
-        | perl -pe 's/\f/\\f/g' \
-        | perl -pe 's/\r/\\r/g' \
-        | perl -pe 's/\n/\\n/g' \
-        | perl -pe 's/\t/\\t/g'
+        echo "(Not available: python requires)"
+    fi
 }

@@ -28,7 +28,7 @@ __zplug::core::cache::update()
 
 __zplug::core::cache::commit()
 {
-    local     pkg hook pair
+    local     pkg pair hook
     local -A  hook_load
     local -A  reply_hash
     local -A  load_commands
@@ -49,13 +49,16 @@ __zplug::core::cache::commit()
     defer_3_plugins=( ${(@f)reply_hash[defer_3_plugins]} )
     unclassified_plugins=( ${(@f)reply_hash[unclassified_plugins]} )
     for pair (${(@f)reply_hash[load_commands]}) load_commands+=( ${(@s:\0:)pair} )
-    for pair (${(@f)reply_hash[hook_load]}) hook_load+=( ${(@s:\0:)pair} )
+    for pair in ${reply_hash[hook_load]}
+    do
+        hook="${${(@s:\0:)pair}[2,-1]}"
+    done
     repo="$reply_hash[repo]"
 
     # Common parameter
     param="--repo ${(qqq)repo}"
-    if [[ -n $hook_load[$repo] ]]; then
-        param+=" --hook ${(qqq)hook_load[$repo]}"
+    if [[ -n $hook ]]; then
+        param+=" --hook ${(qqq)hook}"
     fi
 
     # Record packages to cache file

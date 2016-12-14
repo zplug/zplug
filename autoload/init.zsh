@@ -7,8 +7,6 @@ fpath=(
 "$fpath[@]"
 )
 
-zmodload zsh/system    #for flock
-zmodload zsh/parameter #for jobstates
 autoload -Uz regexp-replace
 autoload -Uz add-zsh-hook
 autoload -Uz colors
@@ -18,3 +16,5 @@ autoload -Uz zplug
 colors
 
 zmodload zsh/system
+zmodload zsh/datetime
+zmodload zsh/parameter
