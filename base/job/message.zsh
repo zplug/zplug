@@ -1,4 +1,4 @@
-__zplug::job::message::running()
+__zplug::job::message::spinning()
 {
     local repo="$1" message="$2" spinner="$3"
     builtin printf " $fg[white]%s$reset_color  %s  %s\n" \
@@ -30,7 +30,7 @@ __zplug::job::message::green()
     fi
 }
 
-__zplug::job::message::terminated()
+__zplug::job::message::white()
 {
     local repo="$1" message="$2"
     builtin printf " $fg[white]\U2714$reset_color  %s  %s\n" \

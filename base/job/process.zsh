@@ -1,4 +1,4 @@
-__zplug::job::state::running()
+__zplug::job::process::is_running()
 {
     local job
 
@@ -13,7 +13,7 @@ __zplug::job::state::running()
     return 1
 }
 
-__zplug::job::state::get() {
+__zplug::job::process::get_status_code() {
     local repo="${1:?}" target="${2:?}"
 
     if [[ ! -f $_zplug_log[$target] ]]; then
@@ -28,10 +28,10 @@ __zplug::job::state::get() {
     return $status
 }
 
-__zplug::job::state::kill() {
+__zplug::job::process::kill() {
     local pid="${1:?}"
 
-    if ! __zplug::job::state::running "$pid"; then
+    if ! __zplug::job::process::is_running "$pid"; then
         # TODO
         return $status
     fi

@@ -17,7 +17,7 @@ __zplug::job::queue::is_overflow()
     return 1
 }
 
-__zplug::job::queue::permissible_range()
+__zplug::job::queue::is_within_range()
 {
     local -i queue_max=$ZPLUG_THREADS
 

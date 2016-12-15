@@ -34,7 +34,7 @@ __zplug::job::handle::state()
 
     # Save status code for process cache
     if [[ -z $status_codes[$repo] ]]; then
-        status_codes[$repo]="$(__zplug::job::state::get "$repo" "$caller")"
+        status_codes[$repo]="$(__zplug::job::process::get_status_code "$repo" "$caller")"
     fi
 
     case $status_codes[$repo] in
@@ -50,7 +50,7 @@ __zplug::job::handle::state()
             __zplug::job::message::green "$repo" "$message"
             ;;
         $_zplug_status[up_to_date])
-            __zplug::job::message::terminated "$repo" "Up-to-date"
+            __zplug::job::message::white "$repo" "Up-to-date"
             ;;
         $_zplug_status[skip_local])
             __zplug::job::message::yellow "$repo" "Skip local repo"
@@ -93,7 +93,7 @@ __zplug::job::handle::wait()
     spinners=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
     sub_spinners=(⠁ ⠁ ⠉ ⠙ ⠚ ⠒ ⠂ ⠂ ⠒ ⠲ ⠴ ⠤ ⠄ ⠄ ⠤ ⠠ ⠠ ⠤ ⠦ ⠖ ⠒ ⠐ ⠐ ⠒ ⠓ ⠋ ⠉ ⠈ ⠈)
 
-    if __zplug::job::queue::is_overflow || __zplug::job::queue::permissible_range; then
+    if __zplug::job::queue::is_overflow || __zplug::job::queue::is_within_range; then
         repeat $screen_size; do printf "\n"; done
         #
         # Multiple progress bars
@@ -101,7 +101,7 @@ __zplug::job::handle::wait()
         # Use printf command (not builtin) instead of __zplug::io::print::f function,
         # because this loop is run the processing by interval of 0.1 second
         # and there is a need to be called faster
-        while __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]" || (( ${(k)#proc_states[(R)running]} > 0 ))
+        while __zplug::job::process::is_running "$repo_pids[@]" "$hook_pids[@]" || (( ${(k)#proc_states[(R)running]} > 0 ))
         do
             sleep "$latency"
             __zplug::utils::ansi::cursor_up $screen_size
@@ -118,7 +118,7 @@ __zplug::job::handle::wait()
             # Processing pids
             for repo in "${(k)repo_pids[@]}"
             do
-                if __zplug::job::state::running "$repo_pids[$repo]"; then
+                if __zplug::job::process::is_running "$repo_pids[$repo]"; then
                     __zplug::job::handle::running "$repo" "$caller"
                     proc_states[$repo]="running"
                 else
@@ -135,7 +135,7 @@ __zplug::job::handle::wait()
                 fi
             done
 
-            if __zplug::job::state::running "$repo_pids[@]" "$hook_pids[@]"; then
+            if __zplug::job::process::is_running "$repo_pids[@]" "$hook_pids[@]"; then
                 builtin printf "\n"
                 __zplug::io::print::f \
                     --zplug \
@@ -166,7 +166,7 @@ __zplug::job::handle::running()
             ;;
     esac
 
-     __zplug::job::message::running "$repo" "$message" "$spinners[$spinner_idx]"
+     __zplug::job::message::spinning "$repo" "$message" "$spinners[$spinner_idx]"
 }
 
 __zplug::job::handle::hook()
@@ -186,7 +186,7 @@ __zplug::job::handle::hook()
 
     # Save status code for process cache
     if [[ -z $status_codes[$repo] ]]; then
-        status_codes[$repo]="$(__zplug::job::state::get "$repo" "$caller")"
+        status_codes[$repo]="$(__zplug::job::process::get_status_code "$repo" "$caller")"
     fi
 
     # If the installation or updating fails in the first place,
@@ -217,8 +217,8 @@ __zplug::job::handle::hook()
 
             # Check if $repo_pids don't run
             # and check if the process ($hook_pids[$repo]) that has should be killed
-            if __zplug::job::state::running "$hook_pids[$repo]" && ! __zplug::job::state::running "$repo_pids[@]"; then
-                __zplug::job::state::kill "$hook_pids[$repo]"
+            if __zplug::job::process::is_running "$hook_pids[$repo]" && ! __zplug::job::process::is_running "$repo_pids[@]"; then
+                __zplug::job::process::kill "$hook_pids[$repo]"
                 printf "$repo\n" >>|"$_zplug_build_log[timeout]"
                 printf "$repo\n" >>|"$_zplug_build_log[rollback]"
             fi
@@ -226,7 +226,7 @@ __zplug::job::handle::hook()
     fi
 
     __zplug::utils::ansi::erace_current_line
-    if __zplug::job::state::running "$hook_pids[$repo]"; then
+    if __zplug::job::process::is_running "$hook_pids[$repo]"; then
         __zplug::job::message::green \
             "$repo" "$message" "$spinners[$spinner_idx]" "$sub_spinners[$sub_spinner_idx]"
     else
