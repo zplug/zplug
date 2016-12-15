@@ -31,6 +31,7 @@ __zplug::log::format::with_json()
         printf "$message"
     else
         printf "$message" \
+            | __zplug::utils::ansi::remove \
             | __zplug::utils::shell::json_escape \
             | tr -d '\n'
     fi

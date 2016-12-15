@@ -32,20 +32,15 @@ do
             ;;
         less | more)
             # $PAGER
-            cat "$_zplug_log[trace]" \
-                | $arg
+            cat "$_zplug_log[trace]" | ${=arg}
             return $status
             ;;
-        oneline | "")
-            # compatible
-            ;;
         clear)
-            rm -f "$_zplug_log[trace]"
+            rm -i "$_zplug_log[trace]"
             return $status
             ;;
         count)
-            cat "$_zplug_log[trace]" \
-                | grep -c ''
+            cat "$_zplug_log[trace]" | grep -c ''
             return $status
             ;;
         latest)
@@ -53,6 +48,8 @@ do
                 | tail -n ${${2:+"$argv[2,-1]"}:-1} \
                 | ${=${${commands[jq]:+"jq ."}:-"cat -"}}
             return $status
+            ;;
+        "")
             ;;
         *)
             __zplug::io::print::f \
