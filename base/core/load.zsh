@@ -25,7 +25,7 @@ __zplug::core::load::from_cache()
         source "$_zplug_cache[command]"
 
         source "$_zplug_cache[defer_1_plugin]"
-        compinit -C -d "$ZPLUG_HOME/zcompdump"
+        compinit -d "$ZPLUG_HOME/zcompdump"
         if (( $_zplug_boolean_true[(I)$is_verbose] )); then
             __zplug::io::print::f \
                 --zplug "$fg[yellow]Run compinit$reset_color\n"
