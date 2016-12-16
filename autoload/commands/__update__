@@ -53,7 +53,7 @@ do
     # Run the updating in subprocess
     {
         if [[ -d $tags[dir] ]]; then
-            if (( $_zplug_boolean_true[(I)$tags[frozen]] )); then
+            if ! $is_force && (( $_zplug_boolean_true[(I)$tags[frozen]] )); then
                 status_code=$_zplug_status[skip_frozen]
             else
                 if __zplug::core::sources::is_handler_defined "update" "$tags[from]"; then
