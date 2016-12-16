@@ -76,7 +76,7 @@ do
             "repo:$repo\tstatus:$status_code"
     } &
 
-    repo_pids[$repo]=$!
+    repo_pids[$repo]=$(builtin printf $!) # for zsh 5.3
     proc_states[$repo]="created"
     status_codes[$repo]=""
 
