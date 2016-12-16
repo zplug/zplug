@@ -94,7 +94,7 @@ __zplug::job::handle::wait()
     sub_spinners=(⠁ ⠁ ⠉ ⠙ ⠚ ⠒ ⠂ ⠂ ⠒ ⠲ ⠴ ⠤ ⠄ ⠄ ⠤ ⠠ ⠠ ⠤ ⠦ ⠖ ⠒ ⠐ ⠐ ⠒ ⠓ ⠋ ⠉ ⠈ ⠈)
 
     if __zplug::job::queue::is_overflow || __zplug::job::queue::is_within_range; then
-        repeat $screen_size; do printf "\n"; done
+        repeat $screen_size; do builtin printf "\n"; done
         #
         # Multiple progress bars
         #
@@ -135,6 +135,7 @@ __zplug::job::handle::wait()
                 fi
             done
 
+            __zplug::utils::ansi::erace_current_line
             if __zplug::job::process::is_running "$repo_pids[@]" "$hook_pids[@]"; then
                 builtin printf "\n"
                 __zplug::io::print::f \
@@ -203,10 +204,10 @@ __zplug::job::handle::hook()
         {
             __zplug::job::hook::build "$repo"
             if (( $status > 0 )); then
-                printf "$repo\n" >>|"$_zplug_build_log[failure]"
-                printf "$repo\n" >>|"$_zplug_build_log[rollback]"
+                builtin printf "$repo\n" >>|"$_zplug_build_log[failure]"
+                builtin printf "$repo\n" >>|"$_zplug_build_log[rollback]"
             else
-                printf "$repo\n" >>|"$_zplug_build_log[success]"
+                builtin printf "$repo\n" >>|"$_zplug_build_log[success]"
             fi
         } & hook_pids[$repo]=$!
         # Run the timeout process in background
@@ -219,8 +220,8 @@ __zplug::job::handle::hook()
             # and check if the process ($hook_pids[$repo]) that has should be killed
             if __zplug::job::process::is_running "$hook_pids[$repo]" && ! __zplug::job::process::is_running "$repo_pids[@]"; then
                 __zplug::job::process::kill "$hook_pids[$repo]"
-                printf "$repo\n" >>|"$_zplug_build_log[timeout]"
-                printf "$repo\n" >>|"$_zplug_build_log[rollback]"
+                builtin printf "$repo\n" >>|"$_zplug_build_log[timeout]"
+                builtin printf "$repo\n" >>|"$_zplug_build_log[rollback]"
             fi
         } &
     fi
@@ -249,7 +250,7 @@ __zplug::job::handle::elapsed_time()
     local -F elapsed_time="$1"
 
     __zplug::utils::ansi::erace_current_line
-    printf "\n"
+    builtin printf "\n"
     __zplug::io::print::f \
         --zplug \
         "Elapsed time: %.4f sec.\n" \
