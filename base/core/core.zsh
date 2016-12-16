@@ -244,7 +244,7 @@ __zplug::core::core::variable()
             --die \
             --zplug \
             --warn \
-            "ZPLUG_SHALLOW is deprecated." \
+            "ZPLUG_SHALLOW is deprecated. " \
             "Please use 'zstyle :zplug:tag depth 1' instead.\n"
     fi
 
@@ -253,7 +253,7 @@ __zplug::core::core::variable()
             --die \
             --zplug \
             --warn \
-            "ZPLUG_CACHE_FILE is deprecated." \
+            "ZPLUG_CACHE_FILE is deprecated. " \
             "Please use 'ZPLUG_CACHE_DIR' instead.\n"
     fi
 
@@ -262,7 +262,7 @@ __zplug::core::core::variable()
             --die \
             --zplug \
             --warn \
-            "ZPLUG_CLONE_DEPTH is deprecated." \
+            "ZPLUG_CLONE_DEPTH is deprecated. " \
             "Please use 'zstyle :zplug:tag depth $ZPLUG_CLONE_DEPTH' instead.\n"
     fi
 

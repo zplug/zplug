@@ -35,11 +35,11 @@ __zplug::core::load::from_cache()
     }
 
     if [[ -s $_zplug_cache[failed_repos] ]]; then
-        # If there are repos failed to load,
+        # If there are repos that failed to load,
         # show those repos and return false
         __zplug::io::print::f \
             --zplug \
-            "These repos are failed to load:\n$fg_bold[red]"
+            "These repos have failed to load:\n$fg_bold[red]"
         sed -e 's/^/- /g' "$_zplug_cache[failed_repos]"
         __zplug::io::print::f "$reset_color"
         return 1
@@ -86,9 +86,9 @@ __zplug::core::load::as_plugin()
 
     if (( $_zplug_boolean_true[(I)$is_verbose] )); then
         if (( $status_code == 0 )); then
-            print -nP -- " %F{148}$msg %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
+            __zplug::io::print::f " $msg ${(qqq)load_path/$HOME/~} ($repo)\n"
         else
-            print -nP -- " %F{5}Failed to load %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
+            __zplug::io::print::f --warn " Failed to load ${(qqq)load_path/$HOME/~} ($repo)\n"
         fi
     fi
     if (( $status_code == 0 )); then
@@ -139,9 +139,9 @@ __zplug::core::load::as_command()
 
     if (( $_zplug_boolean_true[(I)$is_verbose] )); then
         if (( $status_code == 0 )); then
-            print -nP -- " %F{148}Link %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
+            __zplug::io::print::f " Link ${(qqq)load_path/$HOME/~} ($repo)\n"
         else
-            print -nP -- " %F{5}Failed to link %F{15}${(qqq)load_path/$HOME/~}%f ($repo)\n"
+            __zplug::io::print::f --warn " Failed to link ${(qqq)load_path/$HOME/~} ($repo)\n"
         fi
     fi
     if (( $status_code == 0 )); then
