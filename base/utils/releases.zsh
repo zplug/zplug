@@ -11,9 +11,9 @@ __zplug::utils::releases::get_latest()
 
     url="https://github.com/$repo/releases/latest"
     if (( $+commands[curl] )); then
-        cmd="curl -fsSL"
+        cmd="command curl -fsSL"
     elif (( $+commands[wget] )); then
-        cmd="wget -qO -"
+        cmd="command wget -qO -"
     fi
 
     eval "$cmd $url" \
@@ -122,9 +122,9 @@ __zplug::utils::releases::get_url()
 
     url="https://github.com/$repo/releases/$tags[at]"
     if (( $+commands[curl] )); then
-        cmd="curl -fsSL"
+        cmd="command curl -fsSL"
     elif (( $+commands[wget] )); then
-        cmd="wget -qO -"
+        cmd="command wget -qO -"
     fi
 
     candidates=(
@@ -183,9 +183,9 @@ __zplug::utils::releases::get()
     artifact="${url:t}"
 
     if (( $+commands[curl] )); then
-        cmd="curl -s -L -O"
+        cmd="command curl -s -L -O"
     elif (( $+commands[wget] )); then
-        cmd="wget"
+        cmd="command wget"
     fi
 
     (
