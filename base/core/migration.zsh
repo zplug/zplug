@@ -58,7 +58,7 @@ __zplug::core::migration::pipe()
 
 __zplug::core::migration::cache_file_dir()
 {
-    # If ZPLUG_CACHE_FIEL is defined
+    # If ZPLUG_CACHE_FILE is defined
     if [[ -f $ZPLUG_CACHE_DIR ]]; then
         rm -f "$ZPLUG_CACHE_DIR"
     fi
