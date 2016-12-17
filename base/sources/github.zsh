@@ -213,8 +213,9 @@ __zplug::sources::github::load_command()
     local    repo="${1:?}"
     local -A tags default_tags
     local    src dst basename
-    local -a sources
+    local -a sources sources2
     local -a load_fpaths load_commands
+    local -A link_hash
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
@@ -255,11 +256,27 @@ __zplug::sources::github::load_command()
     #
     # becomes an element where the key is "path/to/cmd" and the value is
     # "dst".
-    dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
-    for src in "${sources[@]}"
-    do
-        load_commands+=("$src\0$dst")
-    done
+    if [[ $tags[rename-to] == *\** ]]; then
+        sources2=( ${${(@f)"$(
+        __zplug::utils::shell::zmv \
+            "$tags[dir]/$tags[use]" \
+            "$ZPLUG_HOME/bin/$tags[rename-to]"
+        )"}:-} )
+        if (( $#sources2 > 0 )); then
+            link_hash=( "${(z)sources2[@]}" )
+            for src in "${(k)link_hash[@]}"
+            do
+                echo "$src $link_hash[$src]"
+                load_commands+=("$src\0$link_hash[$src]")
+            done
+        fi
+    else
+        dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
+        for src in "${sources[@]}"
+        do
+            load_commands+=("$src\0$dst")
+        done
+    fi
 
     # Add parent directories to fpath if any files starting in _* exist
     load_fpaths+=("$tags[dir]"/{_*,/**/_*}(N-.:h))
