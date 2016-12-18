@@ -209,6 +209,9 @@ __zplug::core::core::variable()
     "defer_3_plugin" "$ZPLUG_CACHE_DIR/defer_3_plugin.zsh"
     )
 
+    typeset -gx -a _zplug_checkout_locks
+    _zplug_checkout_locks=()
+
     if (( $+ZPLUG_SHALLOW )); then
         __zplug::io::print::f \
             --die \
