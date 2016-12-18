@@ -18,12 +18,17 @@ __zplug::core::load::from_cache()
 
     # Load the cache in order
     {
-        source "$_zplug_cache[fpath]"
+        fpath=(
+        ${(@f)"$(<$_zplug_cache[fpath])"}
+        "$fpath[@]"
+        )
+
         source "$_zplug_cache[plugin]"
         source "$_zplug_cache[lazy_plugin]"
         source "$_zplug_cache[theme]"
         source "$_zplug_cache[command]"
 
+        # Plugins with defer-level set
         source "$_zplug_cache[defer_1_plugin]"
         compinit -C -d "$ZPLUG_HOME/zcompdump"
         if (( $_zplug_boolean_true[(I)$is_verbose] )); then
