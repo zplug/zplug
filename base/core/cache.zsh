@@ -89,7 +89,7 @@ __zplug::core::cache::commit()
     done
     for pkg in "$load_fpaths[@]"
     do
-        __zplug::job::handle::flock "$_zplug_cache[fpath]" "fpath+=(${(qqq)pkg})"
+        __zplug::job::handle::flock "$_zplug_cache[fpath]" "$pkg"
     done
     for pkg in "${(k)load_commands[@]}"
     do
