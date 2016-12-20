@@ -1,7 +1,29 @@
 __zplug::job::handle::flock()
 {
-    local    file="${1:?}" contents="${2:?}"
     local -i retry=0 max=15 cant_lock
+    local    is_escape=false
+    local -a args
+
+    while (( $#argv > 0 ))
+    do
+        case "$argv[1]" in
+            --escape)
+                is_escape=true
+                ;;
+            -*|--*)
+                ;;
+            *)
+                args+=("$argv[1]")
+                ;;
+        esac
+        shift
+    done
+
+    if (( $#args < 2 )); then
+        return 1
+    fi
+
+    local file="$args[1]" contents="$args[2]"
 
     (
     until zsystem flock -t 3 "$file"
@@ -15,7 +37,7 @@ __zplug::job::handle::flock()
                         printf " timeout."
                     fi
                     printf "\n"
-                } 1> >(__zplug::log::capture::error)
+                } #1> >(__zplug::log::capture::error)
                 return 1
             fi
             return 1
@@ -23,7 +45,12 @@ __zplug::job::handle::flock()
     done
 
     # Save the status code with LTSV
-    __zplug::io::print::f "$contents\n" >>|"$file"
+    if $is_escape; then
+        __zplug::io::print::f "${(q)contents}\n"
+    else
+        __zplug::io::print::f "$contents\n"
+    fi >>|"$file"
+
     )
 }
 

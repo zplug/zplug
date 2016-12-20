@@ -6,9 +6,9 @@ __zplug::log::capture::error()
         return 0
     fi
 
-    __zplug::log::format::with_json \
-        --level "ERROR" --message "$message" "$argv[@]" \
-        >>|"$_zplug_log[trace]"
+    __zplug::job::handle::flock --escape \
+        "$_zplug_log[trace]" \
+        "$(__zplug::log::format::with_json --level "ERROR" --message "$message" "${argv[@]:-}")"
 }
 
 __zplug::log::capture::debug()
@@ -19,7 +19,7 @@ __zplug::log::capture::debug()
         return 0
     fi
 
-    __zplug::log::format::with_json \
-        --level "DEBUG" --message "$message" "$argv[@]" \
-        >>|"$_zplug_log[trace]"
+    __zplug::job::handle::flock --escape \
+        "$_zplug_log[trace]" \
+        "$(__zplug::log::format::with_json --level "DEBUG" --message "$message" "${argv[@]:-}")"
 }

@@ -1,5 +1,6 @@
 __zplug::log::write::error()
 {
-    __zplug::log::print::error "$argv[@]" \
-        >>|"$_zplug_log[trace]"
+    __zplug::job::handle::flock --escape \
+        "$_zplug_log[trace]" \
+        "$(__zplug::log::print::error "${argv[@]:-}")"
 }
