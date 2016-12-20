@@ -85,7 +85,7 @@ __zplug::core::load::as_plugin()
         status_code=$status
     else
         msg="Load"
-        source "$load_path" &>/dev/null
+        source "$load_path" 2> >(__zplug::log::capture::error)
         status_code=$status
     fi
 
