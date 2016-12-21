@@ -95,7 +95,7 @@ __zplug::core::core::prepare()
     # Add to the PATH
     path=(
     ${ZPLUG_ROOT:+"$ZPLUG_ROOT/bin"}
-    ${ZPLUG_HOME:+"$ZPLUG_HOME/bin"}
+    ${ZPLUG_BIN:+"$ZPLUG_BIN"}
     "$path[@]"
     )
 
@@ -144,7 +144,8 @@ __zplug::core::core::prepare()
     # Release zplug variables and export
     __zplug::core::core::variable || return 1
 
-    mkdir -p "$ZPLUG_HOME"/{,bin,log}
+    mkdir -p "$ZPLUG_HOME"/{,log}
+    mkdir -p "$ZPLUG_BIN"
     mkdir -p "$ZPLUG_CACHE_DIR"
     mkdir -p "$ZPLUG_REPOS"
 
@@ -171,6 +172,7 @@ __zplug::core::core::variable()
 
     typeset -gx    ZPLUG_ERROR_LOG=${ZPLUG_ERROR_LOG:-$ZPLUG_HOME/.error_log}
 
+    typeset -gx    ZPLUG_BIN=${ZPLUG_BIN:-$ZPLUG_HOME/bin}
     typeset -gx    ZPLUG_CACHE_DIR=${ZPLUG_CACHE_DIR:-$ZPLUG_HOME/cache}
     typeset -gx    ZPLUG_REPOS=${ZPLUG_REPOS:-$ZPLUG_HOME/repos}
 

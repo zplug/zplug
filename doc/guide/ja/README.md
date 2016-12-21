@@ -308,7 +308,7 @@ $ZPLUG_HOME
         `-- reponame1
 ```
 
-`as:command` を指定したとき、zplug はパッケージをコマンドとみなし、同名のシンボリックリンクを `$ZPLUG_HOME/bin` に作成する (違う名前で作成したい場合、`rename-to:` タグを使う)。`$ZPLUG_HOME/bin` は `$PATH` に追加されるので、インストールしたコマンドはいつでもどこからでも実行可能になる。
+`as:command` を指定したとき、zplug はパッケージをコマンドとみなし、同名のシンボリックリンクを `$ZPLUG_BIN` に作成する (違う名前で作成したい場合、`rename-to:` タグを使う)。`$ZPLUG_BIN` は `$PATH` に追加されるので、インストールしたコマンドはいつでもどこからでも実行可能になる。
 
 #### `ZPLUG_THREADS`
 
@@ -353,6 +353,10 @@ $ ZPLUG_USE_CACHE=false zplug load
 source ~/.zshrc_secret
 zplug "some/command", hook-build:"make && sudo make install"
 ```
+
+#### `ZPLUG_BIN`
+
+デフォルトは `$ZPLUG_HOME/bin`。コマンドのシンボリックリンクの保存先を変更することができる。例えば `~/bin` とか。
 
 ### 外部コマンド
 
