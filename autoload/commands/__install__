@@ -45,7 +45,7 @@ do
 
     # Run the installation in background
     {
-        if [[ -n $tags[if] ]]; then
+        if [[ -n $tags[if] ]] && ! eval "${tags[if]}" 2> >(__zplug::log::capture::error) >/dev/null; then
             status_code=$_zplug_status[skip_if]
         else
             if __zplug::core::sources::is_handler_defined "install" "$tags[from]"; then

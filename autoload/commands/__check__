@@ -46,7 +46,7 @@ do
     tags[if]="$(__zplug::core::core::run_interfaces 'if' "$repo")"
     if [[ -n $tags[if] ]]; then
         if ! eval "$tags[if]" 2> >(__zplug::log::capture::error) >/dev/null; then
-            $is_verbose && __zplug::io::print::die "$repo: (bypassed check)\n"
+            $is_verbose && __zplug::io::print::die "$fg[red]$repo$reset_color: (bypassed check)\n"
             continue
         fi
     fi
