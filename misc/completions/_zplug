@@ -32,6 +32,16 @@ do
     desc="${desc:+"\[User-defined\] $desc"}"
     zplug_cmds+=("${p:t:gs:zplug-:}:${desc:-"User-defined command"}")
 done
+# Completions for user-defined functions
+for p in ${(M)${(k)functions[@]}:#zplug-*}
+do
+    f=( ${^fpath[@]}/$p(N) )
+    if [[ -f $f[1] ]]; then
+        desc="$(sed -n '2p' "$f[1]" | sed -E 's/^.*[Dd]esc(ription)?: ?//')"
+    fi
+    desc="${desc:+"\[User-defined\] $desc"}"
+    zplug_cmds+=("${p:gs:zplug-:}:${desc:-"User-defined command"}")
+done
 
 _arguments \
     '(-)--help[show help message]: :->comp' \

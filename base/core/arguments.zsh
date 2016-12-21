@@ -11,6 +11,12 @@ __zplug::core::arguments::exec()
         return $status
     fi
 
+    # User-defined function
+    if (( $+functions[zplug-$arg] )); then
+        zplug-$arg
+        return $status
+    fi
+
     # Fuzzy match
     if ! __zplug::core::arguments::auto_correct "$arg"; then
         return 1
