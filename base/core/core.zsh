@@ -148,6 +148,8 @@ __zplug::core::core::prepare()
     mkdir -p "$ZPLUG_CACHE_DIR"
     mkdir -p "$ZPLUG_REPOS"
 
+    touch "$_zplug_log[trace]"
+
     # Run compinit if zplug comp file hasn't load
     if (( ! $+functions[_zplug] )); then
         compinit -C -d "$ZPLUG_HOME/zcompdump"
