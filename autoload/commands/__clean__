@@ -116,8 +116,8 @@ do
 done
 
 # Remove packages from $zplugs
-__zplug::core::core::run_interfaces 'check'
-for repo in "${reply[@]}"
+repos=( $(__zplug::core::core::run_interfaces 'check' '--debug') )
+for repo in "${repos[@]}"
 do
     unset "zplugs[$repo]"
 done
