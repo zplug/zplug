@@ -3,12 +3,6 @@ __zplug::utils::releases::get_latest()
     local repo="$1"
     local cmd url
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     url="https://github.com/$repo/releases/latest"
     if (( $+commands[curl] )); then
         cmd="command curl -fsSL"
@@ -17,7 +11,7 @@ __zplug::utils::releases::get_latest()
     fi
 
     eval "$cmd $url" \
-        2> >(__zplug::io::log::capture) \
+        2>/dev/null \
         | grep -o '/'"$repo"'/releases/download/[^"]*' \
         | awk -F/ '{print $6}' \
         | sort \
@@ -27,29 +21,24 @@ __zplug::utils::releases::get_latest()
 __zplug::utils::releases::get_state()
 {
     local state name="$1" dir="$2"
-    local url="https://github.com/$name/releases"
 
-    if (( $# < 2 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
-    if [[ "$(__zplug::utils::releases::get_latest "$name")" == "$(cat "$dir/INDEX")" ]]; then
+    if [[ "$(__zplug::utils::releases::get_latest "$name")" == "$(cat "$dir/INDEX" 2>/dev/null)" ]]; then
         state="up to date"
     else
         state="local out of date"
     fi
 
     case "$state" in
-        "local out of date")
-            state="${fg[red]}${state}${reset_color}"
-            ;;
         "up to date")
-            state="${fg[green]}${state}${reset_color}"
+            return $_zplug_status[up_to_date]
+            ;;
+        "local out of date")
+            return $_zplug_status[out_of_date]
+            ;;
+        *)
+            return $_zplug_status[unknown]
             ;;
     esac
-    __zplug::io::print::put "($state) '${url:-?}'\n"
 }
 
 __zplug::utils::releases::is_64()
@@ -69,12 +58,6 @@ __zplug::utils::releases::get_url()
     local    cmd url
     local    arch
     local -a candidates
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
 
     {
         tags[use]="$(
@@ -130,7 +113,7 @@ __zplug::utils::releases::get_url()
     candidates=(
     ${(@f)"$(
     eval "$cmd $url" \
-        2> >(__zplug::io::log::capture) \
+        2>/dev/null \
         | grep -o '/'"$repo"'/releases/download/[^"]*'
     )"}
     )
@@ -165,12 +148,6 @@ __zplug::utils::releases::get()
     local    repo dir header artifact cmd
     local -A tags
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     # make 'username/reponame' style
     repo="${url:s-https://github.com/--:F[4]h}"
 
@@ -195,13 +172,13 @@ __zplug::utils::releases::get()
 
     # Grab artifact from G-R
     eval "$cmd $url" \
-        2> >(__zplug::io::log::capture) >/dev/null
+        &>/dev/null
 
     __zplug::utils::releases::index \
         "$repo" \
         "$artifact" \
-        2> >(__zplug::io::log::capture) >/dev/null &&
-        echo "$header" >"$tags[dir]/INDEX"
+        &>/dev/null &&
+        echo "$header" >|"$tags[dir]/INDEX"
     )
 
     return $status
@@ -215,26 +192,18 @@ __zplug::utils::releases::index()
 
     case "$artifact" in
         *.zip)
-            {
                 unzip "$artifact"
                 rm -f "$artifact"
-            } 2> >(__zplug::io::log::capture) >/dev/null
             ;;
         *.tar.bz2)
-            {
                 tar jxvf "$artifact"
                 rm -f "$artifact"
-            } 2> >(__zplug::io::log::capture) >/dev/null
             ;;
         *.tar.gz|*.tgz)
-            {
                 tar xvf "$artifact"
                 rm -f "$artifact"
-            } 2> >(__zplug::io::log::capture) >/dev/null
             ;;
         *.*)
-            __zplug::io::log::error \
-                "$artifact: Unknown extension format"
             return 1
             ;;
         *)
@@ -250,16 +219,13 @@ __zplug::utils::releases::index()
     )
 
     if (( $#binaries == 0 )); then
-        __zplug::io::log::error \
-            "$cmd: Failed to grab binaries from GitHub Releases"
+        # Failed to grab binaries from GitHub Releases"
         return 1
     fi
 
-    {
-        mv -f "$binaries[1]" "$cmd"
-        chmod 755 "$cmd"
-        rm -rf *~"$cmd"(N)
-    } 2> >(__zplug::io::log::capture) >/dev/null
+    mv -f "$binaries[1]" "$cmd"
+    chmod 755 "$cmd"
+    rm -rf *~"$cmd"(N)
 
     if [[ ! -x $cmd ]]; then
         __zplug::io::print::die \

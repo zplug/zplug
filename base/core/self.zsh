@@ -5,7 +5,7 @@ __zplug::core::self::init()
     local dst="$ZPLUG_HOME/init.zsh"
 
     if [[ ! -f $src ]]; then
-        __zplug::io::log::error \
+        __zplug::log::write::error \
             "$src: no such file or directory"
         return 1
     fi
@@ -37,8 +37,8 @@ __zplug::core::self::update()
         #    ^-- Leave these codes just in case for a while
         __zplug::sources::github::update "zplug/zplug"
         ret=$status
-        if (( $ret == $_ZPLUG_STATUS_REPO_UP_TO_DATE )); then
-            ret=$_ZPLUG_STATUS_ZPLUG_IS_LATEST
+        if (( $ret == $_zplug_status[up_to_date] )); then
+            ret=$_zplug_status[self_return]
         fi
         return $ret
     fi
@@ -53,8 +53,8 @@ __zplug::core::self::update()
         "$_ZPLUG_VERSION" \
         "$em[under]$HEAD[1,8]$reset_color"
 
-    __zplug::io::log::info "zplug is up-to-date"
-    return $_ZPLUG_STATUS_ZPLUG_IS_LATEST
+    __zplug::log::write::info "zplug is up-to-date"
+    return $_zplug_status[self_return]
 }
 
 __zplug::core::self::load()

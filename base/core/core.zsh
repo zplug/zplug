@@ -69,12 +69,6 @@ __zplug::core::core::run_interfaces()
     local    interface
     local -i ret=0
 
-    if [[ -z $arg ]]; then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     interface="__${arg:gs:_:}__"
 
     # Do autoload if not exists in $functions
@@ -150,8 +144,9 @@ __zplug::core::core::prepare()
     # Release zplug variables and export
     __zplug::core::core::variable || return 1
 
+    mkdir -p "$ZPLUG_HOME"/{,bin,log}
+    mkdir -p "$ZPLUG_CACHE_DIR"
     mkdir -p "$ZPLUG_REPOS"
-    mkdir -p "$ZPLUG_HOME/bin"
 
     # Run compinit if zplug comp file hasn't load
     if (( ! $+functions[_zplug] )); then
@@ -170,10 +165,12 @@ __zplug::core::core::variable()
     typeset -gx    ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:fzy:zaw"}
     typeset -gx    ZPLUG_LOADFILE=${ZPLUG_LOADFILE:-$ZPLUG_HOME/packages.zsh}
     typeset -gx    ZPLUG_USE_CACHE=${ZPLUG_USE_CACHE:-true}
-    typeset -gx    ZPLUG_CACHE_DIR=${ZPLUG_CACHE_DIR:-$ZPLUG_HOME/.cache}
-    typeset -gx    ZPLUG_REPOS=${ZPLUG_REPOS:-$ZPLUG_HOME/repos}
     typeset -gx    ZPLUG_SUDO_PASSWORD
+
     typeset -gx    ZPLUG_ERROR_LOG=${ZPLUG_ERROR_LOG:-$ZPLUG_HOME/.error_log}
+
+    typeset -gx    ZPLUG_CACHE_DIR=${ZPLUG_CACHE_DIR:-$ZPLUG_HOME/cache}
+    typeset -gx    ZPLUG_REPOS=${ZPLUG_REPOS:-$ZPLUG_HOME/repos}
 
     typeset -gx    _ZPLUG_VERSION="2.3.4"
     typeset -gx    _ZPLUG_URL="https://github.com/zplug/zplug"
@@ -181,19 +178,52 @@ __zplug::core::core::variable()
     typeset -gx    _ZPLUG_PREZTO="sorin-ionescu/prezto"
     typeset -gx    _ZPLUG_AWKPATH="$ZPLUG_ROOT/misc/contrib"
 
-    typeset -gx -i _ZPLUG_STATUS_SUCCESS=0
-    typeset -gx -i _ZPLUG_STATUS_FAILURE=1
-    typeset -gx -i _ZPLUG_STATUS_TRUE=0
-    typeset -gx -i _ZPLUG_STATUS_FALSE=1
-    typeset -gx -i _ZPLUG_STATUS_REPO_NOT_FOUND=2
-    typeset -gx -i _ZPLUG_STATUS_REPO_FROZEN=3
-    typeset -gx -i _ZPLUG_STATUS_REPO_UP_TO_DATE=4
-    typeset -gx -i _ZPLUG_STATUS_REPO_LOCAL=5
-    typeset -gx -i _ZPLUG_STATUS_INVALID_ARGUMENT=6
-    typeset -gx -i _ZPLUG_STATUS_INVALID_OPTION=7
-    typeset -gx -i _ZPLUG_STATUS_ERROR_PARSE=8
-    typeset -gx -i _ZPLUG_STATUS_ZPLUG_IS_LATEST=101
-    typeset -gx -i _ZPLUG_STATUS_=255
+    # user-defined exit code 64..113
+    typeset -gx -A _zplug_status
+    _zplug_status=(
+    # compatible
+    "success"     0
+    "failure"     1
+    "true"        0
+    "false"       1
+    "self_return" 101
+
+    # based on bash scripting
+    # - http://tldp.org/LDP/abs/html/exitcodes.html
+    "error"                  1
+    "builtin_error"          2
+    "diff_binary"            2
+    "command_not_executable" 126
+    "command_not_found"      127
+    "exit_syntax_error"      128
+    "error_signal_hup"       129
+    "error_signal_int"       130
+    "error_signal_kill"      137
+
+    "up_to_date"     10
+    "out_of_date"    11
+    "unknown"        12
+    "repo_not_found" 13
+    "skip_if"        14
+    "skip_frozen"    15
+    "skip_local"     16
+    "not_git_repo"   17
+    "not_on_branch"  18
+    )
+
+    typeset -gx -A _zplug_log _zplug_build_log
+    _zplug_log=(
+    "trace"     "$ZPLUG_HOME/log/trace.log"
+    "install"   "$ZPLUG_HOME/log/install.log"
+    "update"    "$ZPLUG_HOME/log/update.log"
+    "status"    "$ZPLUG_HOME/log/status.log"
+    )
+    _zplug_build_log=(
+    "success"   "$ZPLUG_HOME/log/success.log"
+    "failure"   "$ZPLUG_HOME/log/failure.log"
+    "timeout"   "$ZPLUG_HOME/log/timeout.log"
+    "rollback"  "$ZPLUG_HOME/log/rollback.log"
+    )
 
     typeset -gx -A _zplug_cache
     _zplug_cache=(

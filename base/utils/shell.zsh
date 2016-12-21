@@ -63,12 +63,6 @@ __zplug::utils::shell::glob2regexp()
     local -i i=0
     local    glob="$1" char
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     printf "^"
     for ((; i < $#glob; i++))
     do
@@ -108,7 +102,7 @@ __zplug::utils::shell::sudo()
     local pw="$ZPLUG_SUDO_PASSWORD"
 
     if [[ -z $pw ]]; then
-        __zplug::io::log::error \
+        __zplug::log::write::error \
             "ZPLUG_SUDO_PASSWORD: is an invalid value\n"
         return 1
     fi
@@ -154,8 +148,7 @@ __zplug::utils::shell::cd()
             [[ -d $dir ]] || mkdir -p "$dir"
         fi
 
-        builtin cd "$dir" \
-            2> >(__zplug::io::log::capture) >/dev/null
+        builtin cd "$dir" &>/dev/null
         return $status
     done
 
@@ -195,9 +188,27 @@ __zplug::utils::shell::expand_glob()
     if (( $#matches <= 1 )); then
         matches=( $( \
             zsh -c "$_ZPLUG_CONFIG_SUBSHELL; echo $pattern" \
-            2> >(__zplug::io::log::capture) \
+            2> >(__zplug::log::capture::error) \
         ) )
     fi
 
     print -l "${matches[@]}"
+}
+
+__zplug::utils::shell::eval()
+{
+    local cmd
+
+    # Report stderr to error log
+    eval "${=cmd}" 2> >(__zplug::log::capture::error) >/dev/null
+    return $status
+}
+
+__zplug::utils::shell::json_escape()
+{
+    if (( $+commands[python] )); then
+        python -c 'import json,sys; print json.dumps(sys.stdin.read())'
+    else
+        echo "(Not available: python requires)"
+    fi
 }

@@ -37,6 +37,7 @@ _arguments \
     '(-)--help[show help message]: :->comp' \
     '(-)--version[version information]: :' \
     '(-)--log=[view zplug error log]: :->log' \
+    '(-)--rollback=[rollback paticular processings]: :->rollback' \
     '*:: :->comp' && return 0
 
 if (( CURRENT == 1 )); then
@@ -149,21 +150,23 @@ case $state in
         is_help="yes"
         _describe -t help_cmds "commands" cmds
         _describe -t help_tags "tags" tags
-        return 0
         ;;
     "log")
-        compadd -J 'log/jq' -X "%F{yellow}Completing%f %Bwith jq%b" \
-            'jq'
-        compadd -J 'log/pager' -X "%F{yellow}Completing%f %Bwith pager%b" \
-            'less' \
-            'more'
-        compadd -J 'log/edit' -X "%F{yellow}Completing%f %Bwith editor%b" \
-            'edit'
-        compadd -J 'log/log' -X "%F{yellow}Completing%f %Bwith log%b" \
-            'oneline' \
-            'clear' \
-            'count' \
-            'latest'
+        local _log_args
+        _log_args=(
+        'less' 'more' 'edit'
+        'clear' 'count' 'latest'
+        )
+        if (( $+commands[jq] )); then
+            _log_args+=("jq")
+        fi
+        _describe -t 'log' 'log' _log_args && ret=0
+        ;;
+    "rollback")
+        local _rollback_args
+        _rollback_args=( 'build' )
+        _describe -t 'rollback' 'rollback' _rollback_args && ret=0
+        ;;
 esac
 
 return ret

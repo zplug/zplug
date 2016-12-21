@@ -2,12 +2,12 @@
 # Description:
 #   Show the report of zplug errors
 
-if [[ ! -f $ZPLUG_ERROR_LOG ]] || [[ ! -s $ZPLUG_ERROR_LOG ]]; then
+if [[ ! -f $_zplug_log[trace] ]] || [[ ! -s $_zplug_log[trace] ]]; then
     __zplug::io::print::f \
         --die \
         --zplug \
         --error \
-        "ZPLUG_ERROR_LOG: is not found or empty\n"
+        "The trace log is not found or empty\n"
     return 1
 fi
 
@@ -18,41 +18,38 @@ do
     arg="$1"
     case "$arg" in
         edit)
-            ${=${2:+$2}:-${EDITOR:-vim}} "$ZPLUG_ERROR_LOG"
+            ${=${2:+$2}:-${EDITOR:-vim}} "$_zplug_log[trace]"
             return $status
             ;;
         jq)
             if (( ! $+commands[jq] )); then
                 return 1
             fi
-            cat "$ZPLUG_ERROR_LOG" \
+            cat "$_zplug_log[trace]" \
                 | sed -e 's/[[:cntrl:]]//g' \
                 | jq ${=${2:+"$argv[2,-1]"}:-"."}
             return $status
             ;;
         less | more)
             # $PAGER
-            cat "$ZPLUG_ERROR_LOG" \
-                | $arg
+            cat "$_zplug_log[trace]" | ${=arg}
             return $status
             ;;
-        oneline | "")
-            # compatible
-            ;;
         clear)
-            rm -f "$ZPLUG_ERROR_LOG"
+            rm -i "$_zplug_log[trace]"
             return $status
             ;;
         count)
-            cat "$ZPLUG_ERROR_LOG" \
-                | grep -c ''
+            cat "$_zplug_log[trace]" | grep -c ''
             return $status
             ;;
         latest)
-            cat "$ZPLUG_ERROR_LOG" \
+            cat "$_zplug_log[trace]" \
                 | tail -n ${${2:+"$argv[2,-1]"}:-1} \
                 | ${=${${commands[jq]:+"jq ."}:-"cat -"}}
             return $status
+            ;;
+        "")
             ;;
         *)
             __zplug::io::print::f \
@@ -66,4 +63,4 @@ do
     shift
 done
 
-cat "$ZPLUG_ERROR_LOG"
+cat "$_zplug_log[trace]"

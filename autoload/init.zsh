@@ -16,3 +16,5 @@ autoload -Uz zplug
 colors
 
 zmodload zsh/system
+zmodload zsh/datetime
+zmodload zsh/parameter

@@ -112,7 +112,7 @@ __zplug::core::cache::diff()
     $ZPLUG_USE_CACHE || return 2
 
     if [[ -d $ZPLUG_CACHE_DIR ]]; then
-        2> >(__zplug::io::log::capture) >/dev/null \
+        2> >(__zplug::log::capture::error) >/dev/null \
             diff -b \
             <(__zplug::core::cache::expose) \
             <(__zplug::core::interface::expose)

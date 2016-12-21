@@ -12,7 +12,7 @@ __zplug::core::load::from_cache()
     zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
     # Default
-    setopt monitor
+    #setopt monitor # TODO
 
     __zplug::core::cache::update
 
@@ -85,7 +85,7 @@ __zplug::core::load::as_plugin()
         status_code=$status
     else
         msg="Load"
-        source "$load_path" &>/dev/null
+        source "$load_path" 2> >(__zplug::log::capture::error)
         status_code=$status
     fi
 
@@ -198,7 +198,7 @@ __zplug::core::load::skip_condition()
     fi
 
     if [[ -n $tags[if] ]]; then
-        if ! eval "$tags[if]" 2> >(__zplug::io::log::capture) >/dev/null; then
+        if ! eval "$tags[if]" 2> >(__zplug::log::capture::error) >/dev/null; then
             if (( $_zplug_boolean_true[(I)$is_verbose] )); then
                 __zplug::io::print::die "$tags[name]: (not loaded)\n"
             fi

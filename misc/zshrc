@@ -137,14 +137,14 @@ zplug clear
 
 # if
 {
-    zplug "tj/n", \
-        as:command, \
-        use:"bin/n", \
-        if:'(( $+commands[node] ))'
+    # zplug "tj/n", \
+    #     as:command, \
+    #     use:"bin/n", \
+    #     if:'(( $+commands[node] ))'
 
-    tests+=(
-    '[[ -x $ZPLUG_HOME/bin/n ]]'
-    )
+    # tests+=(
+    # '[[ -x $ZPLUG_HOME/bin/n ]]'
+    # )
 }
 
 # ignore

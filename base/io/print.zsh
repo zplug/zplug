@@ -91,7 +91,7 @@ __zplug::io::print::f()
     # Change the output destination by the value of $fd
     {
         echo "${pre_formats[*]}" \
-            | __zplug::utils::shell::unansi \
+            | __zplug::utils::ansi::remove \
             | read pre_format
         repeat $#pre_format; do w="$w "; done
 
@@ -138,7 +138,7 @@ __zplug::io::print::f()
     } >&$fd
 
     if $is_log; then
-        __zplug::io::log::error \
-            "${(q)texts[@]}"
+        __zplug::log::write::error \
+            "$texts[@]"
     fi
 }

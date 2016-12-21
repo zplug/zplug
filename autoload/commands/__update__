@@ -2,33 +2,20 @@
 # Description:
 #   Update installed packages in parallel
 
-trap '__zplug::job::spinner::unlock; trap - SIGINT' SIGINT
-
-local     repo arg f_pkg c_pkg filter
-local -aU repos
+local     is_force=false
+local     repo arg filter
+local -A  repo_pids proc_states hook_build hook_finished hook_pids status_codes
 local -A  tags
-local -a  failed_packages
-local -A  checked_packages
-local -i  max=0 ret=0
-local -F  SECONDS=0 start_time finish_time
-local     is_select=false is_force=false
+local -F  SECONDS=0
+local -aU repos
+local -i  status_code=0
 
 while (( $# > 0 ))
 do
     arg="$1"
     case "$arg" in
-        --self)
-            __zplug::core::self::update \
-                ${2:+"$argv[2,-1]"}
-            ret=$status
-            # Returns true if zplug is already up-to-date
-            if (( $ret == $_ZPLUG_STATUS_ZPLUG_IS_LATEST )); then
-                ret=0
-            fi
-            return $ret
-            ;;
         --select)
-            is_select=true
+            zstyle ':zplug:core:update' 'select' yes
             ;;
         --force)
             is_force=true
@@ -51,156 +38,53 @@ do
     shift
 done
 
-# Initialize
-{
-    if $is_select; then
-        __zplug::utils::shell::search_commands \
-            "$ZPLUG_FILTER" \
-            | read filter
-        if [[ -z $filter ]]; then
-            __zplug::io::print::f \
-                --die \
-                --zplug \
-                --error \
-                --func \
-                "There is no available filter in ZPLUG_FILTER\n"
-            return 1
-        fi
-        repos=( ${(@f)"$(echo "${(Fk)zplugs[@]}" | eval "$filter")"} )
+if ! __zplug::job::parallel::init "$repos[@]"; then
+    # Since the initialization has failed, this command is terminated.
+    # The error message etc. should be done within that function.
+    return 1
+fi
+repos=( "$reply[@]" )
 
-        # Cace of type Ctrl-C
-        if (( $#repos == 0 )); then
-            return 0
-        fi
-    fi
-
-    if (( $#repos == 0 )); then
-        repos=( "${(k)zplugs[@]:gs:@::}" )
-    fi
-
-    for repo in "${repos[@]}"
-    do
-        (( $#repo > $max )) && max=$#repo
-    done
-}
-
-__zplug::job::spinner::lock
-__zplug::job::spinner::spin &
-
-for repo in "${repos[@]}"
+for repo in "$repos[@]"
 do
-    if ! __zplug::base::base::zpluged "$repo"; then
-        __zplug::job::spinner::unlock
-        __zplug::io::print::f \
-            --die \
-            --zplug \
-            --func \
-            "$repo: no such package\n"
-        return 1
-    fi
+    __zplug::core::tags::parse "$repo"
+    tags=( "${reply[@]}" )
 
-    # Run installation in subprocess
+    # Run the updating in subprocess
     {
-        # All variables are treated as local variable
-        # because of background job (subprocess)
-        local    key
-        local -i ret=1
-        local -A tags
-
-        __zplug::core::tags::parse "$repo"
-        tags=( "${reply[@]}" )
-
-        if [[ -n $tags[if] ]]; then
-            if ! eval "$tags[if]" 2> >(__zplug::io::log::capture) >/dev/null; then
-                continue
-            fi
-        fi
-
-        # Run in anonymous function for using its exit code
-        function () {
-            __zplug::job::spinner::echo "%-20s %s\n" \
-                "Updating..." \
-                "$repo"
-
-            if $is_force; then
-                # DO update anyway
-                :
+        if [[ -d $tags[dir] ]]; then
+            if ! $is_force && (( $_zplug_boolean_true[(I)$tags[frozen]] )); then
+                status_code=$_zplug_status[skip_frozen]
             else
-                # if frozen:yes is given
-                if (( $_zplug_boolean_true[(I)$tags[frozen]] )); then
-                    return $_ZPLUG_STATUS_REPO_FROZEN
+                if __zplug::core::sources::is_handler_defined "update" "$tags[from]"; then
+                    __zplug::core::sources::use_handler \
+                        "update" \
+                        "$tags[from]" \
+                        "$repo"
+                    status_code=$status
+                else
+                    status_code=$_zplug_status[skip_local]
                 fi
             fi
+        else
+            status_code=$_zplug_status[repo_not_found]
+        fi
 
-            if __zplug::core::sources::is_handler_defined "update" "$tags[from]"; then
-                __zplug::core::sources::use_handler \
-                    "update" \
-                    "$tags[from]" \
-                    "$repo"
-                return $status
-            fi
-        }
-        ret=$status
-
-        case "$ret" in
-            $_ZPLUG_STATUS_SUCCESS)
-                __zplug::job::spinner::echo "$fg[green]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
-                    "Updated!" \
-                    "$repo" \
-                    $SECONDS
-
-                # hook after updating
-                __zplug::job::hook::build "$repo"
-                ;;
-            $_ZPLUG_STATUS_FAILURE)
-                __zplug::job::spinner::echo "$fg[red]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
-                    --die \
-                    "Failed to update" \
-                    "$repo" \
-                    $SECONDS
-                ;;
-            $_ZPLUG_STATUS_REPO_NOT_FOUND)
-                sleep 1
-                __zplug::job::spinner::echo "$fg[magenta]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
-                    --die \
-                    "Repo not found" \
-                    "$repo" \
-                    $(( SECONDS - 1 ))
-                ;;
-            $_ZPLUG_STATUS_REPO_FROZEN)
-                sleep 1
-                __zplug::job::spinner::echo "$fg[blue]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
-                    --die \
-                    "Frozen repo" \
-                    "$repo" \
-                    $(( SECONDS - 1 ))
-                ;;
-            $_ZPLUG_STATUS_REPO_UP_TO_DATE)
-                __zplug::job::spinner::echo "$fg[white]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
-                    --die \
-                    "Up-to-date" \
-                    "$repo" \
-                    $SECONDS
-                ;;
-            $_ZPLUG_STATUS_REPO_LOCAL)
-                sleep 1
-                __zplug::job::spinner::echo "$fg[yellow]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
-                    --die \
-                    "Skipped due to local repo" \
-                    "$repo" \
-                    $(( SECONDS - 1 ))
-                ;;
-            $_ZPLUG_STATUS_ZPLUG_IS_LATEST)
-                # DO NOTHING
-                ret=0
-                ;;
-        esac
+        # Manage the status codes in a file
+        # to lock the file in order to write asynchronously
+        __zplug::job::handle::flock \
+            "$_zplug_log[update]" \
+            "repo:$repo\tstatus:$status_code"
     } &
-    __zplug::job::queue::enqueue "$!"
-    __zplug::job::queue::wait
+
+    repo_pids[$repo]=$(builtin printf $!) # for zsh 5.3
+    hook_build[$repo]="$tags[hook-build]"
+    hook_finished[$repo]=false
+    proc_states[$repo]="created"
+    status_codes[$repo]=""
+
+    __zplug::job::handle::wait
 done
 
-__zplug::job::queue::wait_all
-__zplug::job::spinner::unlock
-
-return $ret
+__zplug::job::handle::elapsed_time $SECONDS
+__zplug::job::parallel::deinit

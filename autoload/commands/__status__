@@ -2,13 +2,10 @@
 # Description:
 #   Check if the remote repositories are up to date
 
-local -a queue
-local -i queue_max=$ZPLUG_THREADS
-local -F SECONDS=0
-local -A tags
-local -i max=0 dif=0
-local    is_releases=false is_select=false
 local    state arg filter repo
+local -A repo_pids proc_states hook_build hook_finished hook_pids status_codes
+local -A tags
+local -F SECONDS=0
 local -a repos
 
 while (( $# > 0 ))
@@ -16,7 +13,7 @@ do
     arg="$1"
     case "$arg" in
         --select)
-            is_select=true
+            zstyle ':zplug:core:status' 'select' yes
             ;;
         -*|--*)
             __zplug::core::options::unknown "$arg"
@@ -28,7 +25,6 @@ do
             ;;
         */*)
             repos+=( "${arg:gs:@::}" )
-            return 1
             ;;
         *)
             return 1
@@ -37,117 +33,55 @@ do
     shift
 done
 
-# Initialize
-{
-    if $is_select; then
-        __zplug::utils::shell::search_commands \
-            "$ZPLUG_FILTER" \
-            | read filter
-        if [[ -z $filter ]]; then
-            __zplug::io::print::f \
-                --die \
-                --zplug \
-                --error \
-                --func \
-                "There is no available filter in ZPLUG_FILTER\n"
-            return 1
-        fi
-        repos=( ${(@f)"$(echo "${(Fk)zplugs[@]}" | eval "$filter")"} )
-
-        # Cace of type Ctrl-C
-        if (( $#repos == 0 )); then
-            return 0
-        fi
-    fi
-
-    if (( $#repos == 0 )); then
-        repos=( "${(k)zplugs[@]:gs:@::}" )
-    fi
-
-    for repo in "${repos[@]}"
-    do
-        (( $#repo > $max )) && max=$#repo
-    done
-    max=$(( $max + 1 ))
-}
-
-if (( $#repos > 0 )); then
-    __zplug::io::print::put "Fetching the status of packages ...\n"
-    __zplug::io::print::put "Packages with from:'local' are skipped.\n"
-    __zplug::io::print::put "===\n"
-
-    __zplug::job::spinner::lock
-    __zplug::job::spinner::spin &
+if ! __zplug::job::parallel::init "$repos[@]"; then
+    # Since the initialization has failed, this command is terminated.
+    # The error message etc. should be done within that function.
+    return 1
 fi
+repos=( "$reply[@]" )
 
 for repo in "${repos[@]}"
 do
-    if ! __zplug::base::base::zpluged "$repo"; then
-        __zplug::io::print::f \
-            --die \
-            --zplug \
-            --func \
-            "$repo: no such package\n"
-        return 1
-    fi
-
-    __zplug::core::tags::parse "$repo"
-    tags=( "${reply[@]}" )
-
-    case "$tags[from]" in
-        "local")
-            is_releases=false
-            continue
-            ;;
-        "gh-r")
-            is_releases=true
-            ;;
-        *)
-            is_releases=false
-            ;;
-    esac
-
-    if [[ ! -d $tags[dir] ]]; then
-        shift repos
-        continue
-    fi
-
-    # Get package status in subprocess
+    # Run in parallel
     {
-        trap '__zplug::job::spinner::unlock; trap - SIGINT' SIGINT
+        __zplug::core::tags::parse "$repo"
+        tags=( "${reply[@]}" )
 
-        # Change directory to get the remote status
-        __zplug::utils::shell::cd \
-            "$tags[dir]"
+        if [[ -d $tags[dir] ]]; then
+            # Get the package status in subprocess
+            # Change the directory to get the remote status
+            __zplug::utils::shell::cd "$tags[dir]"
 
-        if (( $status == 0 )); then
-            # Get the status of the repository (whether it is a latest)
-            if $is_releases; then
-                __zplug::utils::releases::get_state "$tags[name]" "$tags[dir]"
-            else
-                __zplug::utils::git::get_state "$tags[name]" "$tags[dir]"
-            fi \
-                | read state
-
-            # Adjust space sizes
-            dif=$(( $max - $#repo ))
-            __zplug::job::spinner::echo "%-${#repo}s %${dif}s %s\n" \
-                "$em[under]$repo$reset_color" \
-                "" \
-                "$state"
+            case "$tags[from]" in
+                "local")
+                    status_code=$_zplug_status[skip_local]
+                    ;;
+                "gh-r")
+                    __zplug::utils::releases::get_state "$tags[name]" "$tags[dir]"
+                    status_code=$status
+                    ;;
+                *)
+                    __zplug::utils::git::get_state "$tags[name]" "$tags[dir]"
+                    status_code=$status
+                    ;;
+            esac
+        else
+            status_code=$_zplug_status[repo_not_found]
         fi
+
+        # Manage the status codes in a file
+        # to lock the file in order to write asynchronously
+        __zplug::job::handle::flock \
+            "$_zplug_log[status]" \
+            "repo:$repo\tstatus:$status_code"
     } &
-    __zplug::job::queue::enqueue "$!"
-    __zplug::job::queue::wait
+
+    repo_pids[$repo]=$(builtin printf $!) # for zsh 5.3
+    proc_states[$repo]="created"
+    status_codes[$repo]=""
+
+    __zplug::job::handle::wait
 done
 
-if (( $#repos > 0 )); then
-    __zplug::job::queue::wait_all
-    __zplug::job::spinner::unlock
-
-    __zplug::io::print::put "===\n"
-    __zplug::io::print::put "Finished %.6f\n" $SECONDS
-    __zplug::io::print::put "\n"
-fi
-
-return 0
+__zplug::job::handle::elapsed_time $SECONDS
+__zplug::job::parallel::deinit
