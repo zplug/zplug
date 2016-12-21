@@ -52,13 +52,6 @@ case "$words[1]" in
             '*:: :( "${(k)zplugs[@]}" )'
         ret=0
         ;;
-    update)
-        _arguments \
-            '(- 1 *)--self[update zplug by itself]' \
-            '(--select)--select[select items with interactive filters]' \
-            '*:: :( "${(k)zplugs[@]}" )'
-        ret=0
-        ;;
     install)
         _arguments \
             '(--verbose)--verbose[show non-installed items in output]' \
@@ -71,7 +64,7 @@ case "$words[1]" in
             '(--verbose)--verbose[display loading files]'
         ret=0
         ;;
-    status|list)
+    status|list|update)
         _arguments \
             '(--select)--select[select items with interactive filters]' \
             '*:: :( "${(k)zplugs[@]}" )'
