@@ -79,6 +79,13 @@ __zplug::core::load::as_plugin()
         shift
     done
 
+    # Special measure
+    if [[ $repo == 'zplug/zplug' ]]; then
+        __zplug::log::write::info \
+            "In the case of zplug, don't load it exceptionally"
+        return 0
+    fi
+
     if [[ $load_path =~ $_ZPLUG_OHMYZSH ]]; then
         # Check if omz is loaded and set some necessary settings
         if [[ -z $ZSH ]]; then
