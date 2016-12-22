@@ -200,7 +200,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 | `install` | 並列インストール | (なし) |
 | `load`    | インストール済みプラグインを読み込み、インストール済みコマンドを `$PATH` に追加する | `--verbose` |
 | `list`    | インストール済みパッケージを表示する (端的に連想配列 `$zplugs` を表示する) | `--select` |
-| `update`  | インストール済みパッケージを並列でアップデートする | `--self`,`--select`,`--force` |
+| `update`  | インストール済みパッケージを並列でアップデートする | `--select`,`--force` |
 | `check`   | 未インストールなパッケージがないなら真を返し、そうでなければ偽を返す | `--verbose` |
 | `status`  | パッケージが最新かどうか確認する| `--select` |
 | `clean`   | 管理されていないパッケージを削除する | `--force`,`--select` |
@@ -228,15 +228,7 @@ fi
 
 #### zplug を zplug で管理する
 
-zplug 自身を管理するなら以下を実行する (zplug のインストール後に):
-
-```console
-$ zplug update --self
-```
-
-`--self` オプションを利用すると zplug が `$ZPLUG_HOME/repos` にインストールされ、zplugは自身により管理される。
-
-zplug を他のパッケージと同様に管理するには `.zshrc` に以下を書き込む。
+他のパッケージと同様に zplug を管理するには `.zshrc` に以下を書き込む。
 
 ```zsh
 zplug "zplug/zplug"

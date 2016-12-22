@@ -96,9 +96,8 @@ COMMANDS
     Fetch the newest version of the installed packages by zplug.
     `--select` does the same as what's described above.
 
-*update* [--self] [--select] [--force] ['package']::
+*update* [--select] [--force] ['package']::
     Update 'package'. If no package is given, updates all registered packages.
-    If `--self` is given, update zplug itself.
     `--select` does the same as what's described above.
 
 
