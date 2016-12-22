@@ -2,12 +2,12 @@
 .\"     Title: zplug-update
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 11/21/2016
+.\"      Date: 12/22/2016
 .\"    Manual: ZPLUG Manual
 .\"    Source: ZPLUG Manual
 .\"  Language: English
 .\"
-.TH "ZPLUG\-UPDATE" "1" "11/21/2016" "ZPLUG Manual" "ZPLUG Manual"
+.TH "ZPLUG\-UPDATE" "1" "12/22/2016" "ZPLUG Manual" "ZPLUG Manual"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -23,7 +23,7 @@ zplug-update \- Update installed packages in parallel
 .SH "SYNOPSIS"
 .sp
 .nf
-\fIzplug update\fR [\-\-force] [\-\-self|\-\-select [\fI"username/reponame"\fR]]
+\fIzplug update\fR [\-\-force] [\-\-select [\fI"username/reponame"\fR]]
 .fi
 .sp
 .nf
@@ -33,11 +33,6 @@ The word \'package\' refers to the string in the format: "username/reponame"\&.
 .sp
 Update installed packages and zplug by itself\&.
 .SH "OPTIONS"
-.PP
-\fB\-\-self\fR
-.RS 4
-Use this command to update your copy of zplug\&.
-.RE
 .PP
 \fB\-\-select\fR
 .RS 4
@@ -68,22 +63,6 @@ Up\-to\-date           b4b4r07/emoji\-cli                (2\&.68s)
 Up\-to\-date           mollifier/zload                  (2\&.69s)
 Updated!             b4b4r07/ssh\-keyreg               (2\&.84s)
 Updated!             zsh\-users/zsh\-completions        (4\&.00s)
-.fi
-.if n \{\
-.RE
-.\}
-.sp
-Update zplug:
-.sp
-.if n \{\
-.RS 4
-.\}
-.nf
-$ zplug update \-\-self
- * zplug self management
-Updating\&.\&.\&.          zplug/zplug
-Up\-to\-date           zplug/zplug      (2\&.42s)
-Everything is ready\&. (~/\&.zplug/zplug)
 .fi
 .if n \{\
 .RE
