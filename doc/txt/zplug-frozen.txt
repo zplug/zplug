@@ -19,7 +19,7 @@ SYNOPSIS
 DESCRIPTION
 -----------
 By using `frozen` tag, you cant skip update of the repo when executing `zplug command`.
-In paticular, this tag is particularly useful if you can describe the package
+In particular, this tag is particularly useful if you can describe the package
 with `from:gh-r` tag since it's so heavy.
 
 .zplug frozen tag

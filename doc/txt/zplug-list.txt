@@ -24,7 +24,7 @@ List installed packages.
 OPTIONS
 -------
 *--select*::
-    List package information choosen from the list.
+    List package information chosen from the list.
 
 
 EXAMPLES
@@ -47,7 +47,7 @@ mrowa44/emojify  =>  as:command
 
 ------------
 
-List a paticular package:
+List a particular package:
 
 ------------
 $ zplug list 'mrowa44/emojify'

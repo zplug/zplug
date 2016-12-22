@@ -37,7 +37,7 @@ $ zplug install
 
 ------------
 
-Install a paticular package verbosely:
+Install a particular package verbosely:
 
 ------------
 $ zplug install 'some_author/some_repo'

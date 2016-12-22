@@ -42,7 +42,7 @@ fi
 
 for repo in "${repos[@]}"
 do
-    # Evaluate IF tag and bypass existance check if conditions are not met
+    # Evaluate IF tag and bypass existence check if conditions are not met
     tags[if]="$(__zplug::core::core::run_interfaces 'if' "$repo")"
     if [[ -n $tags[if] ]]; then
         if ! eval "$tags[if]" 2> >(__zplug::log::capture::error) >/dev/null; then

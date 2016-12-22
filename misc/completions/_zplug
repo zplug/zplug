@@ -47,7 +47,7 @@ _arguments \
     '(-)--help[show help message]: :->comp' \
     '(-)--version[version information]: :' \
     '(-)--log=[view zplug error log]: :->log' \
-    '(-)--rollback=[rollback paticular processings]: :->rollback' \
+    '(-)--rollback=[rollback particular processings]: :->rollback' \
     '(-)--self-manage[self management of zplug]: :' \
     '*:: :->comp' && return 0
 
