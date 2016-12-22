@@ -199,7 +199,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 | `install` | Install packages in parallel | (None) |
 | `load`    | Source installed plugins and add installed commands to `$PATH` | `--verbose` |
 | `list`    | List installed packages (more specifically, view the associative array `$zplugs`) | `--select` |
-| `update`  | Update installed packages in parallel | `--self`,`--select`,`--force` |
+| `update`  | Update installed packages in parallel | `--select`,`--force` |
 | `check`   | Return true if all packages are installed, false otherwise | `--verbose` |
 | `status`  | Check if the remote repositories are up to date | `--select` |
 | `clean`   | Remove repositories which are no longer managed | `--force`,`--select` |
@@ -227,15 +227,7 @@ fi
 
 #### Let zplug manage zplug
 
-If you want to manage zplug by itself, run this command (after installing zplug, of course):
-
-```console
-$ zplug update --self
-```
-
-By using the `--self` option, zplug will be cloned to `$ZPLUG_HOME/repos` so that zplug can be managed by itself.
-
-To manage zplug in the same way as any other packages, put the following in your `.zshrc`.
+To manage zplug itself like other packages, write the following in your `.zshrc`.
 
 ```zsh
 zplug "zplug/zplug"

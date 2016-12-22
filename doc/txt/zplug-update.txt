@@ -11,7 +11,7 @@ zplug-update - Update installed packages in parallel
 SYNOPSIS
 --------
 [verse]
-'zplug update' [--force] [--self|--select ['"username/reponame"']]
+'zplug update' [--force] [--select ['"username/reponame"']]
 
     The word 'package' refers to the string in the format: "username/reponame".
 
@@ -23,9 +23,6 @@ Update installed packages and zplug by itself.
 
 OPTIONS
 -------
-*--self*::
-    Use this command to update your copy of zplug.
-
 *--select*::
     Choose the package that is not updated from the list and update it.
 
@@ -51,17 +48,6 @@ Up-to-date           b4b4r07/emoji-cli                (2.68s)
 Up-to-date           mollifier/zload                  (2.69s)
 Updated!             b4b4r07/ssh-keyreg               (2.84s)
 Updated!             zsh-users/zsh-completions        (4.00s)
-
-------------
-
-Update zplug:
-
-------------
-$ zplug update --self
- * zplug self management
-Updating...          zplug/zplug
-Up-to-date           zplug/zplug      (2.42s)
-Everything is ready. (~/.zplug/zplug)
 
 ------------
 
