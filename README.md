@@ -161,7 +161,7 @@ zplug "b4b4r07/emoji-cli", \
 # Set the priority when loading
 # e.g., zsh-syntax-highlighting must be loaded
 # after executing compinit command and sourcing other plugins
-# (If the defer tag is given 2 or above, run after cominit command)
+# (If the defer tag is given 2 or above, run after compinit command)
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
 # Can manage local plugins
@@ -346,7 +346,7 @@ Defaults to `$ZPLUG_HOME/repos`. You can change where the repositories are clone
 
 #### `ZPLUG_SUDO_PASSWORD`
 
-Defaults to `''`. You can set sudo password for zplug's `hook-build` tag. However, this variable shoud not be managed in dotfiles and so on.
+Defaults to `''`. You can set sudo password for zplug's `hook-build` tag. However, this variable should not be managed in dotfiles and so on.
 
 ```zsh
 # your .zshrc
