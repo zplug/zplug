@@ -48,6 +48,7 @@ _arguments \
     '(-)--version[version information]: :' \
     '(-)--log=[view zplug error log]: :->log' \
     '(-)--rollback=[rollback paticular processings]: :->rollback' \
+    '(-)--self-manage[self management of zplug]: :' \
     '*:: :->comp' && return 0
 
 if (( CURRENT == 1 )); then
