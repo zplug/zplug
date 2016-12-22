@@ -84,12 +84,6 @@ __zplug::sources::oh-my-zsh::load_plugin()
     load_themes=()
     themes_ext=("zsh-theme" "theme-zsh")
 
-    # Check if omz is loaded and set some necessary settings
-    if [[ -z $ZSH ]]; then
-        export ZSH="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
-        export ZSH_CACHE_DIR="$ZSH/cache/"
-    fi
-
     case "$repo" in
         plugins/*)
             unclassified_plugins=(

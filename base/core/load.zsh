@@ -79,6 +79,14 @@ __zplug::core::load::as_plugin()
         shift
     done
 
+    if [[ $load_path =~ $_ZPLUG_OHMYZSH ]]; then
+        # Check if omz is loaded and set some necessary settings
+        if [[ -z $ZSH ]]; then
+            export ZSH="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
+            export ZSH_CACHE_DIR="$ZSH/cache/"
+        fi
+    fi
+
     if $is_lazy; then
         msg="Lazy"
         autoload -Uz "${load_path:t}"
