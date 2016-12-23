@@ -3,6 +3,7 @@ __zplug::core::load::prepare()
     unsetopt monitor
     zstyle ':zplug:core:load' 'verbose' no
 
+    __zplug::core::cache::set_file "loaded_repos"
     __zplug::core::cache::set_file "failed_repos"
 }
 
@@ -111,10 +112,12 @@ __zplug::core::load::as_plugin()
             __zplug::io::print::f --warn " Failed to load ${(qqq)load_path/$HOME/~} ($repo)\n"
         fi
     fi
+
     if (( $status_code == 0 )); then
         if [[ -n $hook ]]; then
             eval ${=hook}
         fi
+        __zplug::job::handle::flock "$_zplug_cache[loaded_repos]" "$repo"
     else
         __zplug::job::handle::flock "$_zplug_cache[failed_repos]" "$repo"
     fi
@@ -164,10 +167,12 @@ __zplug::core::load::as_command()
             __zplug::io::print::f --warn " Failed to link ${(qqq)load_path/$HOME/~} ($repo)\n"
         fi
     fi
+
     if (( $status_code == 0 )); then
         if [[ -n $hook ]]; then
             eval ${=hook}
         fi
+        __zplug::job::handle::flock "$_zplug_cache[loaded_repos]" "$repo"
     else
         __zplug::job::handle::flock "$_zplug_cache[failed_repos]" "$repo"
     fi

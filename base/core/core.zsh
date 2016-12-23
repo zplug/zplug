@@ -230,6 +230,7 @@ __zplug::core::core::variable()
     typeset -gx -A _zplug_cache
     _zplug_cache=(
     "interface"      "$ZPLUG_CACHE_DIR/interface"
+    "loaded_repos"   "$ZPLUG_CACHE_DIR/loaded_repos"
     "failed_repos"   "$ZPLUG_CACHE_DIR/failed_repos"
     "plugin"         "$ZPLUG_CACHE_DIR/plugin.zsh"
     "lazy_plugin"    "$ZPLUG_CACHE_DIR/lazy_plugin.zsh"
