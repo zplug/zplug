@@ -38,3 +38,16 @@ __zplug::io::file::generate()
 #
 TEMPLATE
 }
+
+__zplug::io::file::rm_touch()
+{
+    local filepath="${argv:?}"
+
+    # For shorten the calculation time
+    if [[ ! -d ${filepath:h} ]]; then
+        mkdir -p "${filepath:h}"
+    fi
+
+    rm -f "$filepath"
+    touch "$filepath"
+}

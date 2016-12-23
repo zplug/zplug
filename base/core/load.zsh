@@ -3,8 +3,8 @@ __zplug::core::load::prepare()
     unsetopt monitor
     zstyle ':zplug:core:load' 'verbose' no
 
-    __zplug::core::cache::set_file "loaded_repos"
-    __zplug::core::cache::set_file "failed_repos"
+    __zplug::io::file::rm_touch "$_zplug_load_log[success]"
+    __zplug::io::file::rm_touch "$_zplug_load_log[failure]"
 }
 
 __zplug::core::load::from_cache()
@@ -40,13 +40,13 @@ __zplug::core::load::from_cache()
         source "$_zplug_cache[defer_3_plugin]"
     }
 
-    if [[ -s $_zplug_cache[failed_repos] ]]; then
+    if [[ -s $_zplug_load_log[failure] ]]; then
         # If there are repos that failed to load,
         # show those repos and return false
         __zplug::io::print::f \
             --zplug \
             "These repos have failed to load:\n$fg_bold[red]"
-        sed -e 's/^/- /g' "$_zplug_cache[failed_repos]"
+        sed -e 's/^/- /g' "$_zplug_load_log[failure]"
         __zplug::io::print::f "$reset_color"
         return 1
     fi
@@ -117,9 +117,9 @@ __zplug::core::load::as_plugin()
         if [[ -n $hook ]]; then
             eval ${=hook}
         fi
-        __zplug::job::handle::flock "$_zplug_cache[loaded_repos]" "$repo"
+        __zplug::job::handle::flock "$_zplug_load_log[success]" "$repo"
     else
-        __zplug::job::handle::flock "$_zplug_cache[failed_repos]" "$repo"
+        __zplug::job::handle::flock "$_zplug_load_log[failure]" "$repo"
     fi
 
     return $status_code
@@ -172,9 +172,9 @@ __zplug::core::load::as_command()
         if [[ -n $hook ]]; then
             eval ${=hook}
         fi
-        __zplug::job::handle::flock "$_zplug_cache[loaded_repos]" "$repo"
+        __zplug::job::handle::flock "$_zplug_load_log[success]" "$repo"
     else
-        __zplug::job::handle::flock "$_zplug_cache[failed_repos]" "$repo"
+        __zplug::job::handle::flock "$_zplug_load_log[failure]" "$repo"
     fi
 
     return $status_code

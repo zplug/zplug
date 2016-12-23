@@ -213,7 +213,7 @@ __zplug::core::core::variable()
     "not_on_branch"  18
     )
 
-    typeset -gx -A _zplug_log _zplug_build_log
+    typeset -gx -A _zplug_log _zplug_build_log _zplug_load_log
     _zplug_log=(
     "trace"     "$ZPLUG_HOME/log/trace.log"
     "install"   "$ZPLUG_HOME/log/install.log"
@@ -221,17 +221,19 @@ __zplug::core::core::variable()
     "status"    "$ZPLUG_HOME/log/status.log"
     )
     _zplug_build_log=(
-    "success"   "$ZPLUG_HOME/log/success.log"
-    "failure"   "$ZPLUG_HOME/log/failure.log"
-    "timeout"   "$ZPLUG_HOME/log/timeout.log"
-    "rollback"  "$ZPLUG_HOME/log/rollback.log"
+    "success"   "$ZPLUG_HOME/log/build_success.log"
+    "failure"   "$ZPLUG_HOME/log/build_failure.log"
+    "timeout"   "$ZPLUG_HOME/log/build_timeout.log"
+    "rollback"  "$ZPLUG_HOME/log/build_rollback.log"
+    )
+    _zplug_load_log=(
+    "success"   "$ZPLUG_HOME/log/load_success.log"
+    "failure"   "$ZPLUG_HOME/log/load_failure.log"
     )
 
     typeset -gx -A _zplug_cache
     _zplug_cache=(
     "interface"      "$ZPLUG_CACHE_DIR/interface"
-    "loaded_repos"   "$ZPLUG_CACHE_DIR/loaded_repos"
-    "failed_repos"   "$ZPLUG_CACHE_DIR/failed_repos"
     "plugin"         "$ZPLUG_CACHE_DIR/plugin.zsh"
     "lazy_plugin"    "$ZPLUG_CACHE_DIR/lazy_plugin.zsh"
     "theme"          "$ZPLUG_CACHE_DIR/theme.zsh"
