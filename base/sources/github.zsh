@@ -93,10 +93,12 @@ __zplug::sources::github::load_plugin()
     if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
         if [[ $tags[use] == $default_tags[use] ]]; then
             unclassified_plugins+=( \
+                "$tags[dir]"/${repo:t}(N.) \
                 "$tags[dir]/autoload"/*(N.) \
                 "$tags[dir]/functions"/*(N.) \
                 )
             load_fpaths+=( \
+                "$tags[dir]"(N/) \
                 "$tags[dir]/autoload"(N/) \
                 "$tags[dir]/functions"(N/) \
                 )
