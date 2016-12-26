@@ -1,19 +1,20 @@
 __zplug::core::arguments::exec()
 {
     local arg="$1"
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
+    shift
 
     reply=()
     __zplug::core::commands::user_defined
 
     # User-defined command
     if [[ -n ${(M)reply[@]:#$arg} ]]; then
-        eval "$commands[zplug-$arg]"
+        eval "$commands[zplug-$arg]" "$argv[@]"
+        return $status
+    fi
+
+    # User-defined function
+    if (( $+functions[zplug-$arg] )); then
+        zplug-$arg "$argv[@]"
         return $status
     fi
 
@@ -22,7 +23,7 @@ __zplug::core::arguments::exec()
         return 1
     fi
 
-    zplug "$reply[1]" ${2:+"$argv[2,-1]"}
+    zplug "$reply[1]" "$argv[@]"
 }
 
 __zplug::core::arguments::auto_correct()
@@ -30,12 +31,6 @@ __zplug::core::arguments::auto_correct()
     local    arg="$1"
     local -i ret=0
     local -a cmds reply_cmds
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
 
     reply_cmds=()
 

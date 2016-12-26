@@ -11,12 +11,6 @@ __zplug::core::tags::parse()
     local -A tags
     local -a pairs
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     __zplug::core::tags::get
     tags=( "${reply[@]}" )
 

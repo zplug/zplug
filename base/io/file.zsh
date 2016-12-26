@@ -1,11 +1,13 @@
 __zplug::io::file::load()
 {
-    if [[ -f $ZPLUG_LOADFILE ]]; then
-        source "$ZPLUG_LOADFILE"
-        return $status
-    else
-        return 1
+    if [[ ! -f $ZPLUG_LOADFILE ]]; then
+        __zplug::log::write::info \
+            "ZPLUG_LOADFILE is not found"
+        return 0
     fi
+
+    source "$ZPLUG_LOADFILE"
+    return $status
 }
 
 __zplug::io::file::generate()
@@ -35,4 +37,17 @@ __zplug::io::file::generate()
 # zplug "rupa/z",          as:plugin, use:"*.sh"
 #
 TEMPLATE
+}
+
+__zplug::io::file::rm_touch()
+{
+    local filepath="${argv:?}"
+
+    # For shorten the calculation time
+    if [[ ! -d ${filepath:h} ]]; then
+        mkdir -p "${filepath:h}"
+    fi
+
+    rm -f "$filepath"
+    touch "$filepath"
 }

@@ -200,7 +200,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 | `install` | 並列インストール | (なし) |
 | `load`    | インストール済みプラグインを読み込み、インストール済みコマンドを `$PATH` に追加する | `--verbose` |
 | `list`    | インストール済みパッケージを表示する (端的に連想配列 `$zplugs` を表示する) | `--select` |
-| `update`  | インストール済みパッケージを並列でアップデートする | `--self`,`--select`,`--force` |
+| `update`  | インストール済みパッケージを並列でアップデートする | `--select`,`--force` |
 | `check`   | 未インストールなパッケージがないなら真を返し、そうでなければ偽を返す | `--verbose` |
 | `status`  | パッケージが最新かどうか確認する| `--select` |
 | `clean`   | 管理されていないパッケージを削除する | `--force`,`--select` |
@@ -228,15 +228,7 @@ fi
 
 #### zplug を zplug で管理する
 
-zplug 自身を管理するなら以下を実行する (zplug のインストール後に):
-
-```console
-$ zplug update --self
-```
-
-`--self` オプションを利用すると zplug が `$ZPLUG_HOME/repos` にインストールされ、zplugは自身により管理される。
-
-zplug を他のパッケージと同様に管理するには `.zshrc` に以下を書き込む。
+他のパッケージと同様に zplug を管理するには `.zshrc` に以下を書き込む。
 
 ```zsh
 zplug "zplug/zplug"
@@ -394,7 +386,7 @@ antigen や zgen、もしくは zplug v1 から移行するための情報は [z
 [license]: http://b4b4r07.mit-license.org
 [travis-link]: https://travis-ci.org/zplug/zplug
 [travis-badge]: https://img.shields.io/travis/zplug/zplug.svg?style=flat-square
-[latest-badge]: https://img.shields.io/badge/latest-v2.3.4-ca7f85.svg?style=flat-square
+[latest-badge]: https://img.shields.io/badge/latest-v2.4.0-ca7f85.svg?style=flat-square
 [latest-link]: https://github.com/zplug/zplug/releases/latest
 [stable-badge]: https://img.shields.io/badge/stable-v2.3.2-e9a326.svg?style=flat-square
 [stable-link]: https://github.com/zplug/zplug/releases/tag/2.3.2

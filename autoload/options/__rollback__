@@ -1,0 +1,31 @@
+#!/usr/bin/env zsh
+# Description:
+#   Rollback a failed package
+
+local arg
+
+while (( $# > 0 ))
+do
+    arg="$1"
+    case "$arg" in
+        build)
+            __zplug::job::rollback::build
+            return $status
+            ;;
+        "")
+            __zplug::io::print::f \
+                --die \
+                --zplug \
+                "argument is required\n"
+            return $_zplug_status[failure]
+            ;;
+        *)
+            __zplug::io::print::f \
+                --die \
+                --zplug \
+                "$arg: no such rollback operation\n"
+            return $_zplug_status[failure]
+            ;;
+    esac
+    shift
+done

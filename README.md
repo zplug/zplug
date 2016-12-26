@@ -161,7 +161,7 @@ zplug "b4b4r07/emoji-cli", \
 # Set the priority when loading
 # e.g., zsh-syntax-highlighting must be loaded
 # after executing compinit command and sourcing other plugins
-# (If the defer tag is given 2 or above, run after cominit command)
+# (If the defer tag is given 2 or above, run after compinit command)
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
 # Can manage local plugins
@@ -199,7 +199,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 | `install` | Install packages in parallel | (None) |
 | `load`    | Source installed plugins and add installed commands to `$PATH` | `--verbose` |
 | `list`    | List installed packages (more specifically, view the associative array `$zplugs`) | `--select` |
-| `update`  | Update installed packages in parallel | `--self`,`--select`,`--force` |
+| `update`  | Update installed packages in parallel | `--select`,`--force` |
 | `check`   | Return true if all packages are installed, false otherwise | `--verbose` |
 | `status`  | Check if the remote repositories are up to date | `--select` |
 | `clean`   | Remove repositories which are no longer managed | `--force`,`--select` |
@@ -227,15 +227,7 @@ fi
 
 #### Let zplug manage zplug
 
-If you want to manage zplug by itself, run this command (after installing zplug, of course):
-
-```console
-$ zplug update --self
-```
-
-By using the `--self` option, zplug will be cloned to `$ZPLUG_HOME/repos` so that zplug can be managed by itself.
-
-To manage zplug in the same way as any other packages, put the following in your `.zshrc`.
+To manage zplug itself like other packages, write the following in your `.zshrc`.
 
 ```zsh
 zplug "zplug/zplug"
@@ -354,7 +346,7 @@ Defaults to `$ZPLUG_HOME/repos`. You can change where the repositories are clone
 
 #### `ZPLUG_SUDO_PASSWORD`
 
-Defaults to `''`. You can set sudo password for zplug's `hook-build` tag. However, this variable shoud not be managed in dotfiles and so on.
+Defaults to `''`. You can set sudo password for zplug's `hook-build` tag. However, this variable should not be managed in dotfiles and so on.
 
 ```zsh
 # your .zshrc
@@ -397,7 +389,7 @@ page](https://github.com/zplug/zplug/wiki/Migration).
 [license]: http://b4b4r07.mit-license.org
 [travis-link]: https://travis-ci.org/zplug/zplug
 [travis-badge]: https://img.shields.io/travis/zplug/zplug.svg?style=flat-square
-[latest-badge]: https://img.shields.io/badge/latest-v2.3.4-ca7f85.svg?style=flat-square
+[latest-badge]: https://img.shields.io/badge/latest-v2.4.0-ca7f85.svg?style=flat-square
 [latest-link]: https://github.com/zplug/zplug/releases/latest
 [stable-badge]: https://img.shields.io/badge/stable-v2.3.2-e9a326.svg?style=flat-square
 [stable-link]: https://github.com/zplug/zplug/releases/tag/2.3.2

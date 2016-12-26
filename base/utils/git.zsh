@@ -5,12 +5,6 @@ __zplug::utils::git::clone()
     local -i ret=1
     local -A tags default_tags
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     # A validation of ZPLUG_PROTOCOL
     # - HTTPS (recommended)
     # - SSH
@@ -25,6 +19,10 @@ __zplug::utils::git::clone()
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
+
+    if [[ -d $tags[dir] ]]; then
+        return $_zplug_status[already]
+    fi
 
     if [[ $tags[depth] == 0 ]]; then
         depth_option=""
@@ -65,34 +63,32 @@ __zplug::utils::git::clone()
             --recursive \
             ${=depth_option} \
             "$url_format" "$tags[dir]" \
-            2> >(__zplug::io::log::capture) >/dev/null
+            2> >(__zplug::log::capture::error) >/dev/null
+        ret=$status
     fi
 
     # The revison (hash/branch/tag) lock
     __zplug::utils::git::checkout "$repo"
 
-    return $status
+    if (( $ret == 0 )); then
+        return $_zplug_status[success]
+    else
+        return $_zplug_status[failure]
+    fi
 }
 
 __zplug::utils::git::checkout()
 {
     local    repo="$1"
     local -a do_not_checkout
-    local -a ignore_checkout_errors
     local -A tags
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
+    local    lock_name
 
     tags[at]="$(__zplug::core::core::run_interfaces 'at' "$repo")"
     tags[dir]="$(__zplug::core::core::run_interfaces 'dir' "$repo")"
     tags[from]="$(__zplug::core::core::run_interfaces 'from' "$repo")"
 
     do_not_checkout=( "gh-r" )
-    ignore_checkout_errors=( "prezto" "oh-my-zsh" )
     if [[ ! -d $tags[dir]/.git ]]; then
         do_not_checkout+=( "local" )
     fi
@@ -118,9 +114,21 @@ __zplug::utils::git::checkout()
         return 0
     fi
 
+    lock_name="${(j:/:)${(s:/:)tags[dir]}[-2, -1]}"
+    if (( $_zplug_checkout_locks[(I)${lock_name}] )); then
+        return 0
+    fi
+
+    # Acquire lock
+    _zplug_checkout_locks+=( $lock_name )
+
     git checkout -q "$tags[at]" \
-        2> >(__zplug::io::log::capture) >/dev/null
-    if (( $status != 0 )) && ! (( $ignore_checkout_errors[(I)$tags[from]] )); then
+        2> >(__zplug::log::capture::error) >/dev/null
+
+    # Release lock
+    _zplug_checkout_locks=( ${_zplug_checkout_lock:#${lock_name}} )
+
+    if (( $status != 0 )); then
         __zplug::io::print::f \
             --die \
             --zplug \
@@ -163,7 +171,7 @@ __zplug::utils::git::merge()
     done
 
     __zplug::utils::shell::cd \
-        "$git[dir]" || return $_ZPLUG_STATUS_REPO_NOT_FOUND
+        "$git[dir]" || return $_zplug_status[repo_not_found]
 
     {
         if [[ -e $git[dir]/.git/shallow ]]; then
@@ -172,7 +180,7 @@ __zplug::utils::git::merge()
             git fetch
         fi
         git checkout -q "$git[branch]"
-    } 2> >(__zplug::io::log::capture) >/dev/null
+    } 2> >(__zplug::log::capture::error) >/dev/null
 
     git[local]="$(git rev-parse HEAD)"
     git[upstream]="$(git rev-parse "@{upstream}")"
@@ -180,7 +188,7 @@ __zplug::utils::git::merge()
 
     if [[ $git[local] == $git[upstream] ]]; then
         # up-to-date
-        return $_ZPLUG_STATUS_REPO_UP_TO_DATE
+        return $_zplug_status[up_to_date]
 
     elif [[ $git[local] == $git[base] ]]; then
         # need to pull
@@ -195,7 +203,7 @@ __zplug::utils::git::merge()
                 failed=true
             fi
         } \
-            2> >(__zplug::io::log::capture) >/dev/null
+            2> >(__zplug::log::capture::error) >/dev/null
 
     elif [[ $git[upstream] == $git[base] ]]; then
         # need to push
@@ -208,13 +216,12 @@ __zplug::utils::git::merge()
         __zplug::core::core::run_interfaces \
             "install" \
             "$git[repo]" &>/dev/null
-        __zplug::job::spinner::lock # For showing message of update command
     fi
 
     if $failed; then
-        return $_ZPLUG_STATUS_FAILURE
+        return $_zplug_status[failure]
     fi
-    return $_ZPLUG_STATUS_SUCCESS
+    return $_zplug_status[success]
 }
 
 __zplug::utils::git::status()
@@ -222,12 +229,6 @@ __zplug::utils::git::status()
     local    repo="$1"
     local    key val line
     local -A tags revisions
-
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
 
     git ls-remote --heads --tags https://github.com/"$repo".git \
         | awk '{print $2,$1}' \
@@ -279,15 +280,9 @@ __zplug::utils::git::get_remote_name()
 {
     local branch="$1" remote_name
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     remote_name="$(git config branch.${branch}.remote)"
     if [[ -z $remote_name ]]; then
-        __zplug::io::log::warn \
+        __zplug::log::write::error \
             "no remote repository"
         return 1
     fi
@@ -325,7 +320,7 @@ __zplug::utils::git::get_remote_state()
                 origin_head="${$(git ls-remote origin HEAD)[1]}"
 
                 git rev-parse -q "$origin_head" \
-                    2> >(__zplug::io::log::capture) >/dev/null
+                    2> >(__zplug::log::capture::error) >/dev/null
                 if (( $status != 0 )); then
                     state="local out of date"
                 elif (( $ahead > 0 )); then
@@ -352,11 +347,10 @@ __zplug::utils::git::get_state()
     local    state url
 
     if [[ ! -e .git ]]; then
-        state="not git repo"
+        return $_zplug_status[not_git_repo]
     fi
 
     state="not on any branch"
-
     branch="$(__zplug::utils::git::get_head_branch_name)"
     if (( $status == 0 )); then
         res=( ${(@f)"$(__zplug::utils::git::get_remote_state "$branch")"} )
@@ -365,15 +359,19 @@ __zplug::utils::git::get_state()
     fi
 
     case "$state" in
-        "local out of date")
-            state="${fg[red]}${state}${reset_color}"
-            ;;
         "up to date")
-            state="${fg[green]}${state}${reset_color}"
+            return $_zplug_status[up_to_date]
+            ;;
+        "local out of date")
+            return $_zplug_status[out_of_date]
+            ;;
+        "not on any branch")
+            return $_zplug_status[not_on_branch]
+            ;;
+        *)
+            return $_zplug_status[unknown]
             ;;
     esac
-
-    printf "($state) '${url:-?}'\n"
 }
 
 __zplug::utils::git::remote_url()

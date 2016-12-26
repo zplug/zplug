@@ -2,12 +2,6 @@ __zplug::core::migration::tags()
 {
     local key="$1" new_key
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     case "$key" in
         "of")
             new_key="use"
@@ -58,7 +52,7 @@ __zplug::core::migration::pipe()
 
 __zplug::core::migration::cache_file_dir()
 {
-    # If ZPLUG_CACHE_FIEL is defined
+    # If ZPLUG_CACHE_FILE is defined
     if [[ -f $ZPLUG_CACHE_DIR ]]; then
         rm -f "$ZPLUG_CACHE_DIR"
     fi

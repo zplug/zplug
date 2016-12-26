@@ -1,0 +1,13 @@
+#!/usr/bin/env zsh
+
+if ! __zplug::base::base::zpluged "zplug/zplug"; then
+    __zplug::io::print::f \
+        --die \
+        --zplug \
+        "zplug/zplug: not managed yet\n"
+    return 1
+fi
+
+ln -snf \
+    "$ZPLUG_HOME/repos/zplug/zplug/init.zsh" \
+    "$ZPLUG_HOME/init.zsh"

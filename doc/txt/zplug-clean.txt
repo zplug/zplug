@@ -49,7 +49,7 @@ $ zplug clean --force
 
 ------------
 
-Remove a paticular package:
+Remove a particular package:
 
 ------------
 $ zplug clean 'some_author/some_repo'

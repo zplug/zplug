@@ -3,12 +3,11 @@
 #   Install packages in parallel
 
 local     repo arg
-local -aU repos
+local -A  repo_pids proc_states hook_build hook_finished hook_pids status_codes
 local -A  tags
-local -a  failed_packages
-local -A  from
-local -i  max=0
-local -F  SECONDS=0 start_time finish_time
+local -F  SECONDS=0
+local -aU repos
+local -i  status_code=0
 
 while (( $# > 0 ))
 do
@@ -32,157 +31,47 @@ do
     shift
 done
 
-# Initialize
-{
-    start_time=$SECONDS
+if ! __zplug::job::parallel::init "$repos[@]"; then
+    # Since the initialization has failed, this command is terminated.
+    # The error message etc. should be done within that function.
+    return 1
+fi
+repos=( "$reply[@]" )
 
-    if (( $#repos == 0 )); then
-        # Case of existing not installed repos
-        __zplug::core::core::run_interfaces \
-            "check" \
-            2> >(__zplug::io::log::capture) >/dev/null \
-            || repos=( "${reply[@]}" )
-    fi
-
-    for repo in "${repos[@]}"
-    do
-        (( $#repo > $max )) && max=$#repo
-    done
-}
-
-# Main loop
-for repo in "${repos[@]}"
+for repo in "$repos[@]"
 do
-    if ! __zplug::base::base::zpluged "$repo"; then
-        __zplug::io::print::f \
-            --die \
-            --zplug \
-            --func \
-            "$repo: no such package\n"
-        return 1
-    fi
-
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
 
-    # Skip items
+    # Run the installation in background
     {
-        if [[ -n $tags[if] ]]; then
-            if ! eval "$tags[if]" 2> >(__zplug::io::log::capture) >/dev/null; then
-                __zplug::io::print::put \
-                    "$fg[red]-$reset_color $fg[green]$repo$reset_color: skipped due to if tag\n"
-                continue
+        if [[ -n $tags[if] ]] && ! eval "${tags[if]}" 2> >(__zplug::log::capture::error) >/dev/null; then
+            status_code=$_zplug_status[skip_if]
+        else
+            if __zplug::core::sources::is_handler_defined "install" "$tags[from]"; then
+                __zplug::core::sources::use_handler \
+                    "install" \
+                    "$tags[from]" \
+                    "$repo"
+                status_code=$status
             fi
         fi
 
-        if __zplug::core::sources::is_handler_defined "check" "$tags[from]"; then
-            if __zplug::core::sources::use_handler "check" "$tags[from]" "$repo"; then
-                __zplug::io::print::put \
-                    "$fg[red]-$reset_color $fg[green]$repo$reset_color: already installed\n"
-                continue
-            fi
-        fi
-    }
-
-    # For checking whether the repo's installation is success
-    from+=( "$repo" "$tags[from]" )
-
-    __zplug::job::spinner::lock
-    __zplug::job::spinner::spin &
-    # Run installation in subprocess
-    {
-        trap '__zplug::job::spinner::unlock; trap - SIGINT' SIGINT
-
-        # All variables are treated as local variable
-        # because of background job (subprocess)
-        local -i ret=2
-        local -F SECONDS=0
-
-        __zplug::job::spinner::echo \
-            "%-20s %s\n" \
-            "Installing..." \
-            "$repo"
-
-        if __zplug::core::sources::is_handler_defined "install" "$tags[from]"; then
-            __zplug::core::sources::use_handler \
-                "install" \
-                "$tags[from]" \
-                "$repo"
-            ret=$status
-        fi
-
-        case "$ret" in
-            0)
-                __zplug::job::spinner::echo \
-                    "$fg[green]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
-                    "Installed!" \
-                    "$repo" \
-                    $SECONDS
-
-                # hook after installing
-                __zplug::job::hook::build "$repo"
-                ;;
-            1)
-                __zplug::job::spinner::echo \
-                    --die \
-                    "$fg[red]%-20s$reset_color %-${max}s\t(%.2fs)\n" \
-                    "Failed to install" \
-                    "$repo" \
-                    $SECONDS
-                ;;
-            2)
-                __zplug::job::spinner::echo \
-                    --die \
-                    --zplug \
-                    --error \
-                    "sources/$tags[from] is not defined\n"
-                ;;
-        esac
+        # Manage the status codes in a file
+        # to lock the file in order to write asynchronously
+        __zplug::job::handle::flock \
+            "$_zplug_log[install]" \
+            "repo:$repo\tstatus:$status_code"
     } &
-    __zplug::job::queue::enqueue "$!"
-    __zplug::job::queue::wait
+
+    repo_pids[$repo]=$(builtin printf $!) # for zsh 5.3
+    hook_build[$repo]="$tags[hook-build]"
+    hook_finished[$repo]=false
+    proc_states[$repo]="created"
+    status_codes[$repo]=""
+
+    __zplug::job::handle::wait
 done
 
-# Finalize
-{
-    __zplug::job::queue::wait_all
-    __zplug::job::spinner::unlock
-
-    failed_packages=()
-    for repo in "${(k)from[@]}"
-    do
-        if __zplug::core::sources::is_handler_defined "check" "$from[$repo]"; then
-            if ! __zplug::core::sources::use_handler "check" "$from[$repo]" "$repo"; then
-                failed_packages+=( "$repo" )
-            fi
-        fi
-    done
-
-    # Skip footer prints
-    if (( $#from == 0 )); then
-        __zplug::io::print::f \
-            --zplug \
-            "No package to install\n"
-        return 0
-    else
-        if (( $#failed_packages == 0 )); then
-            __zplug::io::print::put \
-                "$fg_bold[default] ==> Installation finished successfully!$reset_color\n"
-        else
-            __zplug::io::print::die \
-                "$fg_bold[red] ==> Installation failed for following packages:$reset_color\n"
-            __zplug::io::print::die \
-                "- $fg_bold[red]%s$reset_color\n" "${failed_packages[@]}"
-        fi
-
-        finish_time=$SECONDS
-
-        __zplug::io::print::f \
-            --zplug \
-            --func \
-            "total wall-time %f sec.\n" \
-            $(( $finish_time - $start_time ))
-
-        return $#failed_packages
-    fi
-}
+__zplug::job::handle::elapsed_time $SECONDS
+__zplug::job::parallel::deinit

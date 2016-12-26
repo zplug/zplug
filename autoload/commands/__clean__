@@ -75,7 +75,7 @@ else
         __zplug::core::core::run_interfaces \
             'dir' \
             "$repo" \
-            2> >(__zplug::io::log::capture)
+            2> >(__zplug::log::capture::error)
         )"
         if [[ -d $tags[dir] ]]; then
             case "$tags[from]" in
@@ -110,14 +110,14 @@ do
         # Clear cache
         __zplug::core::core::run_interfaces 'clear'
     fi \
-        2> >(__zplug::io::log::capture) >/dev/null
+        2> >(__zplug::log::capture::error) >/dev/null
 
     __zplug::io::print::put "\n"
 done
 
 # Remove packages from $zplugs
-__zplug::core::core::run_interfaces 'check'
-for repo in "${reply[@]}"
+repos=( $(__zplug::core::core::run_interfaces 'check' '--debug') )
+for repo in "${repos[@]}"
 do
     unset "zplugs[$repo]"
 done

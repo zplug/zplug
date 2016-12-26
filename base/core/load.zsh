@@ -3,7 +3,8 @@ __zplug::core::load::prepare()
     unsetopt monitor
     zstyle ':zplug:core:load' 'verbose' no
 
-    __zplug::core::cache::set_file "failed_repos"
+    __zplug::io::file::rm_touch "$_zplug_load_log[success]"
+    __zplug::io::file::rm_touch "$_zplug_load_log[failure]"
 }
 
 __zplug::core::load::from_cache()
@@ -12,20 +13,25 @@ __zplug::core::load::from_cache()
     zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
     # Default
-    setopt monitor
+    #setopt monitor # TODO
 
     __zplug::core::cache::update
 
     # Load the cache in order
     {
-        source "$_zplug_cache[fpath]"
+        fpath=(
+        ${(@f)"$(<$_zplug_cache[fpath])"}
+        "$fpath[@]"
+        )
+
         source "$_zplug_cache[plugin]"
         source "$_zplug_cache[lazy_plugin]"
         source "$_zplug_cache[theme]"
         source "$_zplug_cache[command]"
 
+        # Plugins with defer-level set
         source "$_zplug_cache[defer_1_plugin]"
-        compinit -C -d "$ZPLUG_HOME/zcompdump"
+        compinit -d "$ZPLUG_HOME/zcompdump"
         if (( $_zplug_boolean_true[(I)$is_verbose] )); then
             __zplug::io::print::f \
                 --zplug "$fg[yellow]Run compinit$reset_color\n"
@@ -34,13 +40,13 @@ __zplug::core::load::from_cache()
         source "$_zplug_cache[defer_3_plugin]"
     }
 
-    if [[ -s $_zplug_cache[failed_repos] ]]; then
+    if [[ -s $_zplug_load_log[failure] ]]; then
         # If there are repos that failed to load,
         # show those repos and return false
         __zplug::io::print::f \
             --zplug \
             "These repos have failed to load:\n$fg_bold[red]"
-        sed -e 's/^/- /g' "$_zplug_cache[failed_repos]"
+        sed -e 's/^/- /g' "$_zplug_load_log[failure]"
         __zplug::io::print::f "$reset_color"
         return 1
     fi
@@ -74,13 +80,28 @@ __zplug::core::load::as_plugin()
         shift
     done
 
+    # Special measure
+    if [[ $repo == 'zplug/zplug' ]]; then
+        __zplug::log::write::info \
+            "In the case of zplug, don't load it exceptionally"
+        return 0
+    fi
+
+    if [[ $load_path =~ $_ZPLUG_OHMYZSH ]]; then
+        # Check if omz is loaded and set some necessary settings
+        if [[ -z $ZSH ]]; then
+            export ZSH="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
+            export ZSH_CACHE_DIR="$ZSH/cache/"
+        fi
+    fi
+
     if $is_lazy; then
         msg="Lazy"
         autoload -Uz "${load_path:t}"
         status_code=$status
     else
         msg="Load"
-        source "$load_path" &>/dev/null
+        source "$load_path" 2> >(__zplug::log::capture::error)
         status_code=$status
     fi
 
@@ -91,12 +112,14 @@ __zplug::core::load::as_plugin()
             __zplug::io::print::f --warn " Failed to load ${(qqq)load_path/$HOME/~} ($repo)\n"
         fi
     fi
+
     if (( $status_code == 0 )); then
         if [[ -n $hook ]]; then
             eval ${=hook}
         fi
+        __zplug::job::handle::flock "$_zplug_load_log[success]" "$repo"
     else
-        __zplug::job::handle::flock "$_zplug_cache[failed_repos]" "$repo"
+        __zplug::job::handle::flock "$_zplug_load_log[failure]" "$repo"
     fi
 
     return $status_code
@@ -144,12 +167,14 @@ __zplug::core::load::as_command()
             __zplug::io::print::f --warn " Failed to link ${(qqq)load_path/$HOME/~} ($repo)\n"
         fi
     fi
+
     if (( $status_code == 0 )); then
         if [[ -n $hook ]]; then
             eval ${=hook}
         fi
+        __zplug::job::handle::flock "$_zplug_load_log[success]" "$repo"
     else
-        __zplug::job::handle::flock "$_zplug_cache[failed_repos]" "$repo"
+        __zplug::job::handle::flock "$_zplug_load_log[failure]" "$repo"
     fi
 
     return $status_code
@@ -193,7 +218,7 @@ __zplug::core::load::skip_condition()
     fi
 
     if [[ -n $tags[if] ]]; then
-        if ! eval "$tags[if]" 2> >(__zplug::io::log::capture) >/dev/null; then
+        if ! eval "$tags[if]" 2> >(__zplug::log::capture::error) >/dev/null; then
             if (( $_zplug_boolean_true[(I)$is_verbose] )); then
                 __zplug::io::print::die "$tags[name]: (not loaded)\n"
             fi

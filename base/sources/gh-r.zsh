@@ -22,12 +22,6 @@ __zplug::sources::gh-r::install()
 {
     local repo="$1" url
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     url="$(
     __zplug::utils::releases::get_url \
         "$repo"
@@ -43,18 +37,12 @@ __zplug::sources::gh-r::update()
     local repo="$1" index url
     local -A tags
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     tags[dir]="$(__zplug::core::core::run_interfaces 'dir' "$repo")"
     tags[use]="$(__zplug::core::core::run_interfaces 'use' "$repo")"
     tags[at]="$(__zplug::core::core::run_interfaces 'at' "$repo")"
 
     __zplug::utils::shell::cd \
-        "$tags[dir]" || return $_ZPLUG_STATUS_REPO_NOT_FOUND
+        "$tags[dir]" || return $_zplug_status[repo_not_found]
 
     url="$(
     __zplug::utils::releases::get_url \
@@ -64,25 +52,25 @@ __zplug::sources::gh-r::update()
     if [[ -d $tags[dir] ]]; then
         # Update
         if [[ -f $tags[dir]/INDEX ]]; then
-            index="$(<"$tags[dir]/INDEX")"
+            index="$(cat "$tags[dir]/INDEX" 2>/dev/null)"
             if [[ $tags[at] == "latest" ]]; then
                 if grep -q "$index" <<<"$url"; then
                     # up-to-date
-                    return $_ZPLUG_STATUS_REPO_UP_TO_DATE
+                    return $_zplug_status[up_to_date]
                 else
                     __zplug::sources::gh-r::install "$repo"
                     return $status
                 fi
             else
                 # up-to-date
-                return $_ZPLUG_STATUS_REPO_UP_TO_DATE
+                return $_zplug_status[up_to_date]
             fi
         fi
     else
-        return $_ZPLUG_STATUS_REPO_NOT_FOUND
+        return $_zplug_status[repo_not_found]
     fi
 
-    return $_ZPLUG_STATUS_SUCCESS
+    return $_zplug_status[success]
 }
 
 __zplug::sources::gh-r::load_command()

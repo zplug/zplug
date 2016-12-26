@@ -17,12 +17,6 @@ __zplug::sources::gist::get_url()
 {
     local repo="$1" url_format
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     case "$ZPLUG_PROTOCOL" in
         HTTPS | https)
             # https://git::@github.com/%s.git

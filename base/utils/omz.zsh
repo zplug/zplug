@@ -7,12 +7,6 @@ __zplug::utils::omz::depends()
     local -A    omz_libs
     local       omz_repo="$ZPLUG_REPOS/$_ZPLUG_OHMYZSH"
 
-    if (( $# < 1 )); then
-        __zplug::io::log::error \
-            "too few arguments"
-        return 1
-    fi
-
     for lib_f in "$omz_repo"/lib/*.zsh(.)
     do
         # List funcname in the library file
@@ -39,7 +33,7 @@ __zplug::utils::omz::depends()
             [[ -f $t ]] || continue
             sed '/^ *#/d' "$t" \
                 | egrep "(^|\s|['\"(\`])$lib_f($|\s|[\\\\'\")\`])" \
-                2> >(__zplug::io::log::capture) >/dev/null &&
+                2> >(__zplug::log::capture::error) >/dev/null &&
                 depends+=( "$omz_libs[$lib_f]" )
         done
     done

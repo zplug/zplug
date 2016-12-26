@@ -32,11 +32,23 @@ do
     desc="${desc:+"\[User-defined\] $desc"}"
     zplug_cmds+=("${p:t:gs:zplug-:}:${desc:-"User-defined command"}")
 done
+# Completions for user-defined functions
+for p in ${(M)${(k)functions[@]}:#zplug-*}
+do
+    f=( ${^fpath[@]}/$p(N) )
+    if [[ -f $f[1] ]]; then
+        desc="$(sed -n '2p' "$f[1]" | sed -E 's/^.*[Dd]esc(ription)?: ?//')"
+    fi
+    desc="${desc:+"\[User-defined\] $desc"}"
+    zplug_cmds+=("${p:gs:zplug-:}:${desc:-"User-defined command"}")
+done
 
 _arguments \
     '(-)--help[show help message]: :->comp' \
     '(-)--version[version information]: :' \
     '(-)--log=[view zplug error log]: :->log' \
+    '(-)--rollback=[rollback particular processings]: :->rollback' \
+    '(-)--self-manage[self management of zplug]: :' \
     '*:: :->comp' && return 0
 
 if (( CURRENT == 1 )); then
@@ -48,13 +60,6 @@ case "$words[1]" in
     check)
         _arguments \
             '(--verbose)--verbose[show non-installed items in output]' \
-            '*:: :( "${(k)zplugs[@]}" )'
-        ret=0
-        ;;
-    update)
-        _arguments \
-            '(- 1 *)--self[update zplug by itself]' \
-            '(--select)--select[select items with interactive filters]' \
             '*:: :( "${(k)zplugs[@]}" )'
         ret=0
         ;;
@@ -70,7 +75,7 @@ case "$words[1]" in
             '(--verbose)--verbose[display loading files]'
         ret=0
         ;;
-    status|list)
+    status|list|update)
         _arguments \
             '(--select)--select[select items with interactive filters]' \
             '*:: :( "${(k)zplugs[@]}" )'
@@ -149,21 +154,23 @@ case $state in
         is_help="yes"
         _describe -t help_cmds "commands" cmds
         _describe -t help_tags "tags" tags
-        return 0
         ;;
     "log")
-        compadd -J 'log/jq' -X "%F{yellow}Completing%f %Bwith jq%b" \
-            'jq'
-        compadd -J 'log/pager' -X "%F{yellow}Completing%f %Bwith pager%b" \
-            'less' \
-            'more'
-        compadd -J 'log/edit' -X "%F{yellow}Completing%f %Bwith editor%b" \
-            'edit'
-        compadd -J 'log/log' -X "%F{yellow}Completing%f %Bwith log%b" \
-            'oneline' \
-            'clear' \
-            'count' \
-            'latest'
+        local _log_args
+        _log_args=(
+        'less' 'more' 'edit'
+        'clear' 'count' 'latest'
+        )
+        if (( $+commands[jq] )); then
+            _log_args+=("jq")
+        fi
+        _describe -t 'log' 'log' _log_args && ret=0
+        ;;
+    "rollback")
+        local _rollback_args
+        _rollback_args=( 'build' )
+        _describe -t 'rollback' 'rollback' _rollback_args && ret=0
+        ;;
 esac
 
 return ret
