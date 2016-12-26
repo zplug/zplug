@@ -102,7 +102,7 @@ case "$words[1]" in
         _values -S : -s , "zplug tags" \
             "as[Specify whether to register as commands or to register as plugins]:as:(plugin command)" \
             "use[Specify the pattern to source (for plugin) or relative path to export (for command)]:use:->use" \
-            "from[Specify the services you use to install]:from:(gh-r gist oh-my-zsh github bitbucket local)" \
+            "from[Specify the services you use to install]:from:(gh-r gist oh-my-zsh github bitbucket gitlab local)" \
             "at[Support branch/tag installation]:at:" \
             "rename-to[Specify filename you want to rename]:rename-to:" \
             "dir[Installation directory (RO)]:dir:->dir" \
