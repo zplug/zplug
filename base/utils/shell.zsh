@@ -216,3 +216,14 @@ print(json.dumps(sys.stdin.read()))' \
         echo "(Not available: python requires)"
     fi
 }
+
+__zplug::utils::shell::is_atty()
+{
+    if [[ -t 0 && -t 1 ]]; then
+        # terminal
+        return 0
+    else
+        # pipeline
+        return 1
+    fi
+}

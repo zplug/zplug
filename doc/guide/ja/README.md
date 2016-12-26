@@ -199,7 +199,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 |-----------|-------------|---------|
 | `install` | 並列インストール | (なし) |
 | `load`    | インストール済みプラグインを読み込み、インストール済みコマンドを `$PATH` に追加する | `--verbose` |
-| `list`    | インストール済みパッケージを表示する (端的に連想配列 `$zplugs` を表示する) | `--select` |
+| `list`    | インストール済みパッケージを表示する (端的に連想配列 `$zplugs` を表示する) | `--select`,`--installed`,`--loaded` |
 | `update`  | インストール済みパッケージを並列でアップデートする | `--select`,`--force` |
 | `check`   | 未インストールなパッケージがないなら真を返し、そうでなければ偽を返す | `--verbose` |
 | `status`  | パッケージが最新かどうか確認する| `--select` |

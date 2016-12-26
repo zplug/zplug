@@ -2,11 +2,11 @@
 # Description:
 #   List installed packages (more specifically, view the associative array $zplugs)
 
-local    arg filter repo tag
-local    is_select=false
-local -i ret=0
-local -a repos similar_repos
-local -A copy_zplugs
+local     arg repo tag filter
+local     is_loaded=false is_installed=false is_select=false
+local -aU repos
+
+tag="${(kj:|:)_zplug_tags[@]}"
 
 while (( $# > 0 ))
 do
@@ -14,6 +14,12 @@ do
     case "$arg" in
         --select)
             is_select=true
+            ;;
+        --loaded)
+            is_loaded=true
+            ;;
+        --installed)
+            is_installed=true
             ;;
         -*|--*)
             __zplug::core::options::unknown "$arg"
@@ -24,106 +30,63 @@ do
             return 1
             ;;
         */*)
-            # Do not remove the end of the at sign
-            # At the end of the treatment,
-            # get rid of those at displaying to stdout
-            repos+=( "$arg" )
+            # Do nothing
             ;;
         *)
-            return 1
+            # Do nothing
             ;;
     esac
     shift
 done
 
-# Initialize
-{
-    # If assosiate array "zplugs" is empty,
-    # it means there are no packages that are managed by zplug
-    if (( $#zplugs == 0 )); then
-        __zplug::io::print::f \
-            --die \
-            --zplug \
-            --func \
-            "no package managed by zplug\n"
-        return 1
-    fi
-
-    if $is_select; then
-        __zplug::utils::shell::search_commands "$ZPLUG_FILTER" \
-            | read filter
-        if [[ -z $filter ]]; then
-            __zplug::io::print::die \
-                --die \
-                --zplug \
-                --error \
-                "There is no available filter in ZPLUG_FILTER\n"
-            return 1
-        fi
-        repos=( ${(@f)"$(echo "${(Fk)zplugs[@]}" | eval "$filter")"} )
-
-        # There is no package selected by the filter
-        if (( $#repos == 0 )); then
-            return 0
-        fi
-    fi
-}
-
-if (( $#repos > 0 )); then
-    copy_zplugs=()
-    for repo in "${repos[@]}"
-    do
-        if __zplug::base::base::zpluged "$repo"; then
-            # TODO:
-            # @ (at-sign)
-            # e.g. zplug list b4b4r07/enhancd
-            # -> b4b4r07/enhancd
-            # -> b4b4r07/enhancd (b4b4r07/enhancd@)
-
-            # It's already managed
-            copy_zplugs+=(
-            "$repo"
-            "${zplugs[$repo]}"
-            )
-        else
-            # It doesn't managed yet
-            # Try to search the package with fuzzy match
-            similar_repos=( ${(@f)"$(awk -v repo=$repo '$1 ~ repo' <<<${(Fk)zplugs[@]})"} )
-            # There is even no similar package
-            if (( $#similar_repos == 0 )); then
-                copy_zplugs+=(
-                "$repo"
-                "NO SUCH PACKAGE"
-                )
-                ret=1
-            fi
-            for repo in "${similar_repos[@]}"
-            do
-                if __zplug::base::base::zpluged "$repo"; then
-                    copy_zplugs+=(
-                    "$repo"
-                    "${zplugs[$repo]}"
-                    )
-                fi
-            done
-        fi
-    done
-else
-    copy_zplugs=( "${(@kv)zplugs[@]}" )
+# If assosiate array "zplugs" is empty,
+# it means there are no packages that are managed by zplug
+if (( $#zplugs == 0 )); then
+    __zplug::io::print::f \
+        --die \
+        --zplug \
+        --func \
+        "no package managed by zplug\n"
+    return 1
 fi
 
-dq='"'
-for copy in "${(k)copy_zplugs[@]}"
-do
-    tag="nil"
-    if [[ -n $copy_zplugs[$copy] ]]; then
-        echo "$copy_zplugs[$copy]" \
-            | sed 's/$/'"$dq"'/g; s/:/:'"$dq"'/g; s/, /'"$dq"', /g;' \
-            | read tag
-    fi
-    printf "%s  =>  %s\n" \
-        "$fg[green]${copy:gs:@::}$reset_color" \
-        "$tag"
-done
+if $is_loaded; then
+    repos=( ${(u@f)"$(<"$_zplug_load_log[success]")"} )
+elif $is_installed; then
+    repos=( "$ZPLUG_REPOS"/*/*(/:gs:"$ZPLUG_REPOS"/:) )
+    repos=( "${repos[@]%/}" )
+else
+    repos=( "${(uk)zplugs[@]:gs:@::}" )
+fi
 
-return $ret
+if $is_select; then
+    __zplug::utils::shell::search_commands \
+        "$ZPLUG_FILTER" \
+        | read filter
+    if [[ -z $filter ]]; then
+        __zplug::io::print::f \
+            --die --zplug \
+            "There is no available filter in ZPLUG_FILTER\n"
+        return 1
+    fi
+    repos=( ${(@f)"$(print -l "$repos[@]" | ${=filter})"} )
+fi
+
+if __zplug::utils::shell::is_atty; then
+    # Disply tag information in color
+    # when connected to the terminal
+    for repo in "$repos[@]"
+    do
+        builtin printf "$fg[green]$repo$reset_color"
+        builtin printf "$fg[blue] => $reset_color"
+        builtin printf "${zplugs[$repo]:-"$fg[red]none"}\n"
+    done \
+        | perl -pe 's/('"$tag"'):/'$fg[yellow]'$1'$reset_color':/g' \
+        | sed -E 's/:/:"/g;s/, /", /g;/none$/!s/$/"/g' # quotes tag
+    printf "$reset_color"
+else
+    # When not connected to the termianl,
+    # e.g. piped with the grep command (`zplug list | grep zsh`)
+    # don't display tag information
+    for repo ("$repos[@]") echo "$repo"
+fi
