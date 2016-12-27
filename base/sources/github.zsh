@@ -246,7 +246,7 @@ __zplug::sources::github::load_command()
     done
     if (( $#rename_hash == 0 )); then
         __zplug::log::write::info \
-            'no matches found; $rename_hash is empty'
+            "$repo: no matches found, rename_hash is empty"
     fi
 
     # Add parent directories to fpath if any files starting in _* exist

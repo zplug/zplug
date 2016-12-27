@@ -195,16 +195,6 @@ __zplug::utils::shell::expand_glob()
     print -l "${matches[@]}"
 }
 
-__zplug::utils::shell::zmv()
-{
-    local from="$1" to="$2"
-    if (( $# != 2 )); then
-        return 1
-    fi
-
-    zmv -P echo -W "$from" "$to" 2>/dev/null
-}
-
 __zplug::utils::shell::zglob()
 {
     (
