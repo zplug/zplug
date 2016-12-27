@@ -74,6 +74,7 @@ fi
                 printf "\n$obj:\n"
                 ;;
             *)
+                desc="(None)"
                 [[ -n $opts[$obj] ]] && desc="$opts[$obj]"
                 [[ -n $cmds[$obj] ]] && desc="$cmds[$obj]"
                 printf "  %-${max}s    %s\n" \

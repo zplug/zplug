@@ -1,4 +1,6 @@
 #!/usr/bin/env zsh
+# Description:
+#   Self management of zplug
 
 if ! __zplug::base::base::zpluged "zplug/zplug"; then
     __zplug::io::print::f \
