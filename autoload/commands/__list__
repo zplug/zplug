@@ -43,16 +43,24 @@ done
 # it means there are no packages that are managed by zplug
 if (( $#zplugs == 0 )); then
     __zplug::io::print::f \
-        --die \
-        --zplug \
-        --func \
+        --die --zplug \
         "no package managed by zplug\n"
     return 1
 fi
 
 if $is_loaded; then
-    repos=( ${(u@f)"$(<"$_zplug_load_log[success]")"} )
+    if [[ -s $_zplug_load_log[success] ]]; then
+        repos=( ${(u@f)"$(<"$_zplug_load_log[success]")"} )
+    else
+        __zplug::io::print::f \
+            --die --zplug \
+            "First, you have to run 'zplug load'\n"
+        __zplug::log::write::info "$_zplug_load_log[success]: not found or empty\n"
+        return 1
+    fi
 elif $is_installed; then
+    # By using a file glob, it's checked whether it really exists
+    # A slash is added to the end, but delete it since it's unnecessary
     repos=( "$ZPLUG_REPOS"/*/*(/:gs:"$ZPLUG_REPOS"/:) )
     repos=( "${repos[@]%/}" )
 else
@@ -90,3 +98,6 @@ else
     # don't display tag information
     for repo ("$repos[@]") echo "$repo"
 fi
+
+# Returns true if a length of repos is greater than zero
+return !$#repos
