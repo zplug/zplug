@@ -219,7 +219,9 @@ __zplug::sources::github::load_command()
     #
     # becomes an element where the key is "path/to/cmd" and the value is
     # "dst".
-    if [[ $tags[use] == *\** && $tags[rename-to] == *\$* ]]; then
+    if [[ $tags[use] == *(*)* && $tags[rename-to] == *\$* ]]; then
+        # If it's captured by `use` tag and referenced by `rename-to` tag,
+        # it's expanded with `__zplug::utils::shell::zglob`
         if (( $#rename_hash == 0 )) && [[ -n $tags[rename-to] ]]; then
             rename_hash=( $(__zplug::utils::shell::zglob \
                 "$tags[dir]/$tags[use]" \
