@@ -36,11 +36,20 @@ EXAMPLES
 Rename fzf-bin to fzf:
 
 ------------
-$ zplug "junegunn/fzf-bin", \
+$ zplug 'junegunn/fzf-bin', \
     from:gh-r, \
     as:command, \
     rename-to:fzf, \
-    use:"*darwin*amd64*"
+    use:'*darwin*amd64*'
+------------
+
+Rename a command with the string captured with `use` tag
+
+------------
+zplug 'b4b4r07/httpstat', \
+    as:command, \
+    use:'(*).sh', \
+    rename-to:'$1'
 ------------
 
 

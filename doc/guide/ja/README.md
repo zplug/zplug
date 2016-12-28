@@ -126,12 +126,7 @@ zstyle ':prezto:module:prompt' theme 'sorin'
 zplug "jhawthorn/fzy", \
     as:command, \
     rename-to:fzy, \
-    hook-build:"
-    {
-        make
-        sudo make install
-    } &>/dev/null
-    "
+    hook-build:"make && sudo make install"
 
 # リビジョンロック機能を持つ
 zplug "b4b4r07/enhancd", at:v1
@@ -147,8 +142,13 @@ zplug "b4b4r07/79ee61f7c140c63d2786", \
 zplug "b4b4r07/hello_bitbucket", \
     from:bitbucket, \
     as:command, \
-    hook-build:"chmod 755 *.sh", \
     use:"*.sh"
+
+# `use` タグでキャプチャした文字列でリネームする
+zplug "b4b4r07/httpstat", \
+    as:command, \
+    use:'(*).sh', \
+    rename-to:'$1'
 
 # 依存管理
 # "emoji-cli" は "jq" があるときにのみ読み込まれる
