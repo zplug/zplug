@@ -3,7 +3,7 @@
 #   Update installed packages in parallel
 
 local     is_force=false
-local     repo arg filter
+local     repo arg
 local -A  repo_pids proc_states hook_build hook_finished hook_pids status_codes
 local -A  tags
 local -F  SECONDS=0

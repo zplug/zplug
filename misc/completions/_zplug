@@ -75,10 +75,17 @@ case "$words[1]" in
             '(--verbose)--verbose[display loading files]'
         ret=0
         ;;
-    status|list|update)
+    status|update)
         _arguments \
             '(--select)--select[select items with interactive filters]' \
             '*:: :( "${(k)zplugs[@]}" )'
+        ret=0
+        ;;
+    list)
+        _arguments \
+            '(--loaded --installed)--loaded[list loaded packages]' \
+            '(--loaded --installed)--installed[list installed packages]' \
+            '(--select)--select[list packages and select them]'
         ret=0
         ;;
     clean)
