@@ -123,12 +123,7 @@ zplug "lib/clipboard", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
 zplug "jhawthorn/fzy", \
     as:command, \
     rename-to:fzy, \
-    hook-build:"
-    {
-        make
-        sudo make install
-    } &>/dev/null
-    "
+    hook-build:"make && sudo make install"
 
 # Supports checking out a specific branch/tag/commit
 zplug "b4b4r07/enhancd", at:v1
@@ -144,8 +139,13 @@ zplug "b4b4r07/79ee61f7c140c63d2786", \
 zplug "b4b4r07/hello_bitbucket", \
     from:bitbucket, \
     as:command, \
-    hook-build:"chmod 755 *.sh", \
     use:"*.sh"
+
+# Rename a command with the string captured with `use` tag
+zplug "b4b4r07/httpstat", \
+    as:command, \
+    use:'(*).sh', \
+    rename-to:'$1'
 
 # Group dependencies
 # Load "emoji-cli" if "jq" is installed in this example

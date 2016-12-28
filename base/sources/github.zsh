@@ -190,31 +190,17 @@ __zplug::sources::github::load_command()
 {
     local    repo="${1:?}"
     local -A tags default_tags
-    local    src dst basename
+    local    src dst
     local -a sources
     local -a load_fpaths load_commands
+    local -A rename_hash
 
     __zplug::core::tags::parse "$repo"
     tags=( "${reply[@]}" )
     default_tags[use]="$(__zplug::core::core::run_interfaces 'use')"
-    basename="${repo:t}"
     tags[dir]="${tags[dir]%/}"
     load_commands=()
     load_fpaths=()
-
-    # If no USE is specified, link all executables in $tags[dir] to $dst
-    if [[ $tags[use] == $default_tags[use] ]]; then
-        tags[use]="*(N-*)"
-    fi
-
-    sources=( ${(@f)"$( \
-        __zplug::utils::shell::expand_glob "$tags[dir]/${tags[use]}" "(N-)"
-    )"} )
-
-    # Try again assuming executable file name is the same as repo name
-    if (( $#sources == 0 )); then
-        sources=( "$tags[dir]/$basename"(N-.) )
-    fi
 
     # Append dst to each element so that load_commands becomes:
     #
@@ -233,11 +219,37 @@ __zplug::sources::github::load_command()
     #
     # becomes an element where the key is "path/to/cmd" and the value is
     # "dst".
-    dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
-    for src in "${sources[@]}"
+    if [[ $tags[use] == *(*)* && $tags[rename-to] == *\$* ]]; then
+        # If it's captured by `use` tag and referenced by `rename-to` tag,
+        # it's expanded with `__zplug::utils::shell::zglob`
+        if (( $#rename_hash == 0 )) && [[ -n $tags[rename-to] ]]; then
+            rename_hash=( $(__zplug::utils::shell::zglob \
+                "$tags[dir]/$tags[use]" \
+                "$ZPLUG_HOME/bin/$tags[rename-to]")
+            )
+        fi
+    else
+        if [[ -x $tags[dir]/${repo:t} ]]; then
+            sources=( "$tags[dir]/${repo:t}"(N-.) )
+        else
+            if [[ $tags[use] == $default_tags[use] || $tags[from] == "gh-r" ]]; then
+                tags[use]="*(N-*)"
+            fi
+            sources=( ${(@f)"$( \
+                __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
+            )"} )
+        fi
+        dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
+        for src ("$sources[@]") rename_hash+=("$src" "$dst")
+    fi
+    for src in "${(k)rename_hash[@]}"
     do
-        load_commands+=("$src\0$dst")
+        load_commands+=("$src\0$rename_hash[$src]")
     done
+    if (( $#rename_hash == 0 )); then
+        __zplug::log::write::info \
+            "$repo: no matches found, rename_hash is empty"
+    fi
 
     # Add parent directories to fpath if any files starting in _* exist
     load_fpaths+=("$tags[dir]"/{_*,/**/_*}(N-.:h))

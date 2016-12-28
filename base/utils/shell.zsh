@@ -195,6 +195,54 @@ __zplug::utils::shell::expand_glob()
     print -l "${matches[@]}"
 }
 
+__zplug::utils::shell::zglob()
+{
+    (
+    emulate -RL zsh
+    setopt localoptions extendedglob
+    local    f g match mbegin mend p_dir1 p_dir2
+    local    MATCH MBEGIN MEND
+    local    pat repl fpat
+    local -a files targets
+    local -A from to
+
+    p_dir1=${~1:h}
+    p_dir2=${~2:h}
+    builtin cd $p_dir1
+    pat=${1:t}
+    repl=${2:t}
+    shift 2
+
+    if [[ $pat = (#b)(*)\((\*\*##/)\)(*) ]]; then
+        fpat="$match[1]$match[2]$match[3]"
+        setopt localoptions bareglobqual
+        fpat="${fpat}(odon)"
+    else
+        fpat=$pat
+    fi
+
+    files=(${~fpat}(N))
+    for f in $files[@]
+    do
+        if [[ $pat = (#b)(*)\(\*\*##/\)(*) ]]; then
+            pat="$match[1](*/|)$match[2]"
+        fi
+        [[ -e $f && $f = (#b)${~pat} ]] || continue
+        set -- "$match[@]"
+        g=${(Xe)repl} 2>/dev/null
+        from[$g]=$f
+        to[$f]=$g
+    done
+
+    for f in $files[@]
+    do
+        [[ -z $to[$f] ]] && continue
+        targets=($p_dir1/$f $p_dir2/$to[$f])
+        print -r -- ${(q-)targets}
+    done
+    )
+}
+
 __zplug::utils::shell::eval()
 {
     local cmd
