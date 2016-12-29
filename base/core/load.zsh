@@ -24,6 +24,10 @@ __zplug::core::load::from_cache()
         "$fpath[@]"
         )
 
+        source "$_zplug_cache[priority_3_plugin]"
+        source "$_zplug_cache[priority_2_plugin]"
+        source "$_zplug_cache[priority_1_plugin]"
+
         source "$_zplug_cache[plugin]"
         source "$_zplug_cache[lazy_plugin]"
         source "$_zplug_cache[theme]"

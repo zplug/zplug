@@ -1,0 +1,32 @@
+#!/usr/bin/env zsh
+# Description:
+#   priority tag
+
+local    arg="$1" package
+local -a parsed_zplugs
+local    priority
+local -i default=0
+
+package="${arg}, ${zplugs[$arg]%, }"
+parsed_zplugs=(${(s/, /)package/,  */, })
+
+priority="${parsed_zplugs[(k)priority:*]#priority:*}"
+if [[ -z $priority ]]; then
+    zstyle -s ":zplug:tag" priority priority
+fi
+
+: ${priority:=$default}
+if [[ $priority =~ ^[[:digit:]]+$ ]] && \
+    (( $priority >= 0 )) && (( $priority <= 3 )); then
+    :
+else
+    __zplug::io::print::f \
+        --die \
+        --zplug \
+        --error \
+        --func \
+        "priority tag must be {0..3} ($fg[green]$arg$reset_color)\n"
+    return 1
+fi
+
+echo "$priority"

@@ -33,6 +33,9 @@ __zplug::core::cache::commit()
     local -A  reply_hash
     local -A  load_commands
     local -aU load_plugins load_fpaths lazy_plugins \
+        priority_1_plugins \
+        priority_2_plugins \
+        priority_3_plugins \
         defer_1_plugins \
         defer_2_plugins \
         defer_3_plugins
@@ -44,6 +47,9 @@ __zplug::core::cache::commit()
     load_fpaths=( ${(@f)reply_hash[load_fpaths]} )
     load_plugins=( ${(@f)reply_hash[load_plugins]} )
     load_themes=( ${(@f)reply_hash[load_themes]} )
+    priority_1_plugins=( ${(@f)reply_hash[priority_1_plugins]} )
+    priority_2_plugins=( ${(@f)reply_hash[priority_2_plugins]} )
+    priority_3_plugins=( ${(@f)reply_hash[priority_3_plugins]} )
     defer_1_plugins=( ${(@f)reply_hash[defer_1_plugins]} )
     defer_2_plugins=( ${(@f)reply_hash[defer_2_plugins]} )
     defer_3_plugins=( ${(@f)reply_hash[defer_3_plugins]} )
@@ -66,6 +72,21 @@ __zplug::core::cache::commit()
     do
         params="$param ${(qqq)pkg}"
         __zplug::job::handle::flock "$_zplug_cache[plugin]" "__zplug::core::load::as_plugin $params"
+    done
+    for pkg in "$priority_1_plugins[@]"
+    do
+        params="$param ${(qqq)pkg}"
+        __zplug::job::handle::flock "$_zplug_cache[priority_1_plugin]" "__zplug::core::load::as_plugin $params"
+    done
+    for pkg in "$priority_2_plugins[@]"
+    do
+        params="$param ${(qqq)pkg}"
+        __zplug::job::handle::flock "$_zplug_cache[priority_2_plugin]" "__zplug::core::load::as_plugin $params"
+    done
+    for pkg in "$priority_3_plugins[@]"
+    do
+        params="$param ${(qqq)pkg}"
+        __zplug::job::handle::flock "$_zplug_cache[priority_3_plugin]" "__zplug::core::load::as_plugin $params"
     done
     for pkg in "$defer_1_plugins[@]"
     do

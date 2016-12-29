@@ -68,6 +68,9 @@ __zplug::sources::prezto::load_plugin()
         load_fpaths \
         load_plugins \
         lazy_plugins \
+        priority_1_plugins \
+        priority_2_plugins \
+        priority_3_plugins \
         defer_1_plugins \
         defer_2_plugins \
         defer_3_plugins
@@ -79,6 +82,9 @@ __zplug::sources::prezto::load_plugin()
     load_fpaths=()
     load_plugins=()
     lazy_plugins=()
+    priority_1_plugins=()
+    priority_2_plugins=()
+    priority_3_plugins=()
     defer_1_plugins=()
     defer_2_plugins=()
     defer_3_plugins=()
@@ -136,27 +142,37 @@ __zplug::sources::prezto::load_plugin()
         zstyle ":prezto:module:prompt" theme "off"
     fi
 
-    # unclassified_plugins -> {defer_N_plugins,lazy_plugins,load_plugins}
+    # unclassified_plugins -> {priority_N_plugins, defer_N_plugins,lazy_plugins,load_plugins}
     # the order of loading of plugin files
-    case "$tags[defer]" in
+    case "$tags[priority]" in
         0)
-            if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
-                lazy_plugins+=( "${unclassified_plugins[@]}" )
-            else
-                load_plugins+=( "${unclassified_plugins[@]}" )
-            fi
+            case "$tags[defer]" in
+                0)
+                    if (( $_zplug_boolean_true[(I)$tags[lazy]] )); then
+                        lazy_plugins+=( "${unclassified_plugins[@]}" )
+                    else
+                        load_plugins+=( "${unclassified_plugins[@]}" )
+                    fi
+                    ;;
+                1)
+                    defer_1_plugins+=( "${unclassified_plugins[@]}" )
+                    ;;
+                2)
+                    defer_2_plugins+=( "${unclassified_plugins[@]}" )
+                    ;;
+                3)
+                    defer_3_plugins+=( "${unclassified_plugins[@]}" )
+                    ;;
+            esac
             ;;
         1)
-            defer_1_plugins+=( "${unclassified_plugins[@]}" )
+            priority_1_plugins+=( "${unclassified_plugins[@]}" )
             ;;
         2)
-            defer_2_plugins+=( "${unclassified_plugins[@]}" )
+            priority_2_plugins+=( "${unclassified_plugins[@]}" )
             ;;
         3)
-            defer_3_plugins+=( "${unclassified_plugins[@]}" )
-            ;;
-        *)
-            : # Error
+            priority_3_plugins+=( "${unclassified_plugins[@]}" )
             ;;
     esac
     unclassified_plugins=()
@@ -174,6 +190,9 @@ __zplug::sources::prezto::load_plugin()
             fi
             # Plugins
             load_plugins=( "${(R)load_plugins[@]:#$ignore}" )
+            priority_1_plugins=( "${(R)priority_1_plugins[@]:#$ignore}" )
+            priority_2_plugins=( "${(R)priority_2_plugins[@]:#$ignore}" )
+            priority_3_plugins=( "${(R)priority_3_plugins[@]:#$ignore}" )
             defer_1_plugins=( "${(R)defer_1_plugins[@]:#$ignore}" )
             defer_2_plugins=( "${(R)defer_2_plugins[@]:#$ignore}" )
             defer_3_plugins=( "${(R)defer_3_plugins[@]:#$ignore}" )
@@ -187,6 +206,9 @@ __zplug::sources::prezto::load_plugin()
     [[ -n $load_fpaths ]] && reply+=( "load_fpaths" "${(F)load_fpaths}" )
     [[ -n $load_plugins ]] && reply+=( "load_plugins" "${(F)load_plugins}" )
     [[ -n $lazy_plugins ]] && reply+=( "lazy_plugins" "${(F)lazy_plugins}" )
+    [[ -n $priority_1_plugins ]] && reply+=( "priority_1_plugins" "${(F)priority_1_plugins}" )
+    [[ -n $priority_2_plugins ]] && reply+=( "priority_2_plugins" "${(F)priority_2_plugins}" )
+    [[ -n $priority_3_plugins ]] && reply+=( "priority_3_plugins" "${(F)priority_3_plugins}" )
     [[ -n $defer_1_plugins ]] && reply+=( "defer_1_plugins" "${(F)defer_1_plugins}" )
     [[ -n $defer_2_plugins ]] && reply+=( "defer_2_plugins" "${(F)defer_2_plugins}" )
     [[ -n $defer_3_plugins ]] && reply+=( "defer_3_plugins" "${(F)defer_3_plugins}" )
