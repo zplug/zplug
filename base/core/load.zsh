@@ -46,7 +46,7 @@ __zplug::core::load::from_cache()
         __zplug::io::print::f \
             --zplug \
             "These repos have failed to load:\n$fg_bold[red]"
-        sed -e 's/^/- /g' "$_zplug_load_log[failure]"
+        print -l -- "- $fg[red]"${^${(u@f)"$(<"$_zplug_load_log[failure]")":gs:@:}}"$reset_color"
         __zplug::io::print::f "$reset_color"
         return 1
     fi

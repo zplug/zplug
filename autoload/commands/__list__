@@ -50,7 +50,7 @@ fi
 
 if $is_loaded; then
     if [[ -s $_zplug_load_log[success] ]]; then
-        repos=( ${(u@f)"$(<"$_zplug_load_log[success]")"} )
+        repos=( ${(u@f)"$(<"$_zplug_load_log[success]")":gs:@:} )
     else
         __zplug::io::print::f \
             --die --zplug \
