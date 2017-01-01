@@ -161,6 +161,8 @@ __zplug::job::parallel::deinit()
             ;;
     esac
 
+    # Restore default options
+    setopt monitor
     # Display the cursor
     tput cnorm
 }
