@@ -171,7 +171,7 @@ __zplug::utils::shell::pipestatus()
 
 __zplug::utils::shell::expand_glob()
 {
-    local    pattern="$1"
+    local    pattern="$1" file
     # Modifiers to use if $pattern does not include modifiers
     local    default_modifiers="${2:-(N)}"
     local -a matches
@@ -192,7 +192,10 @@ __zplug::utils::shell::expand_glob()
         ) )
     fi
 
-    print -l "${matches[@]}"
+    for file in "${matches[@]}"
+    do
+        [[ -e ${~file} ]] && echo ${~file}
+    done
 }
 
 __zplug::utils::shell::zglob()
