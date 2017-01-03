@@ -41,7 +41,7 @@ __zplug::job::message::white()
 __zplug::job::message::red()
 {
     local repo="$1" message="$2"
-    printf " $fg_bold[red]\U2718$reset_color  $fg[red]%s$reset_color  %s\n" \
+    builtin printf " $fg_bold[red]\U2718$reset_color  $fg[red]%s$reset_color  %s\n" \
         ${(r,20,):-"$message"} \
         "$repo"
 }
@@ -49,7 +49,7 @@ __zplug::job::message::red()
 __zplug::job::message::yellow()
 {
     local repo="$1" message="$2"
-    printf " $fg_bold[yellow]\U279C$reset_color  $fg[yellow]%s$reset_color  %s\n" \
+    builtin printf " $fg_bold[yellow]\U279C$reset_color  $fg[yellow]%s$reset_color  %s\n" \
         ${(r,20,):-"$message"} \
         "$repo"
 }

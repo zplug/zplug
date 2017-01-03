@@ -183,8 +183,8 @@ __zplug::utils::git::merge()
     } 2> >(__zplug::log::capture::error) >/dev/null
 
     git[local]="$(git rev-parse HEAD)"
-    git[upstream]="$(git rev-parse "@{upstream}")"
-    git[base]="$(git merge-base HEAD "@{upstream}")"
+    git[upstream]="$(git rev-parse "@{upstream}" 2> >(__zplug::log::capture::error))"
+    git[base]="$(git merge-base HEAD "@{upstream}" 2> >(__zplug::log::capture::error))"
 
     if [[ $git[local] == $git[upstream] ]]; then
         # up-to-date
