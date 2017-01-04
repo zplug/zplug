@@ -229,8 +229,13 @@ __zplug::sources::github::load_command()
             )
         fi
     else
-        if [[ -x $tags[dir]/${repo:t} ]]; then
-            sources=( "$tags[dir]/${repo:t}"(N-.) )
+        if [[ $tags[use] == $default_tags[use] ]]; then
+            # If no $tags[use] is given by the user,
+            # automatically add repo's basename to load-path
+            # if it exists as executable file
+            if [[ -x $tags[dir]/${repo:t} ]]; then
+                sources=( "$tags[dir]/${repo:t}"(N-.) )
+            fi
         else
             if [[ $tags[use] == $default_tags[use] || $tags[from] == "gh-r" ]]; then
                 tags[use]="*(N-*)"
@@ -238,9 +243,12 @@ __zplug::sources::github::load_command()
             sources=( ${(@f)"$( \
                 __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
             )"} )
+            dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
+            for src in "$sources[@]"
+            do
+                rename_hash+=("$src" "$dst")
+            done
         fi
-        dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
-        for src ("$sources[@]") rename_hash+=("$src" "$dst")
     fi
     for src in "${(k)rename_hash[@]}"
     do
