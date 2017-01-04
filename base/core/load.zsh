@@ -1,6 +1,6 @@
 __zplug::core::load::prepare()
 {
-    setopt nomonitor
+    unsetopt monitor
     zstyle ':zplug:core:load' 'verbose' no
 
     __zplug::io::file::rm_touch "$_zplug_load_log[success]"
@@ -12,8 +12,8 @@ __zplug::core::load::from_cache()
     local is_verbose
     zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
-    # Restore default options
-    setopt monitor
+    # Default
+    #setopt monitor # TODO
 
     __zplug::core::cache::update
 
