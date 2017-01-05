@@ -2,12 +2,12 @@
 .\"     Title: zplug-rename-to
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 11/21/2016
+.\"      Date: 12/28/2016
 .\"    Manual: ZPLUG Manual
 .\"    Source: ZPLUG Manual
 .\"  Language: English
 .\"
-.TH "ZPLUG\-RENAME\-TO" "5" "11/21/2016" "ZPLUG Manual" "ZPLUG Manual"
+.TH "ZPLUG\-RENAME\-TO" "5" "12/28/2016" "ZPLUG Manual" "ZPLUG Manual"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -67,11 +67,26 @@ Rename fzf\-bin to fzf:
 .RS 4
 .\}
 .nf
-$ zplug "junegunn/fzf\-bin", \e
+$ zplug \'junegunn/fzf\-bin\', \e
     from:gh\-r, \e
     as:command, \e
     rename\-to:fzf, \e
-    use:"*darwin*amd64*"
+    use:\'*darwin*amd64*\'
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Rename a command with the string captured with use tag
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+zplug \'b4b4r07/httpstat\', \e
+    as:command, \e
+    use:\'(*)\&.sh\', \e
+    rename\-to:\'$1\'
 .fi
 .if n \{\
 .RE

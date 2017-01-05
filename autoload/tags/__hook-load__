@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # Description:
-#   hook-load tag
+#   Commands to run after loading
 
 local    arg="$1" package
 local -a parsed_zplugs

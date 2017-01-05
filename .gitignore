@@ -3,6 +3,8 @@ bin/*
 !bin/zplug-env
 repos/*
 .cache
+cache
+log
 .gitignore.d/*
 .error_log
 

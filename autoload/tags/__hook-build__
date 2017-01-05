@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # Description:
-#   hook-build tag
+#   Commands to run after installation/update
 
 local    arg="$1" package
 local -a parsed_zplugs

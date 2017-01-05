@@ -11,7 +11,6 @@ autoload -Uz regexp-replace
 autoload -Uz add-zsh-hook
 autoload -Uz colors
 autoload -Uz compinit
-autoload -Uz zmv
 autoload -Uz zplug
 
 colors

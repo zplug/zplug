@@ -126,12 +126,7 @@ zstyle ':prezto:module:prompt' theme 'sorin'
 zplug "jhawthorn/fzy", \
     as:command, \
     rename-to:fzy, \
-    hook-build:"
-    {
-        make
-        sudo make install
-    } &>/dev/null
-    "
+    hook-build:"make && sudo make install"
 
 # リビジョンロック機能を持つ
 zplug "b4b4r07/enhancd", at:v1
@@ -147,8 +142,13 @@ zplug "b4b4r07/79ee61f7c140c63d2786", \
 zplug "b4b4r07/hello_bitbucket", \
     from:bitbucket, \
     as:command, \
-    hook-build:"chmod 755 *.sh", \
     use:"*.sh"
+
+# `use` タグでキャプチャした文字列でリネームする
+zplug "b4b4r07/httpstat", \
+    as:command, \
+    use:'(*).sh', \
+    rename-to:'$1'
 
 # 依存管理
 # "emoji-cli" は "jq" があるときにのみ読み込まれる
@@ -199,7 +199,7 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 |-----------|-------------|---------|
 | `install` | 並列インストール | (なし) |
 | `load`    | インストール済みプラグインを読み込み、インストール済みコマンドを `$PATH` に追加する | `--verbose` |
-| `list`    | インストール済みパッケージを表示する (端的に連想配列 `$zplugs` を表示する) | `--select` |
+| `list`    | インストール済みパッケージを表示する (端的に連想配列 `$zplugs` を表示する) | `--select`,`--installed`,`--loaded` |
 | `update`  | インストール済みパッケージを並列でアップデートする | `--select`,`--force` |
 | `check`   | 未インストールなパッケージがないなら真を返し、そうでなければ偽を返す | `--verbose` |
 | `status`  | パッケージが最新かどうか確認する| `--select` |

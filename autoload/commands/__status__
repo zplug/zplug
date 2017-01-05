@@ -2,7 +2,7 @@
 # Description:
 #   Check if the remote repositories are up to date
 
-local    state arg filter repo
+local    state arg repo
 local -A repo_pids proc_states hook_build hook_finished hook_pids status_codes
 local -A tags
 local -F SECONDS=0

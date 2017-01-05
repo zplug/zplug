@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # Description:
-#   dir tag
+#   Installation directory which is managed by zplug
 
 local    arg="${1:gs:@::}" package
 local -a parsed_zplugs

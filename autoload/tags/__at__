@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # Description:
-#   at tag
+#   Branch, tag, or commit to use
 
 local    arg="$1" package
 local -a parsed_zplugs

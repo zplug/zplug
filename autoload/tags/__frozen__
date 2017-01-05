@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # Description:
-#   frozen tag
+#   Do not update unless explicitly specified
 
 local    arg package
 local -a parsed_zplugs

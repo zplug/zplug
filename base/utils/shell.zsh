@@ -171,7 +171,7 @@ __zplug::utils::shell::pipestatus()
 
 __zplug::utils::shell::expand_glob()
 {
-    local    pattern="$1"
+    local    pattern="$1" file
     # Modifiers to use if $pattern does not include modifiers
     local    default_modifiers="${2:-(N)}"
     local -a matches
@@ -192,17 +192,10 @@ __zplug::utils::shell::expand_glob()
         ) )
     fi
 
-    print -l "${matches[@]}"
-}
-
-__zplug::utils::shell::zmv()
-{
-    local from="$1" to="$2"
-    if (( $# != 2 )); then
-        return 1
-    fi
-
-    zmv -P echo -W "$from" "$to" 2>/dev/null
+    for file in "${matches[@]}"
+    do
+        [[ -e ${~file} ]] && echo ${~file}
+    done
 }
 
 __zplug::utils::shell::zglob()
@@ -272,5 +265,16 @@ print(json.dumps(sys.stdin.read()))' \
     2> >(__zplug::log::capture::error)
     else
         echo "(Not available: python requires)"
+    fi
+}
+
+__zplug::utils::shell::is_atty()
+{
+    if [[ -t 0 && -t 1 ]]; then
+        # terminal
+        return 0
+    else
+        # pipeline
+        return 1
     fi
 }

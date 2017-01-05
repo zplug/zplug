@@ -25,6 +25,13 @@ __zplug::job::handle::flock()
 
     local file="$args[1]" contents="$args[2]"
 
+    # TODO: Temporary fix to solve #334
+    if [[ ! -f $file ]]; then
+        __zplug::log::write::info \
+            "create $file because it does not exist"
+        touch "$file"
+    fi
+
     (
     until zsystem flock -t 3 "$file"
     do
