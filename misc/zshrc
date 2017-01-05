@@ -75,7 +75,7 @@ zplug clear
     zplug "junegunn/fzf-bin", \
         as:command, \
         from:gh-r, \
-        rename-to:fzf
+        rename-to:f
     # gist
     zplug "b4b4r07/79ee61f7c140c63d2786", \
         from:gist, \
@@ -94,7 +94,7 @@ zplug clear
     '(( $+aliases[gbS] ))'        # "prezto" modules/git
     '(( $+functions[git-dir] ))'  # "prezto" modules/git
     '[[ -o autocd ]]'             # "prezto" modules/directory
-    '[[ -x $ZPLUG_HOME/bin/fzf ]]'
+    '[[ -x $ZPLUG_HOME/bin/f ]]'
     '[[ ! -x $ZPLUG_HOME/bin/peco ]]' # for b4b4r07/zsh-gomi (on tag)
     '[[ -x $ZPLUG_HOME/bin/get_last_pane_path.sh ]]'
     )
@@ -208,16 +208,26 @@ zplug clear
 {
     zplug "b4b4r07/http_code", \
         as:command, \
-        use:"bin"
+        use:"bin/http_code"
     zplug "monochromegane/the_platinum_searcher", \
         as:command, \
         from:gh-r, \
         rename-to:pt, \
         use:"*${(L)$(uname -s)}*amd64*"
+    zplug 'junegunn/fzf', \
+        as:command, \
+        use:'bin/{fzf,fzf-tmux}'
+
+    tests+=(
+    '[[ -x $ZPLUG_HOME/bin/http_code ]]'
+    '[[ -x $ZPLUG_HOME/bin/pt ]]'
+    '[[ ! -x $ZPLUG_HOME/bin/fzf ]]'
+    '[[ -x $ZPLUG_HOME/bin/fzf-tmux ]]'
+    )
 }
 
-zplug install        || exit 1
-zplug load --verbose || exit 1
+zplug install || ret=1
+zplug load --verbose || ret=1
 
 # on (test case)
 

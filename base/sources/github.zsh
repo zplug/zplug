@@ -233,7 +233,7 @@ __zplug::sources::github::load_command()
             # If no $tags[use] is given by the user,
             # automatically add repo's basename to load-path
             # if it exists as executable file
-            if [[ -x $tags[dir]/${repo:t} ]]; then
+            if [[ -f $tags[dir]/${repo:t} ]]; then
                 sources=( "$tags[dir]/${repo:t}"(N-.) )
             fi
         else
@@ -243,12 +243,13 @@ __zplug::sources::github::load_command()
             sources=( ${(@f)"$( \
                 __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
             )"} )
-            dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
-            for src in "$sources[@]"
-            do
-                rename_hash+=("$src" "$dst")
-            done
         fi
+        dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
+        for src in "$sources[@]"
+        do
+            chmod 755 "$src"
+            rename_hash+=("$src" "$dst")
+        done
     fi
     for src in "${(k)rename_hash[@]}"
     do
