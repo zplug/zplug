@@ -186,11 +186,13 @@ Finally, use `zplug install` to install your plugins and reload `.zshrc`.
 
 ### 1. Options for `zplug`
 
-| Option | Description |
-|--------|-------------|
-| `--help` | Display the help message |
-| `--version` | Display the version of zplug |
-| `--log` | Show the error log (for developer) |
+| Option          | Description |
+|-----------------|-------------|
+| `--help`        | Display the help message |
+| `--rollback`    | Rollback a failed package |
+| `--self-manage` | Self management of zplug |
+| `--version`     | Display the version of zplug |
+| `--log`         | Show the report of zplug errors |
 
 ### 2. Commands for `zplug`
 
@@ -230,7 +232,7 @@ fi
 To manage zplug itself like other packages, write the following in your `.zshrc`.
 
 ```zsh
-zplug "zplug/zplug"
+zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 ```
 
 All that's left is to run `zplug update`.
