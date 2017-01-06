@@ -101,6 +101,7 @@ zplug clear
     '[[ -o autocd ]]'             # "prezto" modules/directory
     '[[ -x $ZPLUG_HOME/bin/f ]]'
     '[[ ! -x $ZPLUG_HOME/bin/peco ]]' # for b4b4r07/zsh-gomi (on tag)
+    '[[ -x $ZPLUG_HOME/bin/composer ]]'
     '[[ -x $ZPLUG_HOME/bin/get_last_pane_path.sh ]]'
     )
 }

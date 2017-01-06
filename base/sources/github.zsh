@@ -237,9 +237,6 @@ __zplug::sources::github::load_command()
                 sources=( "$tags[dir]/${repo:t}"(N-.) )
             fi
         else
-            if [[ $tags[use] == $default_tags[use] || $tags[from] == "gh-r" ]]; then
-                tags[use]="*(N-*)"
-            fi
             sources=( ${(@f)"$( \
                 __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
             )"} )

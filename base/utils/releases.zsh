@@ -71,27 +71,27 @@ __zplug::utils::releases::get_url()
             "$repo"
         )"
 
-        #if [[ $tags[use] == '*.zsh' ]]; then
-        #    tags[use]=
-        #fi
-        #if [[ $tags[at] == "master" ]]; then
-        #    tags[at]="latest"
-        #fi
+        if [[ $tags[use] == '*.zsh' ]]; then
+            tags[use]=
+        fi
+        if [[ $tags[at] == "master" ]]; then
+            tags[at]="latest"
+        fi
 
-        #if [[ -n $tags[at] && $tags[at != "latest" ]]; then
-        #    tags[at]="tag/$tags[at"
-        #else
-        #    tags[at]="latest"
-        #fi
+        if [[ -n $tags[at] && $tags[at] != "latest" ]]; then
+            tags[at]="tag/$tags[at]"
+        else
+            tags[at]="latest"
+        fi
 
-        #if [[ -n $tags[use] ]]; then
-        #    tags[use]="$(__zplug::utils::shell::glob2regexp "$tags[use")"
-        #else
-        #    tags[use]="$(__zplug::base::base::get_os)"
-        #    if __zplug::base::base::is_osx; then
-        #        tags[use]="(darwin|osx)"
-        #    fi
-        #fi
+        if [[ -n $tags[use] ]]; then
+            tags[use]="$(__zplug::utils::shell::glob2regexp "$tags[use]")"
+        else
+            tags[use]="$(__zplug::base::base::get_os)"
+            if __zplug::base::base::is_osx; then
+                tags[use]="(darwin|osx)"
+            fi
+        fi
     }
 
     # Get machine information
@@ -220,7 +220,8 @@ __zplug::utils::releases::index()
         return 1
     fi
 
-    mv -f "$binaries[1]" "$cmd"
+    # mv -f "$binaries[1]" "$cmd"
+    cmd="$binaries[1]"
     chmod 755 "$cmd"
     rm -rf *~"$cmd"(N)
 
