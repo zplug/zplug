@@ -22,9 +22,9 @@ __zplug::job::process::get_status_code() {
     fi
 
     cat "$_zplug_log[$target]" \
-        | grep "^repo:$repo\t" \
-        | awk '{print $2}' \
-        | cut -d: -f2
+        | __zplug::utils::awk::ltsv \
+        'key("repo")=="'"$repo"'"{print key("status")}'
+
     return $status
 }
 
