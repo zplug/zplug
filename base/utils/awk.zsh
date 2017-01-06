@@ -64,3 +64,24 @@ __zplug::utils::awk::available()
         return 1
     fi
 }
+
+__zplug::utils::awk::ltsv()
+{
+    local \
+        user_awk_script="$1" \
+        ltsv_awk_script
+
+    ltsv_awk_script=$(cat <<-'EOS'
+    function key(name) {
+        for (i = 1; i <= NF; i++) {
+            match($i, ":");
+            xs[substr($i, 0, RSTART)] = substr($i, RSTART+1);
+        };
+        return xs[name":"];
+    }
+EOS
+    )
+
+    awk -F'\t' \
+        "${ltsv_awk_script} ${user_awk_script}"
+}
