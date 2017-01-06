@@ -203,9 +203,6 @@ __zplug::utils::releases::index()
                 tar xvf "$artifact"
                 rm -f "$artifact"
             ;;
-        *.*)
-            return 1
-            ;;
         *)
             # Through
             ;;

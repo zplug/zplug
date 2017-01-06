@@ -76,6 +76,11 @@ zplug clear
         as:command, \
         from:gh-r, \
         rename-to:f
+    zplug "composer/composer", \
+        as:command, \
+        from:gh-r, \
+        use:"*.phar", \
+        rename-to:"composer"
     # gist
     zplug "b4b4r07/79ee61f7c140c63d2786", \
         from:gist, \
