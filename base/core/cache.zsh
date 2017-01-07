@@ -48,10 +48,13 @@ __zplug::core::cache::commit()
     defer_2_plugins=( ${(@f)reply_hash[defer_2_plugins]} )
     defer_3_plugins=( ${(@f)reply_hash[defer_3_plugins]} )
     unclassified_plugins=( ${(@f)reply_hash[unclassified_plugins]} )
-    for pair (${(@f)reply_hash[load_commands]}) load_commands+=( ${(@s:\0:)pair} )
+    for pair in ${(@f)reply_hash[load_commands]}
+    do
+        load_commands+=( ${(@s:\0:)pair} ) 2> >(__zplug::log::capture::error) >/dev/null
+    done
     for pair in ${reply_hash[hook_load]}
     do
-        hook="${${(@s:\0:)pair}[2,-1]}"
+        hook="${${(@s:\0:)pair}[2,-1]}" 2> >(__zplug::log::capture::error) >/dev/null
     done
     repo="$reply_hash[repo]"
 
