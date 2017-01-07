@@ -263,8 +263,9 @@ zplug load --verbose || ret=1
 ret=0
 for test in "$tests[@]"
 do
-    eval "$test"
-    if (( $status != 0 )); then
+    if eval "$test"; then
+        printf "$fg[green]PASS: $test$reset_color\n"
+    else
         printf "$fg[red]FAIL: $test$reset_color\n" >&2
         ret=1
     fi
