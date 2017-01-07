@@ -54,7 +54,7 @@ __zplug::job::rollback::message()
         if [[ -f $_zplug_build_log[failure] ]] || [[ -f $_zplug_build_log[timeout] ]]; then
             __zplug::io::print::f \
                 --zplug \
-                "\n$fg_bold[red]These hook-build were failed to run:$reset_color\n"
+                "$fg_bold[red]These hook-build were failed to run:$reset_color\n"
             # Listing the packages that have failed to build
             {
                 sed 's/^/ - /g' "$_zplug_build_log[failure]"
