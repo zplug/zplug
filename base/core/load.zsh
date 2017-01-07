@@ -12,7 +12,7 @@ __zplug::core::load::from_cache()
     local is_verbose
     zstyle -s ':zplug:core:load' 'verbose' is_verbose
 
-    # Restore default options
+    # Default
     setopt monitor
 
     __zplug::core::cache::update
