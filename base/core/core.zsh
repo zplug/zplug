@@ -211,7 +211,7 @@ __zplug::core::core::variable()
     "skip_local"     16
     "not_git_repo"   17
     "not_on_branch"  18
-    "detached_head"  19
+    "detached_head"  18
     "revision_lock"  19
     )
 

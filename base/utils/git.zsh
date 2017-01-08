@@ -182,11 +182,23 @@ __zplug::utils::git::merge()
         git checkout -q "$git[branch]"
     } 2> >(__zplug::log::capture::error) >/dev/null
 
+    __zplug::utils::git::get_state
+    case "$status" in
+        $_zplug_status[not_on_branch])
+            # detached HEAD (due to revision lock with at tag)
+            return $_zplug_status[revision_lock]
+            ;;
+    esac
+
     git[local]="$(git rev-parse HEAD)"
     git[upstream]="$(git rev-parse "@{upstream}" 2> >(__zplug::log::capture::error))"
     git[base]="$(git merge-base HEAD "@{upstream}" 2> >(__zplug::log::capture::error))"
 
     if [[ -z $git[upstream] || -z $git[base] ]]; then
+        # > git merge-base HEAD "@{upstream}
+        # >fatal: HEAD does not point to a branch
+        # the same status as $_zplug_status[revision_lock]
+        # but return as detached_head explicitly
         return $_zplug_status[detached_head]
     fi
 
