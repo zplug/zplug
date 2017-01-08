@@ -292,7 +292,7 @@ __zplug::job::handle::elapsed_time()
 
     __zplug::utils::ansi::erace_current_line
     builtin printf "\n"
-    __zplug::io::print::f \
+    LC_ALL=POSIX __zplug::io::print::f \
         --zplug \
         "Elapsed time: %.4f sec.\n" \
         $elapsed_time
