@@ -4,6 +4,8 @@ __zplug::job::handle::flock()
     local    is_escape=false
     local -a args
 
+    local file contents
+
     while (( $#argv > 0 ))
     do
         case "$argv[1]" in
@@ -13,7 +15,7 @@ __zplug::job::handle::flock()
             -*|--*)
                 ;;
             *)
-                args+=("$argv[1]")
+                args+=( "$argv[1]" )
                 ;;
         esac
         shift
@@ -23,7 +25,8 @@ __zplug::job::handle::flock()
         return 1
     fi
 
-    local file="$args[1]" contents="$args[2]"
+    file="$args[1]"
+    contents="$args[2]"
 
     # TODO: Temporary fix to solve #334
     if [[ ! -f $file ]]; then
@@ -53,11 +56,10 @@ __zplug::job::handle::flock()
 
     # Save the status code with LTSV
     if $is_escape; then
-        __zplug::io::print::f "${(q)contents}\n"
+        print -r "$contents" >>|"$file"
     else
-        __zplug::io::print::f "$contents\n"
+        print    "$contents" >>|"$file"
     fi >>|"$file"
-
     )
 }
 
@@ -246,6 +248,7 @@ __zplug::job::handle::hook()
         } & hook_pids[$repo]=$!
         # Run the timeout process in background
         {
+            touch "$_zplug_lock[job]"
             # kill the process for hook-build after sleeping
             # during the number of seconds that has been set as a timeout
             sleep "$timeout"
@@ -257,6 +260,7 @@ __zplug::job::handle::hook()
                 builtin printf "$repo\n" >>|"$_zplug_build_log[timeout]"
                 builtin printf "$repo\n" >>|"$_zplug_build_log[rollback]"
             fi
+            rm -f "$_zplug_lock[job]"
         } &
     fi
 

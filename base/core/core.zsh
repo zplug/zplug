@@ -244,8 +244,10 @@ __zplug::core::core::variable()
     "defer_3_plugin" "$ZPLUG_CACHE_DIR/defer_3_plugin.zsh"
     )
 
-    typeset -gx -a _zplug_checkout_locks
-    _zplug_checkout_locks=()
+    typeset -gx -A _zplug_lock
+    _zplug_lock=(
+    "job" "$ZPLUG_HOME/log/job.lock"
+    )
 
     if (( $+ZPLUG_SHALLOW )); then
         __zplug::io::print::f \
