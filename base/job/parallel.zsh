@@ -1,7 +1,7 @@
 __zplug::job::parallel::init()
 {
     local     caller="${${(M)funcstack[@]:#__*__}:gs:_:}"
-    local     is_parallel=false is_select=false
+    local     is_parallel= is_select=false
     local     filter repo starting_message
     local -aU repos
 

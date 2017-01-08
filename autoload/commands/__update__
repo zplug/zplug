@@ -29,7 +29,11 @@ do
             return 1
             ;;
         */*)
-            repos+=( "${arg:gs:@::}" )
+            if [[ $arg == *\** ]]; then
+                repos+=( ${(uk)zplugs[(I)${arg:gs:@::}]:gs:@::} )
+            else
+                repos+=( "${arg:gs:@::}" )
+            fi
             ;;
         *)
             return 1
