@@ -95,6 +95,9 @@ __zplug::job::handle::state()
         $_zplug_status[skip_if])
             __zplug::job::message::yellow "$repo" "Skip due to if"
             ;;
+        $_zplug_status[revision_lock])
+            __zplug::job::message::yellow "$repo" "Revision locked"
+            ;;
         $_zplug_status[failure])
             __zplug::job::message::red "$repo" "Failed to $caller"
             ;;

@@ -186,6 +186,10 @@ __zplug::utils::git::merge()
     git[upstream]="$(git rev-parse "@{upstream}" 2> >(__zplug::log::capture::error))"
     git[base]="$(git merge-base HEAD "@{upstream}" 2> >(__zplug::log::capture::error))"
 
+    if [[ -z $git[upstream] || -z $git[base] ]]; then
+        return $_zplug_status[detached_head]
+    fi
+
     if [[ $git[local] == $git[upstream] ]]; then
         # up-to-date
         return $_zplug_status[up_to_date]
@@ -202,8 +206,7 @@ __zplug::utils::git::merge()
             if (( $status != 0 )); then
                 failed=true
             fi
-        } \
-            2> >(__zplug::log::capture::error) >/dev/null
+        } 2> >(__zplug::log::capture::error) >/dev/null
 
     elif [[ $git[upstream] == $git[base] ]]; then
         # need to push
