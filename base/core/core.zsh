@@ -211,6 +211,8 @@ __zplug::core::core::variable()
     "skip_local"     16
     "not_git_repo"   17
     "not_on_branch"  18
+    "detached_head"  18
+    "revision_lock"  19
     )
 
     typeset -gx -A _zplug_log _zplug_build_log _zplug_load_log

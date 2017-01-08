@@ -115,14 +115,14 @@ __zplug::job::parallel::deinit()
     case "$caller" in
         update)
             if (( ${(k)#status_codes[(R)$_zplug_status[failure]]} == 0 )); then
-                printf "$fg_bold[default] ==> Updating finished successfully!$reset_color\n"
+                builtin printf "$fg_bold[default] ==> Updating finished successfully!$reset_color\n"
             else
-                printf "$fg_bold[red] ==> Updating failed for following packages:$reset_color\n"
+                builtin printf "$fg_bold[red] ==> Updating failed for following packages:$reset_color\n"
                 # Listing the packages that have failed to update
                 for repo in "${(k)status_codes[@]}"
                 do
                     if [[ $status_codes[$repo] == $_zplug_status[failure] ]]; then
-                        printf " - %s\n" "$repo"
+                        builtin printf " - %s\n" "$repo"
                     fi
                 done
             fi
@@ -131,14 +131,14 @@ __zplug::job::parallel::deinit()
             ;;
         install)
             if (( ${(k)#status_codes[(R)$_zplug_status[failure]]} == 0 )); then
-                printf "$fg_bold[default] ==> Installation finished successfully!$reset_color\n"
+                builtin printf "$fg_bold[default] ==> Installation finished successfully!$reset_color\n"
             else
-                printf "$fg_bold[red] ==> Installation failed for following packages:$reset_color\n"
+                builtin printf "$fg_bold[red] ==> Installation failed for following packages:$reset_color\n"
                 # Listing the packages that have failed to install
                 for repo in "${(k)status_codes[@]}"
                 do
                     if [[ $status_codes[$repo] == $_zplug_status[failure] ]]; then
-                        printf " - %s\n" "$repo"
+                        builtin printf " - %s\n" "$repo"
                     fi
                 done
             fi
@@ -147,14 +147,14 @@ __zplug::job::parallel::deinit()
             ;;
         status)
             if (( ${(k)#status_codes[(R)$_zplug_status[out_of_date]]} == 0 )); then
-                printf "$fg_bold[default] ==> All packages are up-to-date!$reset_color\n"
+                builtin printf "$fg_bold[default] ==> All packages are up-to-date!$reset_color\n"
             else
-                printf "$fg_bold[red] ==> Run 'zplug update'. These packages are local out of date:$reset_color\n"
+                builtin printf "$fg_bold[red] ==> Run 'zplug update'. These packages are local out of date:$reset_color\n"
                 # Listing the packages that have failed to install
                 for repo in "${(k)status_codes[@]}"
                 do
                     if [[ $status_codes[$repo] == $_zplug_status[out_of_date] ]]; then
-                        printf " - %s\n" "$repo"
+                        builtin printf " - %s\n" "$repo"
                     fi
                 done
             fi
