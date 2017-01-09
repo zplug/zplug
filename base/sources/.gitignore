@@ -1,0 +1,8 @@
+*.zsh
+!bitbucket.zsh
+!gh-r.zsh
+!gist.zsh
+!github.zsh
+!local.zsh
+!oh-my-zsh.zsh
+!prezto.zsh
