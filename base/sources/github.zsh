@@ -126,7 +126,10 @@ __zplug::sources::github::load_plugin()
                 load_fpaths+=( "$tags[dir]/$tags[use]"/_*(N.:h) )
             fi
         fi
-        load_fpaths+=( "$tags[dir]"/_*(N.:h) )
+        load_fpaths+=( \
+            "$tags[dir]"/_*(N.:h) \
+            "$tags[dir]/autoload"(N/) \
+            )
     fi
 
     # unclassified_plugins -> {defer_N_plugins,lazy_plugins,load_plugins}
