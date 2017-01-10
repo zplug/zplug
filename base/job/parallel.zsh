@@ -3,7 +3,7 @@ __zplug::job::parallel::init()
     local     caller="${${(M)funcstack[@]:#__*__}:gs:_:}"
     local     is_parallel=false is_select=false
     local     filter repo starting_message
-    local -aU repos
+    local -aU repos status_ok
 
     repos=( "$argv[@]" )
 
@@ -128,6 +128,12 @@ __zplug::job::parallel::deinit()
             fi
             # Run rollback if hook-build failed
             __zplug::job::rollback::message
+            # Cache clear automatically after running update command
+            status_ok=( ${(@f)"$(cat "$_zplug_log[update]" 2>/dev/null \
+                | __zplug::utils::awk::ltsv 'key("status")==0')"} )
+            if (( $#status_ok > 0 )); then
+                __zplug::core::core::run_interfaces 'clear'
+            fi
             ;;
         install)
             if (( ${(k)#status_codes[(R)$_zplug_status[failure]]} == 0 )); then
@@ -144,6 +150,12 @@ __zplug::job::parallel::deinit()
             fi
             # Run rollback if hook-build failed
             __zplug::job::rollback::message
+            # Cache clear automatically after running install command
+            status_ok=( ${(@f)"$(cat "$_zplug_log[install]" 2>/dev/null \
+                | __zplug::utils::awk::ltsv 'key("status")==0')"} )
+            if (( $#status_ok > 0 )); then
+                __zplug::core::core::run_interfaces 'clear'
+            fi
             ;;
         status)
             if (( ${(k)#status_codes[(R)$_zplug_status[out_of_date]]} == 0 )); then

@@ -68,7 +68,9 @@ __zplug::utils::git::clone()
     fi
 
     # The revison (hash/branch/tag) lock
-    __zplug::utils::git::checkout "$repo"
+    # NOTE: Since it's logged in `__zplug::utils::git::checkout` function,
+    # there is no problem even if it's discarded /dev/null file here
+    __zplug::utils::git::checkout "$repo" &>/dev/null
 
     if (( $ret == 0 )); then
         return $_zplug_status[success]
