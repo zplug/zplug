@@ -53,7 +53,8 @@ Can manage everything
 .IP \(bu 2.3
 .\}
 Zsh plugins/UNIX commands on
-GitHub
+GitHub,
+Gitlab
 and
 Bitbucket
 .RE
@@ -380,7 +381,7 @@ T}:T{
 Specify the service from which you install
 T}:T{
 .sp
-github,bitbucket,gh\-r,gist, oh\-my\-zsh,prezto,local (github)
+github,gitlab,bitbucket,gh\-r,gist, oh\-my\-zsh,prezto,local (github)
 T}:T{
 .sp
 from:gh\-r
@@ -763,6 +764,11 @@ zplug "b4b4r07/hello_bitbucket", \e
     from:bitbucket, \e
     hook\-build:"chmod 755 *\&.sh", \e
     use:"*\&.sh"
+
+# Support Gitlab
+zplug "willemmali-sh/chegit", \e
+    as:command, \e
+    from:gitlab
 
 # Group dependencies, emoji\-cli depends on jq in this example
 zplug "stedolan/jq", \e

@@ -110,7 +110,7 @@ case "$words[1]" in
         _values -S : -s , "zplug tags" \
             "as[$_zplug_tags[as]]:as:(plugin command theme)" \
             "use[$_zplug_tags[use]]:use:->use" \
-            "from[$_zplug_tags[from]]:from:(gh-r gist oh-my-zsh github bitbucket local)" \
+            "from[$_zplug_tags[from]]:from:(gh-r gist oh-my-zsh github gitlab bitbucket local)" \
             "at[$_zplug_tags[at]]:at:" \
             "rename-to[$_zplug_tags[rename-to]]:rename-to:" \
             "dir[$_zplug_tags[dir]]:dir:->dir" \

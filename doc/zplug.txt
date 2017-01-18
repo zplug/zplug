@@ -26,7 +26,7 @@ Unlike antigen, zplug requires no ZSH plugin file (`*.plugin.zsh`).
 It's such a fantabulous piece of software.
 
 *   Can manage everything
-**  Zsh plugins/UNIX commands on https://github.com[GitHub]
+**  Zsh plugins/UNIX commands on https://github.com[GitHub], https://gitlab.com[Gitlab],
     and https://bitbucket.org[Bitbucket]
 **  Gist file (https://gist.github.com[gist.github.com])
 **  Third-party sources e.g.,
@@ -123,7 +123,7 @@ and so on. If you want to use extended glob, see later section for setting the z
 `use:"*darwin*"`
 
 |*from* | Specify the service from which you install
-| `github`,`bitbucket`,`gh-r`,`gist`,
+| `github`, `gitlab`,`bitbucket`,`gh-r`,`gist`,
 `oh-my-zsh`,`prezto`,`local` (`github`) | `from:gh-r`
 
 |*at* | Branch, tag, or commit to use | *revision* (`master`) | `at:v1.5.6`
@@ -337,6 +337,11 @@ zplug "b4b4r07/hello_bitbucket", \
     from:bitbucket, \
     hook-build:"chmod 755 *.sh", \
     use:"*.sh"
+
+# Support Gitlab
+zplug "willemmali-sh/chegit", \
+    as:command, \
+    from:gitlab
 
 # Group dependencies, emoji-cli depends on jq in this example
 zplug "stedolan/jq", \

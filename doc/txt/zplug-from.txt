@@ -23,10 +23,10 @@ will be installed as the plugin or as the command.
 
 .zplug from tag
 [options="header"]
-|================================================================
-| Possive Values                                  | Default value
-| github, bitbucket, gh-r, gist, oh-my-zsh, local | github
-|================================================================
+|=========================================================================
+| Possive Values                                          | Default value
+| github, gitlab, bitbucket, gh-r, gist, oh-my-zsh, local | github
+|=========================================================================
 
 Besides, by using `zstyle` command, you can change default value:
 
