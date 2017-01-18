@@ -7,7 +7,7 @@ __zplug::utils::prezto::depends()
     dependencies=()
 
     # Note: Probably the only match is init.zsh, but just in case
-    for module_f in "$prezto_repo"/modules/$module/*.zsh
+    for module_f in "$prezto_repo"/modules/$module/*.zsh(N)
     do
         dependencies+=( ${(@s: :)"$( \
             grep "\bpmodload\b" "$module_f" 2>/dev/null \
