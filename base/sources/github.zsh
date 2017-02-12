@@ -225,7 +225,7 @@ __zplug::sources::github::load_command()
         if (( $#rename_hash == 0 )) && [[ -n $tags[rename-to] ]]; then
             rename_hash=( $(__zplug::utils::shell::zglob \
                 "$tags[dir]/$tags[use]" \
-                "$ZPLUG_HOME/bin/$tags[rename-to]")
+                "$ZPLUG_BIN/$tags[rename-to]")
             )
         fi
     else
@@ -244,7 +244,7 @@ __zplug::sources::github::load_command()
                 __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
             )"} )
         fi
-        dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
+        dst=${${tags[rename-to]:+$ZPLUG_BIN/$tags[rename-to]}:-"$ZPLUG_BIN"}
         for src in "$sources[@]"
         do
             chmod 755 "$src"

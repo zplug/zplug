@@ -310,7 +310,7 @@ $ZPLUG_HOME
         `-- reponame1
 ```
 
-If you specify `as:command`, zplug will see the package as a command and create a symbolic link of the same name (if you want to rename it, use the `rename-to:` tag) in `$ZPLUG_HOME/bin`. Because zplug adds `$ZPLUG_HOME/bin` to the `$PATH`, you can run that command from anywhere.
+If you specify `as:command`, zplug will see the package as a command and create a symbolic link of the same name (if you want to rename it, use the `rename-to:` tag) in `$ZPLUG_BIN`. Because zplug adds `$ZPLUG_BIN` to the `$PATH`, you can run that command from anywhere.
 
 #### `ZPLUG_THREADS`
 
@@ -355,6 +355,10 @@ Defaults to `''`. You can set sudo password for zplug's `hook-build` tag. Howeve
 source ~/.zshrc_secret
 zplug "some/command", hook-build:"make && sudo make install"
 ```
+
+#### `ZPLUG_BIN`
+
+Defaults to `$ZPLUG_HOME/bin`. You can change the save destination of the command's symbolic link, e.g. `~/bin`.
 
 ### External commands
 
