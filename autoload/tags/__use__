@@ -27,18 +27,6 @@ __zplug::core::core::run_interfaces \
     "$arg"
 )"
 
-if [[ $tags[from] == "gh-r" ]]; then
-    default=""
-    if [[ -n $use ]]; then
-        use="$(__zplug::utils::shell::glob2regexp "$use")"
-    else
-        use="$(__zplug::base::base::get_os)"
-        if __zplug::base::base::is_osx; then
-            use="(darwin|osx)"
-        fi
-    fi
-fi
-
 if [[ $tags[as] == "theme" ]]; then
     default=""
 fi

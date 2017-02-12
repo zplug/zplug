@@ -237,16 +237,22 @@ __zplug::sources::github::load_command()
                 sources=( "$tags[dir]/${repo:t}"(N-.) )
             fi
         else
-            if [[ $tags[use] == $default_tags[use] || $tags[from] == "gh-r" ]]; then
-                tags[use]="*(N-*)"
-            fi
             sources=( ${(@f)"$( \
                 __zplug::utils::shell::expand_glob "$tags[dir]/$tags[use]" "(N-.)"
             )"} )
         fi
+        if [[ $tags[from] == "gh-r" ]]; then
+            sources=( $tags[dir]/**/*${repo:t}*(N-.) )
+            if (( $#sources == 0 )); then
+                sources+=( $tags[dir]/**/*(N-*) )
+            fi
+        fi
         dst=${${tags[rename-to]:+$ZPLUG_HOME/bin/$tags[rename-to]}:-"$ZPLUG_HOME/bin"}
         for src in "$sources[@]"
         do
+            if [[ ! -f $src ]]; then
+                continue
+            fi
             chmod 755 "$src"
             rename_hash+=("$src" "$dst")
         done
