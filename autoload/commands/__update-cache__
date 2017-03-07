@@ -1,0 +1,72 @@
+#!/usr/bin/env zsh
+# Description:
+#   Update zplug's cache files (Note: `load` does this automatically)
+
+__zplug::core::load::prepare
+
+local    repo arg
+local -a repos
+local -A tags
+
+repos=( "${(k)zplugs[@]}" )
+
+while (( $# > 0 ))
+do
+    arg="$1"
+    case "$arg" in
+        --verbose)
+            zstyle ':zplug:core:load' 'verbose' yes
+            ;;
+        -*|--*)
+            __zplug::core::options::unknown "$arg"
+            return $status
+            ;;
+        "")
+            # Invalid
+            return 1
+            ;;
+        */*)
+            repos+=( "${arg:gs:@::}" )
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+    shift
+done
+
+# Check if cache is up-to-date
+if __zplug::core::cache::diff; then
+    return $status
+fi
+
+for repo in "${repos[@]}"
+do
+    # Generate cache for each as:type in parallel
+    {
+        tags[as]="$(__zplug::core::core::run_interfaces 'as' "$repo")"
+
+        case "$tags[as]" in
+            "plugin")
+                __zplug::core::cache::plugins "$repo"
+                ;;
+            "command")
+                __zplug::core::cache::commands "$repo"
+                ;;
+            "theme")
+                __zplug::core::cache::themes "$repo"
+                ;;
+            *)
+                __zplug::io::print::f \
+                    --die \
+                    --zplug \
+                    --func \
+                    "as tag is invalid value (%s)\n" \
+                    "$fg[green]$repo$reset_color"
+                ;;
+        esac
+    } &
+done
+wait
+
+return $status
