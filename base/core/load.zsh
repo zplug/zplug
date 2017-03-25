@@ -3,8 +3,8 @@ __zplug::core::load::prepare()
     setopt nomonitor
     zstyle ':zplug:core:load' 'verbose' no
 
-    __zplug::io::file::rm_touch "$_zplug_load_log[success]"
-    __zplug::io::file::rm_touch "$_zplug_load_log[failure]"
+    $ZPLUG_LOG_LOAD_SUCCESS && __zplug::io::file::rm_touch "$_zplug_load_log[success]"
+    $ZPLUG_LOG_LOAD_FAILURE && __zplug::io::file::rm_touch "$_zplug_load_log[failure]"
 }
 
 __zplug::core::load::from_cache()
@@ -116,9 +116,9 @@ __zplug::core::load::as_plugin()
         if [[ -n $hook ]]; then
             eval ${=hook}
         fi
-        __zplug::job::handle::flock "$_zplug_load_log[success]" "$repo"
+        $ZPLUG_LOG_LOAD_SUCCESS && __zplug::job::handle::flock "$_zplug_load_log[success]" "$repo"
     else
-        __zplug::job::handle::flock "$_zplug_load_log[failure]" "$repo"
+        $ZPLUG_LOG_LOAD_FAILURE && __zplug::job::handle::flock "$_zplug_load_log[failure]" "$repo"
     fi
 
     return $status_code
@@ -171,9 +171,9 @@ __zplug::core::load::as_command()
         if [[ -n $hook ]]; then
             eval ${=hook}
         fi
-        __zplug::job::handle::flock "$_zplug_load_log[success]" "$repo"
+        $ZPLUG_LOG_LOAD_SUCCESS && __zplug::job::handle::flock "$_zplug_load_log[success]" "$repo"
     else
-        __zplug::job::handle::flock "$_zplug_load_log[failure]" "$repo"
+        $ZPLUG_LOG_LOAD_FAILURE && __zplug::job::handle::flock "$_zplug_load_log[failure]" "$repo"
     fi
 
     return $status_code
