@@ -92,13 +92,6 @@ __zplug::core::core::prepare()
     typeset -gx -U path
     typeset -gx -U fpath
 
-    # Add to the PATH
-    path=(
-    ${ZPLUG_ROOT:+"$ZPLUG_ROOT/bin"}
-    ${ZPLUG_BIN:+"$ZPLUG_BIN"}
-    "$path[@]"
-    )
-
     # Add to the FPATH
     fpath=(
     "$ZPLUG_ROOT"/misc/completions(N-/)
@@ -148,6 +141,13 @@ __zplug::core::core::prepare()
     mkdir -p "$ZPLUG_BIN"
     mkdir -p "$ZPLUG_CACHE_DIR"
     mkdir -p "$ZPLUG_REPOS"
+
+    # Add to the PATH
+    path=(
+    ${ZPLUG_ROOT:+"$ZPLUG_ROOT/bin"}
+    ${ZPLUG_BIN:+"$ZPLUG_BIN"}
+    "$path[@]"
+    )
 
     touch "$_zplug_log[trace]"
 
