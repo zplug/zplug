@@ -24,6 +24,7 @@ __zplug::io::print::f()
         is_per_specified=false
     local \
         is_log=false
+    local i
 
     if (( $argv[(I)--] )); then
         is_end_specified=true
