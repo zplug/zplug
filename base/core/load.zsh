@@ -31,7 +31,12 @@ __zplug::core::load::from_cache()
 
         # Plugins with defer-level set
         source "$_zplug_cache[defer_1_plugin]"
-        compinit -C -d "$ZPLUG_HOME/zcompdump"
+        if [ ${UID} ] && [ -n ${SUDO_USER} ] ; then
+          # Disable file permissions check since we did it when starting the shell executing sudo
+          compinit -u -d "$ZPLUG_HOME/zcompdump"
+        else
+          compinit -d "$ZPLUG_HOME/zcompdump"
+        fi
         if (( $_zplug_boolean_true[(I)$is_verbose] )); then
             __zplug::io::print::f \
                 --zplug "$fg[yellow]Run compinit$reset_color\n"
