@@ -45,7 +45,7 @@ latest | stable
 ### The best way
 
 ```console
-$ curl -sL --proto-redir -all,https https://zplug.sh/installer | zsh
+$ curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh| zsh
 ```
 
 If you wonder this installation, please check it out:
