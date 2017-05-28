@@ -257,14 +257,14 @@ __zplug::utils::shell::eval()
 
 __zplug::utils::shell::json_escape()
 {
-    if (( $+commands[python] )); then
+    if (( $+commands[python] )) && python -c 'import json' 2> /dev/null; then
         python -c '
 from __future__ import print_function
 import json,sys
 print(json.dumps(sys.stdin.read()))' \
     2> >(__zplug::log::capture::error)
     else
-        echo "(Not available: python requires)"
+        echo "(Not available: python with json required)"
     fi
 }
 
