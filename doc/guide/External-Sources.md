@@ -4,7 +4,6 @@ If there is a service/framework you want to install from that's not supported
 by zplug (yet!), you can add your own. We call these "sources."
 [GitHub](https://github.com), [Bitbucket](https://bitbucket.org), [GitHub
 Gist](https://gist.github.com), GitHub releases,
-[Gitlab](https://gitlab.com),
 [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh), and
 [prezto](https://github.com/sorin-ionescu/prezto) are supported by default.
 Sources are what you specify with the `from` tag (e.g. `from:bitbucket`), so
