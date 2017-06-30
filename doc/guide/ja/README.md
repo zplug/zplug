@@ -44,7 +44,7 @@
 ### 推奨方法
 
 ```console
-$ curl -sL zplug.sh/installer | zsh
+$ curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh| zsh
 ```
 
 インストーラの実態:
@@ -183,15 +183,17 @@ fi
 zplug load --verbose
 ```
 
-Finally, use `zplug install` to install your plugins and reload `.zshrc`.
+最後に、 `zplug install` でプラグインをインストールし、`.zshrc`をリロードする
 
 ### 1. オプション
 
-| オプション | 説明 |
-|--------|-------------|
-| `--help` | ヘルプを表示する |
-| `--version` | バージョン情報を表示する |
-| `--log` | ログを見る（開発者向け） |
+| オプション      | 説明 |
+|-----------------|------|
+| `--help`        | ヘルプを表示する |
+| `--rollback`    | インストールに失敗したパッケージをロールバックする |
+| `--self-manage` | zplug自身をzplugで管理する |
+| `--version`     | バージョン情報を表示する |
+| `--log`         | ログを見る（開発者向け） |
 
 ### 2. サブコマンド
 
@@ -231,7 +233,7 @@ fi
 他のパッケージと同様に zplug を管理するには `.zshrc` に以下を書き込む。
 
 ```zsh
-zplug "zplug/zplug"
+zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 ```
 
 あとは `zplug update` を実行するだけ。
@@ -282,7 +284,7 @@ zstyle ":zplug:tag" as command
 
 <!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo] -->
 
-この場合、`.zshrc` でなく `$ZPLUG_LOADFILE` に設定を記述される。また、新しく zsh を立ち上げるのときは、`zplug load` の際にこのファイルもロードする。
+この場合、`.zshrc` でなく `$ZPLUG_LOADFILE` に設定が記述される。また、新しく zsh を立ち上げるときに、`zplug load` の際にこのファイルもロードする。
 
 [`ZPLUG_LOADFILE`](#zplug_loadfile) の使い方については後述を参照。
 
@@ -363,7 +365,7 @@ zplug "some/command", hook-build:"make && sudo make install"
 zplug では `git(1)` のように外部コマンド機能が利用できる。
 `$PATH` のいずれかにある `zplug-cmdname` の規則を持つ実行ファイルは、まるでサブコマンドのように `zplug cmdname` の形で利用することができる。
 これにより自由に自分で zplug のコマンドを追加したり拡張することができる。
-作成方法や利用ガイドラインの詳細については [docs](https://github.com/zplug/zplug/blob/master/doc/zplug/External-Commands.md) ディレクトリ以下にあるので参照とのこと。実際の外部コマンドのサンプルには [`zplug-env`](https://github.com/zplug/zplug/blob/master/bin/zplug-env) を参照すると良い。
+作成方法や利用ガイドラインの詳細については [docs](https://github.com/zplug/zplug/blob/master/doc/zplug/External-Commands.md) ディレクトリ以下にあるので参照のこと。実際の外部コマンドのサンプルには [`zplug-env`](https://github.com/zplug/zplug/blob/master/bin/zplug-env) を参照すると良い。
 
 ## V.S.
 
