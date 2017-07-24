@@ -31,7 +31,7 @@ __zplug::core::load::from_cache()
 
         # Plugins with defer-level set
         source "$_zplug_cache[defer_1_plugin]"
-        if [[ -n $UID ]] && [[ -n $SUDO_USER ]] ; then
+        if [[ ${UID} -eq 0 ]] && [[ -n ${SUDO_USER} ]]; then
           # Disable file permissions check since we did it when starting the shell executing sudo
           compinit -u -d "$ZPLUG_HOME/zcompdump"
         else
