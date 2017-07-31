@@ -178,10 +178,9 @@ __zplug::job::handle::wait()
             if __zplug::job::process::is_running "$repo_pids[@]" "$hook_pids[@]"; then
                 builtin printf "\n"
                 __zplug::io::print::f \
-                    --zplug \
                     "Finished: %d/%d plugins\n" \
                     ${(k)#proc_states[(R)terminated]} \
-                    $#repos
+                    ${#proc_states}
             else
                 repo_pids=()
             fi
