@@ -84,7 +84,6 @@ __zplug::utils::git::checkout()
     local    repo="$1"
     local -a do_not_checkout
     local -A tags
-    local    lock_name
 
     tags[at]="$(__zplug::core::core::run_interfaces 'at' "$repo")"
     tags[dir]="$(__zplug::core::core::run_interfaces 'dir' "$repo")"
@@ -116,19 +115,18 @@ __zplug::utils::git::checkout()
         return 0
     fi
 
-    lock_name="${(j:/:)${(s:/:)tags[dir]}[-2, -1]}"
-    if (( $_zplug_checkout_locks[(I)${lock_name}] )); then
+    # Check if the repo is already locked by another process, and
+    # pretend to return success. This happens most likely to oh-my-zsh
+    # where multiple plugins refer to the same repo, and only one
+    # checkout is needed for that repo. The original variable-based
+    # lock would not work because parallel checkout commands run in
+    # multiple sub processes and they cannot share variables.
+    if [[ -e "$tags[dir]/.git/index.lock" ]]; then
         return 0
     fi
 
-    # Acquire lock
-    _zplug_checkout_locks+=( $lock_name )
-
     git checkout -q "$tags[at]" \
         2> >(__zplug::log::capture::error) >/dev/null
-
-    # Release lock
-    _zplug_checkout_locks=( ${_zplug_checkout_lock:#${lock_name}} )
 
     if (( $status != 0 )); then
         __zplug::io::print::f \
