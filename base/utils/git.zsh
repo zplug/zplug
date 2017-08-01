@@ -127,7 +127,7 @@ __zplug::utils::git::checkout()
     # checkout is needed for that repo. The original variable-based
     # lock would not work because parallel checkout commands run in
     # multiple sub processes and they cannot share variables.
-    if __zplug::utils::git::is_git_locked; then
+    if __zplug::utils::git::is_git_locked "$tags[dir]"; then
         return 0
     fi
 
@@ -157,7 +157,7 @@ __zplug::utils::git::have_checked_out()
 
 __zplug::utils::git::is_git_locked()
 {
-    [[ -e "$tags[dir]/.git/index.lock" || -e "$tags[dir]/.git/HEAD.lock" ]]
+    [[ -e "$1/.git/index.lock" || -e "$1/.git/HEAD.lock" ]]
 }
 
 # TODO:
