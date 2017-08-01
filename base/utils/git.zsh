@@ -115,6 +115,12 @@ __zplug::utils::git::checkout()
         return 0
     fi
 
+    # Check if the repository is already checked out
+    # with the branch we are looking for.
+    if __zplug::utils::git::have_checked_out "$tags[at]"; then
+        return 0
+    fi
+
     # Check if the repo is already locked by another process, and
     # pretend to return success. This happens most likely to oh-my-zsh
     # where multiple plugins refer to the same repo, and only one
@@ -142,6 +148,11 @@ __zplug::utils::git::have_cloned()
 {
     git rev-parse --is-inside-work-tree &>/dev/null &&
         [[ "$(git rev-parse HEAD 2>/dev/null)" != "HEAD" ]]
+}
+
+__zplug::utils::git::have_checked_out()
+{
+    [[ "$(git rev-parse --abbrev-ref HEAD)" == "$1" ]]
 }
 
 # TODO:
