@@ -161,7 +161,7 @@ zplug "b4b4r07/emoji-cli", \
 # ノート: 読み込み順序を遅らせるなら defer タグを使いましょう
 
 # 読み込み順序を設定する
-# 例: "zsh-syntax-highlighting" は compinit の前に読み込まれる必要がある
+# 例: "zsh-syntax-highlighting" は compinit の後に読み込まれる必要がある
 # （2 以上は compinit 後に読み込まれるようになる）
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
