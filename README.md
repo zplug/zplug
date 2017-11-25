@@ -48,6 +48,15 @@ latest | stable
 $ curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh| zsh
 ```
 
+Or you can make zsh install zplug automatically by adding following lines in your zshrc:
+
+```bash
+zshinit=~/.zplug/init.zsh
+installer=https://raw.githubusercontent.com/zplug/installer/master/installer.zsh
+# If zplug doesn't exist, install it
+source $zshinit &>/dev/null || curl -sL --proto-redir -all,https $installer | zsh && source $zshinit
+```
+
 If you wonder this installation, please check it out:
 
 - [zplug/installer](https://github.com/zplug/installer/blob/master/installer.zsh)
