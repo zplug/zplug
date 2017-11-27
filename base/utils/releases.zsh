@@ -196,11 +196,11 @@ __zplug::utils::releases::index()
                 rm -f "$artifact"
             ;;
         *.tar.bz2)
-                tar jxvf "$artifact"
+                tar -jxvf "$artifact"
                 rm -f "$artifact"
             ;;
         *.tar.gz|*.tgz)
-                tar xvf "$artifact"
+                tar -xvf "$artifact"
                 rm -f "$artifact"
             ;;
         *.*)
