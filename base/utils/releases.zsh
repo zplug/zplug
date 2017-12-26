@@ -211,15 +211,11 @@ __zplug::utils::releases::index()
             ;;
     esac
 
-    binaries=(
-    $(
-    file **/*(N-.) \
-        | awk -F: '$2 ~ /executable/{print $1}'
-    )
-    )
-
+    # TODO: more strictly
+    binaries=(**/*(N-*))
     if (( $#binaries == 0 )); then
         # Failed to grab binaries from GitHub Releases"
+        # TODO: logging
         return 1
     fi
 
