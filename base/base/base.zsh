@@ -37,22 +37,66 @@ __zplug::base::base::version_requirement()
 {
     local -i idx
     local -a min val
+    local a="$1" op="$2" b="$3"
 
-    [[ $1 == $2 ]] && return 0
+    [[ $a == $b ]] && return 0
 
-    val=("${(s:.:)1}")
-    min=("${(s:.:)2}")
+    val=("${(s:.:)a}")
+    min=("${(s:.:)b}")
 
-    for (( idx=1; idx <= $#val; idx++ ))
-    do
-        if (( val[$idx] > ${min[$idx]:-0} )); then
-            return 0
-        elif (( val[$idx] < ${min[$idx]:-0} )); then
-            return 1
-        fi
-    done
+    case "$op" in
+        ">")
+            for (( idx=1; idx <= $#val; idx++ ))
+            do
+                if (( val[$idx] > ${min[$idx]:-0} )); then
+                    return 0
+                elif (( val[$idx] < ${min[$idx]:-0} )); then
+                    return 1
+                fi
+            done
+            ;;
+        "<")
+            for (( idx=1; idx <= $#val; idx++ ))
+            do
+                if (( val[$idx] < ${min[$idx]:-0} )); then
+                    return 0
+                elif (( val[$idx] > ${min[$idx]:-0} )); then
+                    return 1
+                fi
+            done
+            ;;
+        *)
+            ;;
+    esac
 
     return 1
+}
+
+__zplug::base::base::valid_semver()
+{
+    local prev="$1" next="$2"
+    if [[ $prev == $next ]]; then
+        # e.g. NG: prev 2.4.1, next 2.4.1
+        return 1
+    fi
+    if __zplug::base::base::version_requirement "$prev" ">" "$next"; then
+        # e.g. NG: prev 2.4.1, next 2.4.0
+        return 1
+    fi
+    prev_elements=("${(s:.:)prev}")
+    next_elements=("${(s:.:)next}")
+    if (( $#next_elements != 3 )); then
+        # e.g. NG: next 2.4
+        return 1
+    fi
+    # TODO: more complex
+    # prev_flat="${prev//./}"
+    # next_flat="${next//./}"
+    # if (( $(($next_flat - $prev_flat)) != 1 )); then
+    #     # e.g. NG: prev 2.4.1, next 2.4.3
+    #     return 1
+    # fi
+    return 0
 }
 
 __zplug::base::base::git_version()
@@ -63,16 +107,14 @@ __zplug::base::base::git_version()
     fi
 
     __zplug::base::base::version_requirement \
-        ${(M)${(z)"$(git --version)"}:#[0-9]*[0-9]} \
-        "${@:?}"
+        ${(M)${(z)"$(git --version)"}:#[0-9]*[0-9]} ">" "${@:?}"
     return $status
 }
 
 __zplug::base::base::zsh_version()
 {
     __zplug::base::base::version_requirement \
-        "$ZSH_VERSION" \
-        "${@:?}"
+        "$ZSH_VERSION" ">" "${@:?}"
     return $status
 }
 
@@ -80,8 +122,7 @@ __zplug::base::base::osx_version()
 {
     (( $+commands[sw_vers] )) || return 1
     __zplug::base::base::version_requirement \
-        ${${(M)${(@f)"$(sw_vers)"}:#ProductVersion*}[2]} \
-        "${@:?}"
+        ${${(M)${(@f)"$(sw_vers)"}:#ProductVersion*}[2]} ">" "${@:?}"
     return $status
 }
 

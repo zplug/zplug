@@ -2,7 +2,6 @@ ZPLUG_ROOT  := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 SHOVE_URL   := https://github.com/key-amb/shove
 SHOVE_DIR   := $(ZPLUG_ROOT)/.gitignore.d/shove
 TEST_TARGET ?= test
-ACCESS_TOKEN := $$GITHUB_ZPLUG_MAN_ACCESS_TOKEN
 
 .DEFAULT_GOAL := help
 
@@ -22,20 +21,7 @@ test: shove ## Unit test for zplug
 	ZPLUG_ROOT=$(ZPLUG_ROOT) $(SHOVE_DIR)/bin/shove -r $(TEST_TARGET) -s zsh
 
 release: ## Create new GitHub Releases
-	curl --data \
-		'{ \
-		"tag_name": "'$$_ZPLUG_VERSION'", \
-		"target_commitish": "master", \
-		"name": "'$$_ZPLUG_VERSION'", \
-		"body": "Release of version '$$_ZPLUG_VERSION'", \
-		"draft": false, \
-		"prerelease": false \
-		}' \
-		"https://api.github.com/repos/zplug/zplug/releases?access_token=$(ACCESS_TOKEN)"
-
-patch:
-	git tag -a $$_ZPLUG_VERSION -m $$_ZPLUG_VERSION
-	git push origin $$_ZPLUG_VERSION
+	@zsh $(ZPLUG_ROOT)/misc/dev/release.zsh
 
 help: ## Self-documented Makefile
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
