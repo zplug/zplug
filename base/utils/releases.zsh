@@ -211,16 +211,19 @@ __zplug::utils::releases::index()
             ;;
     esac
 
-    binaries=(
-    $(
-    file **/*(N-.) \
-        | awk -F: '$2 ~ /executable/{print $1}'
-    )
-    )
-
+    # TODO: more strictly
+    binaries=()
+    binaries+=(**/*$cmd*(N-.)) # contains $cmd name files
+    binaries+=(**/*(N-*))      # contains executable files
+    binaries+=( $(file **/*(N-.)  | awk -F: '$2 ~ /executable/{print $1}') )
     if (( $#binaries == 0 )); then
         # Failed to grab binaries from GitHub Releases"
+        # TODO: logging
         return 1
+    fi
+    # For debug
+    if (( $#binaries > 1 )); then
+        __zplug::io::print::die "$cmd: Found ${(qqqj:,:)binaries[@]} in $repo\n"
     fi
 
     mv -f "$binaries[1]" "$cmd"
