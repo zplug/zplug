@@ -25,6 +25,12 @@ if ! __zplug::base::base::valid_semver "$_ZPLUG_VERSION" "$next_version"; then
     exit 1
 fi
 
+branch="$(git rev-parse --abbrev-ref HEAD)"
+if [[ ! $branch =~ $next_version ]]; then
+    echo "You are on $branch, but next version is $next_version" >&2
+    exit 1
+fi
+
 if [[ -z $GITHUB_TOKEN ]]; then
     printf "GITHUB_TOKEN is missing\n" >&2
     exit 1
@@ -32,7 +38,7 @@ fi
 
 if [[ -n "$(git status -s)" ]]; then
     git status -s
-    printf "master branch is not clean\n" >&2
+    printf "your $branch branch is not clean\n" >&2
     exit 1
 fi
 
@@ -70,6 +76,9 @@ esac
 set -x
 git add -p
 git commit -m "New version $next_version"
+git push -u origin $branch
+git checkout master
+git merge --no-ff $branch
 git push -u origin master
 # maybe not necessary thanks to curl post proc
 # git tag -a $next_version -m $next_version
