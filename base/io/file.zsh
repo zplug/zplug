@@ -1,6 +1,6 @@
 __zplug::io::file::load()
 {
-    if [[ ! -f $ZPLUG_LOADFILE ]]; then
+    if [[ ! -f ${~ZPLUG_LOADFILE} ]]; then
         __zplug::log::write::info \
             "ZPLUG_LOADFILE is not found"
         return 0
