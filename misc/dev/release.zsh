@@ -25,65 +25,66 @@ if ! __zplug::base::base::valid_semver "$_ZPLUG_VERSION" "$next_version"; then
     exit 1
 fi
 
-branch="$(git rev-parse --abbrev-ref HEAD)"
-if [[ ! $branch =~ $next_version ]]; then
-    echo "You are on $branch, but next version is $next_version" >&2
-    exit 1
-fi
-
-if [[ -z $GITHUB_TOKEN ]]; then
-    printf "GITHUB_TOKEN is missing\n" >&2
-    exit 1
-fi
-
-if [[ -n "$(git status -s)" ]]; then
-    git status -s
-    printf "your $branch branch is not clean\n" >&2
-    exit 1
-fi
-
-files=(
-"$dir/base/core/core.zsh"
-"$dir/README.md"
-"$dir/doc/guide/ja/README.md"
-)
-
-# overwrite
-echo "$next_version" >| "$dir/doc/VERSION"
-
-# overwrite
-for file in "$files[@]"
-do
-    cat "$file" | (rm "$file"; sed "s/$_ZPLUG_VERSION/$next_version/" > "$file")
-done
-
-# show diff
-git diff
-
-printf "Can I continue to process? [y/n] "
-read ok
-case "$ok" in
-    "Y"|"y"|"YES"|"yes"|"OK"|"ok")
-        # ok
-        ;;
-    *)
-        echo "canceled" >&2
-        exit 1
-        ;;
-esac
-
-# git ops
-set -x
-git add -p
-git commit -m "New version $next_version"
-git push -u origin $branch
-git checkout master
-git merge --no-ff $branch
-git push -u origin master
-# maybe not necessary thanks to curl post proc
-# git tag -a $next_version -m $next_version
-# git push origin $next_version
-set +x
+# branch="$(git rev-parse --abbrev-ref HEAD)"
+# if [[ ! $branch =~ $next_version ]]; then
+#     echo "You are on $branch, but next version is $next_version" >&2
+#     exit 1
+# fi
+#
+# if [[ -z $GITHUB_TOKEN ]]; then
+#     printf "GITHUB_TOKEN is missing\n" >&2
+#     exit 1
+# fi
+#
+# if [[ -n "$(git status -s)" ]]; then
+#     git status -s
+#     printf "your $branch branch is not clean\n" >&2
+#     exit 1
+# fi
+#
+# files=(
+# "$dir/base/core/core.zsh"
+# "$dir/README.md"
+# "$dir/doc/guide/ja/README.md"
+# )
+#
+# # overwrite
+# echo "$next_version" >| "$dir/doc/VERSION"
+#
+# # overwrite
+# for file in "$files[@]"
+# do
+#     cat "$file" | (rm "$file"; sed "s/$_ZPLUG_VERSION/$next_version/" > "$file")
+# done
+#
+# # show diff
+# git diff
+#
+# printf "Can I continue to process? [y/n] "
+# read ok
+# case "$ok" in
+#     "Y"|"y"|"YES"|"yes"|"OK"|"ok")
+#         # ok
+#         ;;
+#     *)
+#         echo "canceled" >&2
+#         exit 1
+#         ;;
+# esac
+#
+# # git ops
+# set -x
+# git add -p
+# git commit -m "New version $next_version"
+# git push -u origin $branch
+# git checkout master
+# git merge --no-ff $branch
+# git pull --rebase
+# git push -u origin master
+# # maybe not necessary thanks to curl post proc
+# # git tag -a $next_version -m $next_version
+# # git push origin $next_version
+# set +x
 
 body="Release of version '$next_version'"
 printf "Do you enter releases message? [y/n] "
@@ -113,14 +114,30 @@ case "$ok" in
         ;;
 esac
 
-curl --data \
-    '{ \
-    "tag_name": "'$next_version'", \
-    "target_commitish": "master", \
-    "name": "'$next_version'", \
-    "body": "'$body'", \
-    "draft": false, \
-    "prerelease": false \
-}' "https://api.github.com/repos/zplug/zplug/releases?access_token=$GITHUB_TOKEN"
-
+body="$message"
+data=$(cat <<EOF
+{
+    "tag_name": "$next_version",
+    "target_commitish": "master",
+    "name": "$next_version",
+    "body": "$body",
+    "draft": false,
+    "prerelease": false
+}
+EOF
+)
+echo "$data" | jq .
+curl --data "$data" "https://api.github.com/repos/zplug/zplug/releases?access_token=ad7c45422bf3875617480b6e8ac6f80430f4a44e"
 printf "Completed.\n"
+
+# curl --data \
+#     '{ \
+#     "tag_name": "'$next_version'", \
+#     "target_commitish": "master", \
+#     "name": "'$next_version'", \
+#     "body": "'$body'", \
+#     "draft": false, \
+#     "prerelease": false \
+# }' "https://api.github.com/repos/zplug/zplug/releases?access_token=ad7c45422bf3875617480b6e8ac6f80430f4a44e"
+#
+# printf "Completed.\n"
