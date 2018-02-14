@@ -126,7 +126,7 @@ zplug "jhawthorn/fzy", \
     hook-build:"make && sudo make install"
 
 # Supports checking out a specific branch/tag/commit
-zplug "b4b4r07/enhancd", at:v1
+zplug "b4b4r07/enhancd", at:v1, use:init.sh
 zplug "mollifier/anyframe", at:4c23cb60
 
 # Can manage gist file just like other packages
