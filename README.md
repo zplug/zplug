@@ -48,9 +48,7 @@ latest | stable
 $ curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh| zsh
 ```
 
-If you wonder this installation, please check it out:
-
-- [zplug/installer](https://github.com/zplug/installer/blob/master/installer.zsh)
+Curious about the installation script? Check it out at [zplug/installer](https://github.com/zplug/installer/blob/master/installer.zsh).
 
 ### Using [Homebrew](https://github.com/Homebrew/brew) (OS X)
 
