@@ -95,7 +95,7 @@ __zplug::core::core::prepare()
     # Add to the PATH
     path=(
     ${ZPLUG_ROOT:+"$ZPLUG_ROOT/bin"}
-    ${ZPLUG_BIN:+"$ZPLUG_BIN"}
+    ${ZPLUG_BIN:-"$ZPLUG_HOME/bin"}
     "$path[@]"
     )
 
