@@ -22,7 +22,7 @@ zplug clear
         as:command, \
         use:"bin/{histuniq,color}"
     # theme
-    zplug "S1cK94/minimal", \
+    zplug "b4b4r07/ultimate", \
         as:theme
 
     tests+=(
