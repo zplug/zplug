@@ -107,7 +107,7 @@ __zplug::base::base::git_version()
     fi
 
     __zplug::base::base::version_requirement \
-        ${(M)${(z)"$(git --version)"}:#[0-9]*[0-9]} ">" "${@:?}"
+        ${(M)${(z)"$(git --version|head -1)"}:#[0-9]*[0-9]} ">" "${@:?}"
     return $status
 }
 
