@@ -263,7 +263,7 @@ __zplug::job::handle::hook()
                 builtin printf "$repo\n" >>|"$_zplug_build_log[rollback]"
             fi
             rm -f "$_zplug_lock[job]"
-        } &
+        } &!
     fi
 
     __zplug::utils::ansi::erace_current_line
