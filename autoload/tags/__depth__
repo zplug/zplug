@@ -5,7 +5,7 @@
 local    arg="$1" package
 local -a parsed_zplugs
 local    depth
-local -i default=0
+local -i default=10
 
 package="${arg}, ${zplugs[$arg]%, }"
 parsed_zplugs=(${(s/, /)package/,  */, })
