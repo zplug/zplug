@@ -160,7 +160,7 @@ __zplug::core::core::prepare()
 __zplug::core::core::variable()
 {
     # for 'autoload -Uz zplug' in another subshell
-    export FPATH="$ZPLUG_ROOT/autoload:$FPATH"
+    FPATH="$ZPLUG_ROOT/autoload:$FPATH"
 
     typeset -gx    ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
     typeset -gx -i ZPLUG_THREADS=${ZPLUG_THREADS:-16}
