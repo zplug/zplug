@@ -162,7 +162,6 @@ __zplug::core::core::variable()
     # for 'autoload -Uz zplug' in another subshell
     export FPATH="$ZPLUG_ROOT/autoload:$FPATH"
 
-    typeset -gx    ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
     typeset -gx -i ZPLUG_THREADS=${ZPLUG_THREADS:-16}
     typeset -gx    ZPLUG_PROTOCOL=${ZPLUG_PROTOCOL:-HTTPS}
     typeset -gx    ZPLUG_FILTER=${ZPLUG_FILTER:-"fzf-tmux:fzf:peco:percol:fzy:zaw"}

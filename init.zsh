@@ -6,6 +6,7 @@ zplugs=()
 
 # A variable as a starting point of zplug
 typeset -gx ZPLUG_ROOT="${${(%):-%N}:A:h}"
+typeset -gx ZPLUG_HOME=${ZPLUG_HOME:-~/.zplug}
 
 # Load basic functions such as an __zplug::base function
 source "$ZPLUG_ROOT/base/init.zsh"
