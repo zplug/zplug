@@ -88,24 +88,6 @@ __zplug::core::core::run_interfaces()
 
 __zplug::core::core::prepare()
 {
-    # Unique array
-    typeset -gx -U path
-    typeset -gx -U fpath
-
-    # Add to the PATH
-    path=(
-    ${ZPLUG_ROOT:+"$ZPLUG_ROOT/bin"}
-    ${ZPLUG_BIN:-"$ZPLUG_HOME/bin"}
-    "$path[@]"
-    )
-
-    # Add to the FPATH
-    fpath=(
-    "$ZPLUG_ROOT"/misc/completions(N-/)
-    "$ZPLUG_ROOT/base/sources"
-    "$fpath[@]"
-    )
-
     # Check whether you meet the requirements for using zplug
     # 1. zsh 4.3.9 or more
     # 2. git
@@ -143,6 +125,24 @@ __zplug::core::core::prepare()
 
     # Release zplug variables and export
     __zplug::core::core::variable || return 1
+
+    # Unique array
+    typeset -gx -U path
+    typeset -gx -U fpath
+
+    # Add to the PATH
+    path=(
+    ${ZPLUG_ROOT:+"$ZPLUG_ROOT/bin"}
+    ${ZPLUG_BIN:-${ZPLUG_HOME:+"$ZPLUG_HOME/bin"}}
+    "$path[@]"
+    )
+
+    # Add to the FPATH
+    fpath=(
+    "$ZPLUG_ROOT"/misc/completions(N-/)
+    "$ZPLUG_ROOT/base/sources"
+    "$fpath[@]"
+    )
 
     mkdir -p "$ZPLUG_HOME"/{,log}
     mkdir -p "$ZPLUG_BIN"
