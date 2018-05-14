@@ -40,9 +40,9 @@ __zplug::utils::yaml::parser()
 
     parsed_yaml=( "${(@f)$(
     if [[ -f "$yaml" ]]; then
-        cat "$yaml"
+        command cat "$yaml"
     else
-        cat <&0
+        command cat <&0
     fi \
         | __zplug::utils::yaml::tokenizer
     )}" )

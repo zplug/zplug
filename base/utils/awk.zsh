@@ -71,7 +71,7 @@ __zplug::utils::awk::ltsv()
         user_awk_script="$1" \
         ltsv_awk_script
 
-    ltsv_awk_script=$(cat <<-'EOS'
+    ltsv_awk_script=$(command cat <<-'EOS'
     function key(name) {
         for (i = 1; i <= NF; i++) {
             match($i, ":");

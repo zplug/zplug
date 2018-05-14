@@ -19,7 +19,7 @@ do
 
     # Update
     rm -f "$test_file"
-    cat "$fp" \
+    command cat "$fp" \
         | grep "^__zplug::$parent::$child" \
         | awk '
     {

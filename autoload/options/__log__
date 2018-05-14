@@ -25,14 +25,14 @@ do
             if (( ! $+commands[jq] )); then
                 return 1
             fi
-            cat "$_zplug_log[trace]" \
+            command cat "$_zplug_log[trace]" \
                 | sed -e 's/[[:cntrl:]]//g' \
                 | jq ${=${2:+"$argv[2,-1]"}:-"."}
             return $status
             ;;
         less | more)
             # $PAGER
-            cat "$_zplug_log[trace]" | ${=arg}
+            command cat "$_zplug_log[trace]" | ${=arg}
             return $status
             ;;
         clear)
@@ -40,13 +40,13 @@ do
             return $status
             ;;
         count)
-            cat "$_zplug_log[trace]" | grep -c ''
+            command cat "$_zplug_log[trace]" | grep -c ''
             return $status
             ;;
         latest)
-            cat "$_zplug_log[trace]" \
+            command cat "$_zplug_log[trace]" \
                 | tail -n ${${2:+"$argv[2,-1]"}:-1} \
-                | ${=${${commands[jq]:+"jq ."}:-"cat -"}}
+                | ${=${${commands[jq]:+"jq ."}:-"command cat -"}}
             return $status
             ;;
         "")
@@ -63,4 +63,4 @@ do
     shift
 done
 
-cat "$_zplug_log[trace]"
+command cat "$_zplug_log[trace]"
