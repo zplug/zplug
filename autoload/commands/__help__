@@ -1,0 +1,89 @@
+#!/usr/bin/env zsh
+# Description:
+#   Display the help message
+
+local    f  arg
+local -a fs args
+
+local -A opts cmds
+local    obj opt cmd
+local -i max=0
+
+while (( $# > 0 ))
+do
+    arg="$1"
+    case "$arg" in
+        -*|--*)
+            break
+            ;;
+        "")
+            ;;
+        *)
+            fs=( "$(echo $ZPLUG_HOME/doc/man/man(1|5)/(zplug-|)${arg}.(1|5)(N))" )
+            # Non-existing man page
+            if [[ $fs[1] == "" ]]; then
+                __zplug::io::print::f \
+                    --die \
+                    --zplug \
+                    "$arg: no such subcommand or tag\n"
+                return 1
+            fi
+            # List all hits pages
+            for f in "${fs[@]}"
+            do
+                if [[ -f $f ]]; then
+                    args+=( "$f" )
+                fi
+            done
+            ;;
+    esac
+    shift
+done
+
+if (( $#args > 0 )); then
+    man "${args[@]}"
+    return $status
+fi
+
+# Measure max length
+{
+    cmds=( "${(kv)_zplug_commands[@]}" )
+    for opt in "${(k)_zplug_options[@]}"
+    do
+        opts[--$opt]="$_zplug_options[$opt]"
+    done
+
+    for obj in "${(k)cmds[@]}" "${(k)opts[@]}"
+    do
+        if (( $#obj > $max )); then
+            max=$#obj
+        fi
+    done
+}
+
+# Help message format
+{
+    printf "usage: zplug [OPTIONS] [COMMANDS [options] [args]]\n"
+    printf "  zplug is a next-generation plugin manager for zsh\n"
+
+    for obj in \
+        OPTIONS  "${(k)opts[@]}" \
+        COMMANDS "${(k)cmds[@]}"; do \
+        case "$obj" in
+            OPTIONS | COMMANDS)
+                printf "\n$obj:\n"
+                ;;
+            *)
+                desc="(None)"
+                [[ -n $opts[$obj] ]] && desc="$opts[$obj]"
+                [[ -n $cmds[$obj] ]] && desc="$cmds[$obj]"
+                printf "  %-${max}s    %s\n" \
+                    "$obj" \
+                    "$desc"
+                ;;
+        esac
+    done
+    printf "\n"
+} >&2
+
+return 0

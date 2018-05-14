@@ -7,7 +7,7 @@ case "$arg" in
         __zplug::core::options::parse "$argv[@]"
         ;;
 
-    check | install | update | list | clean | status | clear | load | info)
+    check | install | update | list | clean | status | clear | load | info | help)
         shift
         __zplug::core::core::run_interfaces \
             "$arg" \
