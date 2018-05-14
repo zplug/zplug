@@ -27,3 +27,5 @@ zcompdump.zwc
 # OS X
 .DS_Store
 **/.DS_Store
+
+.ssh
