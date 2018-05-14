@@ -171,6 +171,8 @@ __zplug::core::core::variable()
     typeset -gx    ZPLUG_SUDO_PASSWORD
 
     typeset -gx    ZPLUG_ERROR_LOG=${ZPLUG_ERROR_LOG:-$ZPLUG_HOME/.error_log}
+    typeset -gx    ZPLUG_LOG_LOAD_SUCCESS=${ZPLUG_LOG_LOAD_SUCCESS:-false}
+    typeset -gx    ZPLUG_LOG_LOAD_FAILURE=${ZPLUG_LOG_LOAD_FAILURE:-false}
 
     typeset -gx    ZPLUG_BIN=${ZPLUG_BIN:-$ZPLUG_HOME/bin}
     typeset -gx    ZPLUG_CACHE_DIR=${ZPLUG_CACHE_DIR:-$ZPLUG_HOME/cache}

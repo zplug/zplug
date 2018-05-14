@@ -348,6 +348,14 @@ Defaults to `$ZPLUG_HOME/repos`. You can change where the repositories are clone
 
 Defaults to `''`. You can set sudo password for zplug's `hook-build` tag. However, this variable should not be managed in dotfiles and so on.
 
+#### `ZPLUG_LOG_LOAD_SUCCESS`
+
+Defaults to `false`. If true, zplug spit the log about its success operation out to file (you can see it with `zplug --log`).
+
+#### `ZPLUG_LOG_LOAD_FAILURE`
+
+Defaults to `false`. If true, zplug spit the log about its failure operation out to file (you can see it with `zplug --log`).
+
 ```zsh
 # your .zshrc
 source ~/.zshrc_secret
