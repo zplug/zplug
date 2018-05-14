@@ -14,12 +14,12 @@ RUN groupadd -g 1000 zplug && \
 # .ssh dir needs to be copied from your home
 ADD .ssh /home/zplug/.ssh
 
+ADD . /home/zplug/.zplug
+
 RUN chown -R zplug:zplug /home/zplug
 RUN chmod 600 /home/zplug/.ssh/id_rsa
 
 USER zplug
 WORKDIR /home/zplug
-
-RUN git clone https://github.com/zplug/zplug ~/.zplug
 
 CMD ["/bin/zsh"]
