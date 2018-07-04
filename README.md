@@ -251,8 +251,8 @@ All that's left is to run `zplug update`.
 | `rename-to`   | Specify the filename you want to rename the command to (use this only with `as:command`) | *filename* (-) | `rename-to:fzf` |
 | `dir`         | Installed directory of the package | **READ ONLY** | `dir:/path/to/user/repo` |
 | `if`          | Specify the conditions under which to install and use the package | *boolean* (-) | `if:"[ -d ~/.zsh ]"` |
-| `hook-build`  | Commands to after installation/update | *commands* (-) | `hook-build:"make install"` |
-| `hook-load`   | Commands to after loading | *commands* (-) | `hook-load:"echo 'Loaded!'"` |
+| `hook-build`  | Commands to run after installation/update | *commands* (-) | `hook-build:"make install"` |
+| `hook-load`   | Commands to run after loading | *commands* (-) | `hook-load:"echo 'Loaded!'"` |
 | `frozen`      | Do not update unless explicitly specified | truthy,falsy (false) | `frozen:1` |
 | `on`          | Load this package only if a different package is installed | *package* | `on:user/repo` |
 | `defer`        | Defers the loading of a package. If the value is 2 or above, zplug will source the plugin after `compinit` (see also [#26](https://github.com/zplug/zplug/issues/26)) | 0..3 (0) | `defer:2` |
