@@ -27,6 +27,11 @@ __zplug::sources::gh-r::install()
         "$repo"
     )"
 
+    ret=$status
+    if (( $ret != 0 )); then
+        return $ret
+    fi
+
     __zplug::utils::releases::get "$url"
 
     return $status
