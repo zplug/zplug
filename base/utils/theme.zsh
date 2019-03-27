@@ -51,7 +51,7 @@ git_remote_status()
         if [[ $ahead == 0 ]] && [[ $behind == 0 ]]; then
             git_remote_status="$ZSH_THEME_GIT_PROMPT_EQUAL_REMOTE"
 
-        elif [[ $ahead == 0 ]] && [[ $behind == 0 ]]; then
+        elif [[ $ahead -gt 0 ]] && [[ $behind == 0 ]]; then
             git_remote_status="$ZSH_THEME_GIT_PROMPT_AHEAD_REMOTE"
             git_remote_status_detailed="$ZSH_THEME_GIT_PROMPT_AHEAD_REMOTE_COLOR$ZSH_THEME_GIT_PROMPT_AHEAD_REMOTE$((ahead))%{$reset_color%}"
 
