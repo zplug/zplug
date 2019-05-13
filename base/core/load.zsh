@@ -31,7 +31,12 @@ __zplug::core::load::from_cache()
 
         # Plugins with defer-level set
         source "$_zplug_cache[defer_1_plugin]"
-        compinit -d "$ZPLUG_HOME/zcompdump"
+        if [[ $ZSH_DISABLE_COMPFIX != true ]]; then
+          compinit -d "$ZPLUG_HOME/zcompdump"
+        else
+          compinit -u -d "$ZPLUG_HOME/zcompdump"
+        fi
+
         if (( $_zplug_boolean_true[(I)$is_verbose] )); then
             __zplug::io::print::f \
                 --zplug "$fg[yellow]Run compinit$reset_color\n"
