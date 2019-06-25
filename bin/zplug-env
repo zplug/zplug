@@ -5,6 +5,4 @@
 # This is a sample zplug script
 # For more information, see man page of zplug(1)
 
-env \
-    | grep -E "^_?ZPLUG_" \
-    | perl -pe 's/^(\w+)(=)(.*)$/\033[32m$1\033[m $2 $3/'
+env | awk -v FS="=" '/^_?ZPLUG_/ {printf "\033[32m%s\033[m = %s\n", $1, $2}'
