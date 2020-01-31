@@ -1,0 +1,18 @@
+# https://github.com/srt32/revert
+
+name: Automatic Revert
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  revert-commit:
+    runs-on: ubuntu-latest
+    if: contains(github.event.comment.body, '/revert')
+    steps:
+      - uses: actions/checkout@v1
+      - name: Automatic Revert
+        uses: srt32/revert@v0.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
