@@ -1,0 +1,5 @@
+# https://devbots.xyz/documentation/needs-review/
+
+enabled: true
+label: "needs-review"
+delay: 1440 # wait one day
