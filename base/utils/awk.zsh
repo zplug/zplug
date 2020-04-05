@@ -71,16 +71,30 @@ __zplug::utils::awk::ltsv()
         user_awk_script="$1" \
         ltsv_awk_script
 
-    ltsv_awk_script=$(cat <<-'EOS'
-    function key(name) {
-        for (i = 1; i <= NF; i++) {
-            match($i, ":");
-            xs[substr($i, 0, RSTART)] = substr($i, RSTART+1);
-        };
-        return xs[name":"];
-    }
+    # special script for mawk
+    if ( awk -Wv 2>&1 | grep -q mawk ); then
+       ltsv_awk_script=$(cat <<-'EOS'
+       function key(name) {
+           for (i = 1; i <= NF; i++) {
+               match($i, ":");
+               xs[substr($i, 0, RSTART)] = substr($i, RSTART+1);
+           };
+           return xs[name];
+       }
 EOS
-    )
+       )
+    else
+       ltsv_awk_script=$(cat <<-'EOS'
+       function key(name) {
+           for (i = 1; i <= NF; i++) {
+               match($i, ":");
+               xs[substr($i, 0, RSTART)] = substr($i, RSTART+1);
+           };
+           return xs[name":"];
+       }
+EOS
+       )
+    fi
 
     awk -F'\t' \
         "${ltsv_awk_script} ${user_awk_script}"
