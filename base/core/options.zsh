@@ -71,7 +71,7 @@ __zplug::core::options::long()
         esac
     done
 
-    opt="$opts[1]"
+    typeset -l opt="$opts[1]"
 
     if [[ -f $ZPLUG_ROOT/autoload/options/__${opt}__ ]]; then
         __zplug::core::core::run_interfaces \

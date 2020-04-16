@@ -26,5 +26,5 @@ __zplug::core::tags::parse()
         pairs+=("$tag" "$val")
     done
 
-    reply=( "$pairs[@]" )
+    typeset -ga reply=( "$pairs[@]" )
 }
