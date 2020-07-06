@@ -13,6 +13,36 @@ source "$ZPLUG_ROOT/init.zsh"
 zplugs=()
 zplug clear
 
+# Output location. Default is standart output.
+# In CI env equals to /dev/null.
+_rd=/dev/stdout
+
+_zplug_fin()
+{
+    local _cmd="$1"
+    __zplug::io::print::f \
+        --zplug "$fg[green]'${_cmd}' finished successfully.$reset_color\n"
+}
+
+_zplug_fail()
+{
+    local _cmd="${1}"
+    __zplug::io::print::f \
+        --zplug \
+        --warn \
+        "'${_cmd}' finished with errors.\n"
+}
+
+_zplug_ci() {
+    __zplug::io::print::f \
+        --zplug \
+        "$fg[yellow]CI environment detected, output supressed.$reset_color\n"
+}
+
+if [[ -n "${CI}" ]]; then
+    _rd=/dev/null && _zplug_ci
+fi
+
 # as
 {
     # plugin
@@ -73,11 +103,10 @@ zplug clear
     zplug "modules/git", from:prezto
     zplug "modules/directory", from:prezto
     # gh-r
-    # TODO: `fzf-bin` should be replaced with any other package with binary releases
-    # zplug "junegunn/fzf-bin", \
-    #     as:command, \
-    #     from:gh-r, \
-    #     rename-to:f
+    zplug "junegunn/fzf-bin", \
+        as:command, \
+        from:gh-r, \
+        rename-to:f
     # gist
     zplug "b4b4r07/79ee61f7c140c63d2786", \
         from:gist, \
@@ -98,7 +127,7 @@ zplug clear
     '[[ -o autocd ]]'             # "prezto" modules/directory
     '[[ ! -x $ZPLUG_HOME/bin/peco ]]' # for b4b4r07/zsh-gomi (on tag)
     '[[ -x $ZPLUG_HOME/bin/get_last_pane_path.sh ]]'
-    #'[[ -x $ZPLUG_HOME/bin/f ]]'
+    '[[ -x $ZPLUG_HOME/bin/f ]]'
     )
 }
 
@@ -212,13 +241,11 @@ zplug clear
     zplug "b4b4r07/http_code", \
         as:command, \
         use:"bin/http_code"
-    # TODO: There is no binary release on GH-R for this package,
-    # TODO: should be replaced with another one.
-    # zplug "monochromegane/the_platinum_searcher", \
-    #     as:command, \
-    #     from:gh-r, \
-    #     rename-to:pt, \
-    #     use:"*${(L)$(uname -s)}*amd64*"
+    zplug "monochromegane/the_platinum_searcher", \
+        as:command, \
+        from:gh-r, \
+        rename-to:pt, \
+        use:"*${(L)$(uname -s)}*amd64*"
     zplug 'junegunn/fzf', \
         as:command, \
         use:'bin/{fzf,fzf-tmux}'
@@ -227,12 +254,14 @@ zplug clear
     '[[ -x $ZPLUG_HOME/bin/http_code ]]'
     '[[ ! -x $ZPLUG_HOME/bin/fzf ]]'
     '[[ -x $ZPLUG_HOME/bin/fzf-tmux ]]'
-    #'[[ -x $ZPLUG_HOME/bin/pt ]]'
+    '[[ -x $ZPLUG_HOME/bin/pt ]]'
     )
 }
 
-zplug install || ret=1
-zplug load --verbose || ret=1
+ret=0
+
+zplug install >${_rd} && _zplug_fin "install" || { _zplug_fail 'install' && ret=1 }
+zplug load --verbose >${_rd} && _zplug_fin "load" || { _zplug_fail 'load' && ret=1 }
 
 # on (test case)
 
@@ -259,12 +288,12 @@ zplug load --verbose || ret=1
 #    )
 #}
 
-ret=0
 for test in "$tests[@]"
 do
     eval "$test"
     if (( $status != 0 )); then
-        printf "$fg[red]FAIL: $test$reset_color\n" >&2
+        _zplug_fail "${test}"
+        #printf "$fg[red]FAIL: $test$reset_color\n" >&2
         ret=1
     fi
 done
