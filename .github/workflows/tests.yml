@@ -32,6 +32,6 @@ jobs:
 
     - name: Run tests
       run: |
-        make showe
+        make shove
         make test
       shell: zsh {0}
