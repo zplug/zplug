@@ -39,6 +39,16 @@ _zplug_ci() {
         "$fg[yellow]CI environment detected, output supressed.$reset_color\n"
 }
 
+_zplug_compinit_emu() {
+    if [[ -n "${CI}" ]]; then
+        if ! compinit >/dev/null 2>&1; then
+            function compinit() {
+                return 0
+            }
+        fi
+    fi
+}
+
 if [[ -n "${CI}" ]]; then
     _rd=/dev/null && _zplug_ci
 fi
@@ -260,8 +270,22 @@ fi
 
 ret=0
 
-zplug install >${_rd} && _zplug_fin "install" || { _zplug_fail 'install' && ret=1 }
-zplug load --verbose >${_rd} && _zplug_fin "load" || { _zplug_fail 'load' && ret=1 }
+if [[ -n "${CI}" ]]; then
+    _zplug_compinit_emu
+fi
+
+if zplug install >${_rd} | grep -iq 'finished successfully'; then
+    #_zplug_fail 'install'
+    _zplug_fin 'install'
+else
+    _zplug_fail 'install'
+    ret=1
+fi
+
+if ! zplug load --verbose >${_rd}; then
+    _zplug_fail 'load'
+    ret=1
+fi
 
 # on (test case)
 
