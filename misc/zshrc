@@ -40,12 +40,10 @@ _zplug_ci() {
 }
 
 _zplug_compinit_emu() {
-    if [[ -n "${CI}" ]]; then
-        if ! compinit >/dev/null 2>&1; then
-            function compinit() {
-                return 0
-            }
-        fi
+    if ! compinit >/dev/null 2>&1; then
+        function compinit() {
+            return 0
+        }
     fi
 }
 
@@ -270,19 +268,22 @@ fi
 
 ret=0
 
+# 'autoload -U compinit' and 'compinit' fails on CI
+# due to non-interactive shell
 if [[ -n "${CI}" ]]; then
     _zplug_compinit_emu
 fi
 
 if zplug install >${_rd} | grep -iq 'finished successfully'; then
-    #_zplug_fail 'install'
     _zplug_fin 'install'
 else
     _zplug_fail 'install'
     ret=1
 fi
 
-if ! zplug load --verbose >${_rd}; then
+if zplug load --verbose >${_rd}; then
+    _zplug_fin 'load'
+else
     _zplug_fail 'load'
     ret=1
 fi
@@ -317,7 +318,6 @@ do
     eval "$test"
     if (( $status != 0 )); then
         _zplug_fail "${test}"
-        #printf "$fg[red]FAIL: $test$reset_color\n" >&2
         ret=1
     fi
 done
