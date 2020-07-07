@@ -21,12 +21,12 @@ _zplug_fin()
 {
     local _cmd="$1"
     __zplug::io::print::f \
-        --zplug "$fg[green]'${_cmd}' finished successfully.$reset_color\n"
+        --zplug "${fg[green]}'${_cmd}' finished successfully.${reset_color}\n"
 }
 
 _zplug_fail()
 {
-    local _cmd="${1}"
+    local _cmd="$1"
     __zplug::io::print::f \
         --zplug \
         --warn \
@@ -36,7 +36,7 @@ _zplug_fail()
 _zplug_ci() {
     __zplug::io::print::f \
         --zplug \
-        "$fg[yellow]CI environment detected, output supressed.$reset_color\n"
+        "${fg[yellow]}CI environment detected, output supressed.${reset_color}\n"
 }
 
 _zplug_compinit_emu() {
@@ -233,14 +233,13 @@ fi
 
 # rename-to
 {
-    zplug "raylee/tldr", \
-        from:github, \
+    zplug "stedolan/jq", \
+        from:gh-r, \
         as:command, \
-        rename-to:tldr, \
-        use:"tldr"
+        rename-to:jq
 
     tests+=(
-    '[[ -x $ZPLUG_HOME/bin/tldr ]]'
+    '[[ -x $ZPLUG_HOME/bin/jq ]]'
     )
 }
 
