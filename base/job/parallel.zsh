@@ -95,7 +95,7 @@ __zplug::job::parallel::init()
 
     # Suppress outputs
     setopt nonotify nomonitor
-    # Hide the cursor in case of interactive session
+    # Hide the cursor
     __zplug::utils::shell::is_atty && tput civis
 
     __zplug::io::print::f \
