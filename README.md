@@ -100,10 +100,9 @@ zplug "k4rthik/git-cal", as:command, frozen:1
 
 # Grab binaries from GitHub Releases
 # and rename with the "rename-to:" tag
-zplug "junegunn/fzf-bin", \
+zplug "junegunn/fzf", \
     from:gh-r, \
     as:command, \
-    rename-to:fzf, \
     use:"*darwin*amd64*"
 
 # Supports oh-my-zsh plugins and the like
