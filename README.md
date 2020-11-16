@@ -356,6 +356,11 @@ Defaults to `false`. If true, zplug spit the log about its success operation out
 
 Defaults to `false`. If true, zplug spit the log about its failure operation out to file (you can see it with `zplug --log`).
 
+#### `ZPLUG_LOG_TRACE`
+
+Defaults to `true`. If false, zplug spit trace log out to file (you can see it with `zplug --log`).
+
+
 ```zsh
 # your .zshrc
 source ~/.zshrc_secret
