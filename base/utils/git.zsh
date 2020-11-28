@@ -324,7 +324,7 @@ __zplug::utils::git::get_remote_state()
         state="$(grep "^ *$branch *pushes" <<<"$remote_show" | sed 's/.*(\(.*\)).*/\1/')"
 
         if [[ -z $state ]]; then
-            behind_ahead=( ${(@f)"$(git rev-list \
+            behind_ahead=( ${="$(git rev-list \
                 --left-right \
                 --count \
                 "$remote_name/$merge_branch"...$branch)"} )
