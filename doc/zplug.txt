@@ -30,7 +30,7 @@ It's such a fantabulous piece of software.
     and https://bitbucket.org[Bitbucket]
 **  Gist file (https://gist.github.com[gist.github.com])
 **  Third-party sources e.g.,
- https://github.com/robbyrussell/oh-my-zsh[oh-my-zsh] and
+ https://github.com/ohmyzsh/ohmyzsh[oh-my-zsh] and
  https://github.com/sorin-ionescu/prezto[prezto] plugins/themes
 **  Binary artifacts on https://help.github.com/articles/about-releases[GitHub Releases]
 **  Local plugins

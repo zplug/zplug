@@ -18,7 +18,7 @@
 - 何でも管理できる
   - [GitHub](https://github.com) や [Bitbucket](https://bitbucket.org) にあるプラグインや UNIX コマンド
   - Gist ファイル ([gist.github.com](https://gist.github.com))
-  - 外部フレームワークなどのプラグイン (例: [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) や [prezto](https://github.com/sorin-ionescu/prezto) のプラグイン・テーマ)
+  - 外部フレームワークなどのプラグイン (例: [oh-my-zsh](https://github.com/ohmyzsh/ohmyzsh) や [prezto](https://github.com/sorin-ionescu/prezto) のプラグイン・テーマ)
   - [GitHub Releases](https://help.github.com/articles/about-releases/) のバイナリファイル
   - ローカルプラグイン
   - その他 ([カスタムソース](https://github.com/zplug/zplug/blob/master/doc/zplug/External-Sources.md)によって追加できる)
