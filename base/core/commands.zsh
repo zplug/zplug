@@ -10,7 +10,7 @@ __zplug::core::commands::user_defined()
     local -a user_cmds
 
     # reset
-    reply=()
+    typeset -ga reply=()
 
     user_cmds=( ${^path[@]}/zplug-*(N-.:t:gs:zplug-:) )
     if (( $#user_cmds > 0 )); then

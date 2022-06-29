@@ -41,6 +41,8 @@ if [[ -z $from ]]; then
 fi
 
 : ${from:=$default}
+typeset -ga match
+typeset -gi mbegin mend
 if [[ ! $from =~ ^(${(j:|:)candidates[@]})$ ]]; then
     __zplug::io::print::f \
         --die \

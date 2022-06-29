@@ -1,6 +1,6 @@
 __zplug::core::core::get_interfaces()
 {
-    local    arg name desc
+    local    arg name desc line
     local    target
     local -a targets
     local    interface
@@ -29,7 +29,7 @@ __zplug::core::core::get_interfaces()
     done
 
     # Initialize
-    reply=()
+    typeset -gA reply=()
 
     for target in "${targets[@]}"
     do
@@ -285,7 +285,7 @@ __zplug::core::core::variable()
 
     # zplug core variables
     {
-        typeset -gx -A -U \
+        typeset -gx -a -U \
             _zplug_options \
             _zplug_commands \
             _zplug_tags

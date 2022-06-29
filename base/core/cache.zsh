@@ -32,7 +32,7 @@ __zplug::core::cache::commit()
     local -A  hook_load
     local -A  reply_hash
     local -A  load_commands
-    local -aU load_plugins load_fpaths lazy_plugins \
+    local -aU load_plugins load_fpaths lazy_plugins load_themes \
         defer_1_plugins \
         defer_2_plugins \
         defer_3_plugins

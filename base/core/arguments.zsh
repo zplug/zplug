@@ -3,7 +3,7 @@ __zplug::core::arguments::exec()
     local arg="$1"
     shift
 
-    reply=()
+    typeset -ga reply=()
     __zplug::core::commands::user_defined
 
     # User-defined command
