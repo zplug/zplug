@@ -3,6 +3,8 @@
 !gh-r.zsh
 !gist.zsh
 !github.zsh
+!gitlab.zsh
+!jihulab.zsh
 !local.zsh
 !oh-my-zsh.zsh
 !prezto.zsh
