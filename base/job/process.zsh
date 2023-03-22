@@ -21,7 +21,7 @@ __zplug::job::process::get_status_code() {
         return 1
     fi
 
-    cat "$_zplug_log[$target]" \
+    command cat "$_zplug_log[$target]" \
         | __zplug::utils::awk::ltsv \
         'key("repo")=="'"$repo"'"{print key("status")}'
 

@@ -16,7 +16,7 @@ __zplug::io::file::generate()
         return 0
     fi
 
-    cat <<-TEMPLATE >$ZPLUG_LOADFILE
+    command cat <<-TEMPLATE >$ZPLUG_LOADFILE
 #!/usr/bin/env zsh
 # -*- mode: zsh -*-
 # vim:ft=zsh

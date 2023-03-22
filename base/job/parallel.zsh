@@ -129,7 +129,7 @@ __zplug::job::parallel::deinit()
             # Run rollback if hook-build failed
             __zplug::job::rollback::message
             # Cache clear automatically after running update command
-            status_ok=( ${(@f)"$(cat "$_zplug_log[update]" 2>/dev/null \
+            status_ok=( ${(@f)"$(command cat "$_zplug_log[update]" 2>/dev/null \
                 | __zplug::utils::awk::ltsv 'key("status")==0')"} )
             if (( $#status_ok > 0 )); then
                 __zplug::core::core::run_interfaces 'clear'
@@ -151,7 +151,7 @@ __zplug::job::parallel::deinit()
             # Run rollback if hook-build failed
             __zplug::job::rollback::message
             # Cache clear automatically after running install command
-            status_ok=( ${(@f)"$(cat "$_zplug_log[install]" 2>/dev/null \
+            status_ok=( ${(@f)"$(command cat "$_zplug_log[install]" 2>/dev/null \
                 | __zplug::utils::awk::ltsv 'key("status")==0')"} )
             if (( $#status_ok > 0 )); then
                 __zplug::core::core::run_interfaces 'clear'

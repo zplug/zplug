@@ -16,7 +16,7 @@ __zplug::core::cache::set_file()
 __zplug::core::cache::expose()
 {
     if [[ -f $_zplug_cache[interface] ]]; then
-        cat "$_zplug_cache[interface]"
+        command cat "$_zplug_cache[interface]"
     fi
 }
 

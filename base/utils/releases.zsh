@@ -22,7 +22,7 @@ __zplug::utils::releases::get_state()
 {
     local state name="$1" dir="$2"
 
-    if [[ "$(__zplug::utils::releases::get_latest "$name")" == "$(cat "$dir/INDEX" 2>/dev/null)" ]]; then
+    if [[ "$(__zplug::utils::releases::get_latest "$name")" == "$(command cat "$dir/INDEX" 2>/dev/null)" ]]; then
         state="up to date"
     else
         state="local out of date"

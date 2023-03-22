@@ -54,7 +54,7 @@ fi
 # # overwrite
 # for file in "$files[@]"
 # do
-#     cat "$file" | (rm "$file"; sed "s/$_ZPLUG_VERSION/$next_version/" > "$file")
+#     command cat "$file" | (rm "$file"; sed "s/$_ZPLUG_VERSION/$next_version/" > "$file")
 # done
 #
 # # show diff
@@ -115,7 +115,7 @@ case "$ok" in
 esac
 
 body="$message"
-data=$(cat <<EOF
+data=$(command cat <<EOF
 {
     "tag_name": "$next_version",
     "target_commitish": "master",
