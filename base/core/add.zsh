@@ -34,8 +34,9 @@ __zplug::core::add::to_zplugs()
     # Reconstruct the tag information
     for tag in "${tags[@]}"
     do
-        key=${${(s.:.)tag}[1]}
-        val=${${(s.:.)tag}[2]}
+        tag=("${(@s.:.)tag}")
+        key=$tag[1]
+        val=${(j.:.)tag[2,-1]}
 
         if (( $+_zplug_tags[$key] )); then
             case $key in
