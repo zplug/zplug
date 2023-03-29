@@ -96,7 +96,7 @@ __zplug::job::parallel::init()
     # Suppress outputs
     setopt nonotify nomonitor
     # Hide the cursor
-    tput civis
+    __zplug::utils::shell::is_atty && tput civis
 
     __zplug::io::print::f \
         --zplug \
@@ -174,5 +174,5 @@ __zplug::job::parallel::deinit()
     esac
 
     # Display the cursor
-    tput cnorm
+    __zplug::utils::shell::is_atty && tput cnorm
 }

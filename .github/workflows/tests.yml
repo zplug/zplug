@@ -1,0 +1,37 @@
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches:
+      - master
+      - workflow-tests
+  pull_request:
+    branches:
+      - master
+      - workflow-tests
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  run-tests:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Check zsh version
+      run: |
+        echo $ZSH_VERSION
+      shell: zsh {0}
+
+    - name: Run tests
+      run: |
+        make shove
+        make test
+      shell: zsh {0}

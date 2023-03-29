@@ -5,12 +5,51 @@
 tests=()
 export ZPLUG_HOME="/tmp/zplug-$RANDOM"
 export ZPLUG_REPOS="$ZPLUG_HOME/repos"
-mkdir -p "$ZPLUG_HOME" "$ZPLUG_REPOS"
+export ZPLUG_BIN="$ZPLUG_HOME/bin"
+mkdir -p "$ZPLUG_HOME" "$ZPLUG_REPOS" "$ZPLUG_BIN"
 
 # Prepare
 source "$ZPLUG_ROOT/init.zsh"
 zplugs=()
 zplug clear
+
+# Output location. Default is standart output.
+# In CI env equals to /dev/null.
+_rd=/dev/stdout
+
+_zplug_fin()
+{
+    local _cmd="$1"
+    __zplug::io::print::f \
+        --zplug "${fg[green]}'${_cmd}' finished successfully.${reset_color}\n"
+}
+
+_zplug_fail()
+{
+    local _cmd="$1"
+    __zplug::io::print::f \
+        --zplug \
+        --warn \
+        "'${_cmd}' finished with errors.\n"
+}
+
+_zplug_ci() {
+    __zplug::io::print::f \
+        --zplug \
+        "${fg[yellow]}CI environment detected, output supressed.${reset_color}\n"
+}
+
+_zplug_compinit_emu() {
+    if ! compinit >/dev/null 2>&1; then
+        function compinit() {
+            return 0
+        }
+    fi
+}
+
+if [[ -n "${CI}" ]]; then
+    _rd=/dev/null && _zplug_ci
+fi
 
 # as
 {
@@ -94,9 +133,9 @@ zplug clear
     '(( $+aliases[gbS] ))'        # "prezto" modules/git
     '(( $+functions[git-dir] ))'  # "prezto" modules/git
     '[[ -o autocd ]]'             # "prezto" modules/directory
-    '[[ -x $ZPLUG_HOME/bin/f ]]'
     '[[ ! -x $ZPLUG_HOME/bin/peco ]]' # for b4b4r07/zsh-gomi (on tag)
     '[[ -x $ZPLUG_HOME/bin/get_last_pane_path.sh ]]'
+    '[[ -x $ZPLUG_HOME/bin/f ]]'
     )
 }
 
@@ -220,14 +259,33 @@ zplug clear
 
     tests+=(
     '[[ -x $ZPLUG_HOME/bin/http_code ]]'
-    '[[ -x $ZPLUG_HOME/bin/pt ]]'
     '[[ ! -x $ZPLUG_HOME/bin/fzf ]]'
     '[[ -x $ZPLUG_HOME/bin/fzf-tmux ]]'
+    '[[ -x $ZPLUG_HOME/bin/pt ]]'
     )
 }
 
-zplug install || ret=1
-zplug load --verbose || ret=1
+ret=0
+
+# 'autoload -U compinit' and 'compinit' fails on CI
+# due to non-interactive shell
+if [[ -n "${CI}" ]]; then
+    _zplug_compinit_emu
+fi
+
+if zplug install >${_rd} | grep -iq 'finished successfully'; then
+    _zplug_fin 'install'
+else
+    _zplug_fail 'install'
+    ret=1
+fi
+
+if zplug load --verbose >${_rd}; then
+    _zplug_fin 'load'
+else
+    _zplug_fail 'load'
+    ret=1
+fi
 
 # on (test case)
 
@@ -254,12 +312,11 @@ zplug load --verbose || ret=1
 #    )
 #}
 
-ret=0
 for test in "$tests[@]"
 do
     eval "$test"
     if (( $status != 0 )); then
-        printf "$fg[red]FAIL: $test$reset_color\n" >&2
+        _zplug_fail "${test}"
         ret=1
     fi
 done

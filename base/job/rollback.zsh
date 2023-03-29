@@ -11,7 +11,8 @@ __zplug::job::rollback::build()
         return 1
     fi
 
-    tput civis
+    __zplug::utils::shell::is_atty && tput civis
+
     while read repo
     do
         if [[ -z $repo ]]; then
@@ -36,7 +37,8 @@ __zplug::job::rollback::build()
                 "$repo"
         fi
     done <"$_zplug_build_log[rollback]"
-    tput cnorm
+    
+    __zplug::utils::shell::is_atty && tput cnorm
 
     # Overwrite
     if (( $#failed == 0 )); then

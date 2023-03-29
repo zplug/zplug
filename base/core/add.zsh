@@ -6,7 +6,7 @@ __zplug::core::add::to_zplugs()
     local -a re_tags
 
     # DEPRECATED: pipe
-    if [[ -p /dev/stdin ]]; then
+    if [[ -p /dev/stdin && -z "${CI}" ]]; then
         __zplug::core::migration::pipe
         return $status
     fi
