@@ -255,17 +255,43 @@ __zplug::utils::shell::eval()
     return $status
 }
 
+__zplug::utils::shell::json_escape_char()
+{
+    # Quotation mark, reverse solidus, and the control characters
+    # must be escaped. See https://tools.ietf.org/html/rfc8259#section-7
+    #
+    # To keep the behavior consistent with an older implementation that used
+    # Python, we also escape some other characters. See:
+    # https://github.com/python/cpython/blob/530f506ac91338b55cf2be71b1cdf50cb077512f/Modules/_json.c#L284
+    c=$1
+
+    [[ "$c" == $'\\' ]] && echo -n '\\\\' && return
+    [[ "$c" == $'\"' ]] && echo -n '\"'   && return
+    [[ "$c" == $'\b' ]] && echo -n '\\b'  && return
+    [[ "$c" == $'\f' ]] && echo -n '\\f'  && return
+    [[ "$c" == $'\n' ]] && echo -n '\\n'  && return
+    [[ "$c" == $'\r' ]] && echo -n '\\r'  && return
+    [[ "$c" == $'\t' ]] && echo -n '\\t'  && return
+
+    if (( #c <= 0x1f )); then
+        printf '\\u%04x' $(( #c ))
+    else
+        echo -n $c
+    fi
+}
+
 __zplug::utils::shell::json_escape()
 {
-    if (( $+commands[python] )) && python -c 'import json' 2> /dev/null; then
-        python -c '
-from __future__ import print_function
-import json,sys
-print(json.dumps(sys.stdin.read()))' \
-    2> >(__zplug::log::capture::error)
-    else
-        echo "(Not available: python with json required)"
-    fi
+    # Read everything from pipe/stdin.
+    # Then split string into array of characters
+    # And escape every single character
+    IFS='' read -rd '' stdin
+    chars=( ${(@s//)stdin} )
+    echo -n '"'
+    for c in $chars; do
+        __zplug::utils::shell::json_escape_char $c
+    done
+    echo -n '"'
 }
 
 __zplug::utils::shell::is_atty()
