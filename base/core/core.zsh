@@ -249,6 +249,10 @@ __zplug::core::core::variable()
     "defer_2_plugin" "$ZPLUG_CACHE_DIR/defer_2_plugin.zsh"
     "defer_3_plugin" "$ZPLUG_CACHE_DIR/defer_3_plugin.zsh"
     )
+    # Ensure cache files exist before loading
+    mkdir -p "$ZPLUG_CACHE_DIR"
+    for cache_file in "$_zplug_cache[@]"
+      touch "$cache_file"
 
     typeset -gx -A _zplug_lock
     _zplug_lock=(
