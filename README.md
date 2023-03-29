@@ -48,6 +48,8 @@ latest | stable
 curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
 ```
 
+This installer will honor your definition of `ZPLUG_HOME`.
+
 Curious about the installation script? Check it out at [zplug/installer](https://github.com/zplug/installer/blob/master/installer.zsh).
 
 ### Using [Homebrew](https://github.com/Homebrew/brew) (OS X)
@@ -55,6 +57,8 @@ Curious about the installation script? Check it out at [zplug/installer](https:/
 ```console
 brew install zplug
 ```
+
+Warning: Homebrew will impose its own value for `ZPLUG_HOME`, honoring neither any value you have defined nor using the zplug default.  If you are okay with installing zplug to `/opt/homebrew/opt/zplug`, then Homebrew may work for you.
 
 ### Manually
 
