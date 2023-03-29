@@ -31,7 +31,6 @@ __zplug::utils::awk::path()
         elif ${=awk_path} -Wv 2>&1 | grep -q "mawk"; then
             # mawk
             variant=${variant:-"mawk"}
-            echo $awk:$variant
         else
             # nawk
             variant="nawk"
@@ -69,7 +68,8 @@ __zplug::utils::awk::ltsv()
 {
     local \
         user_awk_script="$1" \
-        ltsv_awk_script
+        ltsv_awk_script \
+        awk_path
 
     ltsv_awk_script=$(command cat <<-'EOS'
     function key(name) {
@@ -82,6 +82,7 @@ __zplug::utils::awk::ltsv()
 EOS
     )
 
-    awk -F'\t' \
+    __zplug::utils::awk::path | read awk_path
+    ${awk_path:-awk} -F'\t' \
         "${ltsv_awk_script} ${user_awk_script}"
 }
