@@ -89,7 +89,7 @@ if __zplug::utils::shell::is_atty; then
         builtin printf "$fg[blue] => $reset_color"
         builtin printf "${zplugs[$repo]:-"$fg[red]none"}\n"
     done \
-        | sed -E 's/('"$tag"'):/'"$fg[yellow]"'\1'"$reset_color"':/g' \
+        | sed -E 's~('"$tag:gs@/@\\/@"'):~'"$fg[yellow]"'\1'"$reset_color"':~g' \
         | sed -E 's/:/:"/g;s/, /", /g;/none$/!s/$/"/g' # quotes tag
     printf "$reset_color"
 else
