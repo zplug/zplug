@@ -257,7 +257,9 @@ __zplug::utils::shell::eval()
 
 __zplug::utils::shell::json_escape()
 {
-    if (( $+commands[python] )) && python -c 'import json' 2> /dev/null; then
+    if (( $+commands[jq] )); then
+        jq --ascii-output --raw-input --slurp .
+    elif (( $+commands[python] )) && python -c 'import json' 2> /dev/null; then
         python -c '
 from __future__ import print_function
 import json,sys
