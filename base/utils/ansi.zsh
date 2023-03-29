@@ -1,6 +1,6 @@
 __zplug::utils::ansi::remove()
 {
-    perl -pe 's/\e\[?.*?[\@-~]//g'
+    sed 's/\x1b\[[0-9;=?]*[a-zA-Z]/e/g'
 }
 
 __zplug::utils::ansi::erace_current_line()

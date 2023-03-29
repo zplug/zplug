@@ -10,9 +10,6 @@ T_SUB "__zplug::utils::shell::glob2regexp" ((
 T_SUB "__zplug::utils::shell::sudo" ((
   # skip
 ))
-T_SUB "__zplug::utils::shell::unansi" ((
-  # skip
-))
 T_SUB "__zplug::utils::shell::cd" ((
   # skip
 ))

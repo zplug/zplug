@@ -112,11 +112,6 @@ __zplug::utils::shell::sudo()
         | sudo -S -p '' "$argv[@]"
 }
 
-__zplug::utils::shell::unansi()
-{
-    perl -pe 's/\e\[?.*?[\@-~]//g'
-}
-
 __zplug::utils::shell::cd()
 {
     local    dir arg
