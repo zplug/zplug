@@ -213,8 +213,9 @@ __zplug::utils::releases::index()
 
     # TODO: more strictly
     binaries=()
-    binaries+=(**/$cmd(N-.))   # contains files named exactly $cmd
-    binaries+=(**/*$cmd*(N-.)) # contains $cmd name files
+    binaries+=(*/**/$cmd(N-.)) # contains files named exactly $cmd
+    binaires+=(*/**/*$cmd*(N-.)) # contains $cmd name files
+    binaries+=(*$cmd*[^$cmd](N-.)) # contains $cmd name files in current dir
     binaries+=(**/*(N-*))      # contains executable files
     binaries+=( $(file **/*(N-.)  | awk -F: '$2 ~ /executable/{print $1}') )
     if (( $#binaries == 0 )); then
