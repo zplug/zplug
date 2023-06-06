@@ -17,17 +17,13 @@ __zplug::utils::releases::get_latest()
         cmd="command curl -fsSL -o /dev/null -w %{url_effective}"
         eval "$cmd $url" \
             2>/dev/null \
-            | awk -F/ '{print $NF}' \
-            | sort \
-            | uniq
+            | awk -F/ '{print $NF}'
     elif (( $+commands[wget] )); then
         cmd="command wget -qO /dev/null -S"
         eval "$cmd $url" \
             2>&1 \
             | awk '/^  Location: /{print $2}' \
-            | awk -F/ '{print $NF}' \
-            | sort \
-            | uniq
+            | awk -F/ '{print $NF}'
     fi
 }
 
