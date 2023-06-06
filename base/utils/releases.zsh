@@ -4,18 +4,27 @@ __zplug::utils::releases::get_latest()
     local cmd url
 
     url="https://github.com/$repo/releases/latest"
-    if (( $+commands[curl] )); then
-        cmd="command curl -fsSL"
-    elif (( $+commands[wget] )); then
-        cmd="command wget -qO -"
-    fi
 
-    eval "$cmd $url" \
-        2>/dev/null \
-        | grep -o '/'"$repo"'/releases/download/[^"]*' \
-        | awk -F/ '{print $6}' \
-        | sort \
-        | uniq
+    # ORIGINAL
+    # if (( $+commands[curl] )); then
+    #     cmd="command curl -fsSL"
+    # elif (( $+commands[wget] )); then
+    #     cmd="command wget -qO -"
+    # fi
+
+    # Fix for curl and wget
+    if (( $+commands[curl] )); then
+        cmd="command curl -fsSL -o /dev/null -w %{url_effective}"
+        eval "$cmd $url" \
+            2>/dev/null \
+            | awk -F/ '{print $NF}'
+    elif (( $+commands[wget] )); then
+        cmd="command wget -qO /dev/null -S"
+        eval "$cmd $url" \
+            2>&1 \
+            | awk '/^  Location: /{print $2}' \
+            | awk -F/ '{print $NF}'
+    fi
 }
 
 __zplug::utils::releases::get_state()
@@ -70,6 +79,9 @@ __zplug::utils::releases::get_url()
             'at' \
             "$repo"
         )"
+        if [[ $tags[at] == "latest" ]]; then
+            tags[at]="$(__zplug::utils::releases::get_latest $repo)"
+        fi
 
         #if [[ $tags[use] == '*.zsh' ]]; then
         #    tags[use]=
@@ -103,7 +115,7 @@ __zplug::utils::releases::get_url()
         arch="386"
     fi
 
-    url="https://github.com/$repo/releases/$tags[at]"
+    url="https://github.com/$repo/releases/expanded_assets/$tags[at]"
     if (( $+commands[curl] )); then
         cmd="command curl -fsSL"
     elif (( $+commands[wget] )); then
