@@ -46,6 +46,8 @@ latest | stable
 
 ```console
 curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
+echo "source ~/.zplug/init.zsh" >> ~/.zshrc
+source ~/.zshrc
 ```
 
 Curious about the installation script? Check it out at [zplug/installer](https://github.com/zplug/installer/blob/master/installer.zsh).
