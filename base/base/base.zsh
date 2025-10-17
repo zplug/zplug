@@ -106,8 +106,13 @@ __zplug::base::base::git_version()
         return 1
     fi
 
-    __zplug::base::base::version_requirement \
-        ${(M)${(z)"$(git --version|head -1)"}:#[0-9]*} ">" "${@:?}"
+    # Extract the numeric version part from "git --version" output
+    local git_version
+    git_version="$(git --version)"
+    # Keep only numbers and dots (e.g. "git version 2.51.1.dirty" → "2.51.1")
+    git_version="${git_version//[^0-9.]/}"
+
+    __zplug::base::base::version_requirement "$git_version" ">" "${@:?}"
     return $status
 }
 
