@@ -11,6 +11,8 @@
 </div>
 <br>
 
+A next-generation plugin manager for zsh. zplug can manage plugins, commands, and themes from GitHub, Bitbucket, Gist, oh-my-zsh, prezto, local directories, and more — all with parallel installation, lazy loading, and branch/tag locking.
+
 ## Pros.
 
 - Can manage everything
@@ -56,7 +58,7 @@ brew install zplug
 
 ### Manually
 
-Cloning from GitHub, and source `init.zsh`:
+Clone from GitHub and source `init.zsh`:
 
 ```console
 $ export ZPLUG_HOME=/path/to/.zplug
@@ -90,7 +92,7 @@ zplug "zsh-users/zsh-history-substring-search"
 # And accept glob patterns (e.g., brace, wildcard, ...)
 zplug "Jxck/dotfiles", as:command, use:"bin/{histuniq,color}"
 
-# Can manage everything e.g., other person's zshrc
+# Can manage everything, e.g., another person's zshrc
 zplug "tcnksm/docker-alias", use:zshrc
 
 # Disable updates using the "frozen" tag
@@ -130,7 +132,7 @@ zplug "babarot/79ee61f7c140c63d2786", \
     as:command, \
     use:get_last_pane_path.sh
 
-# Support bitbucket
+# Supports Bitbucket
 zplug "babarot/hello_bitbucket", \
     from:bitbucket, \
     as:command, \
@@ -279,7 +281,7 @@ You can register packages to zplug from the command-line. If you use zplug from 
 
 <!-- [![](https://raw.githubusercontent.com/babarot/screenshots/master/zplug/cli.gif)][repo] -->
 
-In this case, zplug spit out its settings to `$ZPLUG_LOADFILE` instead of `.zshrc`. If you launch new zsh process, `zplug load` command automatically search this file and run `source` command.
+In this case, zplug spits out its settings to `$ZPLUG_LOADFILE` instead of `.zshrc`. If you launch a new zsh process, the `zplug load` command automatically searches this file and runs the `source` command.
 
 See [`ZPLUG_LOADFILE`](#zplug_loadfile) for other usage of `ZPLUG_LOADFILE`.
 
@@ -347,11 +349,11 @@ Defaults to `''`. You can set sudo password for zplug's `hook-build` tag. Howeve
 
 #### `ZPLUG_LOG_LOAD_SUCCESS`
 
-Defaults to `false`. If true, zplug spit the log about its success operation out to file (you can see it with `zplug --log`).
+Defaults to `false`. If true, zplug logs successful operations to a file (you can view it with `zplug --log`).
 
 #### `ZPLUG_LOG_LOAD_FAILURE`
 
-Defaults to `false`. If true, zplug spit the log about its failure operation out to file (you can see it with `zplug --log`).
+Defaults to `false`. If true, zplug logs failed operations to a file (you can view it with `zplug --log`).
 
 ```zsh
 # your .zshrc
@@ -361,7 +363,7 @@ zplug "some/command", hook-build:"make && sudo make install"
 
 #### `ZPLUG_BIN`
 
-Defaults to `$ZPLUG_HOME/bin`. You can change the save destination of the command's symbolic link, e.g. `~/bin`.
+Defaults to `$ZPLUG_HOME/bin`. You can change where command symbolic links are saved, e.g. `~/bin`.
 
 ### External commands
 
