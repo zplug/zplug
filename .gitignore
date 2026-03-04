@@ -24,8 +24,6 @@ zcompdump.zwc
 *.swp
 **/*.swp
 
-# OS X
+# macOS
 .DS_Store
 **/.DS_Store
-
-.ssh

@@ -1,8 +1,5 @@
 # Sample zshrc
 
-ZPLUG_SUDO_PASSWORD=
-ZPLUG_PROTOCOL=ssh
-
 source $HOME/.zplug/init.zsh
 
 zplug "babarot/ultimate", as:theme
@@ -19,4 +16,3 @@ if ! zplug check --verbose; then
 fi
 
 zplug load
-
