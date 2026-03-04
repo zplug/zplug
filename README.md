@@ -1,15 +1,4 @@
-:us: [:jp:](./doc/guide/ja/README.md)
-
-> Zsh Plugin Manager
-
-[![Latest][latest-badge]][latest-link]
-
-<div align="center">
-  <a href="https://zplug.sh">
-    <img width=650px src="https://raw.githubusercontent.com/babarot/screenshots/master/zplug/logo.png">
-  </a>
-</div>
-<br>
+# Zplug
 
 A next-generation plugin manager for zsh. zplug can manage plugins, commands, and themes from GitHub, Bitbucket, Gist, oh-my-zsh, prezto, local directories, and more — all with parallel installation, lazy loading, and branch/tag locking.
 
