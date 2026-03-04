@@ -1,6 +1,0 @@
-# https://devbots.xyz/documentation/needs-triage/
-
-enabled: true
-label: "needs-triage"
-delay: 3
-skip_when_has_assignee: true
