@@ -112,6 +112,9 @@ do
     fi \
         2> >(__zplug::log::capture::error) >/dev/null
 
+    # flush remaining newline from read -q
+    [[ -z $is_force ]] && read -k 1 -s 2>/dev/null
+
     __zplug::io::print::put "\n"
 done
 
