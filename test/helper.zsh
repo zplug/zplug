@@ -10,6 +10,10 @@ export ZPLUG_BIN="$ZPLUG_HOME/bin"
 export ZPLUG_LOADFILE="$ZPLUG_HOME/packages.zsh"
 export ZPLUG_USE_CACHE=false
 
+# Ensure stdin is not a pipe (CI runners may have piped stdin,
+# which triggers zplug's deprecated pipe-syntax detection)
+exec < /dev/null
+
 # Initialize zplug
 source "$ZPLUG_ROOT/init.zsh"
 
