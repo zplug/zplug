@@ -33,7 +33,7 @@ __zplug::io::file::generate()
 #
 #
 # Example:
-# zplug "b4b4r07/enhancd", as:plugin, use:"*.sh"
+# zplug "babarot/enhancd", as:plugin, use:"*.sh"
 # zplug "rupa/z",          as:plugin, use:"*.sh"
 #
 TEMPLATE

@@ -8,7 +8,7 @@
 
 <div align="center">
   <a href="http://zplug.sh">
-    <img width=650px src="https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png">
+    <img width=650px src="https://raw.githubusercontent.com/babarot/screenshots/master/zplug/logo.png">
   </a>
 </div>
 <br>
@@ -33,7 +33,7 @@
 
 ***DEMO:***
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)][repo]
+[![](https://raw.githubusercontent.com/babarot/screenshots/master/zplug/demo.gif)][repo]
 
 ## インストール
 
@@ -81,7 +81,7 @@ $ git clone https://github.com/zplug/zplug $ZPLUG_HOME
 
 ### Example
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/example.png)][repo]
+[![](https://raw.githubusercontent.com/babarot/screenshots/master/zplug/example.png)][repo]
 
 ```zsh
 source ~/.zplug/init.zsh
@@ -129,23 +129,23 @@ zplug "jhawthorn/fzy", \
     hook-build:"make && sudo make install"
 
 # リビジョンロック機能を持つ
-zplug "b4b4r07/enhancd", at:v1
+zplug "babarot/enhancd", at:v1
 zplug "mollifier/anyframe", at:4c23cb60
 
 # Gist ファイルもインストールできる
-zplug "b4b4r07/79ee61f7c140c63d2786", \
+zplug "babarot/79ee61f7c140c63d2786", \
     from:gist, \
     as:command, \
     use:get_last_pane_path.sh
 
 # bitbucket も
-zplug "b4b4r07/hello_bitbucket", \
+zplug "babarot/hello_bitbucket", \
     from:bitbucket, \
     as:command, \
     use:"*.sh"
 
 # `use` タグでキャプチャした文字列でリネームする
-zplug "b4b4r07/httpstat", \
+zplug "babarot/httpstat", \
     as:command, \
     use:'(*).sh', \
     rename-to:'$1'
@@ -156,7 +156,7 @@ zplug "stedolan/jq", \
     from:gh-r, \
     as:command, \
     rename-to:jq
-zplug "b4b4r07/emoji-cli", \
+zplug "babarot/emoji-cli", \
     on:"stedolan/jq"
 # ノート: 読み込み順序を遅らせるなら defer タグを使いましょう
 
@@ -222,7 +222,7 @@ fi
 zplug load
 
 # zplug check は引数に与えられたリポジトリがインストールされているなら真を返す
-if zplug check b4b4r07/enhancd; then
+if zplug check babarot/enhancd; then
     # enhancd がインストールされている場合のみ設定する
     export ENHANCD_FILTER=fzf-tmux
 fi
@@ -238,7 +238,7 @@ zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 
 あとは `zplug update` を実行するだけ。
 
-<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo] -->
+<!-- [![](https://raw.githubusercontent.com/babarot/screenshots/master/zplug/update.gif)][repo] -->
 
 ### 3. タグ
 
@@ -282,7 +282,7 @@ zstyle ":zplug:tag" as command
 
 コマンドライン上から zplug パッケージを追加できる。もしコマンドライン上から追加することがあるのなら、zsh 補完を利用してより簡単でパワフルに追加できる。
 
-<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo] -->
+<!-- [![](https://raw.githubusercontent.com/babarot/screenshots/master/zplug/cli.gif)][repo] -->
 
 この場合、`.zshrc` でなく `$ZPLUG_LOADFILE` に設定が記述される。また、新しく zsh を立ち上げるときに、`zplug load` の際にこのファイルもロードする。
 
@@ -371,7 +371,7 @@ zplug では `git(1)` のように外部コマンド機能が利用できる。
 
 zplug は他の有名な zsh プラグインマネージャーよりも速い:
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/time.png)][repo]
+[![](https://raw.githubusercontent.com/babarot/screenshots/master/zplug/time.png)][repo]
 
 ## メモ
 
@@ -386,7 +386,7 @@ antigen や zgen、もしくは zplug v1 から移行するための情報は [z
 
 ## ライセンス
 
-[MIT][license] (c) [@b4b4r07](https://github.com/b4b4r07)
+[MIT][license] (c) [@babarot](https://github.com/babarot)
 
 [repo]: https://github.com/zplug/zplug
 [license]: http://b4b4r07.mit-license.org

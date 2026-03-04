@@ -33,8 +33,8 @@ EXAMPLES
 Show the information:
 
 ------------
-$ zplug info b4b4r07/enhancd
-==> ~/enhancd <git@github.com:b4b4r07/enhancd.git>
+$ zplug info babarot/enhancd
+==> ~/enhancd <git@github.com:babarot/enhancd.git>
  - - -
  - use:"init.sh"
  - as:"plugin"
@@ -42,7 +42,7 @@ $ zplug info b4b4r07/enhancd
  - ignore:""
  - lazy:"no"
  - commit:""
- - dir:"/Users/b4b4r07/enhancd"
+ - dir:"/Users/babarot/enhancd"
  - of:""
  - rename-to:""
  - from:"local"
@@ -74,7 +74,7 @@ The wiki may perhaps be overwhelming for first-time users.
 
 Authors
 -------
-zplug was originally written by Masaki Ishiyama (a.k.a @b4b4r07).
+zplug was originally written by Masaki Ishiyama (a.k.a @babarot).
 Many people have contributed to it.
 
 

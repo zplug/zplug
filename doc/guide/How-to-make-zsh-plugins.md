@@ -56,7 +56,7 @@ autoload -Uz plugin
 
 However, if you prepare `init.zsh` that is trigger of loading the plugin, `of` tag doesn't require because zplug scan `*.zsh` file automatically in the top directory and load it.
 
-- [sample plugin](https://github.com/b4b4r07/zsh_plugin)
+- [sample plugin](https://github.com/babarot/zsh_plugin)
 
 ### normal plugins
 

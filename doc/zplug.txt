@@ -319,20 +319,20 @@ zstyle ':prezto:module:prompt' theme 'sorin'
 zplug "tj/n", hook-build:"make install"
 
 # Support checking out a specific branch/tag/commit of a plugin
-zplug "b4b4r07/enhancd", at:v1
+zplug "babarot/enhancd", at:v1
 zplug "mollifier/anyframe", commit:4c23cb60
 
 # Install if "if:" tag returns true
 zplug "hchbaw/opp.zsh", if:"(( ${ZSH_VERSION%%.*} < 5 ))"
 
 # Can manage gist file just like other plugins
-zplug "b4b4r07/79ee61f7c140c63d2786", \
+zplug "babarot/79ee61f7c140c63d2786", \
     as:command, \
     from:gist, \
     use:get_last_pane_path.sh
 
 # Support bitbucket
-zplug "b4b4r07/hello_bitbucket", \
+zplug "babarot/hello_bitbucket", \
     as:command, \
     from:bitbucket, \
     hook-build:"chmod 755 *.sh", \
@@ -348,7 +348,7 @@ zplug "stedolan/jq", \
     as:command, \
     from:gh-r \
     rename-to:jq, \
-    on:"b4b4r07/emoji-cli"
+    on:"babarot/emoji-cli"
 
 # Defers the loading of a package
 # e.g., zsh-syntax-highlighting must be loaded
@@ -386,7 +386,7 @@ The wiki may perhaps be overwhelming for first-time users.
 
 Authors
 -------
-zplug was originally written by Masaki Ishiyama (a.k.a @b4b4r07).
+zplug was originally written by Masaki Ishiyama (a.k.a @babarot).
 Many people have contributed to it.
 
 

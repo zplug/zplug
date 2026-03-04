@@ -43,7 +43,7 @@ EXAMPLES
 Case of :
 
 ------------
-$ zplug "b4b4r07/enhancd" \
+$ zplug "babarot/enhancd" \
     as:plugin, \
     use:"*.sh"
 ------------
@@ -72,7 +72,7 @@ The wiki may perhaps be overwhelming for first-time users.
 
 Authors
 -------
-zplug was originally written by Masaki Ishiyama (a.k.a @b4b4r07).
+zplug was originally written by Masaki Ishiyama (a.k.a @babarot).
 Many people have contributed to it.
 
 

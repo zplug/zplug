@@ -6,7 +6,7 @@
 
 <div align="center">
   <a href="https://zplug.sh">
-    <img width=650px src="https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png">
+    <img width=650px src="https://raw.githubusercontent.com/babarot/screenshots/master/zplug/logo.png">
   </a>
 </div>
 <br>
@@ -31,8 +31,8 @@
 
 ***DEMO:***
 
-<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/install.gif)][repo] -->
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/demo.gif)][repo]
+<!-- [![](https://raw.githubusercontent.com/babarot/screenshots/master/zplug/install.gif)][repo] -->
+[![](https://raw.githubusercontent.com/babarot/screenshots/master/zplug/demo.gif)][repo]
 
 ## Installation
 
@@ -78,7 +78,7 @@ Add a zplug section to your `.zshrc`:
 
 ### Example
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/example.png)][repo]
+[![](https://raw.githubusercontent.com/babarot/screenshots/master/zplug/example.png)][repo]
 
 ```zsh
 source ~/.zplug/init.zsh
@@ -121,23 +121,23 @@ zplug "jhawthorn/fzy", \
     hook-build:"make && sudo make install"
 
 # Supports checking out a specific branch/tag/commit
-zplug "b4b4r07/enhancd", at:v1
+zplug "babarot/enhancd", at:v1
 zplug "mollifier/anyframe", at:4c23cb60
 
 # Can manage gist file just like other packages
-zplug "b4b4r07/79ee61f7c140c63d2786", \
+zplug "babarot/79ee61f7c140c63d2786", \
     from:gist, \
     as:command, \
     use:get_last_pane_path.sh
 
 # Support bitbucket
-zplug "b4b4r07/hello_bitbucket", \
+zplug "babarot/hello_bitbucket", \
     from:bitbucket, \
     as:command, \
     use:"*.sh"
 
 # Rename a command with the string captured with `use` tag
-zplug "b4b4r07/httpstat", \
+zplug "babarot/httpstat", \
     as:command, \
     use:'(*).sh', \
     rename-to:'$1'
@@ -148,7 +148,7 @@ zplug "stedolan/jq", \
     from:gh-r, \
     as:command, \
     rename-to:jq
-zplug "b4b4r07/emoji-cli", \
+zplug "babarot/emoji-cli", \
     on:"stedolan/jq"
 # Note: To specify the order in which packages should be loaded, use the defer
 #       tag described in the next section
@@ -216,7 +216,7 @@ fi
 zplug load
 
 # zplug check returns true if the given repository exists
-if zplug check b4b4r07/enhancd; then
+if zplug check babarot/enhancd; then
     # setting if enhancd is available
     export ENHANCD_FILTER=fzf-tmux
 fi
@@ -232,7 +232,7 @@ zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 
 All that's left is to run `zplug update`.
 
-<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/update.gif)][repo] -->
+<!-- [![](https://raw.githubusercontent.com/babarot/screenshots/master/zplug/update.gif)][repo] -->
 
 ### 3. Tags for `zplug`
 
@@ -277,7 +277,7 @@ The default value for all tags can be changed in this way.
 
 You can register packages to zplug from the command-line. If you use zplug from the command-line, it is possible to add stuff more easily with the help of powerful zsh completions.
 
-<!-- [![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/cli.gif)][repo] -->
+<!-- [![](https://raw.githubusercontent.com/babarot/screenshots/master/zplug/cli.gif)][repo] -->
 
 In this case, zplug spit out its settings to `$ZPLUG_LOADFILE` instead of `.zshrc`. If you launch new zsh process, `zplug load` command automatically search this file and run `source` command.
 
@@ -376,7 +376,7 @@ Check out the sample [`zplug-env`](https://github.com/zplug/zplug/blob/master/bi
 
 zplug is the fastest among the famous zsh plugin managers. Numbers? Here they are:
 
-[![](https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/time.png)][repo]
+[![](https://raw.githubusercontent.com/babarot/screenshots/master/zplug/time.png)][repo]
 
 ## Note
 
@@ -392,7 +392,7 @@ page](https://github.com/zplug/zplug/wiki/Migration).
 
 ## License
 
-[MIT][license] (c) [@b4b4r07](https://github.com/b4b4r07)
+[MIT][license] (c) [@babarot](https://github.com/babarot)
 
 [repo]: https://github.com/zplug/zplug
 [license]: https://b4b4r07.mit-license.org
