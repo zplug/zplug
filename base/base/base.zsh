@@ -106,8 +106,13 @@ __zplug::base::base::git_version()
         return 1
     fi
 
+    local ver="${(M)${(z)"$(git --version|head -1)"}:#[0-9]*}"
+    # Strip non-numeric suffixes (e.g., ".dirty")
+    ver="${ver%%[^0-9.]*}"
+    ver="${ver%.}"
+
     __zplug::base::base::version_requirement \
-        ${(M)${(z)"$(git --version|head -1)"}:#[0-9]*} ">" "${@:?}"
+        "$ver" ">" "${@:?}"
     return $status
 }
 
