@@ -1,11 +1,11 @@
 ZPLUG_ROOT  := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 SHOVE_URL   := https://github.com/key-amb/shove
 SHOVE_DIR   := $(ZPLUG_ROOT)/.gitignore.d/shove
-TEST_TARGET ?= test
+TEST_TARGET ?= test/commands
 
 .DEFAULT_GOAL := help
 
-.PHONY: all install shove test release help
+.PHONY: all install shove test test-all release help
 
 all:
 
@@ -17,8 +17,11 @@ shove: # Grab shove from GitHub and grant execution
 		chmod 755 $(SHOVE_DIR)/bin/shove; \
 		fi
 
-test: shove ## Unit test for zplug
+test: shove ## Run command-level tests
 	ZPLUG_ROOT=$(ZPLUG_ROOT) $(SHOVE_DIR)/bin/shove -r $(TEST_TARGET) -s zsh
+
+test-all: shove ## Run all tests (including stubs)
+	ZPLUG_ROOT=$(ZPLUG_ROOT) $(SHOVE_DIR)/bin/shove -r test -s zsh
 
 release: ## Create new GitHub Releases
 	@zsh $(ZPLUG_ROOT)/misc/dev/release.zsh
