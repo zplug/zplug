@@ -3,10 +3,10 @@
 ## Current State
 
 - Test framework: [Shove](https://github.com/key-amb/shove) v0.8.4 (TAP output)
-- 27 test files, 111 test cases — **all `# skip` (no implementations)**
-- Only working test: `test/all.t` (E2E integration via `misc/zshrc`)
-- 18 modules have no test files at all (job/, log/ systems especially)
 - Test runner: `make test` → `shove -r test/ -s zsh`
+- **43 command-level tests** across 7 files (all passing)
+- 27 unit test stub files in `test/base/` (111 cases, all `# skip`)
+- E2E integration test: `test/all.t` (known job table exhaustion issue)
 
 ## Approach: Command-Level Tests First
 
@@ -17,26 +17,29 @@ resulting in double the rewrite work.
 Instead, write **command-level characterization tests** that capture observable
 behavior from the user's perspective. These survive internal restructuring.
 
-### What NOT to test first
+## Test Coverage
 
-- Internal function return values
-- Data structure internals (how `zplugs` is populated)
-- Log output format
-- Individual utility functions
+### Phase 1: No-mock tests (DONE)
 
-### What to test first
+| File | Tests | What it covers |
+|------|-------|---------------|
+| `test/commands/add.t` | 6 | Registration, tag storage, invalid name/tag rejection, duplicates, multiple plugins |
+| `test/commands/check.t` | 6 | Uninstalled detection, verbose/debug output, if-condition skip, installed判定 |
+| `test/commands/list.t` | 3 | Empty error, registered success, output content |
+| `test/commands/clean.t` | 3 | Unmanaged removal, managed preservation, targeted removal |
+| `test/commands/tags.t` | 16 | Default values (as, from, at, use, frozen, lazy, defer, depth, dir), explicit overrides, gh-r defaults |
 
-The public CLI commands and their observable effects:
+### Phase 2: Install/load tests with fixtures (DONE)
 
-| Command | Observable Effect |
-|---------|-------------------|
-| `zplug "user/repo"` | Registered in `zplugs` associative array |
-| `zplug check` | Exit code reflects install state |
-| `zplug list` | Lists registered plugins |
-| `zplug install` | Creates directory under `$ZPLUG_HOME/repos/` |
-| `zplug load` | Functions/commands become available in shell |
-| `zplug clean` | Removes plugin directory |
-| `zplug update` | Updates cloned repository |
+| File | Tests | What it covers |
+|------|-------|---------------|
+| `test/commands/install.t` | 5 | Clone to ZPLUG_REPOS, plugin file creation, check after install, skip-if, idempotent install |
+| `test/commands/load.t` | 4 | Plugin sourcing, function availability, command symlink, fpath for completions |
+
+### Phase 3: Unit tests (after refactoring)
+
+Write unit tests for the new internal design to lock it in.
+Use the existing Shove stubs in `test/base/` as a starting point.
 
 ## Network Dependency Handling
 
@@ -52,22 +55,10 @@ Most commands, however, do not.
 - `zplug load` — sources files from disk
 - Tag default resolution — pure logic
 
-**These cover the majority of refactoring-sensitive logic.** Start here.
-
 ### Commands that need mocking
 
 - `zplug install` — calls `git clone` or `curl`/`wget`
 - `zplug update` — calls `git fetch`/`merge` or `curl`/`wget`
-
-### Network operation touchpoints
-
-| Operation | Function | How it calls |
-|-----------|----------|-------------|
-| git clone | `__zplug::utils::git::clone()` | bare `git clone` (no `command` prefix) |
-| git fetch/merge | `__zplug::utils::git::merge()` | bare `git fetch`, `git merge` |
-| curl (releases) | `__zplug::utils::releases::get_url()` | `command curl` (bypasses functions) |
-| curl (download) | `__zplug::utils::releases::get()` | `command curl` (bypasses functions) |
-| URL resolution | `__zplug::sources::<source>::get_url()` | returns URL string |
 
 ### Mocking strategy
 
@@ -76,36 +67,21 @@ Most commands, however, do not.
 Override `get_url()` to return `file://` URLs pointing to local fixtures.
 Real `git clone`/`fetch` runs without network.
 
-```zsh
-# Override in test setup
-__zplug::sources::github::get_url() {
-    echo "file://$FIXTURE_ROOT/${1}.git"
-}
-```
+**IMPORTANT**: The override must be placed AFTER `zplug "user/repo"`, not before.
+The `zplug` add command calls `__zplug::core::sources::call()` which re-sources
+`github.zsh` from disk, overwriting any prior function override.
 
-`get_url()` is a stable interface boundary — it will exist in any reasonable
-refactoring of the source handler system.
+```zsh
+zplugs=()
+zplug "test-user/test-plugin"
+_setup_fixture_url_override   # AFTER add, not before
+zplug install
+```
 
 **curl/wget-based sources (gh-r) → PATH mock**
 
 `command curl` bypasses function overrides but still uses PATH lookup.
 Place a mock script at `test/mock/bin/curl` and prepend to PATH.
-
-```bash
-#!/bin/bash
-# test/mock/bin/curl — returns canned responses based on URL
-url="${@: -1}"
-case "$url" in
-    *releases/latest*) cat "$FIXTURE_ROOT/releases_latest.html" ;;
-    *releases/download/*) cp "$FIXTURE_ROOT/dummy.tar.gz" . ;;
-    *) echo "mock curl: unexpected URL: $url" >&2; exit 1 ;;
-esac
-```
-
-```zsh
-# In test setup
-export PATH="$ZPLUG_ROOT/test/mock/bin:$PATH"
-```
 
 ## Test Infrastructure
 
@@ -117,77 +93,44 @@ test/
 ├── fixtures/
 │   └── setup.zsh         # Create local bare repos for install/update tests
 ├── mock/
-│   └── bin/
-│       └── curl           # PATH-based curl mock for gh-r tests
-├── commands/              # Command-level tests (new)
+│   └── bin/              # PATH-based mocks (curl for gh-r tests)
+├── commands/             # Command-level tests
 │   ├── add.t
 │   ├── check.t
-│   ├── list.t
 │   ├── clean.t
-│   ├── load.t
 │   ├── install.t
-│   └── update.t
-└── base/                  # Existing unit test stubs (implement after refactoring)
+│   ├── list.t
+│   ├── load.t
+│   └── tags.t
+└── base/                 # Existing unit test stubs (implement after refactoring)
     └── ...
 ```
 
-### Test helper template
+### Running tests
 
-```zsh
-# test/helper.zsh
-
-export ZPLUG_HOME="$(mktemp -d)"
-source "$ZPLUG_ROOT/init.zsh"
-
-cleanup() {
-    rm -rf "$ZPLUG_HOME"
-}
-trap cleanup EXIT
+```sh
+make test TEST_TARGET=test/commands/          # all command tests
+make test TEST_TARGET=test/commands/add.t     # single file
 ```
 
-### Fixture helper for install/update tests
+### Fixture repos
 
-```zsh
-# test/fixtures/setup.zsh
+Fixture bare repos use `--initial-branch=master` because zplug defaults
+`at:master`. Each test file creates fixtures at setup and cleans up on exit.
 
-setup_fixture_repo() {
-    local name="$1"
-    local bare_dir="$FIXTURE_ROOT/$name.git"
-    local work="$(mktemp -d)"
+## Gotchas Discovered
 
-    git init --bare "$bare_dir" &>/dev/null
-    git clone "$bare_dir" "$work" &>/dev/null
-    echo "# dummy" > "$work/${name##*/}.plugin.zsh"
-    git -C "$work" add -A &>/dev/null
-    git -C "$work" commit -m "init" &>/dev/null
-    git -C "$work" push origin master &>/dev/null
-    rm -rf "$work"
-}
-```
+- **`"${(M)${(z)...}:#pattern}"` bug**: Double-quoting a zsh array filter
+  expansion joins the array to scalar before matching. Remove outer quotes.
+  (Fixed in `base/base/base.zsh` `git_version()`)
 
-## Implementation Phases
+- **`T_SUB` subshell isolation**: Each test group runs in `(...)`. Filesystem
+  changes persist but variable changes do not leak. Install tests must create
+  directories within each T_SUB independently.
 
-### Phase 1: No-mock tests (before refactoring)
+- **Source handler reload**: `zplug "user/repo"` with `from:` tag calls
+  `__zplug::core::sources::call()` which re-sources handler files from disk.
+  Function overrides must be placed after the add call.
 
-Write command-level tests for add, check, list, clean, and tag defaults.
-No fixtures or mocks needed. This is the immediate priority.
-
-### Phase 2: Install/update tests (before refactoring)
-
-Set up fixture infrastructure (local bare repos, curl mock).
-Write tests for install and load with fixture plugins.
-
-### Phase 3: Unit tests (after refactoring)
-
-Write unit tests for the new internal design to lock it in.
-Use the existing Shove stubs in `test/base/` as a starting point.
-
-## Notes
-
-- Shove's `T_SUB` runs in a subshell — global state (`zplugs`) doesn't leak
-  between test groups. This is a benefit for isolation.
-- `source "$ZPLUG_ROOT/init.zsh"` is heavy. Source once per test file, not per
-  `T_SUB` block.
-- Zsh arrays are 1-indexed. Guard against off-by-one in assertions.
-- Existing `test/all.t` has a known failure (job table exhaustion). Individual
-  tests are the reliable signal.
+- **Default branch**: Modern git defaults to `main`, but zplug defaults `at:master`.
+  Fixture repos must use `--initial-branch=master` to match.
