@@ -15,6 +15,8 @@ setup_fixture_repo() {
 
     git clone "$bare_dir" "$work" --quiet 2>/dev/null
     git -C "$work" checkout -b master --quiet 2>/dev/null
+    git -C "$work" config user.name "test"
+    git -C "$work" config user.email "test@test"
 
     if (( $# > 0 )); then
         # Create specified files
@@ -42,6 +44,8 @@ setup_fixture_branch() {
 
     git clone "$bare_dir" "$work" --quiet 2>/dev/null
     git -C "$work" checkout -b "$branch" --quiet 2>/dev/null
+    git -C "$work" config user.name "test"
+    git -C "$work" config user.email "test@test"
 
     if (( $# > 0 )); then
         for f in "$@"; do
