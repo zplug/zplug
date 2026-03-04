@@ -2,12 +2,10 @@
 
 > Zsh Plugin Manager
 
-[![Travis][travis-badge]][travis-link]
 [![Latest][latest-badge]][latest-link]
-[![Slack][slack-badge]][slack-link]
 
 <div align="center">
-  <a href="http://zplug.sh">
+  <a href="https://zplug.sh">
     <img width=650px src="https://raw.githubusercontent.com/b4b4r07/screenshots/master/zplug/logo.png">
   </a>
 </div>
@@ -50,7 +48,7 @@ curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/instal
 
 Curious about the installation script? Check it out at [zplug/installer](https://github.com/zplug/installer/blob/master/installer.zsh).
 
-### Using [Homebrew](https://github.com/Homebrew/brew) (OS X)
+### Using [Homebrew](https://github.com/Homebrew/brew) (macOS)
 
 ```console
 brew install zplug
@@ -397,12 +395,8 @@ page](https://github.com/zplug/zplug/wiki/Migration).
 [MIT][license] (c) [@b4b4r07](https://github.com/b4b4r07)
 
 [repo]: https://github.com/zplug/zplug
-[license]: http://b4b4r07.mit-license.org
-[travis-link]: https://travis-ci.org/zplug/zplug
-[travis-badge]: https://img.shields.io/travis/zplug/zplug.svg?style=flat-square
+[license]: https://b4b4r07.mit-license.org
 [latest-badge]: https://img.shields.io/badge/latest-v2.4.2-ca7f85.svg?style=flat-square
 [latest-link]: https://github.com/zplug/zplug/releases/latest
 [stable-badge]: https://img.shields.io/badge/stable-v2.3.2-e9a326.svg?style=flat-square
 [stable-link]: https://github.com/zplug/zplug/releases/tag/2.3.2
-[slack-link]: https://zplug.herokuapp.com
-[slack-badge]: https://img.shields.io/badge/slack-join-ca7f85.svg?style=flat-square

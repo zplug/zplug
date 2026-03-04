@@ -1,8 +1,7 @@
-FROM ubuntu:xenial
+FROM ubuntu:noble
 
-RUN apt update && apt-get install -y software-properties-common && \
-    add-apt-repository -y ppa:jonathonf/vim && \
-    apt-get update && apt-get install -y locales build-essential openssh-server git vim zsh tmux curl unzip sudo && \
+RUN apt-get update && \
+    apt-get install -y locales build-essential openssh-server git vim zsh tmux curl unzip sudo && \
     rm -rf /var/lib/apt/lists/*
 
 RUN locale-gen en_US.UTF-8
