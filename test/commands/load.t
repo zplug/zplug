@@ -61,6 +61,20 @@ T_SUB "load creates command symlink for as:command" ((
     t_ok $? "command symlink exists in ZPLUG_BIN"
 ))
 
+T_SUB "load with no packages emits no errors (#577)" ((
+    zplugs=()
+    # Simulate a fresh install: empty cache dir, nothing registered
+    rm -rf "$ZPLUG_CACHE_DIR"
+    mkdir -p "$ZPLUG_CACHE_DIR"
+
+    local err
+    err="$(ZPLUG_USE_CACHE=true zplug load 2>&1)"
+    t_is "$err" "" "no error output with cache enabled"
+
+    err="$(ZPLUG_USE_CACHE=false zplug load 2>&1)"
+    t_is "$err" "" "no error output with cache disabled"
+))
+
 T_SUB "load adds fpath for plugin with completions" ((
     zplugs=()
     local dir="$ZPLUG_REPOS/test-user/comp-test"
