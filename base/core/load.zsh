@@ -18,26 +18,30 @@ __zplug::core::load::from_cache()
     __zplug::core::cache::update
 
     # Load the cache in order
+    # The cache files may not exist (e.g. fresh install with no
+    # packages registered), so check before sourcing
     {
-        fpath=(
-        ${(@f)"$(<$_zplug_cache[fpath])"}
-        "$fpath[@]"
-        )
+        if [[ -s $_zplug_cache[fpath] ]]; then
+            fpath=(
+            ${(@f)"$(<$_zplug_cache[fpath])"}
+            "$fpath[@]"
+            )
+        fi
 
-        source "$_zplug_cache[plugin]"
-        source "$_zplug_cache[lazy_plugin]"
-        source "$_zplug_cache[theme]"
-        source "$_zplug_cache[command]"
+        [[ -f $_zplug_cache[plugin] ]] && source "$_zplug_cache[plugin]"
+        [[ -f $_zplug_cache[lazy_plugin] ]] && source "$_zplug_cache[lazy_plugin]"
+        [[ -f $_zplug_cache[theme] ]] && source "$_zplug_cache[theme]"
+        [[ -f $_zplug_cache[command] ]] && source "$_zplug_cache[command]"
 
         # Plugins with defer-level set
-        source "$_zplug_cache[defer_1_plugin]"
+        [[ -f $_zplug_cache[defer_1_plugin] ]] && source "$_zplug_cache[defer_1_plugin]"
         compinit -d "$ZPLUG_HOME/zcompdump"
         if (( $_zplug_boolean_true[(I)$is_verbose] )); then
             __zplug::io::print::f \
                 --zplug "$fg[yellow]Run compinit$reset_color\n"
         fi
-        source "$_zplug_cache[defer_2_plugin]"
-        source "$_zplug_cache[defer_3_plugin]"
+        [[ -f $_zplug_cache[defer_2_plugin] ]] && source "$_zplug_cache[defer_2_plugin]"
+        [[ -f $_zplug_cache[defer_3_plugin] ]] && source "$_zplug_cache[defer_3_plugin]"
     }
 
     if [[ -s $_zplug_load_log[failure] ]]; then
